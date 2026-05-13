@@ -13,11 +13,13 @@ import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LessonsRouteImport } from './routes/lessons'
+import { Route as LanguageRouteImport } from './routes/language'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CommunityRouteImport } from './routes/community'
 import { Route as AiRouteImport } from './routes/ai'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LessonsLessonIdRouteImport } from './routes/lessons.$lessonId'
+import { Route as AdminTranslationsRouteImport } from './routes/admin.translations'
 
 const QuizRoute = QuizRouteImport.update({
   id: '/quiz',
@@ -37,6 +39,11 @@ const LoginRoute = LoginRouteImport.update({
 const LessonsRoute = LessonsRouteImport.update({
   id: '/lessons',
   path: '/lessons',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LanguageRoute = LanguageRouteImport.update({
+  id: '/language',
+  path: '/language',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -64,16 +71,23 @@ const LessonsLessonIdRoute = LessonsLessonIdRouteImport.update({
   path: '/$lessonId',
   getParentRoute: () => LessonsRoute,
 } as any)
+const AdminTranslationsRoute = AdminTranslationsRouteImport.update({
+  id: '/admin/translations',
+  path: '/admin/translations',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ai': typeof AiRoute
   '/community': typeof CommunityRoute
   '/dashboard': typeof DashboardRoute
+  '/language': typeof LanguageRoute
   '/lessons': typeof LessonsRouteWithChildren
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/quiz': typeof QuizRoute
+  '/admin/translations': typeof AdminTranslationsRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
 }
 export interface FileRoutesByTo {
@@ -81,10 +95,12 @@ export interface FileRoutesByTo {
   '/ai': typeof AiRoute
   '/community': typeof CommunityRoute
   '/dashboard': typeof DashboardRoute
+  '/language': typeof LanguageRoute
   '/lessons': typeof LessonsRouteWithChildren
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/quiz': typeof QuizRoute
+  '/admin/translations': typeof AdminTranslationsRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
 }
 export interface FileRoutesById {
@@ -93,10 +109,12 @@ export interface FileRoutesById {
   '/ai': typeof AiRoute
   '/community': typeof CommunityRoute
   '/dashboard': typeof DashboardRoute
+  '/language': typeof LanguageRoute
   '/lessons': typeof LessonsRouteWithChildren
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/quiz': typeof QuizRoute
+  '/admin/translations': typeof AdminTranslationsRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
 }
 export interface FileRouteTypes {
@@ -106,10 +124,12 @@ export interface FileRouteTypes {
     | '/ai'
     | '/community'
     | '/dashboard'
+    | '/language'
     | '/lessons'
     | '/login'
     | '/profile'
     | '/quiz'
+    | '/admin/translations'
     | '/lessons/$lessonId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -117,10 +137,12 @@ export interface FileRouteTypes {
     | '/ai'
     | '/community'
     | '/dashboard'
+    | '/language'
     | '/lessons'
     | '/login'
     | '/profile'
     | '/quiz'
+    | '/admin/translations'
     | '/lessons/$lessonId'
   id:
     | '__root__'
@@ -128,10 +150,12 @@ export interface FileRouteTypes {
     | '/ai'
     | '/community'
     | '/dashboard'
+    | '/language'
     | '/lessons'
     | '/login'
     | '/profile'
     | '/quiz'
+    | '/admin/translations'
     | '/lessons/$lessonId'
   fileRoutesById: FileRoutesById
 }
@@ -140,10 +164,12 @@ export interface RootRouteChildren {
   AiRoute: typeof AiRoute
   CommunityRoute: typeof CommunityRoute
   DashboardRoute: typeof DashboardRoute
+  LanguageRoute: typeof LanguageRoute
   LessonsRoute: typeof LessonsRouteWithChildren
   LoginRoute: typeof LoginRoute
   ProfileRoute: typeof ProfileRoute
   QuizRoute: typeof QuizRoute
+  AdminTranslationsRoute: typeof AdminTranslationsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -174,6 +200,13 @@ declare module '@tanstack/react-router' {
       path: '/lessons'
       fullPath: '/lessons'
       preLoaderRoute: typeof LessonsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/language': {
+      id: '/language'
+      path: '/language'
+      fullPath: '/language'
+      preLoaderRoute: typeof LanguageRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -211,6 +244,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LessonsLessonIdRouteImport
       parentRoute: typeof LessonsRoute
     }
+    '/admin/translations': {
+      id: '/admin/translations'
+      path: '/admin/translations'
+      fullPath: '/admin/translations'
+      preLoaderRoute: typeof AdminTranslationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -230,10 +270,12 @@ const rootRouteChildren: RootRouteChildren = {
   AiRoute: AiRoute,
   CommunityRoute: CommunityRoute,
   DashboardRoute: DashboardRoute,
+  LanguageRoute: LanguageRoute,
   LessonsRoute: LessonsRouteWithChildren,
   LoginRoute: LoginRoute,
   ProfileRoute: ProfileRoute,
   QuizRoute: QuizRoute,
+  AdminTranslationsRoute: AdminTranslationsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

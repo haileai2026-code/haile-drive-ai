@@ -10,12 +10,12 @@ export const Route = createFileRoute("/profile")({
 
 function ProfilePage() {
   const { t } = useI18n();
-  const items = [
+  const items: { icon: typeof BarChart3; label: string; to?: string }[] = [
     { icon: BarChart3, label: "Analytics" },
     { icon: Award, label: "Certificates" },
     { icon: FileImage, label: "Document helper" },
     { icon: Bell, label: "Notifications" },
-    { icon: Settings, label: "Settings" },
+    { icon: Settings, label: "Translations (Admin)", to: "/admin/translations" },
   ];
   return (
     <AppShell>
@@ -30,15 +30,24 @@ function ProfilePage() {
       </div>
 
       <ul className="mt-6 divide-y divide-border/60 overflow-hidden rounded-2xl border border-border/70 bg-card/50">
-        {items.map((i) => (
-          <li key={i.label}>
-            <button className="flex w-full items-center gap-3 px-4 py-3.5 text-start hover:bg-card">
+        {items.map((i) => {
+          const inner = (
+            <>
               <i.icon className="h-5 w-5 text-gold" />
               <span className="flex-1 text-sm">{i.label}</span>
               <span className="text-muted-foreground">›</span>
-            </button>
-          </li>
-        ))}
+            </>
+          );
+          return (
+            <li key={i.label}>
+              {i.to ? (
+                <Link to={i.to} className="flex w-full items-center gap-3 px-4 py-3.5 text-start hover:bg-card">{inner}</Link>
+              ) : (
+                <button className="flex w-full items-center gap-3 px-4 py-3.5 text-start hover:bg-card">{inner}</button>
+              )}
+            </li>
+          );
+        })}
       </ul>
 
       <Link to="/" className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm font-semibold text-destructive">

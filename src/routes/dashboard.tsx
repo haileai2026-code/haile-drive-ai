@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, localized } from "@/lib/i18n";
 import { lessons } from "@/lib/mock-data";
 import { Bot, ChevronRight, Flame, PlayCircle, Trophy } from "lucide-react";
 
@@ -70,7 +70,7 @@ function Dashboard() {
             <PlayCircle className="h-7 w-7" />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-semibold">{next.title[lang]}</div>
+            <div className="truncate text-sm font-semibold">{localized(next.title, lang)}</div>
             <div className="text-xs text-muted-foreground">{next.duration} {t("minutes")} · {next.progress}%</div>
             <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-background/60">
               <div className="h-full rounded-full bg-gold" style={{ width: `${next.progress}%` }} />
@@ -94,7 +94,7 @@ function Dashboard() {
                   style={{ background: `linear-gradient(135deg, oklch(0.7 0.15 ${l.thumbnailHue}), oklch(0.4 0.1 ${l.thumbnailHue}))` }}
                 />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium">{l.title[lang]}</div>
+                  <div className="truncate text-sm font-medium">{localized(l.title, lang)}</div>
                   <div className="text-[11px] text-muted-foreground">{l.duration} {t("minutes")}</div>
                 </div>
                 <span className={`text-xs font-semibold ${l.progress === 100 ? "text-success" : "text-gold"}`}>

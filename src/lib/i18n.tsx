@@ -1,124 +1,85 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  DEFAULT_LANG,
+  FALLBACK_LANG,
+  LANGUAGES,
+  detectBrowserLanguage,
+  getLanguage,
+  type LanguageCode,
+  type LanguageMeta,
+} from "./languages";
 
-export type Lang = "am" | "he" | "en";
+import en, { type StringKey } from "./locales/en";
+import am from "./locales/am";
+import he from "./locales/he";
+import ru from "./locales/ru";
+import fr from "./locales/fr";
+import kuki from "./locales/kuki";
 
-type Dict = Record<string, string>;
+type Dict = Partial<Record<StringKey, string>>;
 
-const dictionaries: Record<Lang, Dict> = {
-  am: {
-    appName: "ሃይሌ ድራይቭ AI",
-    tagline: "በራስዎ ቋንቋ ሙያዊ መንዳት ይማሩ።",
-    heroSub: "ለአውቶቡስና ለከባድ ተሽከርካሪ ፈቃድ የተዘጋጀ AI አስተማሪ — በአማርኛ፣ በዕብራይስጥ እና በእንግሊዘኛ።",
-    getStarted: "ጀምር",
-    login: "ግባ",
-    phone: "ስልክ ቁጥር",
-    sendCode: "ኮድ ላክ",
-    enterOtp: "ኮዱን ያስገቡ",
-    verify: "አረጋግጥ",
-    dashboard: "ዳሽቦርድ",
-    lessons: "ትምህርቶች",
-    aiTeacher: "AI አስተማሪ",
-    quiz: "ፈተና",
-    community: "ማህበረሰብ",
-    profile: "መገለጫ",
-    welcome: "እንኳን ደህና መጣህ",
-    yourProgress: "የእርስዎ እድገት",
-    upcomingTest: "የሚመጣ ፈተና",
-    continueLesson: "ትምህርትዎን ይቀጥሉ",
-    motivation: "ዛሬ አንድ ትምህርት ይጨርሱ — እያንዳንዱ ቀን አስፈላጊ ነው።",
-    askAnything: "ስለ መንዳት ማንኛውንም ይጠይቁ…",
-    startQuiz: "ፈተና ጀምር",
-    completed: "ተጠናቋል",
-    minutes: "ደቂቃ",
-  },
-  he: {
-    appName: "Haile Drive AI",
-    tagline: "למד נהיגה מקצועית עם AI בשפה שלך.",
-    heroSub: "מורה AI לרישיון אוטובוס ומשאיות כבדות — באמהרית, עברית ואנגלית.",
-    getStarted: "התחל",
-    login: "התחברות",
-    phone: "מספר טלפון",
-    sendCode: "שלח קוד",
-    enterOtp: "הכנס קוד",
-    verify: "אמת",
-    dashboard: "לוח בקרה",
-    lessons: "שיעורים",
-    aiTeacher: "מורה AI",
-    quiz: "מבחן",
-    community: "קהילה",
-    profile: "פרופיל",
-    welcome: "ברוך הבא",
-    yourProgress: "ההתקדמות שלך",
-    upcomingTest: "מבחן קרוב",
-    continueLesson: "המשך בשיעור",
-    motivation: "השלם שיעור אחד היום — כל יום חשוב.",
-    askAnything: "שאל כל דבר על נהיגה…",
-    startQuiz: "התחל מבחן",
-    completed: "הושלם",
-    minutes: "דקות",
-  },
-  en: {
-    appName: "Haile Drive AI",
-    tagline: "Learn professional driving with AI in your own language.",
-    heroSub: "An AI instructor for bus & heavy-vehicle licenses — in Amharic, Hebrew and English.",
-    getStarted: "Get started",
-    login: "Sign in",
-    phone: "Phone number",
-    sendCode: "Send code",
-    enterOtp: "Enter code",
-    verify: "Verify",
-    dashboard: "Dashboard",
-    lessons: "Lessons",
-    aiTeacher: "AI Teacher",
-    quiz: "Quiz",
-    community: "Community",
-    profile: "Profile",
-    welcome: "Welcome back",
-    yourProgress: "Your progress",
-    upcomingTest: "Upcoming test",
-    continueLesson: "Continue lesson",
-    motivation: "Finish one lesson today — every day counts.",
-    askAnything: "Ask anything about driving…",
-    startQuiz: "Start quiz",
-    completed: "Completed",
-    minutes: "min",
-  },
+// Registry of loaded dictionaries. To add a language: drop a file in
+// /lib/locales and register it here AND in /lib/languages.ts.
+const dictionaries: Record<LanguageCode, Dict> = {
+  en,
+  am,
+  he,
+  ru,
+  fr,
+  kuki,
 };
 
-const isRTL = (l: Lang) => l === "he" || l === "am";
-
 type Ctx = {
-  lang: Lang;
-  setLang: (l: Lang) => void;
-  t: (key: keyof typeof dictionaries.en) => string;
-  dir: "rtl" | "ltr";
+  lang: LanguageCode;
+  meta: LanguageMeta;
+  setLang: (l: LanguageCode) => void;
+  /** Translate a key, falling back through requested → English → key itself. */
+  t: (key: StringKey) => string;
+  dir: "ltr" | "rtl";
+  languages: LanguageMeta[];
 };
 
 const I18nContext = createContext<Ctx | null>(null);
+const STORAGE_KEY = "hda.lang";
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("am");
+  const [lang, setLangState] = useState<LanguageCode>(DEFAULT_LANG);
 
   useEffect(() => {
-    const saved = (typeof window !== "undefined" && localStorage.getItem("hda.lang")) as Lang | null;
-    if (saved && ["am", "he", "en"].includes(saved)) setLangState(saved);
+    if (typeof window === "undefined") return;
+    const saved = localStorage.getItem(STORAGE_KEY) as LanguageCode | null;
+    if (saved && getLanguage(saved)?.enabled) {
+      setLangState(saved);
+    } else {
+      setLangState(detectBrowserLanguage());
+    }
   }, []);
+
+  const meta = useMemo(() => getLanguage(lang) ?? getLanguage(DEFAULT_LANG)!, [lang]);
 
   useEffect(() => {
     if (typeof document === "undefined") return;
-    document.documentElement.lang = lang;
-    document.documentElement.dir = isRTL(lang) ? "rtl" : "ltr";
-  }, [lang]);
+    document.documentElement.lang = meta.code;
+    document.documentElement.dir = meta.dir;
+  }, [meta]);
 
-  const setLang = (l: Lang) => {
+  const setLang = (l: LanguageCode) => {
+    if (!getLanguage(l)?.enabled) return;
     setLangState(l);
-    if (typeof window !== "undefined") localStorage.setItem("hda.lang", l);
+    if (typeof window !== "undefined") localStorage.setItem(STORAGE_KEY, l);
   };
 
-  const t = (key: keyof typeof dictionaries.en) => dictionaries[lang][key] ?? dictionaries.en[key] ?? key;
+  const t = (key: StringKey): string => {
+    return (
+      dictionaries[lang]?.[key] ??
+      dictionaries[FALLBACK_LANG]?.[key] ??
+      dictionaries.en[key] ??
+      String(key)
+    );
+  };
 
   return (
-    <I18nContext.Provider value={{ lang, setLang, t, dir: isRTL(lang) ? "rtl" : "ltr" }}>
+    <I18nContext.Provider value={{ lang, meta, setLang, t, dir: meta.dir, languages: LANGUAGES.filter((l) => l.enabled) }}>
       {children}
     </I18nContext.Provider>
   );
@@ -129,3 +90,7 @@ export function useI18n() {
   if (!ctx) throw new Error("useI18n must be used inside I18nProvider");
   return ctx;
 }
+
+// Re-exports for convenience
+export type { LanguageCode, LanguageMeta, StringKey };
+export { localized } from "./languages";

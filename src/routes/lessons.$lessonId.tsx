@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, localized } from "@/lib/i18n";
 import { lessons } from "@/lib/mock-data";
 import { Headphones, PlayCircle, FileText, ArrowRight } from "lucide-react";
 
@@ -24,7 +24,7 @@ function LessonDetail() {
   return (
     <AppShell>
       <Link to="/lessons" className="text-xs text-muted-foreground hover:text-gold">← {t("lessons")}</Link>
-      <h1 className="mt-2 text-2xl font-black tracking-tight">{lesson.title[lang]}</h1>
+      <h1 className="mt-2 text-2xl font-black tracking-tight">{localized(lesson.title, lang)}</h1>
       <p className="mt-1 text-sm text-muted-foreground">{lesson.duration} {t("minutes")}</p>
 
       <div
