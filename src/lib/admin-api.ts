@@ -300,7 +300,60 @@ export const scheduleApi = {
   },
 };
 
-export type MakeupStatus = "pending" | "scheduled" | "completed" | "cancelled";
+export type CandidateDocument = {
+  id: string;
+  candidate_id: string;
+  label: string;
+  file_path: string;
+  mime_type: string | null;
+  size_bytes: number | null;
+  created_at: string;
+};
+
+export const docsApi = {
+  async list(candidateId: string): Promise<CandidateDocument[]> {
+    const { data, error } = await (supabase as any)
+      .from("candidate_documents")
+      .select("*")
+      .eq("candidate_id", candidateId)
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return data ?? [];
+  },
+  async upload(candidateId: string, label: string, file: File): Promise<void> {
+    const ext = file.name.split(".").pop() || "bin";
+    const path = `${candidateId}/${crypto.randomUUID()}.${ext}`;
+    const { error: upErr } = await (supabase as any).storage
+      .from("candidate-documents")
+      .upload(path, file, { upsert: false, contentType: file.type });
+    if (upErr) throw upErr;
+    const { error: insErr } = await (supabase as any).from("candidate_documents").insert({
+      candidate_id: candidateId,
+      label,
+      file_path: path,
+      mime_type: file.type || null,
+      size_bytes: file.size,
+    });
+    if (insErr) throw insErr;
+  },
+  async signedUrl(path: string, expiresIn = 300): Promise<string> {
+    const { data, error } = await (supabase as any).storage
+      .from("candidate-documents")
+      .createSignedUrl(path, expiresIn);
+    if (error) throw error;
+    return data.signedUrl as string;
+  },
+  async remove(doc: CandidateDocument): Promise<void> {
+    await (supabase as any).storage.from("candidate-documents").remove([doc.file_path]);
+    const { error } = await (supabase as any).from("candidate_documents").delete().eq("id", doc.id);
+    if (error) throw error;
+  },
+  async rename(id: string, label: string): Promise<void> {
+    const { error } = await (supabase as any).from("candidate_documents").update({ label }).eq("id", id);
+    if (error) throw error;
+  },
+};
+
 export type MakeupAssignment = {
   id: string;
   candidate_id: string;
