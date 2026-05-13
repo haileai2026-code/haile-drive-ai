@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { AdminShell } from "@/components/AdminShell";
+import { AdminLoading, AdminShell } from "@/components/AdminShell";
 import { adminApi, type ClassRow } from "@/lib/admin-api";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -31,6 +31,8 @@ function ClassesPage() {
 
   const cityName = (id: string | null) => citiesQ.data?.find((c) => c.id === id)?.name_he ?? "—";
   const teacherName = (id: string | null) => teachersQ.data?.find((t) => t.id === id)?.full_name ?? "—";
+  const isLoading = classesQ.isLoading || citiesQ.isLoading || teachersQ.isLoading;
+  const loadError = classesQ.error || citiesQ.error || teachersQ.error;
 
   return (
     <AdminShell title="ניהול כיתות">
@@ -39,6 +41,9 @@ function ClassesPage() {
           <Plus className="h-4 w-4" /> כיתה חדשה
         </button>
       </div>
+
+      {isLoading && <div className="mt-4"><AdminLoading label="טוען כיתות, ערים ומורים מהמסד…" /></div>}
+      {loadError && <div className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-300">טעינת הנתונים נכשלה: {(loadError as Error).message}</div>}
 
       <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {classesQ.data?.map((c) => (
@@ -60,7 +65,7 @@ function ClassesPage() {
             </div>
           </article>
         ))}
-        {classesQ.data?.length === 0 && <div className="text-sm text-muted-foreground">אין כיתות</div>}
+        {!isLoading && classesQ.data?.length === 0 && <div className="text-sm text-muted-foreground">אין כיתות</div>}
       </div>
 
       {editing && (
