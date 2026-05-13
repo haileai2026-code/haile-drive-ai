@@ -22,7 +22,8 @@ export function RequireAuth({
     if (roles && role && !roles.includes(role)) {
       navigate({ to: roleHomePath(role) });
     }
-  }, [user, role, loading, roles, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, role, loading, roles?.join("|"), navigate]);
 
   if (loading || !user) {
     return (
