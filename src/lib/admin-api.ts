@@ -298,6 +298,39 @@ export const scheduleApi = {
     const { error } = await (supabase as any).from("schedule_events").delete().eq("id", id);
     if (error) throw error;
   },
+  async bulkCreate(events: Array<Partial<ScheduleEvent> & { title: string; event_date: string; type: ScheduleEventType }>) {
+    if (!events.length) return { inserted: 0 };
+    const { error } = await (supabase as any).from("schedule_events").insert(events);
+    if (error) throw error;
+    return { inserted: events.length };
+  },
+  async findConflicts(candidates: Array<{ event_date: string; start_time: string | null; end_time: string | null; class_id: string | null; location: string | null }>) {
+    if (!candidates.length) return [];
+    const dates = Array.from(new Set(candidates.map((c) => c.event_date)));
+    const { data, error } = await (supabase as any)
+      .from("schedule_events")
+      .select("id,event_date,start_time,end_time,class_id,location,title")
+      .in("event_date", dates);
+    if (error) throw error;
+    const existing: Array<{ id: string; event_date: string; start_time: string | null; end_time: string | null; class_id: string | null; location: string | null; title: string }> = data ?? [];
+    const overlap = (aStart: string | null, aEnd: string | null, bStart: string | null, bEnd: string | null) => {
+      if (!aStart || !aEnd || !bStart || !bEnd) return aStart === bStart;
+      return aStart < bEnd && bStart < aEnd;
+    };
+    const conflicts: Array<{ candidate: typeof candidates[number]; with: typeof existing[number] }> = [];
+    candidates.forEach((c) => {
+      existing.forEach((e) => {
+        if (e.event_date !== c.event_date) return;
+        const sameClass = c.class_id && e.class_id === c.class_id;
+        const sameLoc = c.location && e.location === c.location;
+        if (!sameClass && !sameLoc) return;
+        if (overlap(c.start_time, c.end_time, e.start_time, e.end_time)) {
+          conflicts.push({ candidate: c, with: e });
+        }
+      });
+    });
+    return conflicts;
+  },
 };
 
 export type CandidateDocument = {
