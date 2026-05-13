@@ -37,6 +37,10 @@ type Ctx = {
   t: (key: StringKey) => string;
   dir: "ltr" | "rtl";
   languages: LanguageMeta[];
+  /** When true, the language is enforced (e.g. owner must use Hebrew) and the switcher should be hidden. */
+  locked: boolean;
+  /** Force a language and lock it. Pass null to unlock. */
+  lockLanguage: (l: LanguageCode | null) => void;
 };
 
 const I18nContext = createContext<Ctx | null>(null);
