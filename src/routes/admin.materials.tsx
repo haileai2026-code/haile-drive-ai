@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminLoading, AdminShell } from "@/components/AdminShell";
 import { adminApi, type Material } from "@/lib/admin-api";
+import { useAuth } from "@/lib/auth";
 import { Plus, Trash2, FileText, Image as ImageIcon, Link as LinkIcon, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
@@ -13,12 +14,14 @@ export const Route = createFileRoute("/admin/materials")({
 
 function MaterialsPage() {
   const qc = useQueryClient();
+  const { user, loading } = useAuth();
+  const canQuery = !loading && !!user;
   const [tab, setTab] = useState<"study" | "enrichment">("study");
   const [editing, setEditing] = useState<Partial<Material> | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  const matsQ = useQuery({ queryKey: ["materials"], queryFn: () => adminApi.listMaterials() });
-  const classesQ = useQuery({ queryKey: ["classes"], queryFn: adminApi.listClasses });
+  const matsQ = useQuery({ queryKey: ["materials"], queryFn: () => adminApi.listMaterials(), enabled: canQuery });
+  const classesQ = useQuery({ queryKey: ["classes"], queryFn: adminApi.listClasses, enabled: canQuery });
 
   const saveMut = useMutation({
     mutationFn: (m: Partial<Material>) => adminApi.upsertMaterial(m as any),
