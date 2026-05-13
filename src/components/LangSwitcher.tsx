@@ -3,7 +3,10 @@ import { Link } from "@tanstack/react-router";
 import { Globe } from "lucide-react";
 
 export function LangSwitcher({ compact = true }: { compact?: boolean }) {
-  const { lang, setLang, languages } = useI18n();
+  const { lang, setLang, languages, locked } = useI18n();
+
+  if (locked) return null;
+
 
   // If we have many languages, switch to a "globe + current + link to picker" pattern.
   if (languages.length > 4 && compact) {
