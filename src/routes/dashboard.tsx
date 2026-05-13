@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { useI18n, localized } from "@/lib/i18n";
 import { lessons } from "@/lib/mock-data";
-import { Bot, ChevronRight, Flame, PlayCircle, Trophy } from "lucide-react";
+import { Bot, CalendarClock, ChevronRight, Flame, PlayCircle, Trophy } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — Haile Drive AI" }] }),
