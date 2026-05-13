@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminLoading, AdminShell } from "@/components/AdminShell";
 import { adminApi, type ClassRow } from "@/lib/admin-api";
+import { useAuth } from "@/lib/auth";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -13,9 +14,11 @@ export const Route = createFileRoute("/admin/classes")({
 
 function ClassesPage() {
   const qc = useQueryClient();
-  const classesQ = useQuery({ queryKey: ["classes"], queryFn: adminApi.listClasses });
-  const citiesQ = useQuery({ queryKey: ["cities"], queryFn: adminApi.listCities });
-  const teachersQ = useQuery({ queryKey: ["teachers"], queryFn: adminApi.listTeachers });
+  const { user, loading } = useAuth();
+  const canQuery = !loading && !!user;
+  const classesQ = useQuery({ queryKey: ["classes"], queryFn: adminApi.listClasses, enabled: canQuery });
+  const citiesQ = useQuery({ queryKey: ["cities"], queryFn: adminApi.listCities, enabled: canQuery });
+  const teachersQ = useQuery({ queryKey: ["teachers"], queryFn: adminApi.listTeachers, enabled: canQuery });
   const [editing, setEditing] = useState<Partial<ClassRow> | null>(null);
 
   const saveMut = useMutation({
