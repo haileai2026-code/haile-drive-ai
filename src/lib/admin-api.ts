@@ -242,6 +242,40 @@ export const adminApi = {
     const { error } = await sb.from("attendance_records").upsert(rows, { onConflict: "class_id,candidate_id,lesson_date" });
     if (error) throw error;
   },
+
+  // MAKEUP ASSIGNMENTS
+  async listMakeup(opts?: { status?: MakeupStatus }): Promise<MakeupAssignment[]> {
+    let q = sb.from("makeup_assignments").select("*").order("created_at", { ascending: false });
+    if (opts?.status) q = q.eq("status", opts.status);
+    const { data, error } = await q;
+    if (error) throw error;
+    return data ?? [];
+  },
+  async assignMakeup(id: string, target_class_id: string, target_date: string, notes?: string) {
+    const { error } = await sb.from("makeup_assignments").update({
+      target_class_id, target_date, notes: notes ?? null, status: "scheduled",
+    }).eq("id", id);
+    if (error) throw error;
+  },
+  async setMakeupStatus(id: string, status: MakeupStatus) {
+    const { error } = await sb.from("makeup_assignments").update({ status }).eq("id", id);
+    if (error) throw error;
+  },
+};
+
+export type MakeupStatus = "pending" | "scheduled" | "completed" | "cancelled";
+export type MakeupAssignment = {
+  id: string;
+  candidate_id: string;
+  source_attendance_id: string | null;
+  source_class_id: string;
+  source_date: string;
+  target_class_id: string | null;
+  target_date: string | null;
+  status: MakeupStatus;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
 };
 
 export type AttendanceMark = "present" | "late" | "missing" | "makeup_completed";
