@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TeacherRouteImport } from './routes/teacher'
+import { Route as ScheduleRouteImport } from './routes/schedule'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -46,6 +47,11 @@ import { Route as AdminAttendanceDrilldownRouteImport } from './routes/admin.att
 const TeacherRoute = TeacherRouteImport.update({
   id: '/teacher',
   path: '/teacher',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScheduleRoute = ScheduleRouteImport.update({
+  id: '/schedule',
+  path: '/schedule',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -222,6 +228,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/quiz': typeof QuizRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/schedule': typeof ScheduleRoute
   '/teacher': typeof TeacherRouteWithChildren
   '/admin/attendance': typeof AdminAttendanceRouteWithChildren
   '/admin/branches': typeof AdminBranchesRoute
@@ -257,6 +264,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/quiz': typeof QuizRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/schedule': typeof ScheduleRoute
   '/teacher': typeof TeacherRouteWithChildren
   '/admin/attendance': typeof AdminAttendanceRouteWithChildren
   '/admin/branches': typeof AdminBranchesRoute
@@ -293,6 +301,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/quiz': typeof QuizRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/schedule': typeof ScheduleRoute
   '/teacher': typeof TeacherRouteWithChildren
   '/admin/attendance': typeof AdminAttendanceRouteWithChildren
   '/admin/branches': typeof AdminBranchesRoute
@@ -330,6 +339,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/quiz'
     | '/reset-password'
+    | '/schedule'
     | '/teacher'
     | '/admin/attendance'
     | '/admin/branches'
@@ -365,6 +375,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/quiz'
     | '/reset-password'
+    | '/schedule'
     | '/teacher'
     | '/admin/attendance'
     | '/admin/branches'
@@ -400,6 +411,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/quiz'
     | '/reset-password'
+    | '/schedule'
     | '/teacher'
     | '/admin/attendance'
     | '/admin/branches'
@@ -436,6 +448,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   QuizRoute: typeof QuizRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ScheduleRoute: typeof ScheduleRoute
   TeacherRoute: typeof TeacherRouteWithChildren
 }
 
@@ -446,6 +459,13 @@ declare module '@tanstack/react-router' {
       path: '/teacher'
       fullPath: '/teacher'
       preLoaderRoute: typeof TeacherRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/schedule': {
+      id: '/schedule'
+      path: '/schedule'
+      fullPath: '/schedule'
+      preLoaderRoute: typeof ScheduleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -775,8 +795,19 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   QuizRoute: QuizRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ScheduleRoute: ScheduleRoute,
   TeacherRoute: TeacherRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
