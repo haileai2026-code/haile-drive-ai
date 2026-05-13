@@ -15,7 +15,10 @@ export const Route = createFileRoute("/login")({
   }),
   beforeLoad: async () => {
     const { data } = await supabase.auth.getSession();
-    if (data.session) throw redirect({ to: "/dashboard" });
+    if (data.session) {
+      const { data: role } = await supabase.rpc("get_primary_role", { _user_id: data.session.user.id });
+      throw redirect({ to: roleHomePath((role as any) ?? "student") });
+    }
   },
   component: LoginPage,
 });
@@ -45,8 +48,8 @@ function LoginPage() {
     await refresh();
     const { data } = await supabase.auth.getUser();
     if (!data.user) return;
-    const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", data.user.id);
-    const role = (roles?.[0]?.role as any) ?? "student";
+    const { data: primary } = await supabase.rpc("get_primary_role", { _user_id: data.user.id });
+    const role = ((primary as any) ?? "student") as any;
     navigate({ to: roleHomePath(role) });
   };
 
