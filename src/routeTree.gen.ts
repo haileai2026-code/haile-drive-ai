@@ -24,17 +24,21 @@ import { Route as TeacherAttendanceRouteImport } from './routes/teacher.attendan
 import { Route as LessonsLessonIdRouteImport } from './routes/lessons.$lessonId'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminTranslationsRouteImport } from './routes/admin.translations'
+import { Route as AdminTeachersRouteImport } from './routes/admin.teachers'
 import { Route as AdminStaffRouteImport } from './routes/admin.staff'
 import { Route as AdminNotificationsRouteImport } from './routes/admin.notifications'
+import { Route as AdminMaterialsRouteImport } from './routes/admin.materials'
 import { Route as AdminMakeupRouteImport } from './routes/admin.makeup'
 import { Route as AdminLessonsRouteImport } from './routes/admin.lessons'
 import { Route as AdminImportRouteImport } from './routes/admin.import'
 import { Route as AdminExportRouteImport } from './routes/admin.export'
+import { Route as AdminExamsRouteImport } from './routes/admin.exams'
 import { Route as AdminClassesRouteImport } from './routes/admin.classes'
 import { Route as AdminCitiesRouteImport } from './routes/admin.cities'
 import { Route as AdminCandidatesRouteImport } from './routes/admin.candidates'
 import { Route as AdminBranchesRouteImport } from './routes/admin.branches'
 import { Route as AdminAttendanceRouteImport } from './routes/admin.attendance'
+import { Route as AdminExamsExamIdRouteImport } from './routes/admin.exams.$examId'
 
 const TeacherRoute = TeacherRouteImport.update({
   id: '/teacher',
@@ -111,6 +115,11 @@ const AdminTranslationsRoute = AdminTranslationsRouteImport.update({
   path: '/translations',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminTeachersRoute = AdminTeachersRouteImport.update({
+  id: '/teachers',
+  path: '/teachers',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminStaffRoute = AdminStaffRouteImport.update({
   id: '/staff',
   path: '/staff',
@@ -119,6 +128,11 @@ const AdminStaffRoute = AdminStaffRouteImport.update({
 const AdminNotificationsRoute = AdminNotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminMaterialsRoute = AdminMaterialsRouteImport.update({
+  id: '/materials',
+  path: '/materials',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminMakeupRoute = AdminMakeupRouteImport.update({
@@ -139,6 +153,11 @@ const AdminImportRoute = AdminImportRouteImport.update({
 const AdminExportRoute = AdminExportRouteImport.update({
   id: '/export',
   path: '/export',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminExamsRoute = AdminExamsRouteImport.update({
+  id: '/exams',
+  path: '/exams',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminClassesRoute = AdminClassesRouteImport.update({
@@ -166,6 +185,11 @@ const AdminAttendanceRoute = AdminAttendanceRouteImport.update({
   path: '/attendance',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminExamsExamIdRoute = AdminExamsExamIdRouteImport.update({
+  id: '/$examId',
+  path: '/$examId',
+  getParentRoute: () => AdminExamsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -184,16 +208,20 @@ export interface FileRoutesByFullPath {
   '/admin/candidates': typeof AdminCandidatesRoute
   '/admin/cities': typeof AdminCitiesRoute
   '/admin/classes': typeof AdminClassesRoute
+  '/admin/exams': typeof AdminExamsRouteWithChildren
   '/admin/export': typeof AdminExportRoute
   '/admin/import': typeof AdminImportRoute
   '/admin/lessons': typeof AdminLessonsRoute
   '/admin/makeup': typeof AdminMakeupRoute
+  '/admin/materials': typeof AdminMaterialsRoute
   '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/staff': typeof AdminStaffRoute
+  '/admin/teachers': typeof AdminTeachersRoute
   '/admin/translations': typeof AdminTranslationsRoute
   '/admin/users': typeof AdminUsersRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/teacher/attendance': typeof TeacherAttendanceRoute
+  '/admin/exams/$examId': typeof AdminExamsExamIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -212,16 +240,20 @@ export interface FileRoutesByTo {
   '/admin/candidates': typeof AdminCandidatesRoute
   '/admin/cities': typeof AdminCitiesRoute
   '/admin/classes': typeof AdminClassesRoute
+  '/admin/exams': typeof AdminExamsRouteWithChildren
   '/admin/export': typeof AdminExportRoute
   '/admin/import': typeof AdminImportRoute
   '/admin/lessons': typeof AdminLessonsRoute
   '/admin/makeup': typeof AdminMakeupRoute
+  '/admin/materials': typeof AdminMaterialsRoute
   '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/staff': typeof AdminStaffRoute
+  '/admin/teachers': typeof AdminTeachersRoute
   '/admin/translations': typeof AdminTranslationsRoute
   '/admin/users': typeof AdminUsersRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/teacher/attendance': typeof TeacherAttendanceRoute
+  '/admin/exams/$examId': typeof AdminExamsExamIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -241,16 +273,20 @@ export interface FileRoutesById {
   '/admin/candidates': typeof AdminCandidatesRoute
   '/admin/cities': typeof AdminCitiesRoute
   '/admin/classes': typeof AdminClassesRoute
+  '/admin/exams': typeof AdminExamsRouteWithChildren
   '/admin/export': typeof AdminExportRoute
   '/admin/import': typeof AdminImportRoute
   '/admin/lessons': typeof AdminLessonsRoute
   '/admin/makeup': typeof AdminMakeupRoute
+  '/admin/materials': typeof AdminMaterialsRoute
   '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/staff': typeof AdminStaffRoute
+  '/admin/teachers': typeof AdminTeachersRoute
   '/admin/translations': typeof AdminTranslationsRoute
   '/admin/users': typeof AdminUsersRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/teacher/attendance': typeof TeacherAttendanceRoute
+  '/admin/exams/$examId': typeof AdminExamsExamIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -271,16 +307,20 @@ export interface FileRouteTypes {
     | '/admin/candidates'
     | '/admin/cities'
     | '/admin/classes'
+    | '/admin/exams'
     | '/admin/export'
     | '/admin/import'
     | '/admin/lessons'
     | '/admin/makeup'
+    | '/admin/materials'
     | '/admin/notifications'
     | '/admin/staff'
+    | '/admin/teachers'
     | '/admin/translations'
     | '/admin/users'
     | '/lessons/$lessonId'
     | '/teacher/attendance'
+    | '/admin/exams/$examId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -299,16 +339,20 @@ export interface FileRouteTypes {
     | '/admin/candidates'
     | '/admin/cities'
     | '/admin/classes'
+    | '/admin/exams'
     | '/admin/export'
     | '/admin/import'
     | '/admin/lessons'
     | '/admin/makeup'
+    | '/admin/materials'
     | '/admin/notifications'
     | '/admin/staff'
+    | '/admin/teachers'
     | '/admin/translations'
     | '/admin/users'
     | '/lessons/$lessonId'
     | '/teacher/attendance'
+    | '/admin/exams/$examId'
   id:
     | '__root__'
     | '/'
@@ -327,16 +371,20 @@ export interface FileRouteTypes {
     | '/admin/candidates'
     | '/admin/cities'
     | '/admin/classes'
+    | '/admin/exams'
     | '/admin/export'
     | '/admin/import'
     | '/admin/lessons'
     | '/admin/makeup'
+    | '/admin/materials'
     | '/admin/notifications'
     | '/admin/staff'
+    | '/admin/teachers'
     | '/admin/translations'
     | '/admin/users'
     | '/lessons/$lessonId'
     | '/teacher/attendance'
+    | '/admin/exams/$examId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -460,6 +508,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminTranslationsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/teachers': {
+      id: '/admin/teachers'
+      path: '/teachers'
+      fullPath: '/admin/teachers'
+      preLoaderRoute: typeof AdminTeachersRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/staff': {
       id: '/admin/staff'
       path: '/staff'
@@ -472,6 +527,13 @@ declare module '@tanstack/react-router' {
       path: '/notifications'
       fullPath: '/admin/notifications'
       preLoaderRoute: typeof AdminNotificationsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/materials': {
+      id: '/admin/materials'
+      path: '/materials'
+      fullPath: '/admin/materials'
+      preLoaderRoute: typeof AdminMaterialsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/makeup': {
@@ -500,6 +562,13 @@ declare module '@tanstack/react-router' {
       path: '/export'
       fullPath: '/admin/export'
       preLoaderRoute: typeof AdminExportRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/exams': {
+      id: '/admin/exams'
+      path: '/exams'
+      fullPath: '/admin/exams'
+      preLoaderRoute: typeof AdminExamsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/classes': {
@@ -537,8 +606,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAttendanceRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/exams/$examId': {
+      id: '/admin/exams/$examId'
+      path: '/$examId'
+      fullPath: '/admin/exams/$examId'
+      preLoaderRoute: typeof AdminExamsExamIdRouteImport
+      parentRoute: typeof AdminExamsRoute
+    }
   }
 }
+
+interface AdminExamsRouteChildren {
+  AdminExamsExamIdRoute: typeof AdminExamsExamIdRoute
+}
+
+const AdminExamsRouteChildren: AdminExamsRouteChildren = {
+  AdminExamsExamIdRoute: AdminExamsExamIdRoute,
+}
+
+const AdminExamsRouteWithChildren = AdminExamsRoute._addFileChildren(
+  AdminExamsRouteChildren,
+)
 
 interface AdminRouteChildren {
   AdminAttendanceRoute: typeof AdminAttendanceRoute
@@ -546,12 +634,15 @@ interface AdminRouteChildren {
   AdminCandidatesRoute: typeof AdminCandidatesRoute
   AdminCitiesRoute: typeof AdminCitiesRoute
   AdminClassesRoute: typeof AdminClassesRoute
+  AdminExamsRoute: typeof AdminExamsRouteWithChildren
   AdminExportRoute: typeof AdminExportRoute
   AdminImportRoute: typeof AdminImportRoute
   AdminLessonsRoute: typeof AdminLessonsRoute
   AdminMakeupRoute: typeof AdminMakeupRoute
+  AdminMaterialsRoute: typeof AdminMaterialsRoute
   AdminNotificationsRoute: typeof AdminNotificationsRoute
   AdminStaffRoute: typeof AdminStaffRoute
+  AdminTeachersRoute: typeof AdminTeachersRoute
   AdminTranslationsRoute: typeof AdminTranslationsRoute
   AdminUsersRoute: typeof AdminUsersRoute
 }
@@ -562,12 +653,15 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCandidatesRoute: AdminCandidatesRoute,
   AdminCitiesRoute: AdminCitiesRoute,
   AdminClassesRoute: AdminClassesRoute,
+  AdminExamsRoute: AdminExamsRouteWithChildren,
   AdminExportRoute: AdminExportRoute,
   AdminImportRoute: AdminImportRoute,
   AdminLessonsRoute: AdminLessonsRoute,
   AdminMakeupRoute: AdminMakeupRoute,
+  AdminMaterialsRoute: AdminMaterialsRoute,
   AdminNotificationsRoute: AdminNotificationsRoute,
   AdminStaffRoute: AdminStaffRoute,
+  AdminTeachersRoute: AdminTeachersRoute,
   AdminTranslationsRoute: AdminTranslationsRoute,
   AdminUsersRoute: AdminUsersRoute,
 }

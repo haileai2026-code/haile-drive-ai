@@ -1,163 +1,58 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { AdminShell, StatCard } from "@/components/AdminShell";
-import {
-  attendanceToday, candidates, candidateStatusLabel, candidateStatusTone,
-  classes, makeupQueue, notifications, teacherName, className as clsName,
-} from "@/lib/ops-data";
-import { Users, GraduationCap, AlertTriangle, Calendar, TrendingUp, Bell, Banknote, UserCog, Building2, Download } from "lucide-react";
+import { adminApi } from "@/lib/admin-api";
+import { Users, GraduationCap, FileText, FileQuestion, UserCog, Building2 } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
-  head: () => ({ meta: [{ title: "Operations — Haile Drive AI" }] }),
+  head: () => ({ meta: [{ title: "דשבורד בעלים — Haile Drive AI" }] }),
   component: AdminOverview,
 });
 
 function AdminOverview() {
-  const activeStudents = candidates.filter((c) => c.status === "active").length;
-  const missingToday = attendanceToday.filter((a) => a.mark === "missing").length;
-  const makeupPending = makeupQueue.filter((m) => m.status !== "completed").length;
-  const pipeline = candidates.filter((c) => !["active", "completed", "failed", "inactive"].includes(c.status));
-  const unread = notifications.filter((n) => !n.read).length;
+  const candidatesQ = useQuery({ queryKey: ["candidates"], queryFn: () => adminApi.listCandidates() });
+  const classesQ = useQuery({ queryKey: ["classes"], queryFn: adminApi.listClasses });
+  const teachersQ = useQuery({ queryKey: ["teachers"], queryFn: adminApi.listTeachers });
+  const materialsQ = useQuery({ queryKey: ["materials"], queryFn: () => adminApi.listMaterials() });
+  const examsQ = useQuery({ queryKey: ["exams"], queryFn: adminApi.listExams });
+
+  const candidates = candidatesQ.data ?? [];
+  const active = candidates.filter((c) => c.status === "active").length;
 
   return (
     <AdminShell title="דשבורד בעלים">
-      <section className="mb-6 rounded-2xl border border-gold/30 bg-gradient-to-br from-amber-900/25 via-card/60 to-card/30 p-5 shadow-[var(--shadow-gold)]" dir="rtl">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <p className="text-xs font-semibold text-gold">ניהול מלא של Haile Drive AI</p>
-            <h2 className="mt-1 text-2xl font-black tracking-tight">בעלים: תלמידים, מורים, סניפים, שיעורים ודוחות</h2>
-            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">זהו מסך ניהול, לא לוח תלמידים: מכאן שולטים בהרשאות, קבוצות, נוכחות, השלמות, ייבוא וייצוא נתונים.</p>
-          </div>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:w-[32rem]">
-            {[
-              { to: "/admin/users", label: "משתמשים", icon: UserCog },
-              { to: "/admin/classes", label: "כיתות", icon: GraduationCap },
-              { to: "/admin/branches", label: "סניפים", icon: Building2 },
-              { to: "/admin/export", label: "דוחות", icon: Download },
-            ].map(({ to, label, icon: Icon }) => (
-              <Link key={to} to={to} className="rounded-xl border border-border/60 bg-background/40 p-3 text-center transition hover:border-gold/40 hover:bg-card">
-                <Icon className="mx-auto h-5 w-5 text-gold" />
-                <div className="mt-2 text-xs font-semibold">{label}</div>
-              </Link>
-            ))}
-          </div>
-        </div>
+      <section className="mb-6 rounded-2xl border border-gold/30 bg-gradient-to-br from-amber-900/25 via-card/60 to-card/30 p-5 shadow-[var(--shadow-gold)]">
+        <p className="text-xs font-semibold text-gold">ניהול מלא של Haile Drive AI</p>
+        <h2 className="mt-1 text-2xl font-black tracking-tight">בעלים: תלמידים, מורים, חומרי לימוד ומבחנים</h2>
+        <p className="mt-2 max-w-3xl text-sm text-muted-foreground">פעולות מהיר — כל פעולה כאן מעדכנת את מסד הנתונים בזמן אמת.</p>
       </section>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="תלמידים פעילים" value={activeStudents + 22} hint="+3 השבוע" tone="gold" icon={Users} />
-        <StatCard label="שיעורים היום" value={classes.length} hint="3 ערים" icon={GraduationCap} />
-        <StatCard label="חסרים היום" value={missingToday} hint="דורש השלמה" tone="warn" icon={AlertTriangle} />
-        <StatCard label="השלמות פתוחות" value={makeupPending} hint="שיבוץ לכיתה פנויה" tone="danger" icon={Calendar} />
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <StatCard label="סה״כ לידים/תלמידים" value={candidates.length} hint={`${active} פעילים`} tone="gold" icon={Users} />
+        <StatCard label="כיתות" value={classesQ.data?.length ?? 0} icon={GraduationCap} />
+        <StatCard label="מורים" value={teachersQ.data?.length ?? 0} icon={UserCog} />
+        <StatCard label="חומרים" value={materialsQ.data?.length ?? 0} icon={FileText} />
+        <StatCard label="מבחנים" value={examsQ.data?.length ?? 0} icon={FileQuestion} />
       </div>
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" dir="rtl">
-        <Link to="/admin/staff" className="rounded-2xl border border-border/60 bg-card/40 p-4 transition hover:border-gold/40">
-          <UserCog className="h-5 w-5 text-gold" />
-          <div className="mt-3 text-sm font-bold">ניהול מורים וצוות</div>
-          <div className="text-xs text-muted-foreground">מי מורה, מי תלמיד ומי בעלים</div>
-        </Link>
-        <Link to="/admin/candidates" className="rounded-2xl border border-border/60 bg-card/40 p-4 transition hover:border-gold/40">
-          <Users className="h-5 w-5 text-gold" />
-          <div className="mt-3 text-sm font-bold">CRM תלמידים</div>
-          <div className="text-xs text-muted-foreground">לידים, רישום וסטטוסים</div>
-        </Link>
-        <Link to="/admin/attendance" className="rounded-2xl border border-border/60 bg-card/40 p-4 transition hover:border-gold/40">
-          <AlertTriangle className="h-5 w-5 text-gold" />
-          <div className="mt-3 text-sm font-bold">נוכחות וחוסרים</div>
-          <div className="text-xs text-muted-foreground">מעקב יומי והשלמות</div>
-        </Link>
-        <div className="rounded-2xl border border-border/60 bg-card/40 p-4">
-          <Banknote className="h-5 w-5 text-gold" />
-          <div className="mt-3 text-sm font-bold">תמונת עסק</div>
-          <div className="text-xs text-muted-foreground">בקרה תפעולית לבעלים</div>
-        </div>
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <QuickLink to="/admin/candidates" icon={Users} title="לידים ותלמידים" desc="הוסף, ערוך, שייך לכיתה" />
+        <QuickLink to="/admin/teachers" icon={UserCog} title="מורים והרשאות" desc="הענק הרשאת מורה ושייך לכיתות" />
+        <QuickLink to="/admin/classes" icon={GraduationCap} title="כיתות וקבוצות" desc="צור כיתות לפי עיר" />
+        <QuickLink to="/admin/materials" icon={FileText} title="חומרי לימוד והעשרה" desc="העלה PDF, תמונות וקישורים" />
+        <QuickLink to="/admin/exams" icon={FileQuestion} title="בנק מבחנים" desc="צור מבחני אמריקאיות" />
+        <QuickLink to="/admin/cities" icon={Building2} title="ערים ומסלולים" desc="ניהול סניפי הלימוד" />
       </div>
-
-      <div className="mt-6 grid gap-4 lg:grid-cols-3">
-        {/* Today's classes */}
-        <section className="rounded-2xl border border-border/60 bg-card/40 p-4 lg:col-span-2">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold">Today's classes</h2>
-            <Link to="/admin/classes" className="text-xs text-gold">View all →</Link>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="text-left text-[11px] uppercase tracking-wider text-muted-foreground">
-                <tr><th className="pb-2">Class</th><th className="pb-2">Teacher</th><th className="pb-2">Schedule</th><th className="pb-2 text-right">Capacity</th></tr>
-              </thead>
-              <tbody className="divide-y divide-border/40">
-                {classes.map((c) => (
-                  <tr key={c.id}>
-                    <td className="py-2.5 font-medium">{c.name}</td>
-                    <td className="py-2.5 text-muted-foreground">{teacherName(c.teacherId)}</td>
-                    <td className="py-2.5 text-muted-foreground">{c.schedule}</td>
-                    <td className="py-2.5 text-right">
-                      <span className="rounded-full border border-border/60 px-2 py-0.5 text-xs">{c.studentIds.length}/{c.capacity}</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        {/* Notifications */}
-        <section className="rounded-2xl border border-border/60 bg-card/40 p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold">Notifications</h2>
-            <span className="rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-bold text-gold">{unread} new</span>
-          </div>
-          <ul className="space-y-2">
-            {notifications.slice(0, 4).map((n) => (
-              <li key={n.id} className="flex gap-2 rounded-xl border border-border/40 bg-background/40 p-2.5">
-                <Bell className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold" />
-                <div className="min-w-0">
-                  <div className="truncate text-xs font-semibold">{n.title}</div>
-                  <div className="truncate text-[11px] text-muted-foreground">{n.body}</div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
-      </div>
-
-      {/* Candidate pipeline */}
-      <section className="mt-6 rounded-2xl border border-border/60 bg-card/40 p-4">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold">Candidate pipeline</h2>
-          <Link to="/admin/candidates" className="text-xs text-gold">Open CRM →</Link>
-        </div>
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-          {pipeline.map((c) => (
-            <div key={c.id} className="rounded-xl border border-border/40 bg-background/40 p-3">
-              <div className="flex items-center justify-between">
-                <div className="truncate text-sm font-semibold">{c.name}</div>
-                <span className={`rounded-full border px-2 py-0.5 text-[10px] ${candidateStatusTone[c.status]}`}>
-                  {candidateStatusLabel[c.status]}
-                </span>
-              </div>
-              <div className="mt-1 text-[11px] text-muted-foreground">{c.phone} · {c.language}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Makeup queue snapshot */}
-      <section className="mt-6 rounded-2xl border border-border/60 bg-card/40 p-4">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold flex items-center gap-2"><TrendingUp className="h-4 w-4 text-gold" /> Makeup queue</h2>
-          <Link to="/admin/makeup" className="text-xs text-gold">Manage →</Link>
-        </div>
-        <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {makeupQueue.map((m) => (
-            <li key={m.id} className="rounded-xl border border-border/40 bg-background/40 p-3">
-              <div className="text-sm font-semibold">Student {m.studentId.replace("s-", "#")}</div>
-              <div className="text-[11px] text-muted-foreground">Missed: {clsName(m.missedClassId)}</div>
-              <div className="mt-2 inline-flex rounded-full border border-border/60 px-2 py-0.5 text-[10px] capitalize">{m.status}</div>
-            </li>
-          ))}
-        </ul>
-      </section>
     </AdminShell>
+  );
+}
+
+function QuickLink({ to, icon: Icon, title, desc }: { to: string; icon: any; title: string; desc: string }) {
+  return (
+    <Link to={to} className="rounded-2xl border border-border/60 bg-card/40 p-4 transition hover:border-gold/40">
+      <Icon className="h-5 w-5 text-gold" />
+      <div className="mt-3 text-sm font-bold">{title}</div>
+      <div className="text-xs text-muted-foreground">{desc}</div>
+    </Link>
   );
 }
