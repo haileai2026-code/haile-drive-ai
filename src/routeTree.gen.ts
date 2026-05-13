@@ -43,6 +43,7 @@ import { Route as AdminBranchesRouteImport } from './routes/admin.branches'
 import { Route as AdminAttendanceRouteImport } from './routes/admin.attendance'
 import { Route as AdminExamsExamIdRouteImport } from './routes/admin.exams.$examId'
 import { Route as AdminAttendanceDrilldownRouteImport } from './routes/admin.attendance.drilldown'
+import { Route as ApiPublicHooksNotificationsTickRouteImport } from './routes/api/public/hooks/notifications-tick'
 
 const TeacherRoute = TeacherRouteImport.update({
   id: '/teacher',
@@ -215,6 +216,12 @@ const AdminAttendanceDrilldownRoute =
     path: '/drilldown',
     getParentRoute: () => AdminAttendanceRoute,
   } as any)
+const ApiPublicHooksNotificationsTickRoute =
+  ApiPublicHooksNotificationsTickRouteImport.update({
+    id: '/api/public/hooks/notifications-tick',
+    path: '/api/public/hooks/notifications-tick',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -251,6 +258,7 @@ export interface FileRoutesByFullPath {
   '/teacher/attendance': typeof TeacherAttendanceRoute
   '/admin/attendance/drilldown': typeof AdminAttendanceDrilldownRoute
   '/admin/exams/$examId': typeof AdminExamsExamIdRoute
+  '/api/public/hooks/notifications-tick': typeof ApiPublicHooksNotificationsTickRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -287,6 +295,7 @@ export interface FileRoutesByTo {
   '/teacher/attendance': typeof TeacherAttendanceRoute
   '/admin/attendance/drilldown': typeof AdminAttendanceDrilldownRoute
   '/admin/exams/$examId': typeof AdminExamsExamIdRoute
+  '/api/public/hooks/notifications-tick': typeof ApiPublicHooksNotificationsTickRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -324,6 +333,7 @@ export interface FileRoutesById {
   '/teacher/attendance': typeof TeacherAttendanceRoute
   '/admin/attendance/drilldown': typeof AdminAttendanceDrilldownRoute
   '/admin/exams/$examId': typeof AdminExamsExamIdRoute
+  '/api/public/hooks/notifications-tick': typeof ApiPublicHooksNotificationsTickRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -362,6 +372,7 @@ export interface FileRouteTypes {
     | '/teacher/attendance'
     | '/admin/attendance/drilldown'
     | '/admin/exams/$examId'
+    | '/api/public/hooks/notifications-tick'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -398,6 +409,7 @@ export interface FileRouteTypes {
     | '/teacher/attendance'
     | '/admin/attendance/drilldown'
     | '/admin/exams/$examId'
+    | '/api/public/hooks/notifications-tick'
   id:
     | '__root__'
     | '/'
@@ -434,6 +446,7 @@ export interface FileRouteTypes {
     | '/teacher/attendance'
     | '/admin/attendance/drilldown'
     | '/admin/exams/$examId'
+    | '/api/public/hooks/notifications-tick'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -450,6 +463,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   ScheduleRoute: typeof ScheduleRoute
   TeacherRoute: typeof TeacherRouteWithChildren
+  ApiPublicHooksNotificationsTickRoute: typeof ApiPublicHooksNotificationsTickRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -692,6 +706,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAttendanceDrilldownRouteImport
       parentRoute: typeof AdminAttendanceRoute
     }
+    '/api/public/hooks/notifications-tick': {
+      id: '/api/public/hooks/notifications-tick'
+      path: '/api/public/hooks/notifications-tick'
+      fullPath: '/api/public/hooks/notifications-tick'
+      preLoaderRoute: typeof ApiPublicHooksNotificationsTickRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -797,6 +818,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   ScheduleRoute: ScheduleRoute,
   TeacherRoute: TeacherRouteWithChildren,
+  ApiPublicHooksNotificationsTickRoute: ApiPublicHooksNotificationsTickRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

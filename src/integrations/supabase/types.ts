@@ -425,6 +425,75 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          candidate_id: string | null
+          channel: Database["public"]["Enums"]["notification_channel"]
+          created_at: string
+          created_by: string | null
+          error: string | null
+          event_id: string | null
+          id: string
+          language: string
+          message: string
+          provider_sid: string | null
+          scheduled_at: string
+          sent_at: string | null
+          status: Database["public"]["Enums"]["notification_status"]
+          to_phone: string
+          updated_at: string
+        }
+        Insert: {
+          candidate_id?: string | null
+          channel: Database["public"]["Enums"]["notification_channel"]
+          created_at?: string
+          created_by?: string | null
+          error?: string | null
+          event_id?: string | null
+          id?: string
+          language?: string
+          message: string
+          provider_sid?: string | null
+          scheduled_at?: string
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["notification_status"]
+          to_phone: string
+          updated_at?: string
+        }
+        Update: {
+          candidate_id?: string | null
+          channel?: Database["public"]["Enums"]["notification_channel"]
+          created_at?: string
+          created_by?: string | null
+          error?: string | null
+          event_id?: string | null
+          id?: string
+          language?: string
+          message?: string
+          provider_sid?: string | null
+          scheduled_at?: string
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["notification_status"]
+          to_phone?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "schedule_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           branch: string | null
@@ -627,6 +696,8 @@ export type Database = {
       makeup_status: "pending" | "scheduled" | "completed" | "cancelled"
       material_category: "study" | "enrichment"
       material_type: "pdf" | "image" | "link" | "video"
+      notification_channel: "sms" | "whatsapp"
+      notification_status: "pending" | "sent" | "failed" | "cancelled"
       schedule_event_type: "lesson" | "exam" | "makeup"
     }
     CompositeTypes: {
@@ -771,6 +842,8 @@ export const Constants = {
       makeup_status: ["pending", "scheduled", "completed", "cancelled"],
       material_category: ["study", "enrichment"],
       material_type: ["pdf", "image", "link", "video"],
+      notification_channel: ["sms", "whatsapp"],
+      notification_status: ["pending", "sent", "failed", "cancelled"],
       schedule_event_type: ["lesson", "exam", "makeup"],
     },
   },
