@@ -65,6 +65,10 @@ function SchedulePage() {
   const qc = useQueryClient();
   const [filterClass, setFilterClass] = useState<string>("");
   const [editing, setEditing] = useState<Form | null>(null);
+  const [recurring, setRecurring] = useState<RecurringForm | null>(null);
+  const [conflicts, setConflicts] = useState<Array<{ candidate: any; with: any }> | null>(null);
+  const [previewDates, setPreviewDates] = useState<string[]>([]);
+  const [busy, setBusy] = useState(false);
 
   const { data: events, isLoading } = useQuery({
     queryKey: ["schedule", filterClass],
