@@ -354,6 +354,7 @@ export const docsApi = {
   },
 };
 
+export type MakeupStatus = "pending" | "scheduled" | "completed" | "cancelled";
 export type MakeupAssignment = {
   id: string;
   candidate_id: string;
