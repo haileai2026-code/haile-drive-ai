@@ -1,7 +1,7 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, GraduationCap, BookOpen, ClipboardCheck,
-  Calendar, Bell, Shield, Building2, Bot, ChevronRight,
+  Calendar, Bell, Shield, Building2, Bot, ChevronRight, Upload, Download, Network,
   type LucideIcon,
 } from "lucide-react";
 import { useRole } from "@/lib/role";
@@ -18,6 +18,9 @@ const NAV: NavItem[] = [
   { to: "/admin/lessons", icon: BookOpen, label: "Lessons", roles: ["owner"] },
   { to: "/admin/attendance", icon: ClipboardCheck, label: "Attendance", roles: ["owner", "staff"] },
   { to: "/admin/makeup", icon: Calendar, label: "Makeup Queue", roles: ["owner", "staff"] },
+  { to: "/admin/import", icon: Upload, label: "Bulk Import", roles: ["owner", "staff"] },
+  { to: "/admin/export", icon: Download, label: "Export Data", roles: ["owner", "staff"] },
+  { to: "/admin/branches", icon: Network, label: "Branches", roles: ["owner"] },
   { to: "/admin/staff", icon: Shield, label: "Staff & Permissions", roles: ["owner"] },
   { to: "/admin/cities", icon: Building2, label: "Cities & Programs", roles: ["owner"] },
   { to: "/admin/notifications", icon: Bell, label: "Notifications", roles: ["owner", "staff"] },

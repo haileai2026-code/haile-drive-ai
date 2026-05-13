@@ -11,6 +11,7 @@ import {
 import appCss from "../styles.css?url";
 import { I18nProvider } from "@/lib/i18n";
 import { RoleProvider } from "@/lib/role";
+import { DataStoreProvider } from "@/lib/data-store";
 
 function NotFoundComponent() {
   return (
@@ -120,7 +121,9 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <I18nProvider>
         <RoleProvider>
-          <Outlet />
+          <DataStoreProvider>
+            <Outlet />
+          </DataStoreProvider>
         </RoleProvider>
       </I18nProvider>
     </QueryClientProvider>
