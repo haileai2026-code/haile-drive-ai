@@ -78,7 +78,20 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [err, setErr] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  const sendReset = async () => {
+    setErr(null); setInfo(null);
+    if (!email) { setErr("הזן/י כתובת אימייל לשחזור"); return; }
+    setBusy(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setBusy(false);
+    if (error) { setErr(error.message); return; }
+    setInfo("שלחנו קישור לאיפוס סיסמה למייל שלך. בדוק/י גם בתיקיית הספאם.");
+  };
 
   const portalCfg = PORTALS[portal];
   const PortalIcon = portalCfg.icon;
