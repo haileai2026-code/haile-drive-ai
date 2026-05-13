@@ -21,7 +21,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const loc = useLocation();
 
   const { signOut, role } = useAuth();
-  const roles = role === "owner" || role === "staff" || role === "teacher" ? ["student"] as const : undefined;
+  const roles = role === "owner" || role === "staff" || role === "teacher" ? ["student"] : undefined;
   const homePath = roleHomePath(role);
 
   return (
