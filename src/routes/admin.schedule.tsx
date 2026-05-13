@@ -143,6 +143,34 @@ function SchedulePage() {
     }
   }
 
+  async function saveRecurringDirect() {
+    if (!recurring) return;
+    if (!recurring.title.trim()) { toast.error("חסר שם השיעור"); return; }
+    const dates = generateDates(recurring.start_date, recurring.weekdays, recurring.mode, recurring.count, recurring.until_date);
+    if (!dates.length) { toast.error("לא נוצרו תאריכים — בחר ימים בשבוע"); return; }
+    setBusy(true);
+    try {
+      const payload = buildRecurringPayload(recurring, dates);
+      const found = await scheduleApi.findConflicts(payload);
+      if (found.length > 0) {
+        setPreviewDates(dates);
+        setConflicts(found);
+        toast.error(`נמצאו ${found.length} התנגשויות — בחר כיצד להמשיך`);
+        return;
+      }
+      const { inserted } = await scheduleApi.bulkCreate(payload);
+      toast.success(`נוצרו ${inserted} אירועים`);
+      setRecurring(null);
+      setConflicts(null);
+      setPreviewDates([]);
+      qc.invalidateQueries({ queryKey: ["schedule"] });
+    } catch (e: any) {
+      toast.error(e.message ?? "שגיאה");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function commitRecurring(skipConflicts: boolean) {
     if (!recurring) return;
     const conflictDates = new Set((conflicts ?? []).map((c) => c.candidate.event_date));
