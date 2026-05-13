@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { AdminLoading, AdminShell, StatCard } from "@/components/AdminShell";
 import { adminApi } from "@/lib/admin-api";
@@ -10,6 +10,9 @@ export const Route = createFileRoute("/admin")({
 });
 
 function AdminOverview() {
+  const location = useLocation();
+  if (location.pathname !== "/admin") return <Outlet />;
+
   const candidatesQ = useQuery({ queryKey: ["candidates"], queryFn: () => adminApi.listCandidates() });
   const classesQ = useQuery({ queryKey: ["classes"], queryFn: adminApi.listClasses });
   const teachersQ = useQuery({ queryKey: ["teachers"], queryFn: adminApi.listTeachers });
