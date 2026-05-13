@@ -462,15 +462,14 @@ function SchedulePage() {
 
             <div className="flex flex-wrap justify-end gap-2 pt-2">
               <button onClick={() => { setRecurring(null); setConflicts(null); setPreviewDates([]); }} disabled={busy} className="rounded-lg border border-border/60 px-4 py-2 text-sm">ביטול</button>
-              {previewDates.length === 0 ? (
-                <button onClick={checkRecurring} disabled={busy} className="rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-gold-foreground">בדוק והצג</button>
-              ) : conflicts && conflicts.length > 0 ? (
+              <button onClick={checkRecurring} disabled={busy} className="rounded-lg border border-border/60 px-4 py-2 text-sm">תצוגה מקדימה</button>
+              {conflicts && conflicts.length > 0 ? (
                 <>
-                  <button onClick={() => commitRecurring(true)} disabled={busy} className="rounded-lg border border-gold/60 bg-gold/20 px-4 py-2 text-sm font-semibold text-gold">צור ודלג על התנגשויות</button>
-                  <button onClick={() => commitRecurring(false)} disabled={busy} className="rounded-lg border border-rose-500/40 px-4 py-2 text-sm font-semibold text-rose-300">צור בכל זאת</button>
+                  <button onClick={() => commitRecurring(true)} disabled={busy} className="rounded-lg border border-gold/60 bg-gold/20 px-4 py-2 text-sm font-semibold text-gold">שמור ודלג על התנגשויות</button>
+                  <button onClick={() => commitRecurring(false)} disabled={busy} className="rounded-lg border border-rose-500/40 px-4 py-2 text-sm font-semibold text-rose-300">שמור בכל זאת</button>
                 </>
               ) : (
-                <button onClick={() => commitRecurring(false)} disabled={busy} className="rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-gold-foreground">אשר ויצירה</button>
+                <button onClick={saveRecurringDirect} disabled={busy} className="rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-gold-foreground">שמור</button>
               )}
             </div>
           </div>
