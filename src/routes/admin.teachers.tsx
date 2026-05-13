@@ -1,21 +1,27 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { AdminShell } from "@/components/AdminShell";
 import { adminApi } from "@/lib/admin-api";
+import { createUserAccount } from "@/lib/admin-users.functions";
 import { useState } from "react";
 import { toast } from "sonner";
-import { UserCog } from "lucide-react";
+import { UserCog, Plus } from "lucide-react";
 
 export const Route = createFileRoute("/admin/teachers")({
   head: () => ({ meta: [{ title: "מורים והרשאות — Haile Drive AI" }] }),
   component: TeachersPage,
 });
 
+type NewUserForm = { email: string; password: string; full_name: string; phone: string; role: "teacher" | "student" | "staff" };
+const emptyUser: NewUserForm = { email: "", password: "", full_name: "", phone: "", role: "teacher" };
+
 function TeachersPage() {
   const qc = useQueryClient();
   const usersQ = useQuery({ queryKey: ["all-users"], queryFn: adminApi.listAllUsers });
   const teachersQ = useQuery({ queryKey: ["teachers"], queryFn: adminApi.listTeachers });
   const classesQ = useQuery({ queryKey: ["classes"], queryFn: adminApi.listClasses });
+  const createUser = useServerFn(createUserAccount);
 
   const teacherIds = new Set((teachersQ.data ?? []).map((t) => t.id));
 
@@ -33,13 +39,28 @@ function TeachersPage() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const createMut = useMutation({
+    mutationFn: (form: NewUserForm) => createUser({ data: { ...form, phone: form.phone || null } }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["all-users"] });
+      qc.invalidateQueries({ queryKey: ["teachers"] });
+      setNewUser(null);
+      toast.success("חשבון נוצר");
+    },
+    onError: (e: any) => toast.error(e.message ?? "יצירה נכשלה"),
+  });
+
   const [tab, setTab] = useState<"users" | "assign">("users");
+  const [newUser, setNewUser] = useState<NewUserForm | null>(null);
 
   return (
     <AdminShell title="מורים והרשאות">
-      <div className="mb-4 flex gap-2">
+      <div className="mb-4 flex flex-wrap items-center gap-2">
         <button onClick={() => setTab("users")} className={`rounded-xl px-4 py-2 text-sm ${tab === "users" ? "bg-gold text-gold-foreground" : "border border-border/60"}`}>הרשאות מורה</button>
         <button onClick={() => setTab("assign")} className={`rounded-xl px-4 py-2 text-sm ${tab === "assign" ? "bg-gold text-gold-foreground" : "border border-border/60"}`}>שיבוץ לכיתות</button>
+        <button onClick={() => setNewUser({ ...emptyUser })} className="ms-auto inline-flex h-10 items-center gap-1.5 rounded-xl bg-gold px-4 text-sm font-semibold text-gold-foreground">
+          <Plus className="h-4 w-4" /> חשבון חדש
+        </button>
       </div>
 
       {tab === "users" && (
@@ -96,6 +117,44 @@ function TeachersPage() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {newUser && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" onClick={() => setNewUser(null)}>
+          <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md rounded-2xl border border-border bg-background p-5" dir="rtl">
+            <h3 className="mb-4 text-lg font-bold">יצירת חשבון חדש</h3>
+            <form onSubmit={(e) => { e.preventDefault(); if (!newUser.email || newUser.password.length < 8 || !newUser.full_name) { toast.error("מלא את כל השדות (סיסמה ≥ 8 תווים)"); return; } createMut.mutate(newUser); }} className="space-y-3">
+              <label className="block">
+                <span className="mb-1 block text-xs font-semibold">שם מלא *</span>
+                <input required value={newUser.full_name} onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })} className="block w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-xs font-semibold">אימייל *</span>
+                <input type="email" required value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} className="block w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-xs font-semibold">סיסמה ראשונית * (≥ 8 תווים)</span>
+                <input type="text" required minLength={8} value={newUser.password} onChange={(e) => setNewUser({ ...newUser, password: e.target.value })} className="block w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-xs font-semibold">טלפון</span>
+                <input value={newUser.phone} onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })} className="block w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-xs font-semibold">תפקיד *</span>
+                <select value={newUser.role} onChange={(e) => setNewUser({ ...newUser, role: e.target.value as any })} className="block w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                  <option value="teacher">מורה</option>
+                  <option value="student">תלמיד</option>
+                  <option value="staff">צוות</option>
+                </select>
+              </label>
+              <div className="flex justify-end gap-2 pt-2">
+                <button type="button" onClick={() => setNewUser(null)} className="rounded-lg border border-border/60 px-4 py-2 text-sm">ביטול</button>
+                <button type="submit" disabled={createMut.isPending} className="rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-gold-foreground disabled:opacity-50">{createMut.isPending ? "יוצר…" : "צור חשבון"}</button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </AdminShell>
