@@ -72,7 +72,7 @@ function LoginPage() {
   const { t, dir } = useI18n();
   const navigate = useNavigate();
   const { signIn, signUp, refresh } = useAuth();
-  const [portal, setPortal] = useState<PortalRole>("student");
+  const [portal, setPortal] = useState<PortalRole>("owner");
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
