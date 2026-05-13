@@ -34,12 +34,20 @@ export const createUserAccount = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     const newId = created.user!.id;
 
-    // Profile is auto-created by handle_new_user trigger; the trigger also
-    // assigns 'student' by default. Override to requested role.
-    if (data.role !== "student") {
-      await supabaseAdmin.from("user_roles").delete().eq("user_id", newId).eq("role", "student");
-      await supabaseAdmin.from("user_roles").insert({ user_id: newId, role: data.role });
-    }
+    const { error: profileError } = await supabaseAdmin.from("profiles").upsert({
+      id: newId,
+      email: data.email,
+      full_name: data.full_name,
+      phone: data.phone ?? "",
+      is_active: true,
+    });
+    if (profileError) throw new Error(profileError.message);
+
+    await supabaseAdmin.from("user_roles").delete().eq("user_id", newId);
+    const { error: roleError } = await supabaseAdmin
+      .from("user_roles")
+      .insert({ user_id: newId, role: data.role });
+    if (roleError) throw new Error(roleError.message);
 
     return { id: newId };
   });
