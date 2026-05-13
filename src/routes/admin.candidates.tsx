@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { AdminShell } from "@/components/AdminShell";
+import { AdminLoading, AdminShell } from "@/components/AdminShell";
 import { adminApi, type Candidate } from "@/lib/admin-api";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
@@ -58,6 +58,7 @@ function CandidatesPage() {
     if (q && !`${c.full_name} ${c.phone ?? ""} ${c.email ?? ""}`.toLowerCase().includes(q.toLowerCase())) return false;
     return true;
   });
+  const isLoading = candidatesQ.isLoading || citiesQ.isLoading || classesQ.isLoading;
 
   return (
     <AdminShell title="ניהול לידים ותלמידים">
@@ -80,6 +81,13 @@ function CandidatesPage() {
         </button>
       </div>
 
+      {isLoading && <div className="mt-4"><AdminLoading label="טוען תלמידים, ערים וכיתות מהמסד…" /></div>}
+      {(candidatesQ.error || citiesQ.error || classesQ.error) && (
+        <div className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-300">
+          טעינת הנתונים נכשלה: {((candidatesQ.error || citiesQ.error || classesQ.error) as Error).message}
+        </div>
+      )}
+
       <div className="mt-4 overflow-hidden rounded-2xl border border-border/60 bg-card/40">
         <table className="w-full text-sm">
           <thead className="bg-background/40 text-right text-[11px] uppercase tracking-wider text-muted-foreground">
@@ -94,8 +102,8 @@ function CandidatesPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border/40">
-            {candidatesQ.isLoading && <tr><td colSpan={7} className="px-3 py-10 text-center text-muted-foreground">טוען…</td></tr>}
-            {!candidatesQ.isLoading && filtered.length === 0 && <tr><td colSpan={7} className="px-3 py-10 text-center text-muted-foreground">אין רשומות</td></tr>}
+            {isLoading && <tr><td colSpan={7} className="px-3 py-10 text-center text-muted-foreground">טוען נתונים חיים…</td></tr>}
+            {!isLoading && filtered.length === 0 && <tr><td colSpan={7} className="px-3 py-10 text-center text-muted-foreground">אין רשומות</td></tr>}
             {filtered.map((c) => (
               <tr key={c.id} className="hover:bg-accent/30">
                 <td className="px-3 py-3 font-semibold">{c.full_name}</td>
