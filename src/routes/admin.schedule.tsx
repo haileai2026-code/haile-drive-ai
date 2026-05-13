@@ -173,6 +173,18 @@ function SchedulePage() {
         >
           <Plus className="h-4 w-4" /> אירוע חדש
         </button>
+        <button
+          onClick={() => setRecurring({
+            title: "", type: "lesson", class_id: filterClass, location: "",
+            start_time: "16:00", end_time: "18:00",
+            start_date: new Date().toISOString().slice(0, 10),
+            weekdays: [0, 2, 4], mode: "count", count: 6,
+            until_date: new Date(Date.now() + 90 * 86400000).toISOString().slice(0, 10),
+          })}
+          className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-gold/40 bg-gold/10 px-4 text-sm font-semibold text-gold hover:bg-gold/20"
+        >
+          <CalendarRange className="h-4 w-4" /> תזמון סדרת שיעורים
+        </button>
         <select
           value={filterClass}
           onChange={(e) => setFilterClass(e.target.value)}
