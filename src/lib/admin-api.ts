@@ -225,4 +225,33 @@ export const adminApi = {
     const { error } = await sb.from("exam_questions").delete().eq("id", id);
     if (error) throw error;
   },
+
+  // ATTENDANCE
+  async listAttendance(opts?: { classId?: string; date?: string; from?: string; to?: string }): Promise<AttendanceRecord[]> {
+    let q = sb.from("attendance_records").select("*").order("lesson_date", { ascending: false });
+    if (opts?.classId) q = q.eq("class_id", opts.classId);
+    if (opts?.date) q = q.eq("lesson_date", opts.date);
+    if (opts?.from) q = q.gte("lesson_date", opts.from);
+    if (opts?.to) q = q.lte("lesson_date", opts.to);
+    const { data, error } = await q;
+    if (error) throw error;
+    return data ?? [];
+  },
+  async upsertAttendance(rows: Partial<AttendanceRecord>[]) {
+    if (!rows.length) return;
+    const { error } = await sb.from("attendance_records").upsert(rows, { onConflict: "class_id,candidate_id,lesson_date" });
+    if (error) throw error;
+  },
+};
+
+export type AttendanceMark = "present" | "late" | "missing" | "makeup_completed";
+export type AttendanceRecord = {
+  id: string;
+  class_id: string;
+  candidate_id: string;
+  lesson_date: string;
+  mark: AttendanceMark;
+  notes: string | null;
+  marked_by: string | null;
+  created_at: string;
 };
