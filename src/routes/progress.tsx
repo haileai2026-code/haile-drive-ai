@@ -43,7 +43,7 @@ function ProgressPage() {
         .select("*")
         .eq("user_id", user.id)
         .order("taken_at", { ascending: true });
-      setRows((data ?? []) as ExamRow[]);
+      setRows((data ?? []) as unknown as ExamRow[]);
     })();
   }, [user]);
 
