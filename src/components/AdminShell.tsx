@@ -22,6 +22,7 @@ const NAV: NavItem[] = [
   { to: "/admin/classes", icon: GraduationCap, label: "כיתות וקבוצות", roles: ["owner"] },
   { to: "/admin/attendance", icon: ClipboardCheck, label: "ניתוח נוכחות", roles: ["owner"] },
   { to: "/admin/makeup", icon: CalendarClock, label: "השלמות שיעורים", roles: ["owner"] },
+  { to: "/admin/schedule", icon: CalendarClock, label: "לוז שיעורים ומבחנים", roles: ["owner"] },
   { to: "/admin/materials", icon: FileText, label: "חומרי לימוד והעשרה", roles: ["owner"] },
   { to: "/admin/exams", icon: FileQuestion, label: "בנק מבחנים", roles: ["owner"] },
   { to: "/admin/cities", icon: Building2, label: "ערים ומסלולים", roles: ["owner"] },
