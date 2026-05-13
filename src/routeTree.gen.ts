@@ -13,7 +13,6 @@ import { Route as TeacherRouteImport } from './routes/teacher'
 import { Route as ScheduleRouteImport } from './routes/schedule'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as QuizRouteImport } from './routes/quiz'
-import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LessonsRouteImport } from './routes/lessons'
@@ -64,11 +63,6 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const QuizRoute = QuizRouteImport.update({
   id: '/quiz',
   path: '/quiz',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProgressRoute = ProgressRouteImport.update({
-  id: '/progress',
-  path: '/progress',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -239,7 +233,6 @@ export interface FileRoutesByFullPath {
   '/lessons': typeof LessonsRouteWithChildren
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
-  '/progress': typeof ProgressRoute
   '/quiz': typeof QuizRoute
   '/reset-password': typeof ResetPasswordRoute
   '/schedule': typeof ScheduleRoute
@@ -277,7 +270,6 @@ export interface FileRoutesByTo {
   '/lessons': typeof LessonsRouteWithChildren
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
-  '/progress': typeof ProgressRoute
   '/quiz': typeof QuizRoute
   '/reset-password': typeof ResetPasswordRoute
   '/schedule': typeof ScheduleRoute
@@ -316,7 +308,6 @@ export interface FileRoutesById {
   '/lessons': typeof LessonsRouteWithChildren
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
-  '/progress': typeof ProgressRoute
   '/quiz': typeof QuizRoute
   '/reset-password': typeof ResetPasswordRoute
   '/schedule': typeof ScheduleRoute
@@ -356,7 +347,6 @@ export interface FileRouteTypes {
     | '/lessons'
     | '/login'
     | '/profile'
-    | '/progress'
     | '/quiz'
     | '/reset-password'
     | '/schedule'
@@ -394,7 +384,6 @@ export interface FileRouteTypes {
     | '/lessons'
     | '/login'
     | '/profile'
-    | '/progress'
     | '/quiz'
     | '/reset-password'
     | '/schedule'
@@ -432,7 +421,6 @@ export interface FileRouteTypes {
     | '/lessons'
     | '/login'
     | '/profile'
-    | '/progress'
     | '/quiz'
     | '/reset-password'
     | '/schedule'
@@ -471,7 +459,6 @@ export interface RootRouteChildren {
   LessonsRoute: typeof LessonsRouteWithChildren
   LoginRoute: typeof LoginRoute
   ProfileRoute: typeof ProfileRoute
-  ProgressRoute: typeof ProgressRoute
   QuizRoute: typeof QuizRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ScheduleRoute: typeof ScheduleRoute
@@ -507,13 +494,6 @@ declare module '@tanstack/react-router' {
       path: '/quiz'
       fullPath: '/quiz'
       preLoaderRoute: typeof QuizRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/progress': {
-      id: '/progress'
-      path: '/progress'
-      fullPath: '/progress'
-      preLoaderRoute: typeof ProgressRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -834,7 +814,6 @@ const rootRouteChildren: RootRouteChildren = {
   LessonsRoute: LessonsRouteWithChildren,
   LoginRoute: LoginRoute,
   ProfileRoute: ProfileRoute,
-  ProgressRoute: ProgressRoute,
   QuizRoute: QuizRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ScheduleRoute: ScheduleRoute,
@@ -844,3 +823,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
