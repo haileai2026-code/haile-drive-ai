@@ -3,7 +3,7 @@ import { LayoutDashboard, BookOpen, Bot, Trophy, Users, LogOut, type LucideIcon 
 import { useI18n } from "@/lib/i18n";
 import { LangSwitcher } from "./LangSwitcher";
 import { RequireAuth } from "./RequireAuth";
-import { useAuth } from "@/lib/auth";
+import { useAuth, roleHomePath } from "@/lib/auth";
 import type { ReactNode } from "react";
 
 type NavItem = { to: string; icon: LucideIcon; key: "dashboard" | "lessons" | "aiTeacher" | "quiz" | "community" };
@@ -20,14 +20,16 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { t } = useI18n();
   const loc = useLocation();
 
-  const { signOut } = useAuth();
+  const { signOut, role } = useAuth();
+  const roles = role === "owner" || role === "staff" || role === "teacher" ? ["student"] as const : undefined;
+  const homePath = roleHomePath(role);
 
   return (
-    <RequireAuth>
+    <RequireAuth roles={roles}>
     <div className="min-h-screen bg-night pb-24">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl">
         <div className="mx-auto flex max-w-screen-md items-center justify-between px-4 py-3">
-          <Link to="/dashboard" className="flex items-center gap-2">
+          <Link to={homePath} className="flex items-center gap-2">
             <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-gold to-amber-600 text-gold-foreground font-black shadow-[var(--shadow-gold)]">H</span>
             <span className="text-sm font-semibold tracking-tight">{t("appName")}</span>
           </Link>
