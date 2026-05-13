@@ -420,6 +420,79 @@ export type Database = {
         }
         Relationships: []
       }
+      schedule_events: {
+        Row: {
+          candidate_id: string | null
+          class_id: string | null
+          created_at: string
+          created_by: string | null
+          end_time: string | null
+          event_date: string
+          exam_id: string | null
+          id: string
+          location: string | null
+          notes: string | null
+          start_time: string | null
+          title: string
+          type: Database["public"]["Enums"]["schedule_event_type"]
+          updated_at: string
+        }
+        Insert: {
+          candidate_id?: string | null
+          class_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          end_time?: string | null
+          event_date: string
+          exam_id?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          start_time?: string | null
+          title: string
+          type?: Database["public"]["Enums"]["schedule_event_type"]
+          updated_at?: string
+        }
+        Update: {
+          candidate_id?: string | null
+          class_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          end_time?: string | null
+          event_date?: string
+          exam_id?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          start_time?: string | null
+          title?: string
+          type?: Database["public"]["Enums"]["schedule_event_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_events_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_events_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_events_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "exams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       teacher_assignments: {
         Row: {
           city_id: string | null
@@ -513,6 +586,7 @@ export type Database = {
       makeup_status: "pending" | "scheduled" | "completed" | "cancelled"
       material_category: "study" | "enrichment"
       material_type: "pdf" | "image" | "link" | "video"
+      schedule_event_type: "lesson" | "exam" | "makeup"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -656,6 +730,7 @@ export const Constants = {
       makeup_status: ["pending", "scheduled", "completed", "cancelled"],
       material_category: ["study", "enrichment"],
       material_type: ["pdf", "image", "link", "video"],
+      schedule_event_type: ["lesson", "exam", "makeup"],
     },
   },
 } as const

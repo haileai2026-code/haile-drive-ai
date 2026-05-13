@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { useI18n, localized } from "@/lib/i18n";
 import { lessons } from "@/lib/mock-data";
-import { Bot, ChevronRight, Flame, PlayCircle, Trophy } from "lucide-react";
+import { Bot, CalendarClock, ChevronRight, Flame, PlayCircle, Trophy } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — Haile Drive AI" }] }),
@@ -38,6 +38,11 @@ function Dashboard() {
       </section>
 
       <section className="mt-6 grid grid-cols-2 gap-3">
+        <Link to="/schedule" className="group rounded-2xl border border-gold/40 bg-gradient-to-br from-amber-900/30 to-card p-4 transition hover:border-gold">
+          <CalendarClock className="h-6 w-6 text-gold" />
+          <div className="mt-3 text-sm font-semibold">הלוז שלי</div>
+          <div className="text-xs text-muted-foreground">שיעורים ומבחנים</div>
+        </Link>
         <Link to="/ai" className="group rounded-2xl border border-border/70 bg-card/60 p-4 transition hover:border-gold/40">
           <Bot className="h-6 w-6 text-gold" />
           <div className="mt-3 text-sm font-semibold">{t("aiTeacher")}</div>
