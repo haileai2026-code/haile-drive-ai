@@ -39,6 +39,7 @@ import { Route as AdminCandidatesRouteImport } from './routes/admin.candidates'
 import { Route as AdminBranchesRouteImport } from './routes/admin.branches'
 import { Route as AdminAttendanceRouteImport } from './routes/admin.attendance'
 import { Route as AdminExamsExamIdRouteImport } from './routes/admin.exams.$examId'
+import { Route as AdminAttendanceDrilldownRouteImport } from './routes/admin.attendance.drilldown'
 
 const TeacherRoute = TeacherRouteImport.update({
   id: '/teacher',
@@ -190,6 +191,12 @@ const AdminExamsExamIdRoute = AdminExamsExamIdRouteImport.update({
   path: '/$examId',
   getParentRoute: () => AdminExamsRoute,
 } as any)
+const AdminAttendanceDrilldownRoute =
+  AdminAttendanceDrilldownRouteImport.update({
+    id: '/drilldown',
+    path: '/drilldown',
+    getParentRoute: () => AdminAttendanceRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -203,7 +210,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/quiz': typeof QuizRoute
   '/teacher': typeof TeacherRouteWithChildren
-  '/admin/attendance': typeof AdminAttendanceRoute
+  '/admin/attendance': typeof AdminAttendanceRouteWithChildren
   '/admin/branches': typeof AdminBranchesRoute
   '/admin/candidates': typeof AdminCandidatesRoute
   '/admin/cities': typeof AdminCitiesRoute
@@ -221,6 +228,7 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AdminUsersRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/teacher/attendance': typeof TeacherAttendanceRoute
+  '/admin/attendance/drilldown': typeof AdminAttendanceDrilldownRoute
   '/admin/exams/$examId': typeof AdminExamsExamIdRoute
 }
 export interface FileRoutesByTo {
@@ -235,7 +243,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/quiz': typeof QuizRoute
   '/teacher': typeof TeacherRouteWithChildren
-  '/admin/attendance': typeof AdminAttendanceRoute
+  '/admin/attendance': typeof AdminAttendanceRouteWithChildren
   '/admin/branches': typeof AdminBranchesRoute
   '/admin/candidates': typeof AdminCandidatesRoute
   '/admin/cities': typeof AdminCitiesRoute
@@ -253,6 +261,7 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AdminUsersRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/teacher/attendance': typeof TeacherAttendanceRoute
+  '/admin/attendance/drilldown': typeof AdminAttendanceDrilldownRoute
   '/admin/exams/$examId': typeof AdminExamsExamIdRoute
 }
 export interface FileRoutesById {
@@ -268,7 +277,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/quiz': typeof QuizRoute
   '/teacher': typeof TeacherRouteWithChildren
-  '/admin/attendance': typeof AdminAttendanceRoute
+  '/admin/attendance': typeof AdminAttendanceRouteWithChildren
   '/admin/branches': typeof AdminBranchesRoute
   '/admin/candidates': typeof AdminCandidatesRoute
   '/admin/cities': typeof AdminCitiesRoute
@@ -286,6 +295,7 @@ export interface FileRoutesById {
   '/admin/users': typeof AdminUsersRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/teacher/attendance': typeof TeacherAttendanceRoute
+  '/admin/attendance/drilldown': typeof AdminAttendanceDrilldownRoute
   '/admin/exams/$examId': typeof AdminExamsExamIdRoute
 }
 export interface FileRouteTypes {
@@ -320,6 +330,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/lessons/$lessonId'
     | '/teacher/attendance'
+    | '/admin/attendance/drilldown'
     | '/admin/exams/$examId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -352,6 +363,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/lessons/$lessonId'
     | '/teacher/attendance'
+    | '/admin/attendance/drilldown'
     | '/admin/exams/$examId'
   id:
     | '__root__'
@@ -384,6 +396,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/lessons/$lessonId'
     | '/teacher/attendance'
+    | '/admin/attendance/drilldown'
     | '/admin/exams/$examId'
   fileRoutesById: FileRoutesById
 }
@@ -613,8 +626,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminExamsExamIdRouteImport
       parentRoute: typeof AdminExamsRoute
     }
+    '/admin/attendance/drilldown': {
+      id: '/admin/attendance/drilldown'
+      path: '/drilldown'
+      fullPath: '/admin/attendance/drilldown'
+      preLoaderRoute: typeof AdminAttendanceDrilldownRouteImport
+      parentRoute: typeof AdminAttendanceRoute
+    }
   }
 }
+
+interface AdminAttendanceRouteChildren {
+  AdminAttendanceDrilldownRoute: typeof AdminAttendanceDrilldownRoute
+}
+
+const AdminAttendanceRouteChildren: AdminAttendanceRouteChildren = {
+  AdminAttendanceDrilldownRoute: AdminAttendanceDrilldownRoute,
+}
+
+const AdminAttendanceRouteWithChildren = AdminAttendanceRoute._addFileChildren(
+  AdminAttendanceRouteChildren,
+)
 
 interface AdminExamsRouteChildren {
   AdminExamsExamIdRoute: typeof AdminExamsExamIdRoute
@@ -629,7 +661,7 @@ const AdminExamsRouteWithChildren = AdminExamsRoute._addFileChildren(
 )
 
 interface AdminRouteChildren {
-  AdminAttendanceRoute: typeof AdminAttendanceRoute
+  AdminAttendanceRoute: typeof AdminAttendanceRouteWithChildren
   AdminBranchesRoute: typeof AdminBranchesRoute
   AdminCandidatesRoute: typeof AdminCandidatesRoute
   AdminCitiesRoute: typeof AdminCitiesRoute
@@ -648,7 +680,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
-  AdminAttendanceRoute: AdminAttendanceRoute,
+  AdminAttendanceRoute: AdminAttendanceRouteWithChildren,
   AdminBranchesRoute: AdminBranchesRoute,
   AdminCandidatesRoute: AdminCandidatesRoute,
   AdminCitiesRoute: AdminCitiesRoute,
