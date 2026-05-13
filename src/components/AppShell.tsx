@@ -5,6 +5,7 @@ import { LangSwitcher } from "./LangSwitcher";
 import { RequireAuth } from "./RequireAuth";
 import { useAuth, roleHomePath } from "@/lib/auth";
 import type { ReactNode } from "react";
+import type { Role } from "@/lib/ops-data";
 
 type NavItem = { to: string; icon: LucideIcon; key: "dashboard" | "lessons" | "aiTeacher" | "quiz" | "community" };
 
@@ -21,7 +22,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const loc = useLocation();
 
   const { signOut, role } = useAuth();
-  const roles = role === "owner" || role === "staff" || role === "teacher" ? ["student"] : undefined;
+  const roles: Role[] | undefined = role === "owner" || role === "staff" || role === "teacher" ? ["student"] : undefined;
   const homePath = roleHomePath(role);
 
   return (
