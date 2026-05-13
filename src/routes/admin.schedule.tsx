@@ -113,6 +113,57 @@ function SchedulePage() {
     qc.invalidateQueries({ queryKey: ["schedule"] });
   }
 
+  function buildRecurringPayload(r: RecurringForm, dates: string[]) {
+    return dates.map((d) => ({
+      type: r.type,
+      title: r.title,
+      class_id: r.class_id || null,
+      event_date: d,
+      start_time: r.start_time || null,
+      end_time: r.end_time || null,
+      location: r.location || null,
+    }));
+  }
+
+  async function checkRecurring() {
+    if (!recurring) return;
+    if (!recurring.title.trim()) { toast.error("חסר שם השיעור"); return; }
+    const dates = generateDates(recurring.start_date, recurring.weekdays, recurring.mode, recurring.count, recurring.until_date);
+    if (!dates.length) { toast.error("לא נוצרו תאריכים — בחר ימים בשבוע"); return; }
+    setBusy(true);
+    try {
+      const payload = buildRecurringPayload(recurring, dates);
+      const found = await scheduleApi.findConflicts(payload);
+      setPreviewDates(dates);
+      setConflicts(found);
+    } catch (e: any) {
+      toast.error(e.message ?? "שגיאה");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function commitRecurring(skipConflicts: boolean) {
+    if (!recurring) return;
+    const conflictDates = new Set((conflicts ?? []).map((c) => c.candidate.event_date));
+    const dates = skipConflicts ? previewDates.filter((d) => !conflictDates.has(d)) : previewDates;
+    if (!dates.length) { toast.error("אין תאריכים ליצירה"); return; }
+    setBusy(true);
+    try {
+      const payload = buildRecurringPayload(recurring, dates);
+      const { inserted } = await scheduleApi.bulkCreate(payload);
+      toast.success(`נוצרו ${inserted} אירועים`);
+      setRecurring(null);
+      setConflicts(null);
+      setPreviewDates([]);
+      qc.invalidateQueries({ queryKey: ["schedule"] });
+    } catch (e: any) {
+      toast.error(e.message ?? "שגיאה");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <AdminShell title="לוז שיעורים ומבחנים">
       <div className="flex flex-wrap items-center gap-2">
