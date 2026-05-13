@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { AdminShell } from "@/components/AdminShell";
+import { AdminLoading, AdminShell } from "@/components/AdminShell";
 import { adminApi, type Material } from "@/lib/admin-api";
+import { useAuth } from "@/lib/auth";
 import { Plus, Trash2, FileText, Image as ImageIcon, Link as LinkIcon, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
@@ -13,12 +14,14 @@ export const Route = createFileRoute("/admin/materials")({
 
 function MaterialsPage() {
   const qc = useQueryClient();
+  const { user, loading } = useAuth();
+  const canQuery = !loading && !!user;
   const [tab, setTab] = useState<"study" | "enrichment">("study");
   const [editing, setEditing] = useState<Partial<Material> | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  const matsQ = useQuery({ queryKey: ["materials"], queryFn: () => adminApi.listMaterials() });
-  const classesQ = useQuery({ queryKey: ["classes"], queryFn: adminApi.listClasses });
+  const matsQ = useQuery({ queryKey: ["materials"], queryFn: () => adminApi.listMaterials(), enabled: canQuery });
+  const classesQ = useQuery({ queryKey: ["classes"], queryFn: adminApi.listClasses, enabled: canQuery });
 
   const saveMut = useMutation({
     mutationFn: (m: Partial<Material>) => adminApi.upsertMaterial(m as any),
@@ -44,6 +47,8 @@ function MaterialsPage() {
   const list = (matsQ.data ?? []).filter((m) => m.category === tab);
 
   const TYPE_ICON = { pdf: FileText, image: ImageIcon, link: LinkIcon, video: LinkIcon } as const;
+  const isLoading = matsQ.isLoading || classesQ.isLoading;
+  const loadError = matsQ.error || classesQ.error;
 
   return (
     <AdminShell title="חומרי לימוד והעשרה">
@@ -57,9 +62,11 @@ function MaterialsPage() {
         </button>
       </div>
 
+      {isLoading && <div className="mt-4"><AdminLoading label="טוען חומרי לימוד וכיתות מהמסד…" /></div>}
+      {loadError && <div className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-300">טעינת הנתונים נכשלה: {(loadError as Error).message}</div>}
+
       <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {matsQ.isLoading && <div className="text-sm text-muted-foreground">טוען…</div>}
-        {!matsQ.isLoading && list.length === 0 && <div className="text-sm text-muted-foreground">אין חומרים. הוסף חומר ראשון.</div>}
+        {!isLoading && list.length === 0 && <div className="text-sm text-muted-foreground">אין חומרים. הוסף חומר ראשון.</div>}
         {list.map((m) => {
           const Icon = TYPE_ICON[m.type];
           const url = m.file_url ?? m.external_link ?? "#";

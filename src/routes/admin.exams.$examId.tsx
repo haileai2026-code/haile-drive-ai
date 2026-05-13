@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { AdminShell } from "@/components/AdminShell";
+import { AdminLoading, AdminShell } from "@/components/AdminShell";
 import { adminApi } from "@/lib/admin-api";
+import { useAuth } from "@/lib/auth";
 import { Plus, Trash2, ChevronRight, Check } from "lucide-react";
 import { toast } from "sonner";
 
@@ -28,8 +29,10 @@ const emptyDraft = (): Draft => ({
 function ExamEditor() {
   const { examId } = Route.useParams();
   const qc = useQueryClient();
-  const examQ = useQuery({ queryKey: ["exam", examId], queryFn: () => adminApi.getExam(examId) });
-  const questionsQ = useQuery({ queryKey: ["questions", examId], queryFn: () => adminApi.listQuestions(examId) });
+  const { user, loading } = useAuth();
+  const canQuery = !loading && !!user;
+  const examQ = useQuery({ queryKey: ["exam", examId], queryFn: () => adminApi.getExam(examId), enabled: canQuery });
+  const questionsQ = useQuery({ queryKey: ["questions", examId], queryFn: () => adminApi.listQuestions(examId), enabled: canQuery });
   const [draft, setDraft] = useState<Draft | null>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -66,6 +69,8 @@ function ExamEditor() {
     if (!valid.some((o) => o.is_correct)) { toast.error("בחר תשובה נכונה"); return; }
     addMut.mutate(d);
   };
+  const isLoading = examQ.isLoading || questionsQ.isLoading;
+  const loadError = examQ.error || questionsQ.error;
 
   return (
     <AdminShell title={`עריכת שאלות — ${examQ.data?.title ?? ""}`}>
@@ -79,8 +84,11 @@ function ExamEditor() {
         <Plus className="h-4 w-4" /> שאלה חדשה
       </button>
 
+      {isLoading && <div className="mt-4"><AdminLoading label="טוען מבחן ושאלות מהמסד…" /></div>}
+      {loadError && <div className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-300">טעינת הנתונים נכשלה: {(loadError as Error).message}</div>}
+
       <div className="mt-4 space-y-3">
-        {questionsQ.data?.length === 0 && <div className="text-sm text-muted-foreground">אין שאלות עדיין.</div>}
+        {!isLoading && questionsQ.data?.length === 0 && <div className="text-sm text-muted-foreground">אין שאלות עדיין.</div>}
         {questionsQ.data?.map((q, idx) => (
           <article key={q.id} className="rounded-2xl border border-border/60 bg-card/40 p-4">
             <div className="flex items-start justify-between gap-3">

@@ -1,8 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { AdminShell } from "@/components/AdminShell";
+import { AdminLoading, AdminShell } from "@/components/AdminShell";
 import { adminApi, type Exam } from "@/lib/admin-api";
+import { useAuth } from "@/lib/auth";
 import { Plus, Trash2, FileQuestion, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 
@@ -12,9 +13,18 @@ export const Route = createFileRoute("/admin/exams")({
 });
 
 function ExamsPage() {
+  const location = useLocation();
+  if (location.pathname !== "/admin/exams") return <Outlet />;
+
+  return <ExamsList />;
+}
+
+function ExamsList() {
   const qc = useQueryClient();
-  const examsQ = useQuery({ queryKey: ["exams"], queryFn: adminApi.listExams });
-  const classesQ = useQuery({ queryKey: ["classes"], queryFn: adminApi.listClasses });
+  const { user, loading } = useAuth();
+  const canQuery = !loading && !!user;
+  const examsQ = useQuery({ queryKey: ["exams"], queryFn: adminApi.listExams, enabled: canQuery });
+  const classesQ = useQuery({ queryKey: ["classes"], queryFn: adminApi.listClasses, enabled: canQuery });
   const [editing, setEditing] = useState<Partial<Exam> | null>(null);
 
   const saveMut = useMutation({
@@ -29,6 +39,8 @@ function ExamsPage() {
   });
 
   const className = (id: string | null) => classesQ.data?.find((c) => c.id === id)?.name ?? "כל הכיתות";
+  const isLoading = examsQ.isLoading || classesQ.isLoading;
+  const loadError = examsQ.error || classesQ.error;
 
   return (
     <AdminShell title="בנק מבחנים">
@@ -38,8 +50,11 @@ function ExamsPage() {
         </button>
       </div>
 
+      {isLoading && <div className="mt-4"><AdminLoading label="טוען מבחנים וכיתות מהמסד…" /></div>}
+      {loadError && <div className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-300">טעינת הנתונים נכשלה: {(loadError as Error).message}</div>}
+
       <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {examsQ.data?.length === 0 && <div className="text-sm text-muted-foreground">אין מבחנים. צור מבחן ראשון.</div>}
+        {!isLoading && examsQ.data?.length === 0 && <div className="text-sm text-muted-foreground">אין מבחנים. צור מבחן ראשון.</div>}
         {examsQ.data?.map((e) => (
           <article key={e.id} className="rounded-2xl border border-border/60 bg-card/40 p-4">
             <div className="flex items-start justify-between">

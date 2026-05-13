@@ -1,7 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { AdminShell, StatCard } from "@/components/AdminShell";
+import { AdminLoading, AdminShell, StatCard } from "@/components/AdminShell";
 import { adminApi } from "@/lib/admin-api";
+import { useAuth } from "@/lib/auth";
 import { Users, GraduationCap, FileText, FileQuestion, UserCog, Building2 } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
@@ -10,14 +11,25 @@ export const Route = createFileRoute("/admin")({
 });
 
 function AdminOverview() {
-  const candidatesQ = useQuery({ queryKey: ["candidates"], queryFn: () => adminApi.listCandidates() });
-  const classesQ = useQuery({ queryKey: ["classes"], queryFn: adminApi.listClasses });
-  const teachersQ = useQuery({ queryKey: ["teachers"], queryFn: adminApi.listTeachers });
-  const materialsQ = useQuery({ queryKey: ["materials"], queryFn: () => adminApi.listMaterials() });
-  const examsQ = useQuery({ queryKey: ["exams"], queryFn: adminApi.listExams });
+  const location = useLocation();
+  if (location.pathname !== "/admin") return <Outlet />;
+
+  return <AdminOverviewContent />;
+}
+
+function AdminOverviewContent() {
+  const { user, loading } = useAuth();
+  const canQuery = !loading && !!user;
+
+  const candidatesQ = useQuery({ queryKey: ["candidates"], queryFn: () => adminApi.listCandidates(), enabled: canQuery });
+  const classesQ = useQuery({ queryKey: ["classes"], queryFn: adminApi.listClasses, enabled: canQuery });
+  const teachersQ = useQuery({ queryKey: ["teachers"], queryFn: adminApi.listTeachers, enabled: canQuery });
+  const materialsQ = useQuery({ queryKey: ["materials"], queryFn: () => adminApi.listMaterials(), enabled: canQuery });
+  const examsQ = useQuery({ queryKey: ["exams"], queryFn: adminApi.listExams, enabled: canQuery });
 
   const candidates = candidatesQ.data ?? [];
   const active = candidates.filter((c) => c.status === "active").length;
+  const isLoading = candidatesQ.isLoading || classesQ.isLoading || teachersQ.isLoading || materialsQ.isLoading || examsQ.isLoading;
 
   return (
     <AdminShell title="דשבורד בעלים">
@@ -26,6 +38,8 @@ function AdminOverview() {
         <h2 className="mt-1 text-2xl font-black tracking-tight">בעלים: תלמידים, מורים, חומרי לימוד ומבחנים</h2>
         <p className="mt-2 max-w-3xl text-sm text-muted-foreground">פעולות מהיר — כל פעולה כאן מעדכנת את מסד הנתונים בזמן אמת.</p>
       </section>
+
+      {isLoading && <AdminLoading />}
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard label="סה״כ לידים/תלמידים" value={candidates.length} hint={`${active} פעילים`} tone="gold" icon={Users} />

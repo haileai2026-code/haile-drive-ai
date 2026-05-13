@@ -1,8 +1,8 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import {
-  LayoutDashboard, Users, GraduationCap, BookOpen, ClipboardCheck,
-  Calendar, Bell, Shield, Building2, ChevronRight, Upload, Download, Network,
-  UserCog, LogOut, FileText, FileQuestion,
+  LayoutDashboard, Users, GraduationCap,
+  Building2, ChevronRight,
+  UserCog, LogOut, FileText, FileQuestion, Loader2,
   type LucideIcon,
 } from "lucide-react";
 import { useRole } from "@/lib/role";
@@ -15,22 +15,13 @@ import type { Role } from "@/lib/ops-data";
 type NavItem = { to: string; icon: LucideIcon; label: string; roles: Role[] };
 
 const NAV: NavItem[] = [
-  { to: "/admin", icon: LayoutDashboard, label: "סקירת בעלים", roles: ["owner", "staff"] },
-  { to: "/admin/candidates", icon: Users, label: "לידים ותלמידים", roles: ["owner", "staff"] },
+  { to: "/admin", icon: LayoutDashboard, label: "סקירת בעלים", roles: ["owner"] },
+  { to: "/admin/candidates", icon: Users, label: "תלמידים ומועמדים", roles: ["owner"] },
   { to: "/admin/teachers", icon: UserCog, label: "מורים והרשאות", roles: ["owner"] },
-  { to: "/admin/classes", icon: GraduationCap, label: "כיתות וקבוצות", roles: ["owner", "staff"] },
-  { to: "/admin/materials", icon: FileText, label: "חומרי לימוד והעשרה", roles: ["owner", "staff"] },
-  { to: "/admin/exams", icon: FileQuestion, label: "בנק מבחנים", roles: ["owner", "staff"] },
-  { to: "/admin/lessons", icon: BookOpen, label: "ניהול שיעורים", roles: ["owner"] },
-  { to: "/admin/attendance", icon: ClipboardCheck, label: "נוכחות", roles: ["owner", "staff"] },
-  { to: "/admin/makeup", icon: Calendar, label: "השלמות", roles: ["owner", "staff"] },
+  { to: "/admin/classes", icon: GraduationCap, label: "כיתות וקבוצות", roles: ["owner"] },
+  { to: "/admin/materials", icon: FileText, label: "חומרי לימוד והעשרה", roles: ["owner"] },
+  { to: "/admin/exams", icon: FileQuestion, label: "בנק מבחנים", roles: ["owner"] },
   { to: "/admin/cities", icon: Building2, label: "ערים ומסלולים", roles: ["owner"] },
-  { to: "/admin/import", icon: Upload, label: "ייבוא נתונים", roles: ["owner", "staff"] },
-  { to: "/admin/export", icon: Download, label: "ייצוא דוחות", roles: ["owner", "staff"] },
-  { to: "/admin/branches", icon: Network, label: "סניפים", roles: ["owner"] },
-  { to: "/admin/users", icon: UserCog, label: "משתמשים", roles: ["owner"] },
-  { to: "/admin/staff", icon: Shield, label: "צוות והרשאות", roles: ["owner"] },
-  { to: "/admin/notifications", icon: Bell, label: "התראות", roles: ["owner", "staff"] },
   { to: "/teacher", icon: GraduationCap, label: "מסך מורה", roles: ["teacher"] },
 ];
 
@@ -41,14 +32,22 @@ const ROLE_LABEL: Record<Role, string> = {
   student: "תלמיד",
 };
 
-export function AdminShell({ children, title }: { children: ReactNode; title: string }) {
+export function AdminShell({
+  children,
+  title,
+  roles = ["owner"],
+}: {
+  children: ReactNode;
+  title: string;
+  roles?: Role[];
+}) {
   const { role } = useRole();
   const { signOut, profile } = useAuth();
   const loc = useLocation();
   const items = NAV.filter((i) => i.roles.includes(role));
 
   return (
-    <RequireAuth roles={["owner", "staff", "teacher"]}>
+    <RequireAuth roles={roles}>
     <div className="min-h-screen bg-night text-foreground">
       <div className="mx-auto flex max-w-screen-2xl">
         <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-border/60 bg-card/40 p-4 lg:flex">
@@ -159,6 +158,17 @@ export function StatCard({
       </div>
       <div className="mt-2 text-3xl font-black tracking-tight">{value}</div>
       {hint && <div className="mt-1 text-xs text-muted-foreground">{hint}</div>}
+    </div>
+  );
+}
+
+export function AdminLoading({ label = "טוען נתונים חיים…" }: { label?: string }) {
+  return (
+    <div className="grid min-h-40 place-items-center rounded-2xl border border-border/60 bg-card/40 p-6 text-muted-foreground">
+      <div className="flex items-center gap-2 text-sm">
+        <Loader2 className="h-4 w-4 animate-spin text-gold" />
+        <span>{label}</span>
+      </div>
     </div>
   );
 }
