@@ -129,6 +129,7 @@ function CandidatesPage() {
                 <td className="px-3 py-3"><span className="rounded-full border border-gold/30 bg-gold/10 px-2 py-0.5 text-[10px] text-gold">{STATUS_LABELS[c.status] ?? c.status}</span></td>
                 <td className="px-3 py-3">
                   <div className="flex justify-end gap-1">
+                    <button onClick={() => setFolderFor(c)} title="תיק נהג" className="rounded-md p-1.5 text-gold hover:bg-gold/10"><FolderOpen className="h-3.5 w-3.5" /></button>
                     <button onClick={() => setEditing(c)} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent"><Pencil className="h-3.5 w-3.5" /></button>
                     <button onClick={() => { if (confirm(`למחוק את ${c.full_name}?`)) delMut.mutate(c.id); }} className="rounded-md p-1.5 text-rose-400 hover:bg-rose-500/10"><Trash2 className="h-3.5 w-3.5" /></button>
                   </div>
