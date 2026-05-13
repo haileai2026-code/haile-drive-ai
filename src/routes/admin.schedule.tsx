@@ -414,26 +414,13 @@ function SchedulePage() {
               </label>
             </div>
 
-            <label className="block text-xs">מתאריך
-              <input type="date" value={recurring.start_date} onChange={(e) => setRecurring({ ...recurring, start_date: e.target.value })} className="mt-1 h-10 w-full rounded-lg border border-border/60 bg-background px-2 text-sm" />
-            </label>
-
             <div className="grid grid-cols-2 gap-2">
-              <label className="block text-xs">סיום לפי
-                <select value={recurring.mode} onChange={(e) => setRecurring({ ...recurring, mode: e.target.value as "count" | "until" })} className="mt-1 h-10 w-full rounded-lg border border-border/60 bg-background px-3 text-sm">
-                  <option value="count">מספר מפגשים</option>
-                  <option value="until">עד תאריך</option>
-                </select>
+              <label className="block text-xs">מתאריך
+                <input type="date" value={recurring.start_date} onChange={(e) => setRecurring({ ...recurring, start_date: e.target.value, mode: "until" })} className="mt-1 h-10 w-full rounded-lg border border-border/60 bg-background px-2 text-sm" />
               </label>
-              {recurring.mode === "count" ? (
-                <label className="block text-xs">מספר מפגשים
-                  <input type="number" min={1} max={200} value={recurring.count} onChange={(e) => setRecurring({ ...recurring, count: parseInt(e.target.value) || 1 })} className="mt-1 h-10 w-full rounded-lg border border-border/60 bg-background px-3 text-sm" />
-                </label>
-              ) : (
-                <label className="block text-xs">עד תאריך
-                  <input type="date" value={recurring.until_date} onChange={(e) => setRecurring({ ...recurring, until_date: e.target.value })} className="mt-1 h-10 w-full rounded-lg border border-border/60 bg-background px-2 text-sm" />
-                </label>
-              )}
+              <label className="block text-xs">עד תאריך
+                <input type="date" value={recurring.until_date} onChange={(e) => setRecurring({ ...recurring, until_date: e.target.value, mode: "until" })} className="mt-1 h-10 w-full rounded-lg border border-border/60 bg-background px-2 text-sm" />
+              </label>
             </div>
 
             <label className="block text-xs">מיקום
