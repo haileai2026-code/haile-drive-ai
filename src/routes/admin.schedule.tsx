@@ -178,7 +178,7 @@ function SchedulePage() {
             title: "", type: "lesson", class_id: filterClass, location: "",
             start_time: "16:00", end_time: "18:00",
             start_date: new Date().toISOString().slice(0, 10),
-            weekdays: [0, 2, 4], mode: "count", count: 6,
+            weekdays: [0, 2, 4], mode: "until", count: 6,
             until_date: new Date(Date.now() + 90 * 86400000).toISOString().slice(0, 10),
           })}
           className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-gold/40 bg-gold/10 px-4 text-sm font-semibold text-gold hover:bg-gold/20"
@@ -414,26 +414,13 @@ function SchedulePage() {
               </label>
             </div>
 
-            <label className="block text-xs">מתאריך
-              <input type="date" value={recurring.start_date} onChange={(e) => setRecurring({ ...recurring, start_date: e.target.value })} className="mt-1 h-10 w-full rounded-lg border border-border/60 bg-background px-2 text-sm" />
-            </label>
-
             <div className="grid grid-cols-2 gap-2">
-              <label className="block text-xs">סיום לפי
-                <select value={recurring.mode} onChange={(e) => setRecurring({ ...recurring, mode: e.target.value as "count" | "until" })} className="mt-1 h-10 w-full rounded-lg border border-border/60 bg-background px-3 text-sm">
-                  <option value="count">מספר מפגשים</option>
-                  <option value="until">עד תאריך</option>
-                </select>
+              <label className="block text-xs">מתאריך
+                <input type="date" value={recurring.start_date} onChange={(e) => setRecurring({ ...recurring, start_date: e.target.value, mode: "until" })} className="mt-1 h-10 w-full rounded-lg border border-border/60 bg-background px-2 text-sm" />
               </label>
-              {recurring.mode === "count" ? (
-                <label className="block text-xs">מספר מפגשים
-                  <input type="number" min={1} max={200} value={recurring.count} onChange={(e) => setRecurring({ ...recurring, count: parseInt(e.target.value) || 1 })} className="mt-1 h-10 w-full rounded-lg border border-border/60 bg-background px-3 text-sm" />
-                </label>
-              ) : (
-                <label className="block text-xs">עד תאריך
-                  <input type="date" value={recurring.until_date} onChange={(e) => setRecurring({ ...recurring, until_date: e.target.value })} className="mt-1 h-10 w-full rounded-lg border border-border/60 bg-background px-2 text-sm" />
-                </label>
-              )}
+              <label className="block text-xs">עד תאריך
+                <input type="date" value={recurring.until_date} onChange={(e) => setRecurring({ ...recurring, until_date: e.target.value, mode: "until" })} className="mt-1 h-10 w-full rounded-lg border border-border/60 bg-background px-2 text-sm" />
+              </label>
             </div>
 
             <label className="block text-xs">מיקום
