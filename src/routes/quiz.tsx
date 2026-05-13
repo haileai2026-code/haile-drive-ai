@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, localized } from "@/lib/i18n";
 import { sampleQuestions } from "@/lib/mock-data";
 import { CheckCircle2, XCircle, RotateCcw } from "lucide-react";
 
@@ -58,7 +58,7 @@ function QuizPage() {
       </div>
 
       <div className="mt-6 rounded-3xl border border-border/70 bg-card/60 p-6 shadow-[var(--shadow-elev)]">
-        <p className="text-lg font-semibold leading-snug">{q.q[lang]}</p>
+        <p className="text-lg font-semibold leading-snug">{localized(q.q, lang)}</p>
 
         <ul className="mt-5 space-y-2">
           {q.options.map((opt, idx) => {
@@ -76,7 +76,7 @@ function QuizPage() {
                     isPicked ? "border-gold/60 bg-gold/10" : "border-border bg-background/40 hover:border-gold/40"
                   }`}
                 >
-                  <span>{opt[lang]}</span>
+                  <span>{localized(opt, lang)}</span>
                   {showCorrect && <CheckCircle2 className="h-5 w-5 text-success" />}
                   {showWrong && <XCircle className="h-5 w-5 text-destructive" />}
                 </button>
@@ -87,7 +87,7 @@ function QuizPage() {
 
         {picked !== null && (
           <div className={`mt-5 rounded-2xl border p-4 text-sm ${correct ? "border-success/40 bg-success/10" : "border-destructive/40 bg-destructive/10"}`}>
-            <div className="font-semibold">{correct ? "✓" : "✗"} {q.explain[lang]}</div>
+            <div className="font-semibold">{correct ? "✓" : "✗"} {localized(q.explain, lang)}</div>
           </div>
         )}
 

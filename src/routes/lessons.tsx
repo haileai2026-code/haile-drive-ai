@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, localized } from "@/lib/i18n";
 import { lessons } from "@/lib/mock-data";
 import { PlayCircle } from "lucide-react";
 
@@ -34,7 +34,7 @@ function LessonsPage() {
                 </div>
               </div>
               <div className="p-3">
-                <div className="text-sm font-semibold">{l.title[lang]}</div>
+                <div className="text-sm font-semibold">{localized(l.title, lang)}</div>
                 <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-background/60">
                   <div className="h-full bg-gold" style={{ width: `${l.progress}%` }} />
                 </div>
