@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminLoading, AdminShell } from "@/components/AdminShell";
 import { adminApi, type Candidate } from "@/lib/admin-api";
+import { useAuth } from "@/lib/auth";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
 
@@ -29,14 +30,16 @@ const empty: FormState = { full_name: "", phone: "", email: "", status: "new_lea
 
 function CandidatesPage() {
   const qc = useQueryClient();
+  const { user, loading } = useAuth();
+  const canQuery = !loading && !!user;
   const [q, setQ] = useState("");
   const [statusF, setStatusF] = useState<string>("all");
   const [cityF, setCityF] = useState<string>("all");
   const [editing, setEditing] = useState<FormState | null>(null);
 
-  const candidatesQ = useQuery({ queryKey: ["candidates"], queryFn: () => adminApi.listCandidates() });
-  const citiesQ = useQuery({ queryKey: ["cities"], queryFn: adminApi.listCities });
-  const classesQ = useQuery({ queryKey: ["classes"], queryFn: adminApi.listClasses });
+  const candidatesQ = useQuery({ queryKey: ["candidates"], queryFn: () => adminApi.listCandidates(), enabled: canQuery });
+  const citiesQ = useQuery({ queryKey: ["cities"], queryFn: adminApi.listCities, enabled: canQuery });
+  const classesQ = useQuery({ queryKey: ["classes"], queryFn: adminApi.listClasses, enabled: canQuery });
 
   const saveMut = useMutation({
     mutationFn: (c: FormState) => adminApi.upsertCandidate(c as any),
