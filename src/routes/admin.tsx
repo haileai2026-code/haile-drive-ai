@@ -13,6 +13,11 @@ function AdminOverview() {
   const location = useLocation();
   if (location.pathname !== "/admin") return <Outlet />;
 
+  return <AdminOverviewContent />;
+}
+
+function AdminOverviewContent() {
+
   const candidatesQ = useQuery({ queryKey: ["candidates"], queryFn: () => adminApi.listCandidates() });
   const classesQ = useQuery({ queryKey: ["classes"], queryFn: adminApi.listClasses });
   const teachersQ = useQuery({ queryKey: ["teachers"], queryFn: adminApi.listTeachers });
