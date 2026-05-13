@@ -103,18 +103,7 @@ function LoginPage() {
     const { data: primary } = await supabase.rpc("get_primary_role", { _user_id: data.user.id });
     const actualRole = ((primary as any) ?? "student") as Role;
 
-    // Enforce that the chosen portal matches the user's actual role
-    if (actualRole !== portal) {
-      // staff may use the owner portal as well? — keep strict: must match
-      await supabase.auth.signOut();
-      setBusy(false);
-      const labels: Record<Role, string> = {
-        owner: "בעלים", staff: "צוות", teacher: "מורה", student: "תלמיד",
-      };
-      setErr(`חשבון זה אינו ${PORTALS[portal].labelHe}. שייך לפורטל: ${labels[actualRole] ?? actualRole}.`);
-      return;
-    }
-
+    // Always route to the user's actual role home — the portal tab is only a visual entry point.
     setBusy(false);
     navigate({ to: roleHomePath(actualRole) });
   };
