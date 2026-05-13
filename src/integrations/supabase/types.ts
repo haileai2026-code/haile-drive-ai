@@ -289,6 +289,51 @@ export type Database = {
           },
         ]
       }
+      makeup_assignments: {
+        Row: {
+          candidate_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          source_attendance_id: string | null
+          source_class_id: string
+          source_date: string
+          status: Database["public"]["Enums"]["makeup_status"]
+          target_class_id: string | null
+          target_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          candidate_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          source_attendance_id?: string | null
+          source_class_id: string
+          source_date: string
+          status?: Database["public"]["Enums"]["makeup_status"]
+          target_class_id?: string | null
+          target_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          candidate_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          source_attendance_id?: string | null
+          source_class_id?: string
+          source_date?: string
+          status?: Database["public"]["Enums"]["makeup_status"]
+          target_class_id?: string | null
+          target_date?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       materials: {
         Row: {
           category: Database["public"]["Enums"]["material_category"]
@@ -465,6 +510,7 @@ export type Database = {
         | "completed"
         | "inactive"
         | "failed"
+      makeup_status: "pending" | "scheduled" | "completed" | "cancelled"
       material_category: "study" | "enrichment"
       material_type: "pdf" | "image" | "link" | "video"
     }
@@ -607,6 +653,7 @@ export const Constants = {
         "inactive",
         "failed",
       ],
+      makeup_status: ["pending", "scheduled", "completed", "cancelled"],
       material_category: ["study", "enrichment"],
       material_type: ["pdf", "image", "link", "video"],
     },
