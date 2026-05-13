@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminLoading, AdminShell } from "@/components/AdminShell";
@@ -13,6 +13,13 @@ export const Route = createFileRoute("/admin/exams")({
 });
 
 function ExamsPage() {
+  const location = useLocation();
+  if (location.pathname !== "/admin/exams") return <Outlet />;
+
+  return <ExamsList />;
+}
+
+function ExamsList() {
   const qc = useQueryClient();
   const { user, loading } = useAuth();
   const canQuery = !loading && !!user;
