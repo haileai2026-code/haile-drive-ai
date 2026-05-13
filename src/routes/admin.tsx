@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { AdminShell, StatCard } from "@/components/AdminShell";
+import { AdminLoading, AdminShell, StatCard } from "@/components/AdminShell";
 import { adminApi } from "@/lib/admin-api";
 import { Users, GraduationCap, FileText, FileQuestion, UserCog, Building2 } from "lucide-react";
 
@@ -18,6 +18,7 @@ function AdminOverview() {
 
   const candidates = candidatesQ.data ?? [];
   const active = candidates.filter((c) => c.status === "active").length;
+  const isLoading = candidatesQ.isLoading || classesQ.isLoading || teachersQ.isLoading || materialsQ.isLoading || examsQ.isLoading;
 
   return (
     <AdminShell title="דשבורד בעלים">
@@ -26,6 +27,8 @@ function AdminOverview() {
         <h2 className="mt-1 text-2xl font-black tracking-tight">בעלים: תלמידים, מורים, חומרי לימוד ומבחנים</h2>
         <p className="mt-2 max-w-3xl text-sm text-muted-foreground">פעולות מהיר — כל פעולה כאן מעדכנת את מסד הנתונים בזמן אמת.</p>
       </section>
+
+      {isLoading && <AdminLoading />}
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard label="סה״כ לידים/תלמידים" value={candidates.length} hint={`${active} פעילים`} tone="gold" icon={Users} />
