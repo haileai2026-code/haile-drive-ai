@@ -3,8 +3,50 @@ import { AdminShell, AdminLoading } from "@/components/AdminShell";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi, scheduleApi, type ScheduleEvent, type ScheduleEventType } from "@/lib/admin-api";
 import { useState, useMemo } from "react";
-import { Plus, Trash2, Pencil, BookOpen, FileQuestion, RotateCcw } from "lucide-react";
+import { Plus, Trash2, Pencil, BookOpen, FileQuestion, RotateCcw, CalendarRange, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
+
+const WEEKDAYS = [
+  { v: 0, label: "א׳" },
+  { v: 1, label: "ב׳" },
+  { v: 2, label: "ג׳" },
+  { v: 3, label: "ד׳" },
+  { v: 4, label: "ה׳" },
+  { v: 5, label: "ו׳" },
+  { v: 6, label: "ש׳" },
+];
+
+type RecurringForm = {
+  title: string;
+  type: ScheduleEventType;
+  class_id: string;
+  location: string;
+  start_time: string;
+  end_time: string;
+  start_date: string;
+  weekdays: number[];
+  mode: "count" | "until";
+  count: number;
+  until_date: string;
+};
+
+function generateDates(start: string, weekdays: number[], mode: "count" | "until", count: number, until: string): string[] {
+  const out: string[] = [];
+  if (!weekdays.length) return out;
+  const startD = new Date(start + "T00:00:00");
+  const endLimit = mode === "until" ? new Date(until + "T00:00:00") : null;
+  const maxIter = 366 * 2;
+  for (let i = 0; i < maxIter; i++) {
+    const d = new Date(startD);
+    d.setDate(startD.getDate() + i);
+    if (endLimit && d > endLimit) break;
+    if (weekdays.includes(d.getDay())) {
+      out.push(d.toISOString().slice(0, 10));
+      if (mode === "count" && out.length >= count) break;
+    }
+  }
+  return out;
+}
 
 export const Route = createFileRoute("/admin/schedule")({
   head: () => ({ meta: [{ title: "לוז שיעורים — Haile Drive AI" }] }),
