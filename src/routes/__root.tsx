@@ -14,6 +14,7 @@ import { RoleProvider } from "@/lib/role";
 import { DataStoreProvider } from "@/lib/data-store";
 import { AuthProvider } from "@/lib/auth";
 import { OwnerLangLock } from "@/components/OwnerLangLock";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -127,6 +128,7 @@ function RootComponent() {
             <DataStoreProvider>
               <OwnerLangLock />
               <Outlet />
+              <Toaster />
             </DataStoreProvider>
           </RoleProvider>
         </AuthProvider>

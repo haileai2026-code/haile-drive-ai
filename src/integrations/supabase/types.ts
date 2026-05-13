@@ -14,6 +14,295 @@ export type Database = {
   }
   public: {
     Tables: {
+      candidates: {
+        Row: {
+          assigned_teacher_id: string | null
+          city_id: string | null
+          class_id: string | null
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          language: string | null
+          notes: string | null
+          phone: string | null
+          status: Database["public"]["Enums"]["candidate_status"]
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          assigned_teacher_id?: string | null
+          city_id?: string | null
+          class_id?: string | null
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+          language?: string | null
+          notes?: string | null
+          phone?: string | null
+          status?: Database["public"]["Enums"]["candidate_status"]
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          assigned_teacher_id?: string | null
+          city_id?: string | null
+          class_id?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          language?: string | null
+          notes?: string | null
+          phone?: string | null
+          status?: Database["public"]["Enums"]["candidate_status"]
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidates_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "candidates_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cities: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          name_he: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          name_he?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          name_he?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      classes: {
+        Row: {
+          capacity: number
+          city_id: string | null
+          created_at: string
+          id: string
+          name: string
+          schedule: string | null
+          teacher_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          capacity?: number
+          city_id?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          schedule?: string | null
+          teacher_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          capacity?: number
+          city_id?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          schedule?: string | null
+          teacher_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classes_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exam_options: {
+        Row: {
+          created_at: string
+          id: string
+          is_correct: boolean
+          option_text: string
+          order_index: number
+          question_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_correct?: boolean
+          option_text: string
+          order_index?: number
+          question_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_correct?: boolean
+          option_text?: string
+          order_index?: number
+          question_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_options_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "exam_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exam_questions: {
+        Row: {
+          created_at: string
+          exam_id: string
+          id: string
+          image_url: string | null
+          order_index: number
+          question_text: string
+        }
+        Insert: {
+          created_at?: string
+          exam_id: string
+          id?: string
+          image_url?: string | null
+          order_index?: number
+          question_text: string
+        }
+        Update: {
+          created_at?: string
+          exam_id?: string
+          id?: string
+          image_url?: string | null
+          order_index?: number
+          question_text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_questions_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "exams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exams: {
+        Row: {
+          class_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_published: boolean
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          class_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          class_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exams_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      materials: {
+        Row: {
+          category: Database["public"]["Enums"]["material_category"]
+          class_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          external_link: string | null
+          file_url: string | null
+          id: string
+          title: string
+          type: Database["public"]["Enums"]["material_type"]
+          updated_at: string
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["material_category"]
+          class_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          external_link?: string | null
+          file_url?: string | null
+          id?: string
+          title: string
+          type?: Database["public"]["Enums"]["material_type"]
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["material_category"]
+          class_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          external_link?: string | null
+          file_url?: string | null
+          id?: string
+          title?: string
+          type?: Database["public"]["Enums"]["material_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "materials_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           branch: string | null
@@ -49,6 +338,45 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      teacher_assignments: {
+        Row: {
+          city_id: string | null
+          class_id: string | null
+          created_at: string
+          id: string
+          teacher_id: string
+        }
+        Insert: {
+          city_id?: string | null
+          class_id?: string | null
+          created_at?: string
+          id?: string
+          teacher_id: string
+        }
+        Update: {
+          city_id?: string | null
+          class_id?: string | null
+          created_at?: string
+          id?: string
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_assignments_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teacher_assignments_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -90,6 +418,18 @@ export type Database = {
     }
     Enums: {
       app_role: "owner" | "staff" | "teacher" | "student"
+      candidate_status:
+        | "new_lead"
+        | "contacted"
+        | "missing_docs"
+        | "waiting_opening"
+        | "assigned"
+        | "active"
+        | "completed"
+        | "inactive"
+        | "failed"
+      material_category: "study" | "enrichment"
+      material_type: "pdf" | "image" | "link" | "video"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -218,6 +558,19 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["owner", "staff", "teacher", "student"],
+      candidate_status: [
+        "new_lead",
+        "contacted",
+        "missing_docs",
+        "waiting_opening",
+        "assigned",
+        "active",
+        "completed",
+        "inactive",
+        "failed",
+      ],
+      material_category: ["study", "enrichment"],
+      material_type: ["pdf", "image", "link", "video"],
     },
   },
 } as const
