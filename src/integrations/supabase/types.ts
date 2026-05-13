@@ -50,6 +50,47 @@ export type Database = {
         }
         Relationships: []
       }
+      candidate_documents: {
+        Row: {
+          candidate_id: string
+          created_at: string
+          file_path: string
+          id: string
+          label: string
+          mime_type: string | null
+          size_bytes: number | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          candidate_id: string
+          created_at?: string
+          file_path: string
+          id?: string
+          label: string
+          mime_type?: string | null
+          size_bytes?: number | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          candidate_id?: string
+          created_at?: string
+          file_path?: string
+          id?: string
+          label?: string
+          mime_type?: string | null
+          size_bytes?: number | null
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_documents_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       candidates: {
         Row: {
           assigned_teacher_id: string | null
