@@ -193,6 +193,9 @@ function CandidatesPage() {
           </div>
         </div>
       )}
+
+      {folderFor && <DriverFolderModal candidate={folderFor} onClose={() => setFolderFor(null)} />}
+
       <style>{`.inp{display:block;width:100%;border-radius:.5rem;border:1px solid hsl(var(--input));background:hsl(var(--background));padding:.5rem .75rem;font-size:.875rem;outline:none}.inp:focus{box-shadow:0 0 0 1px hsl(var(--ring))}`}</style>
     </AdminShell>
   );
@@ -204,5 +207,135 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <span className="mb-1 block text-xs font-semibold text-muted-foreground">{label}</span>
       {children}
     </label>
+  );
+}
+
+function DriverFolderModal({ candidate, onClose }: { candidate: Candidate; onClose: () => void }) {
+  const qc = useQueryClient();
+  const [label, setLabel] = useState<string>(DOC_PRESETS[0]);
+  const [busy, setBusy] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const { data: docs, isLoading } = useQuery({
+    queryKey: ["candidate-docs", candidate.id],
+    queryFn: () => docsApi.list(candidate.id),
+  });
+
+  async function handleFile(file: File) {
+    if (!label.trim()) { toast.error("יש להזין כיתוב למסמך"); return; }
+    setBusy(true);
+    try {
+      await docsApi.upload(candidate.id, label.trim(), file);
+      toast.success("הועלה לתיק הנהג");
+      qc.invalidateQueries({ queryKey: ["candidate-docs", candidate.id] });
+    } catch (e: any) {
+      toast.error(e.message ?? "העלאה נכשלה");
+    } finally {
+      setBusy(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  }
+
+  async function open(doc: CandidateDocument) {
+    try {
+      const url = await docsApi.signedUrl(doc.file_path);
+      window.open(url, "_blank");
+    } catch (e: any) {
+      toast.error(e.message ?? "פתיחה נכשלה");
+    }
+  }
+
+  async function remove(doc: CandidateDocument) {
+    if (!confirm(`למחוק את "${doc.label}"?`)) return;
+    try {
+      await docsApi.remove(doc);
+      toast.success("נמחק");
+      qc.invalidateQueries({ queryKey: ["candidate-docs", candidate.id] });
+    } catch (e: any) {
+      toast.error(e.message ?? "מחיקה נכשלה");
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" onClick={onClose}>
+      <div onClick={(e) => e.stopPropagation()} dir="rtl" className="w-full max-w-2xl rounded-2xl border border-border bg-background p-5">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <div className="text-[11px] uppercase tracking-wider text-muted-foreground">תיק נהג</div>
+            <h3 className="text-lg font-bold">{candidate.full_name}</h3>
+          </div>
+          <button onClick={onClose} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent"><X className="h-4 w-4" /></button>
+        </div>
+
+        <div className="mb-4 rounded-xl border border-dashed border-gold/40 bg-gold/5 p-3">
+          <div className="mb-2 text-xs font-semibold text-muted-foreground">העלאת מסמך חדש</div>
+          <div className="flex flex-wrap gap-2">
+            <input
+              list="doc-presets"
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+              placeholder="כיתוב חופשי (למשל: טופס ירוק)"
+              className="inp min-w-[220px] flex-1"
+            />
+            <datalist id="doc-presets">
+              {DOC_PRESETS.map((p) => <option key={p} value={p} />)}
+            </datalist>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => fileRef.current?.click()}
+              className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-gold px-4 text-sm font-semibold text-gold-foreground disabled:opacity-50"
+            >
+              <Upload className="h-4 w-4" /> {busy ? "מעלה…" : "בחר קובץ"}
+            </button>
+            <input
+              ref={fileRef}
+              type="file"
+              hidden
+              accept="image/*,.pdf"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
+            />
+          </div>
+          <div className="mt-2 flex flex-wrap gap-1">
+            {DOC_PRESETS.map((p) => (
+              <button key={p} type="button" onClick={() => setLabel(p)}
+                className={`rounded-full border px-2 py-0.5 text-[10px] ${label === p ? "border-gold/60 bg-gold/15 text-gold" : "border-border/60 text-muted-foreground hover:border-gold/40"}`}>
+                {p}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="max-h-[50vh] overflow-y-auto">
+          {isLoading && <div className="py-6 text-center text-sm text-muted-foreground">טוען…</div>}
+          {!isLoading && (docs?.length ?? 0) === 0 && (
+            <div className="rounded-xl border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
+              עדיין אין מסמכים בתיק
+            </div>
+          )}
+          <ul className="space-y-1.5">
+            {docs?.map((d) => (
+              <li key={d.id} className="flex items-center gap-3 rounded-xl border border-border/60 bg-card/40 p-2.5">
+                <FileText className="h-5 w-5 text-gold" />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-semibold">{d.label}</div>
+                  <div className="text-[11px] text-muted-foreground">
+                    {d.mime_type ?? "—"}
+                    {d.size_bytes ? ` · ${(d.size_bytes / 1024).toFixed(0)} KB` : ""}
+                    {` · ${new Date(d.created_at).toLocaleDateString("he-IL")}`}
+                  </div>
+                </div>
+                <button onClick={() => open(d)} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent" title="פתיחה">
+                  <Download className="h-3.5 w-3.5" />
+                </button>
+                <button onClick={() => remove(d)} className="rounded-md p-1.5 text-rose-400 hover:bg-rose-500/10" title="מחיקה">
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
   );
 }
