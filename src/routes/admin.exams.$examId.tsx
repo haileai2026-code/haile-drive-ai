@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminLoading, AdminShell } from "@/components/AdminShell";
 import { adminApi } from "@/lib/admin-api";
+import { useAuth } from "@/lib/auth";
 import { Plus, Trash2, ChevronRight, Check } from "lucide-react";
 import { toast } from "sonner";
 
@@ -28,8 +29,10 @@ const emptyDraft = (): Draft => ({
 function ExamEditor() {
   const { examId } = Route.useParams();
   const qc = useQueryClient();
-  const examQ = useQuery({ queryKey: ["exam", examId], queryFn: () => adminApi.getExam(examId) });
-  const questionsQ = useQuery({ queryKey: ["questions", examId], queryFn: () => adminApi.listQuestions(examId) });
+  const { user, loading } = useAuth();
+  const canQuery = !loading && !!user;
+  const examQ = useQuery({ queryKey: ["exam", examId], queryFn: () => adminApi.getExam(examId), enabled: canQuery });
+  const questionsQ = useQuery({ queryKey: ["questions", examId], queryFn: () => adminApi.listQuestions(examId), enabled: canQuery });
   const [draft, setDraft] = useState<Draft | null>(null);
   const [uploading, setUploading] = useState(false);
 
