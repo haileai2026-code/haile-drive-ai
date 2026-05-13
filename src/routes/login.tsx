@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Mail, Lock, ArrowRight, User as UserIcon, Crown, GraduationCap, BookOpen } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { LangSwitcher } from "@/components/LangSwitcher";
-import { useAuth, roleHomePath } from "@/lib/auth";
+import { getPrimaryRole, useAuth, roleHomePath } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import type { Role } from "@/lib/ops-data";
 
@@ -61,8 +61,8 @@ export const Route = createFileRoute("/login")({
   beforeLoad: async () => {
     const { data } = await supabase.auth.getSession();
     if (data.session) {
-      const { data: role } = await supabase.rpc("get_primary_role", { _user_id: data.session.user.id });
-      throw redirect({ to: roleHomePath((role as any) ?? "student") });
+      const role = await getPrimaryRole(data.session.user.id);
+      throw redirect({ to: roleHomePath(role) });
     }
   },
   component: LoginPage,
@@ -100,8 +100,7 @@ function LoginPage() {
     await refresh();
     const { data } = await supabase.auth.getUser();
     if (!data.user) { setBusy(false); return; }
-    const { data: primary } = await supabase.rpc("get_primary_role", { _user_id: data.user.id });
-    const actualRole = ((primary as any) ?? "student") as Role;
+    const actualRole = await getPrimaryRole(data.user.id);
 
     // Always route to the user's actual role home — the portal tab is only a visual entry point.
     setBusy(false);

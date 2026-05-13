@@ -1,7 +1,7 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, GraduationCap, BookOpen, ClipboardCheck,
-  Calendar, Bell, Shield, Building2, Bot, ChevronRight, Upload, Download, Network,
+  Calendar, Bell, Shield, Building2, ChevronRight, Upload, Download, Network,
   UserCog, LogOut,
   type LucideIcon,
 } from "lucide-react";
@@ -15,25 +15,31 @@ import type { Role } from "@/lib/ops-data";
 type NavItem = { to: string; icon: LucideIcon; label: string; roles: Role[] };
 
 const NAV: NavItem[] = [
-  { to: "/admin", icon: LayoutDashboard, label: "Overview", roles: ["owner", "staff"] },
-  { to: "/admin/candidates", icon: Users, label: "Candidates CRM", roles: ["owner", "staff"] },
-  { to: "/admin/classes", icon: GraduationCap, label: "Classes", roles: ["owner", "staff"] },
-  { to: "/admin/lessons", icon: BookOpen, label: "Lessons", roles: ["owner"] },
-  { to: "/admin/attendance", icon: ClipboardCheck, label: "Attendance", roles: ["owner", "staff"] },
-  { to: "/admin/makeup", icon: Calendar, label: "Makeup Queue", roles: ["owner", "staff"] },
-  { to: "/admin/import", icon: Upload, label: "Bulk Import", roles: ["owner", "staff"] },
-  { to: "/admin/export", icon: Download, label: "Export Data", roles: ["owner", "staff"] },
-  { to: "/admin/branches", icon: Network, label: "Branches", roles: ["owner"] },
-  { to: "/admin/users", icon: UserCog, label: "User Management", roles: ["owner"] },
-  { to: "/admin/staff", icon: Shield, label: "Staff & Permissions", roles: ["owner"] },
-  { to: "/admin/cities", icon: Building2, label: "Cities & Programs", roles: ["owner"] },
-  { to: "/admin/notifications", icon: Bell, label: "Notifications", roles: ["owner", "staff"] },
-  { to: "/teacher", icon: GraduationCap, label: "Teacher View", roles: ["owner", "teacher"] },
-  { to: "/dashboard", icon: Bot, label: "Student View", roles: ["owner", "student"] },
+  { to: "/admin", icon: LayoutDashboard, label: "סקירת בעלים", roles: ["owner", "staff"] },
+  { to: "/admin/candidates", icon: Users, label: "לידים ותלמידים", roles: ["owner", "staff"] },
+  { to: "/admin/classes", icon: GraduationCap, label: "כיתות וקבוצות", roles: ["owner", "staff"] },
+  { to: "/admin/lessons", icon: BookOpen, label: "ניהול שיעורים", roles: ["owner"] },
+  { to: "/admin/attendance", icon: ClipboardCheck, label: "נוכחות", roles: ["owner", "staff"] },
+  { to: "/admin/makeup", icon: Calendar, label: "השלמות", roles: ["owner", "staff"] },
+  { to: "/admin/import", icon: Upload, label: "ייבוא נתונים", roles: ["owner", "staff"] },
+  { to: "/admin/export", icon: Download, label: "ייצוא דוחות", roles: ["owner", "staff"] },
+  { to: "/admin/branches", icon: Network, label: "סניפים", roles: ["owner"] },
+  { to: "/admin/users", icon: UserCog, label: "משתמשים", roles: ["owner"] },
+  { to: "/admin/staff", icon: Shield, label: "צוות והרשאות", roles: ["owner"] },
+  { to: "/admin/cities", icon: Building2, label: "ערים ומסלולים", roles: ["owner"] },
+  { to: "/admin/notifications", icon: Bell, label: "התראות", roles: ["owner", "staff"] },
+  { to: "/teacher", icon: GraduationCap, label: "מסך מורה", roles: ["teacher"] },
 ];
 
+const ROLE_LABEL: Record<Role, string> = {
+  owner: "בעלים",
+  staff: "צוות",
+  teacher: "מורה",
+  student: "תלמיד",
+};
+
 export function AdminShell({ children, title }: { children: ReactNode; title: string }) {
-  const { role, setRole } = useRole();
+  const { role } = useRole();
   const { signOut, profile } = useAuth();
   const loc = useLocation();
   const items = NAV.filter((i) => i.roles.includes(role));
@@ -72,17 +78,10 @@ export function AdminShell({ children, title }: { children: ReactNode; title: st
           </nav>
 
           <div className="mt-4 rounded-xl border border-border/60 bg-background/40 p-3">
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Acting as</div>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value as Role)}
-              className="mt-1 w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm capitalize"
-            >
-              <option value="owner">Owner</option>
-              <option value="staff">Staff</option>
-              <option value="teacher">Teacher</option>
-              <option value="student">Student</option>
-            </select>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">מחובר בתור</div>
+            <div className="mt-1 rounded-md border border-input bg-background px-2 py-1.5 text-sm font-semibold text-gold">
+              {ROLE_LABEL[role]}
+            </div>
           </div>
         </aside>
 
@@ -95,16 +94,9 @@ export function AdminShell({ children, title }: { children: ReactNode; title: st
                 <h1 className="truncate text-lg font-bold tracking-tight lg:text-xl">{title}</h1>
               </div>
               <div className="flex items-center gap-2">
-                <select
-                  value={role}
-                  onChange={(e) => setRole(e.target.value as Role)}
-                  className="rounded-md border border-input bg-background px-2 py-1.5 text-xs capitalize lg:hidden"
-                >
-                  <option value="owner">Owner</option>
-                  <option value="staff">Staff</option>
-                  <option value="teacher">Teacher</option>
-                  <option value="student">Student</option>
-                </select>
+                <span className="rounded-md border border-border/60 bg-background px-2 py-1.5 text-xs font-semibold text-gold lg:hidden">
+                  {ROLE_LABEL[role]}
+                </span>
                 <LangSwitcher />
                 <button
                   onClick={signOut}

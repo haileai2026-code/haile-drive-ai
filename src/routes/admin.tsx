@@ -4,7 +4,7 @@ import {
   attendanceToday, candidates, candidateStatusLabel, candidateStatusTone,
   classes, makeupQueue, notifications, teacherName, className as clsName,
 } from "@/lib/ops-data";
-import { Users, GraduationCap, AlertTriangle, Calendar, TrendingUp, Bell } from "lucide-react";
+import { Users, GraduationCap, AlertTriangle, Calendar, TrendingUp, Bell, Banknote, UserCog, Building2, Download } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Operations — Haile Drive AI" }] }),
@@ -19,12 +19,58 @@ function AdminOverview() {
   const unread = notifications.filter((n) => !n.read).length;
 
   return (
-    <AdminShell title="Operations Overview">
+    <AdminShell title="דשבורד בעלים">
+      <section className="mb-6 rounded-2xl border border-gold/30 bg-gradient-to-br from-amber-900/25 via-card/60 to-card/30 p-5 shadow-[var(--shadow-gold)]" dir="rtl">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-xs font-semibold text-gold">ניהול מלא של Haile Drive AI</p>
+            <h2 className="mt-1 text-2xl font-black tracking-tight">בעלים: תלמידים, מורים, סניפים, שיעורים ודוחות</h2>
+            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">זהו מסך ניהול, לא לוח תלמידים: מכאן שולטים בהרשאות, קבוצות, נוכחות, השלמות, ייבוא וייצוא נתונים.</p>
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:w-[32rem]">
+            {[
+              { to: "/admin/users", label: "משתמשים", icon: UserCog },
+              { to: "/admin/classes", label: "כיתות", icon: GraduationCap },
+              { to: "/admin/branches", label: "סניפים", icon: Building2 },
+              { to: "/admin/export", label: "דוחות", icon: Download },
+            ].map(({ to, label, icon: Icon }) => (
+              <Link key={to} to={to} className="rounded-xl border border-border/60 bg-background/40 p-3 text-center transition hover:border-gold/40 hover:bg-card">
+                <Icon className="mx-auto h-5 w-5 text-gold" />
+                <div className="mt-2 text-xs font-semibold">{label}</div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Active students" value={activeStudents + 22} hint="+3 this week" tone="gold" icon={Users} />
-        <StatCard label="Today's classes" value={classes.length} hint="3 cities" icon={GraduationCap} />
-        <StatCard label="Missing today" value={missingToday} hint="Trigger makeup flow" tone="warn" icon={AlertTriangle} />
-        <StatCard label="Makeup pending" value={makeupPending} hint="Reassign to open class" tone="danger" icon={Calendar} />
+        <StatCard label="תלמידים פעילים" value={activeStudents + 22} hint="+3 השבוע" tone="gold" icon={Users} />
+        <StatCard label="שיעורים היום" value={classes.length} hint="3 ערים" icon={GraduationCap} />
+        <StatCard label="חסרים היום" value={missingToday} hint="דורש השלמה" tone="warn" icon={AlertTriangle} />
+        <StatCard label="השלמות פתוחות" value={makeupPending} hint="שיבוץ לכיתה פנויה" tone="danger" icon={Calendar} />
+      </div>
+
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" dir="rtl">
+        <Link to="/admin/staff" className="rounded-2xl border border-border/60 bg-card/40 p-4 transition hover:border-gold/40">
+          <UserCog className="h-5 w-5 text-gold" />
+          <div className="mt-3 text-sm font-bold">ניהול מורים וצוות</div>
+          <div className="text-xs text-muted-foreground">מי מורה, מי תלמיד ומי בעלים</div>
+        </Link>
+        <Link to="/admin/candidates" className="rounded-2xl border border-border/60 bg-card/40 p-4 transition hover:border-gold/40">
+          <Users className="h-5 w-5 text-gold" />
+          <div className="mt-3 text-sm font-bold">CRM תלמידים</div>
+          <div className="text-xs text-muted-foreground">לידים, רישום וסטטוסים</div>
+        </Link>
+        <Link to="/admin/attendance" className="rounded-2xl border border-border/60 bg-card/40 p-4 transition hover:border-gold/40">
+          <AlertTriangle className="h-5 w-5 text-gold" />
+          <div className="mt-3 text-sm font-bold">נוכחות וחוסרים</div>
+          <div className="text-xs text-muted-foreground">מעקב יומי והשלמות</div>
+        </Link>
+        <div className="rounded-2xl border border-border/60 bg-card/40 p-4">
+          <Banknote className="h-5 w-5 text-gold" />
+          <div className="mt-3 text-sm font-bold">תמונת עסק</div>
+          <div className="text-xs text-muted-foreground">בקרה תפעולית לבעלים</div>
+        </div>
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
