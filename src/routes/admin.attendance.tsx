@@ -172,7 +172,12 @@ function AttendancePage() {
             const stats = perClass[c.id] ?? { present: 0, total: 0 };
             const pct = stats.total ? Math.round((stats.present / stats.total) * 100) : 0;
             return (
-              <div key={c.id} className="rounded-2xl border border-border/60 bg-card/40 p-3">
+              <Link
+                key={c.id}
+                to="/admin/attendance/drilldown"
+                search={{ classId: c.id, from, to: today }}
+                className="block rounded-2xl border border-border/60 bg-card/40 p-3 transition hover:border-gold/40 hover:bg-card/60"
+              >
                 <div className="flex items-center justify-between text-sm">
                   <div className="font-semibold">{c.name}</div>
                   <div className="text-muted-foreground">
@@ -182,7 +187,7 @@ function AttendancePage() {
                 <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-background/60">
                   <div className="h-full bg-gradient-to-r from-emerald-500 to-gold" style={{ width: `${pct}%` }} />
                 </div>
-              </div>
+              </Link>
             );
           })}
           {classes.length === 0 && (
