@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      attendance_records: {
+        Row: {
+          candidate_id: string
+          class_id: string
+          created_at: string
+          id: string
+          lesson_date: string
+          mark: Database["public"]["Enums"]["attendance_mark"]
+          marked_by: string | null
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          candidate_id: string
+          class_id: string
+          created_at?: string
+          id?: string
+          lesson_date?: string
+          mark: Database["public"]["Enums"]["attendance_mark"]
+          marked_by?: string | null
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          candidate_id?: string
+          class_id?: string
+          created_at?: string
+          id?: string
+          lesson_date?: string
+          mark?: Database["public"]["Enums"]["attendance_mark"]
+          marked_by?: string | null
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       candidates: {
         Row: {
           assigned_teacher_id: string | null
@@ -418,6 +454,7 @@ export type Database = {
     }
     Enums: {
       app_role: "owner" | "staff" | "teacher" | "student"
+      attendance_mark: "present" | "late" | "missing" | "makeup_completed"
       candidate_status:
         | "new_lead"
         | "contacted"
@@ -558,6 +595,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["owner", "staff", "teacher", "student"],
+      attendance_mark: ["present", "late", "missing", "makeup_completed"],
       candidate_status: [
         "new_lead",
         "contacted",
