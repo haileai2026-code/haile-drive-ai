@@ -125,6 +125,7 @@ function RootComponent() {
         <AuthProvider>
           <RoleProvider>
             <DataStoreProvider>
+              <OwnerLangLock />
               <Outlet />
             </DataStoreProvider>
           </RoleProvider>
