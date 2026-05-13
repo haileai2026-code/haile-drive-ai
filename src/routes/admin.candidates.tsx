@@ -1,11 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminLoading, AdminShell } from "@/components/AdminShell";
-import { adminApi, type Candidate } from "@/lib/admin-api";
+import { adminApi, docsApi, type Candidate, type CandidateDocument } from "@/lib/admin-api";
 import { useAuth } from "@/lib/auth";
-import { Plus, Pencil, Trash2, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, FolderOpen, Upload, FileText, X, Download } from "lucide-react";
 import { toast } from "sonner";
+
+const DOC_PRESETS = [
+  "טופס ירוק",
+  "אישור לימודים ממשרד הרישוי",
+  "ת.ז. — צד קדמי",
+  "ת.ז. — צד אחורי",
+  "רישיון נהיגה — קדמי",
+  "רישיון נהיגה — אחורי",
+  "תמונת פספורט",
+  "אישור רפואי",
+];
 
 export const Route = createFileRoute("/admin/candidates")({
   head: () => ({ meta: [{ title: "תלמידים ולידים — Haile Drive AI" }] }),
