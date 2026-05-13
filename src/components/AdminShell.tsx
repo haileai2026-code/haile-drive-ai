@@ -1,7 +1,7 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import {
-  LayoutDashboard, Users, GraduationCap, BookOpen, ClipboardCheck,
-  Calendar, Bell, Shield, Building2, ChevronRight, Upload, Download, Network,
+  LayoutDashboard, Users, GraduationCap,
+  Building2, ChevronRight,
   UserCog, LogOut, FileText, FileQuestion, Loader2,
   type LucideIcon,
 } from "lucide-react";
