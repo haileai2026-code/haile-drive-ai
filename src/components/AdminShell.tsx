@@ -1,7 +1,7 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, GraduationCap,
-  Building2, ChevronRight,
+  Building2, ChevronRight, ClipboardCheck,
   UserCog, LogOut, FileText, FileQuestion, Loader2,
   type LucideIcon,
 } from "lucide-react";
@@ -19,10 +19,12 @@ const NAV: NavItem[] = [
   { to: "/admin/candidates", icon: Users, label: "תלמידים ומועמדים", roles: ["owner"] },
   { to: "/admin/teachers", icon: UserCog, label: "מורים והרשאות", roles: ["owner"] },
   { to: "/admin/classes", icon: GraduationCap, label: "כיתות וקבוצות", roles: ["owner"] },
+  { to: "/admin/attendance", icon: ClipboardCheck, label: "ניתוח נוכחות", roles: ["owner"] },
   { to: "/admin/materials", icon: FileText, label: "חומרי לימוד והעשרה", roles: ["owner"] },
   { to: "/admin/exams", icon: FileQuestion, label: "בנק מבחנים", roles: ["owner"] },
   { to: "/admin/cities", icon: Building2, label: "ערים ומסלולים", roles: ["owner"] },
   { to: "/teacher", icon: GraduationCap, label: "מסך מורה", roles: ["teacher"] },
+  { to: "/teacher/attendance", icon: ClipboardCheck, label: "סימון נוכחות", roles: ["teacher"] },
 ];
 
 const ROLE_LABEL: Record<Role, string> = {
