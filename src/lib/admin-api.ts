@@ -369,6 +369,48 @@ export type MakeupAssignment = {
   updated_at: string;
 };
 
+export type NotificationChannel = "sms" | "whatsapp";
+export type NotificationStatus = "pending" | "sent" | "failed" | "cancelled";
+export type NotificationRow = {
+  id: string;
+  candidate_id: string | null;
+  event_id: string | null;
+  channel: NotificationChannel;
+  to_phone: string;
+  message: string;
+  language: string;
+  status: NotificationStatus;
+  scheduled_at: string;
+  sent_at: string | null;
+  provider_sid: string | null;
+  error: string | null;
+  created_at: string;
+};
+
+export const notificationsApi = {
+  async list(): Promise<NotificationRow[]> {
+    const { data, error } = await sb
+      .from("notifications")
+      .select("*")
+      .order("scheduled_at", { ascending: false })
+      .limit(200);
+    if (error) throw error;
+    return data ?? [];
+  },
+  async insertMany(rows: Partial<NotificationRow>[]) {
+    const { error } = await sb.from("notifications").insert(rows);
+    if (error) throw error;
+  },
+  async cancel(id: string) {
+    const { error } = await sb.from("notifications").update({ status: "cancelled" }).eq("id", id);
+    if (error) throw error;
+  },
+  async remove(id: string) {
+    const { error } = await sb.from("notifications").delete().eq("id", id);
+    if (error) throw error;
+  },
+};
+
 export type AttendanceMark = "present" | "late" | "missing" | "makeup_completed";
 export type AttendanceRecord = {
   id: string;
