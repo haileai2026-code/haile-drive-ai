@@ -1,7 +1,7 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, GraduationCap, BookOpen, ClipboardCheck,
-  Calendar, Bell, Shield, Building2, Bot, ChevronRight, Upload, Download, Network,
+  Calendar, Bell, Shield, Building2, ChevronRight, Upload, Download, Network,
   UserCog, LogOut,
   type LucideIcon,
 } from "lucide-react";
@@ -78,17 +78,10 @@ export function AdminShell({ children, title }: { children: ReactNode; title: st
           </nav>
 
           <div className="mt-4 rounded-xl border border-border/60 bg-background/40 p-3">
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Acting as</div>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value as Role)}
-              className="mt-1 w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm capitalize"
-            >
-              <option value="owner">Owner</option>
-              <option value="staff">Staff</option>
-              <option value="teacher">Teacher</option>
-              <option value="student">Student</option>
-            </select>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">מחובר בתור</div>
+            <div className="mt-1 rounded-md border border-input bg-background px-2 py-1.5 text-sm font-semibold text-gold">
+              {ROLE_LABEL[role]}
+            </div>
           </div>
         </aside>
 
@@ -101,16 +94,9 @@ export function AdminShell({ children, title }: { children: ReactNode; title: st
                 <h1 className="truncate text-lg font-bold tracking-tight lg:text-xl">{title}</h1>
               </div>
               <div className="flex items-center gap-2">
-                <select
-                  value={role}
-                  onChange={(e) => setRole(e.target.value as Role)}
-                  className="rounded-md border border-input bg-background px-2 py-1.5 text-xs capitalize lg:hidden"
-                >
-                  <option value="owner">Owner</option>
-                  <option value="staff">Staff</option>
-                  <option value="teacher">Teacher</option>
-                  <option value="student">Student</option>
-                </select>
+                <span className="rounded-md border border-border/60 bg-background px-2 py-1.5 text-xs font-semibold text-gold lg:hidden">
+                  {ROLE_LABEL[role]}
+                </span>
                 <LangSwitcher />
                 <button
                   onClick={signOut}
