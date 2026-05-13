@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { AdminShell } from "@/components/AdminShell";
+import { AdminLoading, AdminShell } from "@/components/AdminShell";
 import { adminApi } from "@/lib/admin-api";
 import { createUserAccount } from "@/lib/admin-users.functions";
 import { useState } from "react";
@@ -52,6 +52,8 @@ function TeachersPage() {
 
   const [tab, setTab] = useState<"users" | "assign">("users");
   const [newUser, setNewUser] = useState<NewUserForm | null>(null);
+  const isLoading = usersQ.isLoading || teachersQ.isLoading || classesQ.isLoading;
+  const loadError = usersQ.error || teachersQ.error || classesQ.error;
 
   return (
     <AdminShell title="מורים והרשאות">
@@ -63,6 +65,13 @@ function TeachersPage() {
         </button>
       </div>
 
+      {isLoading && <AdminLoading label="טוען משתמשים, מורים וכיתות מהמסד…" />}
+      {loadError && (
+        <div className="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-300">
+          טעינת הנתונים נכשלה: {(loadError as Error).message}
+        </div>
+      )}
+
       {tab === "users" && (
         <div className="overflow-hidden rounded-2xl border border-border/60 bg-card/40">
           <table className="w-full text-sm">
@@ -70,6 +79,8 @@ function TeachersPage() {
               <tr><th className="px-3 py-2">שם</th><th className="px-3 py-2">אימייל</th><th className="px-3 py-2 w-40">מורה?</th></tr>
             </thead>
             <tbody className="divide-y divide-border/40">
+              {isLoading && <tr><td colSpan={3} className="px-3 py-10 text-center text-muted-foreground">טוען נתונים חיים…</td></tr>}
+              {!isLoading && usersQ.data?.length === 0 && <tr><td colSpan={3} className="px-3 py-10 text-center text-muted-foreground">אין משתמשים להצגה</td></tr>}
               {usersQ.data?.map((u) => {
                 const isT = teacherIds.has(u.id);
                 return (
@@ -99,6 +110,7 @@ function TeachersPage() {
               <tr><th className="px-3 py-2">כיתה</th><th className="px-3 py-2">מורה משויך</th></tr>
             </thead>
             <tbody className="divide-y divide-border/40">
+              {isLoading && <tr><td colSpan={2} className="px-3 py-10 text-center text-muted-foreground">טוען נתונים חיים…</td></tr>}
               {classesQ.data?.length === 0 && <tr><td colSpan={2} className="px-3 py-6 text-center text-muted-foreground">אין כיתות. צור כיתה במסך "כיתות וקבוצות".</td></tr>}
               {classesQ.data?.map((cl) => (
                 <tr key={cl.id}>
