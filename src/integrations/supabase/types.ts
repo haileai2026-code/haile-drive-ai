@@ -289,6 +289,48 @@ export type Database = {
           },
         ]
       }
+      exam_results: {
+        Row: {
+          category: string
+          created_at: string
+          exam_id: string | null
+          exam_title: string | null
+          failed_questions: Json
+          id: string
+          passed: boolean
+          score: number
+          taken_at: string
+          total_questions: number
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          exam_id?: string | null
+          exam_title?: string | null
+          failed_questions?: Json
+          id?: string
+          passed?: boolean
+          score?: number
+          taken_at?: string
+          total_questions?: number
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          exam_id?: string | null
+          exam_title?: string | null
+          failed_questions?: Json
+          id?: string
+          passed?: boolean
+          score?: number
+          taken_at?: string
+          total_questions?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       exams: {
         Row: {
           class_id: string | null
