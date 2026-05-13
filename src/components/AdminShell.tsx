@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Users, GraduationCap,
   Building2, ChevronRight, ClipboardCheck,
   UserCog, LogOut, FileText, FileQuestion, Loader2,
-  CalendarClock, Bell,
+  CalendarClock, Bell, TrendingUp,
   type LucideIcon,
 } from "lucide-react";
 import { useRole } from "@/lib/role";
@@ -27,6 +27,7 @@ const NAV: NavItem[] = [
   { to: "/admin/materials", icon: FileText, label: "חומרי לימוד והעשרה", roles: ["owner"] },
   { to: "/admin/exams", icon: FileQuestion, label: "בנק מבחנים", roles: ["owner"] },
   { to: "/admin/cities", icon: Building2, label: "ערים ומסלולים", roles: ["owner"] },
+  { to: "/admin/progress", icon: TrendingUp, label: "התקדמות תלמידים", roles: ["owner", "teacher"] },
   { to: "/teacher", icon: GraduationCap, label: "מסך מורה", roles: ["teacher"] },
   { to: "/teacher/attendance", icon: ClipboardCheck, label: "סימון נוכחות", roles: ["teacher"] },
 ];
