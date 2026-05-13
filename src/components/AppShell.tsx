@@ -1,7 +1,9 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { LayoutDashboard, BookOpen, Bot, Trophy, Users, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, BookOpen, Bot, Trophy, Users, LogOut, type LucideIcon } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { LangSwitcher } from "./LangSwitcher";
+import { RequireAuth } from "./RequireAuth";
+import { useAuth } from "@/lib/auth";
 import type { ReactNode } from "react";
 
 type NavItem = { to: string; icon: LucideIcon; key: "dashboard" | "lessons" | "aiTeacher" | "quiz" | "community" };
