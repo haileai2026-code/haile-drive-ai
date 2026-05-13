@@ -34,10 +34,12 @@ const NAV: NavItem[] = [
 
 export function AdminShell({ children, title }: { children: ReactNode; title: string }) {
   const { role, setRole } = useRole();
+  const { signOut, profile } = useAuth();
   const loc = useLocation();
   const items = NAV.filter((i) => i.roles.includes(role));
 
   return (
+    <RequireAuth roles={["owner", "staff", "teacher"]}>
     <div className="min-h-screen bg-night text-foreground">
       <div className="mx-auto flex max-w-screen-2xl">
         {/* Sidebar */}
