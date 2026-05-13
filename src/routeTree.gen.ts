@@ -27,9 +27,12 @@ import { Route as AdminStaffRouteImport } from './routes/admin.staff'
 import { Route as AdminNotificationsRouteImport } from './routes/admin.notifications'
 import { Route as AdminMakeupRouteImport } from './routes/admin.makeup'
 import { Route as AdminLessonsRouteImport } from './routes/admin.lessons'
+import { Route as AdminImportRouteImport } from './routes/admin.import'
+import { Route as AdminExportRouteImport } from './routes/admin.export'
 import { Route as AdminClassesRouteImport } from './routes/admin.classes'
 import { Route as AdminCitiesRouteImport } from './routes/admin.cities'
 import { Route as AdminCandidatesRouteImport } from './routes/admin.candidates'
+import { Route as AdminBranchesRouteImport } from './routes/admin.branches'
 import { Route as AdminAttendanceRouteImport } from './routes/admin.attendance'
 
 const TeacherRoute = TeacherRouteImport.update({
@@ -122,6 +125,16 @@ const AdminLessonsRoute = AdminLessonsRouteImport.update({
   path: '/lessons',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminImportRoute = AdminImportRouteImport.update({
+  id: '/import',
+  path: '/import',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminExportRoute = AdminExportRouteImport.update({
+  id: '/export',
+  path: '/export',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminClassesRoute = AdminClassesRouteImport.update({
   id: '/classes',
   path: '/classes',
@@ -135,6 +148,11 @@ const AdminCitiesRoute = AdminCitiesRouteImport.update({
 const AdminCandidatesRoute = AdminCandidatesRouteImport.update({
   id: '/candidates',
   path: '/candidates',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBranchesRoute = AdminBranchesRouteImport.update({
+  id: '/branches',
+  path: '/branches',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminAttendanceRoute = AdminAttendanceRouteImport.update({
@@ -156,9 +174,12 @@ export interface FileRoutesByFullPath {
   '/quiz': typeof QuizRoute
   '/teacher': typeof TeacherRouteWithChildren
   '/admin/attendance': typeof AdminAttendanceRoute
+  '/admin/branches': typeof AdminBranchesRoute
   '/admin/candidates': typeof AdminCandidatesRoute
   '/admin/cities': typeof AdminCitiesRoute
   '/admin/classes': typeof AdminClassesRoute
+  '/admin/export': typeof AdminExportRoute
+  '/admin/import': typeof AdminImportRoute
   '/admin/lessons': typeof AdminLessonsRoute
   '/admin/makeup': typeof AdminMakeupRoute
   '/admin/notifications': typeof AdminNotificationsRoute
@@ -180,9 +201,12 @@ export interface FileRoutesByTo {
   '/quiz': typeof QuizRoute
   '/teacher': typeof TeacherRouteWithChildren
   '/admin/attendance': typeof AdminAttendanceRoute
+  '/admin/branches': typeof AdminBranchesRoute
   '/admin/candidates': typeof AdminCandidatesRoute
   '/admin/cities': typeof AdminCitiesRoute
   '/admin/classes': typeof AdminClassesRoute
+  '/admin/export': typeof AdminExportRoute
+  '/admin/import': typeof AdminImportRoute
   '/admin/lessons': typeof AdminLessonsRoute
   '/admin/makeup': typeof AdminMakeupRoute
   '/admin/notifications': typeof AdminNotificationsRoute
@@ -205,9 +229,12 @@ export interface FileRoutesById {
   '/quiz': typeof QuizRoute
   '/teacher': typeof TeacherRouteWithChildren
   '/admin/attendance': typeof AdminAttendanceRoute
+  '/admin/branches': typeof AdminBranchesRoute
   '/admin/candidates': typeof AdminCandidatesRoute
   '/admin/cities': typeof AdminCitiesRoute
   '/admin/classes': typeof AdminClassesRoute
+  '/admin/export': typeof AdminExportRoute
+  '/admin/import': typeof AdminImportRoute
   '/admin/lessons': typeof AdminLessonsRoute
   '/admin/makeup': typeof AdminMakeupRoute
   '/admin/notifications': typeof AdminNotificationsRoute
@@ -231,9 +258,12 @@ export interface FileRouteTypes {
     | '/quiz'
     | '/teacher'
     | '/admin/attendance'
+    | '/admin/branches'
     | '/admin/candidates'
     | '/admin/cities'
     | '/admin/classes'
+    | '/admin/export'
+    | '/admin/import'
     | '/admin/lessons'
     | '/admin/makeup'
     | '/admin/notifications'
@@ -255,9 +285,12 @@ export interface FileRouteTypes {
     | '/quiz'
     | '/teacher'
     | '/admin/attendance'
+    | '/admin/branches'
     | '/admin/candidates'
     | '/admin/cities'
     | '/admin/classes'
+    | '/admin/export'
+    | '/admin/import'
     | '/admin/lessons'
     | '/admin/makeup'
     | '/admin/notifications'
@@ -279,9 +312,12 @@ export interface FileRouteTypes {
     | '/quiz'
     | '/teacher'
     | '/admin/attendance'
+    | '/admin/branches'
     | '/admin/candidates'
     | '/admin/cities'
     | '/admin/classes'
+    | '/admin/export'
+    | '/admin/import'
     | '/admin/lessons'
     | '/admin/makeup'
     | '/admin/notifications'
@@ -433,6 +469,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLessonsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/import': {
+      id: '/admin/import'
+      path: '/import'
+      fullPath: '/admin/import'
+      preLoaderRoute: typeof AdminImportRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/export': {
+      id: '/admin/export'
+      path: '/export'
+      fullPath: '/admin/export'
+      preLoaderRoute: typeof AdminExportRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/classes': {
       id: '/admin/classes'
       path: '/classes'
@@ -454,6 +504,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCandidatesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/branches': {
+      id: '/admin/branches'
+      path: '/branches'
+      fullPath: '/admin/branches'
+      preLoaderRoute: typeof AdminBranchesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/attendance': {
       id: '/admin/attendance'
       path: '/attendance'
@@ -466,9 +523,12 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminAttendanceRoute: typeof AdminAttendanceRoute
+  AdminBranchesRoute: typeof AdminBranchesRoute
   AdminCandidatesRoute: typeof AdminCandidatesRoute
   AdminCitiesRoute: typeof AdminCitiesRoute
   AdminClassesRoute: typeof AdminClassesRoute
+  AdminExportRoute: typeof AdminExportRoute
+  AdminImportRoute: typeof AdminImportRoute
   AdminLessonsRoute: typeof AdminLessonsRoute
   AdminMakeupRoute: typeof AdminMakeupRoute
   AdminNotificationsRoute: typeof AdminNotificationsRoute
@@ -478,9 +538,12 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAttendanceRoute: AdminAttendanceRoute,
+  AdminBranchesRoute: AdminBranchesRoute,
   AdminCandidatesRoute: AdminCandidatesRoute,
   AdminCitiesRoute: AdminCitiesRoute,
   AdminClassesRoute: AdminClassesRoute,
+  AdminExportRoute: AdminExportRoute,
+  AdminImportRoute: AdminImportRoute,
   AdminLessonsRoute: AdminLessonsRoute,
   AdminMakeupRoute: AdminMakeupRoute,
   AdminNotificationsRoute: AdminNotificationsRoute,
