@@ -11,7 +11,7 @@ export const Route = createFileRoute("/profile")({
 function ProfilePage() {
   const { t } = useI18n();
   const items: { icon: typeof BarChart3; label: string; to?: string }[] = [
-    { icon: BarChart3, label: "Analytics" },
+    { icon: BarChart3, label: "ההתקדמות שלי", to: "/progress" },
     { icon: Award, label: "Certificates" },
     { icon: FileImage, label: "Document helper" },
     { icon: Bell, label: "Notifications" },
