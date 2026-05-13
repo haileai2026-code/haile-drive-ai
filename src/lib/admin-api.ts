@@ -263,6 +263,43 @@ export const adminApi = {
   },
 };
 
+export type ScheduleEventType = "lesson" | "exam" | "makeup";
+export type ScheduleEvent = {
+  id: string;
+  type: ScheduleEventType;
+  title: string;
+  class_id: string | null;
+  exam_id: string | null;
+  candidate_id: string | null;
+  event_date: string;
+  start_time: string | null;
+  end_time: string | null;
+  location: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export const scheduleApi = {
+  async list(opts?: { classId?: string; from?: string; to?: string }): Promise<ScheduleEvent[]> {
+    let q = (supabase as any).from("schedule_events").select("*").order("event_date").order("start_time");
+    if (opts?.classId) q = q.eq("class_id", opts.classId);
+    if (opts?.from) q = q.gte("event_date", opts.from);
+    if (opts?.to) q = q.lte("event_date", opts.to);
+    const { data, error } = await q;
+    if (error) throw error;
+    return data ?? [];
+  },
+  async upsert(e: Partial<ScheduleEvent> & { title: string; event_date: string; type: ScheduleEventType }) {
+    const { error } = await (supabase as any).from("schedule_events").upsert(e);
+    if (error) throw error;
+  },
+  async remove(id: string) {
+    const { error } = await (supabase as any).from("schedule_events").delete().eq("id", id);
+    if (error) throw error;
+  },
+};
+
 export type MakeupStatus = "pending" | "scheduled" | "completed" | "cancelled";
 export type MakeupAssignment = {
   id: string;
