@@ -2,7 +2,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, GraduationCap, BookOpen, ClipboardCheck,
   Calendar, Bell, Shield, Building2, ChevronRight, Upload, Download, Network,
-  UserCog, LogOut,
+  UserCog, LogOut, FileText, FileQuestion,
   type LucideIcon,
 } from "lucide-react";
 import { useRole } from "@/lib/role";
@@ -17,16 +17,19 @@ type NavItem = { to: string; icon: LucideIcon; label: string; roles: Role[] };
 const NAV: NavItem[] = [
   { to: "/admin", icon: LayoutDashboard, label: "סקירת בעלים", roles: ["owner", "staff"] },
   { to: "/admin/candidates", icon: Users, label: "לידים ותלמידים", roles: ["owner", "staff"] },
+  { to: "/admin/teachers", icon: UserCog, label: "מורים והרשאות", roles: ["owner"] },
   { to: "/admin/classes", icon: GraduationCap, label: "כיתות וקבוצות", roles: ["owner", "staff"] },
+  { to: "/admin/materials", icon: FileText, label: "חומרי לימוד והעשרה", roles: ["owner", "staff"] },
+  { to: "/admin/exams", icon: FileQuestion, label: "בנק מבחנים", roles: ["owner", "staff"] },
   { to: "/admin/lessons", icon: BookOpen, label: "ניהול שיעורים", roles: ["owner"] },
   { to: "/admin/attendance", icon: ClipboardCheck, label: "נוכחות", roles: ["owner", "staff"] },
   { to: "/admin/makeup", icon: Calendar, label: "השלמות", roles: ["owner", "staff"] },
+  { to: "/admin/cities", icon: Building2, label: "ערים ומסלולים", roles: ["owner"] },
   { to: "/admin/import", icon: Upload, label: "ייבוא נתונים", roles: ["owner", "staff"] },
   { to: "/admin/export", icon: Download, label: "ייצוא דוחות", roles: ["owner", "staff"] },
   { to: "/admin/branches", icon: Network, label: "סניפים", roles: ["owner"] },
   { to: "/admin/users", icon: UserCog, label: "משתמשים", roles: ["owner"] },
   { to: "/admin/staff", icon: Shield, label: "צוות והרשאות", roles: ["owner"] },
-  { to: "/admin/cities", icon: Building2, label: "ערים ומסלולים", roles: ["owner"] },
   { to: "/admin/notifications", icon: Bell, label: "התראות", roles: ["owner", "staff"] },
   { to: "/teacher", icon: GraduationCap, label: "מסך מורה", roles: ["teacher"] },
 ];
@@ -48,7 +51,6 @@ export function AdminShell({ children, title }: { children: ReactNode; title: st
     <RequireAuth roles={["owner", "staff", "teacher"]}>
     <div className="min-h-screen bg-night text-foreground">
       <div className="mx-auto flex max-w-screen-2xl">
-        {/* Sidebar */}
         <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-border/60 bg-card/40 p-4 lg:flex">
           <Link to="/admin" className="mb-6 flex items-center gap-2 px-2">
             <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-gold to-amber-600 text-gold-foreground font-black shadow-[var(--shadow-gold)]">H</span>
@@ -58,7 +60,7 @@ export function AdminShell({ children, title }: { children: ReactNode; title: st
             </div>
           </Link>
 
-          <nav className="flex-1 space-y-1">
+          <nav className="flex-1 space-y-1 overflow-y-auto">
             {items.map(({ to, icon: Icon, label }) => {
               const active = to === "/admin" ? loc.pathname === "/admin" : loc.pathname.startsWith(to);
               return (
@@ -85,7 +87,6 @@ export function AdminShell({ children, title }: { children: ReactNode; title: st
           </div>
         </aside>
 
-        {/* Main */}
         <div className="min-w-0 flex-1">
           <header className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl">
             <div className="flex items-center justify-between px-4 py-3 lg:px-8">
@@ -108,7 +109,6 @@ export function AdminShell({ children, title }: { children: ReactNode; title: st
               </div>
             </div>
 
-            {/* Mobile nav scroller */}
             <div className="flex gap-1 overflow-x-auto px-4 pb-3 lg:hidden">
               {items.map(({ to, icon: Icon, label }) => {
                 const active = to === "/admin" ? loc.pathname === "/admin" : loc.pathname.startsWith(to);
@@ -129,7 +129,7 @@ export function AdminShell({ children, title }: { children: ReactNode; title: st
             </div>
           </header>
 
-          <main className="px-4 py-6 lg:px-8 lg:py-8">{children}</main>
+          <main className="px-4 py-6 lg:px-8 lg:py-8" dir="rtl">{children}</main>
         </div>
       </div>
     </div>
