@@ -2,10 +2,13 @@ import { Link, useLocation } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, GraduationCap, BookOpen, ClipboardCheck,
   Calendar, Bell, Shield, Building2, Bot, ChevronRight, Upload, Download, Network,
+  UserCog, LogOut,
   type LucideIcon,
 } from "lucide-react";
 import { useRole } from "@/lib/role";
 import { LangSwitcher } from "./LangSwitcher";
+import { RequireAuth } from "./RequireAuth";
+import { useAuth } from "@/lib/auth";
 import type { ReactNode } from "react";
 import type { Role } from "@/lib/ops-data";
 
@@ -21,6 +24,7 @@ const NAV: NavItem[] = [
   { to: "/admin/import", icon: Upload, label: "Bulk Import", roles: ["owner", "staff"] },
   { to: "/admin/export", icon: Download, label: "Export Data", roles: ["owner", "staff"] },
   { to: "/admin/branches", icon: Network, label: "Branches", roles: ["owner"] },
+  { to: "/admin/users", icon: UserCog, label: "User Management", roles: ["owner"] },
   { to: "/admin/staff", icon: Shield, label: "Staff & Permissions", roles: ["owner"] },
   { to: "/admin/cities", icon: Building2, label: "Cities & Programs", roles: ["owner"] },
   { to: "/admin/notifications", icon: Bell, label: "Notifications", roles: ["owner", "staff"] },
@@ -30,10 +34,12 @@ const NAV: NavItem[] = [
 
 export function AdminShell({ children, title }: { children: ReactNode; title: string }) {
   const { role, setRole } = useRole();
+  const { signOut, profile } = useAuth();
   const loc = useLocation();
   const items = NAV.filter((i) => i.roles.includes(role));
 
   return (
+    <RequireAuth roles={["owner", "staff", "teacher"]}>
     <div className="min-h-screen bg-night text-foreground">
       <div className="mx-auto flex max-w-screen-2xl">
         {/* Sidebar */}
@@ -100,6 +106,13 @@ export function AdminShell({ children, title }: { children: ReactNode; title: st
                   <option value="student">Student</option>
                 </select>
                 <LangSwitcher />
+                <button
+                  onClick={signOut}
+                  title={profile?.email ?? "Sign out"}
+                  className="rounded-md border border-border/60 p-1.5 text-muted-foreground hover:bg-accent"
+                >
+                  <LogOut className="h-4 w-4" />
+                </button>
               </div>
             </div>
 
@@ -128,6 +141,7 @@ export function AdminShell({ children, title }: { children: ReactNode; title: st
         </div>
       </div>
     </div>
+    </RequireAuth>
   );
 }
 

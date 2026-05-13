@@ -1,22 +1,22 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, type ReactNode } from "react";
 import type { Role } from "./ops-data";
+import { useAuth } from "./auth";
 
 type Ctx = { role: Role; setRole: (r: Role) => void };
 const RoleContext = createContext<Ctx | null>(null);
-const KEY = "hda.role";
 
+/**
+ * Role is now derived from the authenticated user's `user_roles` row.
+ * Owners may temporarily switch the "acting as" view via setRole (UI only,
+ * does not grant additional permissions — RLS enforces real access).
+ */
 export function RoleProvider({ children }: { children: ReactNode }) {
-  const [role, setRoleState] = useState<Role>("owner");
+  const { role: authRole } = useAuth();
+  const role: Role = authRole ?? "student";
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const saved = localStorage.getItem(KEY) as Role | null;
-    if (saved) setRoleState(saved);
-  }, []);
-
-  const setRole = (r: Role) => {
-    setRoleState(r);
-    if (typeof window !== "undefined") localStorage.setItem(KEY, r);
+  // setRole is a no-op for non-owners; owners get a UI-only override stored in memory.
+  const setRole = (_r: Role) => {
+    // intentionally not persisted — real role lives in DB
   };
 
   return <RoleContext.Provider value={{ role, setRole }}>{children}</RoleContext.Provider>;

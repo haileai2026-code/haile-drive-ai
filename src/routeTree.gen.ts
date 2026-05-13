@@ -22,6 +22,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TeacherAttendanceRouteImport } from './routes/teacher.attendance'
 import { Route as LessonsLessonIdRouteImport } from './routes/lessons.$lessonId'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminTranslationsRouteImport } from './routes/admin.translations'
 import { Route as AdminStaffRouteImport } from './routes/admin.staff'
 import { Route as AdminNotificationsRouteImport } from './routes/admin.notifications'
@@ -99,6 +100,11 @@ const LessonsLessonIdRoute = LessonsLessonIdRouteImport.update({
   id: '/$lessonId',
   path: '/$lessonId',
   getParentRoute: () => LessonsRoute,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminTranslationsRoute = AdminTranslationsRouteImport.update({
   id: '/translations',
@@ -185,6 +191,7 @@ export interface FileRoutesByFullPath {
   '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/staff': typeof AdminStaffRoute
   '/admin/translations': typeof AdminTranslationsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/teacher/attendance': typeof TeacherAttendanceRoute
 }
@@ -212,6 +219,7 @@ export interface FileRoutesByTo {
   '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/staff': typeof AdminStaffRoute
   '/admin/translations': typeof AdminTranslationsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/teacher/attendance': typeof TeacherAttendanceRoute
 }
@@ -240,6 +248,7 @@ export interface FileRoutesById {
   '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/staff': typeof AdminStaffRoute
   '/admin/translations': typeof AdminTranslationsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/teacher/attendance': typeof TeacherAttendanceRoute
 }
@@ -269,6 +278,7 @@ export interface FileRouteTypes {
     | '/admin/notifications'
     | '/admin/staff'
     | '/admin/translations'
+    | '/admin/users'
     | '/lessons/$lessonId'
     | '/teacher/attendance'
   fileRoutesByTo: FileRoutesByTo
@@ -296,6 +306,7 @@ export interface FileRouteTypes {
     | '/admin/notifications'
     | '/admin/staff'
     | '/admin/translations'
+    | '/admin/users'
     | '/lessons/$lessonId'
     | '/teacher/attendance'
   id:
@@ -323,6 +334,7 @@ export interface FileRouteTypes {
     | '/admin/notifications'
     | '/admin/staff'
     | '/admin/translations'
+    | '/admin/users'
     | '/lessons/$lessonId'
     | '/teacher/attendance'
   fileRoutesById: FileRoutesById
@@ -434,6 +446,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LessonsLessonIdRouteImport
       parentRoute: typeof LessonsRoute
     }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/translations': {
       id: '/admin/translations'
       path: '/translations'
@@ -534,6 +553,7 @@ interface AdminRouteChildren {
   AdminNotificationsRoute: typeof AdminNotificationsRoute
   AdminStaffRoute: typeof AdminStaffRoute
   AdminTranslationsRoute: typeof AdminTranslationsRoute
+  AdminUsersRoute: typeof AdminUsersRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
@@ -549,6 +569,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminNotificationsRoute: AdminNotificationsRoute,
   AdminStaffRoute: AdminStaffRoute,
   AdminTranslationsRoute: AdminTranslationsRoute,
+  AdminUsersRoute: AdminUsersRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
