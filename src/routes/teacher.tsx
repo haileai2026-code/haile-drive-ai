@@ -29,7 +29,7 @@ function TeacherDashboard() {
   const active = candidates.filter((c) => c.status === "active").length;
 
   return (
-    <AdminShell title={`שלום ${profile?.full_name ?? ""}`}>
+    <AdminShell title={`שלום ${profile?.full_name ?? ""}`} roles={["teacher"]}>
       <div className="grid gap-3 sm:grid-cols-3">
         <StatCard label="הכיתות שלי" value={myClasses.length} tone="gold" icon={BookOpen} />
         <StatCard label="התלמידים שלי" value={candidates.length} icon={Users} />
