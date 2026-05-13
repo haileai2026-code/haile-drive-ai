@@ -29,17 +29,19 @@ const Ctx = createContext<AuthCtx | null>(null);
 
 const ROLE_PRIORITY: Record<Role, number> = { owner: 1, staff: 2, teacher: 3, student: 4 };
 
+export async function getPrimaryRole(userId: string): Promise<Role | null> {
+  const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+  if (!roles?.length) return null;
+  return (roles as { role: Role }[])
+    .map((r) => r.role)
+    .sort((a, b) => ROLE_PRIORITY[a] - ROLE_PRIORITY[b])[0];
+}
+
 async function loadUserContext(userId: string): Promise<{ profile: Profile | null; role: Role | null }> {
-  const [{ data: profile }, { data: roles }] = await Promise.all([
+  const [{ data: profile }, role] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
-    supabase.from("user_roles").select("role").eq("user_id", userId),
+    getPrimaryRole(userId),
   ]);
-  let role: Role | null = null;
-  if (roles && roles.length) {
-    role = (roles as { role: Role }[])
-      .map((r) => r.role)
-      .sort((a, b) => ROLE_PRIORITY[a] - ROLE_PRIORITY[b])[0];
-  }
   return { profile: profile as Profile | null, role };
 }
 
