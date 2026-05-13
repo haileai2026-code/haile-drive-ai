@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { AdminShell } from "@/components/AdminShell";
-import { cities, programs, classes, cityName } from "@/lib/ops-data";
-import { Building2, Plus } from "lucide-react";
+import { useStore } from "@/lib/data-store";
+import { programs, classes, cityName } from "@/lib/ops-data";
+import { Building2, Plus, Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/admin/cities")({
   head: () => ({ meta: [{ title: "Cities & Programs — Haile Drive AI" }] }),
@@ -9,13 +11,33 @@ export const Route = createFileRoute("/admin/cities")({
 });
 
 function CitiesPage() {
+  const { cities, addCity, removeCity } = useStore();
+  const [name, setName] = useState("");
+
+  const create = () => {
+    const n = name.trim();
+    if (!n) return;
+    addCity(n);
+    setName("");
+  };
+
   return (
     <AdminShell title="Cities & Programs">
       <div className="grid gap-4 lg:grid-cols-2">
         <section className="rounded-2xl border border-border/60 bg-card/40 p-4">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold flex items-center gap-2"><Building2 className="h-4 w-4 text-gold" /> Cities</h2>
-            <button className="inline-flex h-8 items-center gap-1 rounded-lg bg-gold px-3 text-xs font-semibold text-gold-foreground"><Plus className="h-3 w-3" /> Add</button>
+            <h2 className="text-sm font-semibold flex items-center gap-2"><Building2 className="h-4 w-4 text-gold" /> Cities ({cities.length})</h2>
+          </div>
+          <div className="mb-3 flex gap-2">
+            <input
+              value={name} onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && create()}
+              placeholder="Add any city in the country…"
+              className="h-9 flex-1 rounded-xl border border-input bg-background px-3 text-sm"
+            />
+            <button onClick={create} className="inline-flex h-9 items-center gap-1 rounded-xl bg-gold px-3 text-xs font-semibold text-gold-foreground">
+              <Plus className="h-3 w-3" /> Add
+            </button>
           </div>
           <ul className="divide-y divide-border/40">
             {cities.map((c) => {
@@ -23,11 +45,22 @@ function CitiesPage() {
               return (
                 <li key={c.id} className="flex items-center justify-between py-2.5">
                   <span className="font-medium">{c.name}</span>
-                  <span className="text-xs text-muted-foreground">{cnt} classes</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-muted-foreground">{cnt} classes</span>
+                    <button
+                      onClick={() => confirm(`Remove ${c.name}?`) && removeCity(c.id)}
+                      className="text-rose-400 hover:text-rose-300"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </li>
               );
             })}
           </ul>
+          <p className="mt-3 text-[11px] text-muted-foreground">
+            No hardcoded list. Add unlimited cities anywhere in the country.
+          </p>
         </section>
 
         <section className="rounded-2xl border border-border/60 bg-card/40 p-4">

@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { AdminShell } from "@/components/AdminShell";
+import { useStore } from "@/lib/data-store";
 import {
-  candidates, candidateStatusLabel, candidateStatusTone, cities, cityName,
+  candidateStatusLabel, candidateStatusTone,
   type CandidateStatus,
 } from "@/lib/ops-data";
-import { Search, Plus, Phone, Tag } from "lucide-react";
+import { Search, Plus, Phone, Tag, Upload, Download } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/admin/candidates")({
   head: () => ({ meta: [{ title: "Candidates CRM — Haile Drive AI" }] }),
@@ -17,6 +19,8 @@ const STATUSES: (CandidateStatus | "all")[] = [
 ];
 
 function CandidatesCRM() {
+  const { candidates, cities } = useStore();
+  const cityName = (id: string) => cities.find((c) => c.id === id)?.name ?? id;
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<CandidateStatus | "all">("all");
   const [city, setCity] = useState<string>("all");
@@ -29,7 +33,7 @@ function CandidatesCRM() {
         if (q && !`${c.name} ${c.phone}`.toLowerCase().includes(q.toLowerCase())) return false;
         return true;
       }),
-    [q, status, city],
+    [q, status, city, candidates],
   );
 
   return (
@@ -51,9 +55,17 @@ function CandidatesCRM() {
         <select value={status} onChange={(e) => setStatus(e.target.value as CandidateStatus | "all")} className="h-10 rounded-xl border border-input bg-background px-3 text-sm capitalize">
           {STATUSES.map((s) => <option key={s} value={s}>{s === "all" ? "All statuses" : candidateStatusLabel[s]}</option>)}
         </select>
-        <button className="ms-auto inline-flex h-10 items-center gap-1.5 rounded-xl bg-gold px-4 text-sm font-semibold text-gold-foreground hover:opacity-90">
-          <Plus className="h-4 w-4" /> New candidate
-        </button>
+        <div className="ms-auto flex gap-2">
+          <Link to="/admin/import" className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-gold/40 bg-gold/10 px-3 text-sm font-semibold text-gold">
+            <Upload className="h-4 w-4" /> Import
+          </Link>
+          <Link to="/admin/export" className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-border/60 px-3 text-sm">
+            <Download className="h-4 w-4" /> Export
+          </Link>
+          <button className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-gold px-4 text-sm font-semibold text-gold-foreground hover:opacity-90">
+            <Plus className="h-4 w-4" /> New
+          </button>
+        </div>
       </div>
 
       {/* Pipeline strip */}
