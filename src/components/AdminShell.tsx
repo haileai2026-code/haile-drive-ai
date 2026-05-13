@@ -15,12 +15,12 @@ import type { Role } from "@/lib/ops-data";
 type NavItem = { to: string; icon: LucideIcon; label: string; roles: Role[] };
 
 const NAV: NavItem[] = [
-  { to: "/admin", icon: LayoutDashboard, label: "סקירת בעלים", roles: ["owner", "staff"] },
-  { to: "/admin/candidates", icon: Users, label: "תלמידים ומועמדים", roles: ["owner", "staff"] },
+  { to: "/admin", icon: LayoutDashboard, label: "סקירת בעלים", roles: ["owner"] },
+  { to: "/admin/candidates", icon: Users, label: "תלמידים ומועמדים", roles: ["owner"] },
   { to: "/admin/teachers", icon: UserCog, label: "מורים והרשאות", roles: ["owner"] },
-  { to: "/admin/classes", icon: GraduationCap, label: "כיתות וקבוצות", roles: ["owner", "staff"] },
-  { to: "/admin/materials", icon: FileText, label: "חומרי לימוד והעשרה", roles: ["owner", "staff"] },
-  { to: "/admin/exams", icon: FileQuestion, label: "בנק מבחנים", roles: ["owner", "staff"] },
+  { to: "/admin/classes", icon: GraduationCap, label: "כיתות וקבוצות", roles: ["owner"] },
+  { to: "/admin/materials", icon: FileText, label: "חומרי לימוד והעשרה", roles: ["owner"] },
+  { to: "/admin/exams", icon: FileQuestion, label: "בנק מבחנים", roles: ["owner"] },
   { to: "/admin/cities", icon: Building2, label: "ערים ומסלולים", roles: ["owner"] },
   { to: "/teacher", icon: GraduationCap, label: "מסך מורה", roles: ["teacher"] },
 ];
@@ -35,7 +35,7 @@ const ROLE_LABEL: Record<Role, string> = {
 export function AdminShell({
   children,
   title,
-  roles = ["owner", "staff"],
+  roles = ["owner"],
 }: {
   children: ReactNode;
   title: string;
