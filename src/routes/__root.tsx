@@ -13,6 +13,7 @@ import { I18nProvider } from "@/lib/i18n";
 import { RoleProvider } from "@/lib/role";
 import { DataStoreProvider } from "@/lib/data-store";
 import { AuthProvider } from "@/lib/auth";
+import { OwnerLangLock } from "@/components/OwnerLangLock";
 
 function NotFoundComponent() {
   return (
