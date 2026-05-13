@@ -64,6 +64,12 @@ function Landing() {
             >
               {t("dashboard")}
             </Link>
+            <Link
+              to="/admin"
+              className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-card/60 px-6 py-3 text-base font-medium text-gold hover:bg-card"
+            >
+              Operations
+            </Link>
           </div>
 
           <dl className="grid grid-cols-3 gap-4 pt-6 text-center">
