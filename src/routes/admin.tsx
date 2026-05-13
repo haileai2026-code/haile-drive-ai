@@ -2,6 +2,7 @@ import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-rout
 import { useQuery } from "@tanstack/react-query";
 import { AdminLoading, AdminShell, StatCard } from "@/components/AdminShell";
 import { adminApi } from "@/lib/admin-api";
+import { useAuth } from "@/lib/auth";
 import { Users, GraduationCap, FileText, FileQuestion, UserCog, Building2 } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
@@ -17,12 +18,14 @@ function AdminOverview() {
 }
 
 function AdminOverviewContent() {
+  const { user, loading } = useAuth();
+  const canQuery = !loading && !!user;
 
-  const candidatesQ = useQuery({ queryKey: ["candidates"], queryFn: () => adminApi.listCandidates() });
-  const classesQ = useQuery({ queryKey: ["classes"], queryFn: adminApi.listClasses });
-  const teachersQ = useQuery({ queryKey: ["teachers"], queryFn: adminApi.listTeachers });
-  const materialsQ = useQuery({ queryKey: ["materials"], queryFn: () => adminApi.listMaterials() });
-  const examsQ = useQuery({ queryKey: ["exams"], queryFn: adminApi.listExams });
+  const candidatesQ = useQuery({ queryKey: ["candidates"], queryFn: () => adminApi.listCandidates(), enabled: canQuery });
+  const classesQ = useQuery({ queryKey: ["classes"], queryFn: adminApi.listClasses, enabled: canQuery });
+  const teachersQ = useQuery({ queryKey: ["teachers"], queryFn: adminApi.listTeachers, enabled: canQuery });
+  const materialsQ = useQuery({ queryKey: ["materials"], queryFn: () => adminApi.listMaterials(), enabled: canQuery });
+  const examsQ = useQuery({ queryKey: ["exams"], queryFn: adminApi.listExams, enabled: canQuery });
 
   const candidates = candidatesQ.data ?? [];
   const active = candidates.filter((c) => c.status === "active").length;
