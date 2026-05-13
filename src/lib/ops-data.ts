@@ -198,8 +198,7 @@ export const notifications: AppNotification[] = [
 
 // ---------- Helpers ----------
 export const studentName = (id: string) => {
-  const cd = candidates.find((c) => c.classId && classes.find((cl) => cl.id === cd?.classId));
-  return cd?.name ?? `Student #${id.replace("s-", "")}`;
+  return `Student #${id.replace("s-", "")}`;
 };
 export const cityName = (id: string) => cities.find((c) => c.id === id)?.name ?? id;
 export const programName = (id: string) => programs.find((p) => p.id === id)?.name ?? id;
