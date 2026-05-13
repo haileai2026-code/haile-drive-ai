@@ -32,14 +32,22 @@ const ROLE_LABEL: Record<Role, string> = {
   student: "תלמיד",
 };
 
-export function AdminShell({ children, title }: { children: ReactNode; title: string }) {
+export function AdminShell({
+  children,
+  title,
+  roles = ["owner", "staff"],
+}: {
+  children: ReactNode;
+  title: string;
+  roles?: Role[];
+}) {
   const { role } = useRole();
   const { signOut, profile } = useAuth();
   const loc = useLocation();
   const items = NAV.filter((i) => i.roles.includes(role));
 
   return (
-    <RequireAuth roles={["owner", "staff", "teacher"]}>
+    <RequireAuth roles={roles}>
     <div className="min-h-screen bg-night text-foreground">
       <div className="mx-auto flex max-w-screen-2xl">
         <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-border/60 bg-card/40 p-4 lg:flex">
