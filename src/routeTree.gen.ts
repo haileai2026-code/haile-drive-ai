@@ -27,6 +27,7 @@ import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminTranslationsRouteImport } from './routes/admin.translations'
 import { Route as AdminTeachersRouteImport } from './routes/admin.teachers'
 import { Route as AdminStaffRouteImport } from './routes/admin.staff'
+import { Route as AdminScheduleRouteImport } from './routes/admin.schedule'
 import { Route as AdminNotificationsRouteImport } from './routes/admin.notifications'
 import { Route as AdminMaterialsRouteImport } from './routes/admin.materials'
 import { Route as AdminMakeupRouteImport } from './routes/admin.makeup'
@@ -132,6 +133,11 @@ const AdminStaffRoute = AdminStaffRouteImport.update({
   path: '/staff',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminScheduleRoute = AdminScheduleRouteImport.update({
+  id: '/schedule',
+  path: '/schedule',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminNotificationsRoute = AdminNotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
@@ -229,6 +235,7 @@ export interface FileRoutesByFullPath {
   '/admin/makeup': typeof AdminMakeupRoute
   '/admin/materials': typeof AdminMaterialsRoute
   '/admin/notifications': typeof AdminNotificationsRoute
+  '/admin/schedule': typeof AdminScheduleRoute
   '/admin/staff': typeof AdminStaffRoute
   '/admin/teachers': typeof AdminTeachersRoute
   '/admin/translations': typeof AdminTranslationsRoute
@@ -263,6 +270,7 @@ export interface FileRoutesByTo {
   '/admin/makeup': typeof AdminMakeupRoute
   '/admin/materials': typeof AdminMaterialsRoute
   '/admin/notifications': typeof AdminNotificationsRoute
+  '/admin/schedule': typeof AdminScheduleRoute
   '/admin/staff': typeof AdminStaffRoute
   '/admin/teachers': typeof AdminTeachersRoute
   '/admin/translations': typeof AdminTranslationsRoute
@@ -298,6 +306,7 @@ export interface FileRoutesById {
   '/admin/makeup': typeof AdminMakeupRoute
   '/admin/materials': typeof AdminMaterialsRoute
   '/admin/notifications': typeof AdminNotificationsRoute
+  '/admin/schedule': typeof AdminScheduleRoute
   '/admin/staff': typeof AdminStaffRoute
   '/admin/teachers': typeof AdminTeachersRoute
   '/admin/translations': typeof AdminTranslationsRoute
@@ -334,6 +343,7 @@ export interface FileRouteTypes {
     | '/admin/makeup'
     | '/admin/materials'
     | '/admin/notifications'
+    | '/admin/schedule'
     | '/admin/staff'
     | '/admin/teachers'
     | '/admin/translations'
@@ -368,6 +378,7 @@ export interface FileRouteTypes {
     | '/admin/makeup'
     | '/admin/materials'
     | '/admin/notifications'
+    | '/admin/schedule'
     | '/admin/staff'
     | '/admin/teachers'
     | '/admin/translations'
@@ -402,6 +413,7 @@ export interface FileRouteTypes {
     | '/admin/makeup'
     | '/admin/materials'
     | '/admin/notifications'
+    | '/admin/schedule'
     | '/admin/staff'
     | '/admin/teachers'
     | '/admin/translations'
@@ -555,6 +567,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminStaffRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/schedule': {
+      id: '/admin/schedule'
+      path: '/schedule'
+      fullPath: '/admin/schedule'
+      preLoaderRoute: typeof AdminScheduleRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/notifications': {
       id: '/admin/notifications'
       path: '/notifications'
@@ -693,6 +712,7 @@ interface AdminRouteChildren {
   AdminMakeupRoute: typeof AdminMakeupRoute
   AdminMaterialsRoute: typeof AdminMaterialsRoute
   AdminNotificationsRoute: typeof AdminNotificationsRoute
+  AdminScheduleRoute: typeof AdminScheduleRoute
   AdminStaffRoute: typeof AdminStaffRoute
   AdminTeachersRoute: typeof AdminTeachersRoute
   AdminTranslationsRoute: typeof AdminTranslationsRoute
@@ -712,6 +732,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminMakeupRoute: AdminMakeupRoute,
   AdminMaterialsRoute: AdminMaterialsRoute,
   AdminNotificationsRoute: AdminNotificationsRoute,
+  AdminScheduleRoute: AdminScheduleRoute,
   AdminStaffRoute: AdminStaffRoute,
   AdminTeachersRoute: AdminTeachersRoute,
   AdminTranslationsRoute: AdminTranslationsRoute,
