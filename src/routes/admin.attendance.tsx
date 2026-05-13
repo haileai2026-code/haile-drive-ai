@@ -205,9 +205,15 @@ function AttendancePage() {
         ) : (
           <ul className="divide-y divide-border/40 overflow-hidden rounded-2xl border border-border/60 bg-card/40">
             {todayMissing.map((r) => (
-              <li key={r.id} className="flex items-center justify-between px-4 py-3 text-sm">
-                <div className="font-semibold">{candidateById[r.candidate_id]?.full_name ?? r.candidate_id.slice(0, 8)}</div>
-                <div className="text-xs text-muted-foreground">{classById[r.class_id]?.name ?? "—"}</div>
+              <li key={r.id}>
+                <Link
+                  to="/admin/attendance/drilldown"
+                  search={{ classId: r.class_id, date: r.lesson_date }}
+                  className="flex items-center justify-between px-4 py-3 text-sm transition hover:bg-background/40"
+                >
+                  <div className="font-semibold">{candidateById[r.candidate_id]?.full_name ?? r.candidate_id.slice(0, 8)}</div>
+                  <div className="text-xs text-muted-foreground">{classById[r.class_id]?.name ?? "—"}</div>
+                </Link>
               </li>
             ))}
           </ul>
