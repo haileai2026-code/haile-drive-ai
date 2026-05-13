@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminLoading, AdminShell } from "@/components/AdminShell";
 import { adminApi, type Exam } from "@/lib/admin-api";
+import { useAuth } from "@/lib/auth";
 import { Plus, Trash2, FileQuestion, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 
@@ -13,8 +14,10 @@ export const Route = createFileRoute("/admin/exams")({
 
 function ExamsPage() {
   const qc = useQueryClient();
-  const examsQ = useQuery({ queryKey: ["exams"], queryFn: adminApi.listExams });
-  const classesQ = useQuery({ queryKey: ["classes"], queryFn: adminApi.listClasses });
+  const { user, loading } = useAuth();
+  const canQuery = !loading && !!user;
+  const examsQ = useQuery({ queryKey: ["exams"], queryFn: adminApi.listExams, enabled: canQuery });
+  const classesQ = useQuery({ queryKey: ["classes"], queryFn: adminApi.listClasses, enabled: canQuery });
   const [editing, setEditing] = useState<Partial<Exam> | null>(null);
 
   const saveMut = useMutation({
