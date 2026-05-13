@@ -229,7 +229,21 @@ function LoginPage() {
               />
             </div>
 
+            {effectiveMode === "signin" && (
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={sendReset}
+                  disabled={busy}
+                  className="text-xs font-semibold text-gold hover:underline disabled:opacity-50"
+                >
+                  שכחת סיסמה? שלח/י קוד אימות
+                </button>
+              </div>
+            )}
+
             {err && <p className="text-sm text-rose-400">{err}</p>}
+            {info && <p className="text-sm text-emerald-400">{info}</p>}
 
             <button
               type="submit"
