@@ -37,6 +37,10 @@ type Ctx = {
   t: (key: StringKey) => string;
   dir: "ltr" | "rtl";
   languages: LanguageMeta[];
+  /** When true, the language is enforced (e.g. owner must use Hebrew) and the switcher should be hidden. */
+  locked: boolean;
+  /** Force a language and lock it. Pass null to unlock. */
+  lockLanguage: (l: LanguageCode | null) => void;
 };
 
 const I18nContext = createContext<Ctx | null>(null);
@@ -44,6 +48,7 @@ const STORAGE_KEY = "hda.lang";
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<LanguageCode>(DEFAULT_LANG);
+  const [locked, setLocked] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -64,9 +69,20 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   }, [meta]);
 
   const setLang = (l: LanguageCode) => {
+    if (locked) return;
     if (!getLanguage(l)?.enabled) return;
     setLangState(l);
     if (typeof window !== "undefined") localStorage.setItem(STORAGE_KEY, l);
+  };
+
+  const lockLanguage = (l: LanguageCode | null) => {
+    if (l === null) {
+      setLocked(false);
+      return;
+    }
+    if (!getLanguage(l)?.enabled) return;
+    setLangState(l);
+    setLocked(true);
   };
 
   const t = (key: StringKey): string => {
@@ -79,7 +95,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <I18nContext.Provider value={{ lang, meta, setLang, t, dir: meta.dir, languages: LANGUAGES.filter((l) => l.enabled) }}>
+    <I18nContext.Provider value={{ lang, meta, setLang, t, dir: meta.dir, languages: LANGUAGES.filter((l) => l.enabled), locked, lockLanguage }}>
       {children}
     </I18nContext.Provider>
   );
