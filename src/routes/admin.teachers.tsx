@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { AdminLoading, AdminShell } from "@/components/AdminShell";
 import { adminApi } from "@/lib/admin-api";
 import { createUserAccount } from "@/lib/admin-users.functions";
+import { useAuth } from "@/lib/auth";
 import { useState } from "react";
 import { toast } from "sonner";
 import { UserCog, Plus } from "lucide-react";
@@ -18,9 +19,11 @@ const emptyUser: NewUserForm = { email: "", password: "", full_name: "", phone: 
 
 function TeachersPage() {
   const qc = useQueryClient();
-  const usersQ = useQuery({ queryKey: ["all-users"], queryFn: adminApi.listAllUsers });
-  const teachersQ = useQuery({ queryKey: ["teachers"], queryFn: adminApi.listTeachers });
-  const classesQ = useQuery({ queryKey: ["classes"], queryFn: adminApi.listClasses });
+  const { user, loading } = useAuth();
+  const canQuery = !loading && !!user;
+  const usersQ = useQuery({ queryKey: ["all-users"], queryFn: adminApi.listAllUsers, enabled: canQuery });
+  const teachersQ = useQuery({ queryKey: ["teachers"], queryFn: adminApi.listTeachers, enabled: canQuery });
+  const classesQ = useQuery({ queryKey: ["classes"], queryFn: adminApi.listClasses, enabled: canQuery });
   const createUser = useServerFn(createUserAccount);
 
   const teacherIds = new Set((teachersQ.data ?? []).map((t) => t.id));
