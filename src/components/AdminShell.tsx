@@ -106,6 +106,13 @@ export function AdminShell({ children, title }: { children: ReactNode; title: st
                   <option value="student">Student</option>
                 </select>
                 <LangSwitcher />
+                <button
+                  onClick={signOut}
+                  title={profile?.email ?? "Sign out"}
+                  className="rounded-md border border-border/60 p-1.5 text-muted-foreground hover:bg-accent"
+                >
+                  <LogOut className="h-4 w-4" />
+                </button>
               </div>
             </div>
 
@@ -134,6 +141,7 @@ export function AdminShell({ children, title }: { children: ReactNode; title: st
         </div>
       </div>
     </div>
+    </RequireAuth>
   );
 }
 
