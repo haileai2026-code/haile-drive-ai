@@ -16,11 +16,11 @@ const TYPE_META: Record<ScheduleEventType, { label: string; cls: string; Icon: a
 };
 
 function StudentSchedule() {
-  const today = new Date().toISOString().slice(0, 10);
   // RLS auto-filters to events matching the student's class_id (or candidate_id).
+  // Show full class schedule (past + future) so the student sees the whole year.
   const { data: events, isLoading } = useQuery({
-    queryKey: ["my-schedule"],
-    queryFn: () => scheduleApi.list({ from: today }),
+    queryKey: ["my-schedule-all"],
+    queryFn: () => scheduleApi.list({}),
   });
   const { data: classes } = useQuery({
     queryKey: ["classes-min"],
