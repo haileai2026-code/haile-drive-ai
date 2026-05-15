@@ -36,6 +36,7 @@ import { Route as AdminNotificationsRouteImport } from './routes/admin.notificat
 import { Route as AdminMaterialsRouteImport } from './routes/admin.materials'
 import { Route as AdminMakeupRouteImport } from './routes/admin.makeup'
 import { Route as AdminLessonsRouteImport } from './routes/admin.lessons'
+import { Route as AdminInboxRouteImport } from './routes/admin.inbox'
 import { Route as AdminImportRouteImport } from './routes/admin.import'
 import { Route as AdminExportRouteImport } from './routes/admin.export'
 import { Route as AdminExamsRouteImport } from './routes/admin.exams'
@@ -184,6 +185,11 @@ const AdminLessonsRoute = AdminLessonsRouteImport.update({
   path: '/lessons',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminInboxRoute = AdminInboxRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminImportRoute = AdminImportRouteImport.update({
   id: '/import',
   path: '/import',
@@ -272,6 +278,7 @@ export interface FileRoutesByFullPath {
   '/admin/exams': typeof AdminExamsRouteWithChildren
   '/admin/export': typeof AdminExportRoute
   '/admin/import': typeof AdminImportRoute
+  '/admin/inbox': typeof AdminInboxRoute
   '/admin/lessons': typeof AdminLessonsRoute
   '/admin/makeup': typeof AdminMakeupRoute
   '/admin/materials': typeof AdminMaterialsRoute
@@ -313,6 +320,7 @@ export interface FileRoutesByTo {
   '/admin/exams': typeof AdminExamsRouteWithChildren
   '/admin/export': typeof AdminExportRoute
   '/admin/import': typeof AdminImportRoute
+  '/admin/inbox': typeof AdminInboxRoute
   '/admin/lessons': typeof AdminLessonsRoute
   '/admin/makeup': typeof AdminMakeupRoute
   '/admin/materials': typeof AdminMaterialsRoute
@@ -355,6 +363,7 @@ export interface FileRoutesById {
   '/admin/exams': typeof AdminExamsRouteWithChildren
   '/admin/export': typeof AdminExportRoute
   '/admin/import': typeof AdminImportRoute
+  '/admin/inbox': typeof AdminInboxRoute
   '/admin/lessons': typeof AdminLessonsRoute
   '/admin/makeup': typeof AdminMakeupRoute
   '/admin/materials': typeof AdminMaterialsRoute
@@ -398,6 +407,7 @@ export interface FileRouteTypes {
     | '/admin/exams'
     | '/admin/export'
     | '/admin/import'
+    | '/admin/inbox'
     | '/admin/lessons'
     | '/admin/makeup'
     | '/admin/materials'
@@ -439,6 +449,7 @@ export interface FileRouteTypes {
     | '/admin/exams'
     | '/admin/export'
     | '/admin/import'
+    | '/admin/inbox'
     | '/admin/lessons'
     | '/admin/makeup'
     | '/admin/materials'
@@ -480,6 +491,7 @@ export interface FileRouteTypes {
     | '/admin/exams'
     | '/admin/export'
     | '/admin/import'
+    | '/admin/inbox'
     | '/admin/lessons'
     | '/admin/makeup'
     | '/admin/materials'
@@ -707,6 +719,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLessonsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/inbox': {
+      id: '/admin/inbox'
+      path: '/inbox'
+      fullPath: '/admin/inbox'
+      preLoaderRoute: typeof AdminInboxRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/import': {
       id: '/admin/import'
       path: '/import'
@@ -828,6 +847,7 @@ interface AdminRouteChildren {
   AdminExamsRoute: typeof AdminExamsRouteWithChildren
   AdminExportRoute: typeof AdminExportRoute
   AdminImportRoute: typeof AdminImportRoute
+  AdminInboxRoute: typeof AdminInboxRoute
   AdminLessonsRoute: typeof AdminLessonsRoute
   AdminMakeupRoute: typeof AdminMakeupRoute
   AdminMaterialsRoute: typeof AdminMaterialsRoute
@@ -850,6 +870,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminExamsRoute: AdminExamsRouteWithChildren,
   AdminExportRoute: AdminExportRoute,
   AdminImportRoute: AdminImportRoute,
+  AdminInboxRoute: AdminInboxRoute,
   AdminLessonsRoute: AdminLessonsRoute,
   AdminMakeupRoute: AdminMakeupRoute,
   AdminMaterialsRoute: AdminMaterialsRoute,
