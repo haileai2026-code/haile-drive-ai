@@ -174,3 +174,24 @@ export const setCandidatePayment = createServerFn({ method: "POST" })
 
     return { ok: true };
   });
+
+export const setCandidateBeqaAccess = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({
+      candidate_id: z.string().uuid(),
+      beqa_access: z.boolean(),
+    }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: roleRow } = await context.supabase
+      .from("user_roles").select("role")
+      .eq("user_id", context.userId).eq("role", "owner").maybeSingle();
+    if (!roleRow) throw new Error("Only owners can change BEQA access");
+
+    const { error } = await supabaseAdmin.from("candidates")
+      .update({ beqa_access: data.beqa_access })
+      .eq("id", data.candidate_id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
