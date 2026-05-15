@@ -92,6 +92,11 @@ function SchedulePage() {
 
   async function save() {
     if (!editing) return;
+    const isMakeupForCandidate = editing.type === "makeup" && !!editing.candidate_id;
+    if (!editing.class_id && !isMakeupForCandidate) {
+      toast.error("חובה לבחור כיתה — בלי כיתה אף סטודנט לא יראה את האירוע");
+      return;
+    }
     try {
       await scheduleApi.upsert({
         ...editing,
