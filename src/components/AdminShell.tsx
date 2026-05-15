@@ -38,6 +38,7 @@ const ROLE_LABEL: Record<Role, string> = {
   staff: "צוות",
   teacher: "מורה",
   student: "תלמיד",
+  lead: "ליד",
 };
 
 export function AdminShell({
