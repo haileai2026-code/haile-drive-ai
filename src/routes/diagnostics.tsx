@@ -312,6 +312,8 @@ function DiagnosticsPage() {
 
   const finishTest = async (allAnswers: { correct: boolean; rt: number; bpm: number | null }[]) => {
     if (!sessionIdRef.current || !baselineHr) return;
+    stressPulseUnsubRef.current?.();
+    stressPulseUnsubRef.current = null;
     const correctAnswers = allAnswers.filter((a) => a.correct).length;
     const stressHr = stressBpms.current.length
       ? Math.round(stressBpms.current.reduce((a, b) => a + b, 0) / stressBpms.current.length)
