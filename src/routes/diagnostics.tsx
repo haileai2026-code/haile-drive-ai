@@ -20,6 +20,15 @@ const CALIBRATION_SECONDS = 30;
 
 type Phase = "idle" | "calibrating" | "calibrated" | "running" | "done";
 
+type BioDiagnostics = {
+  fps: number;
+  meanGreen: number | null;
+  brightness: number | null;
+  skinRatio: number;
+  motion: number | null;
+  samplesInWindow: number;
+};
+
 const QUALITY_LABEL: Record<SignalQuality, string> = {
   none: "אין סיגנל",
   low: "נמוך",
@@ -50,6 +59,14 @@ function DiagnosticsPage() {
   const [baselineHr, setBaselineHr] = useState<number | null>(null);
   const [baselineHrv, setBaselineHrv] = useState<number | null>(null);
   const [cameraReady, setCameraReady] = useState(false);
+  const [bioDiagnostics, setBioDiagnostics] = useState<BioDiagnostics>({
+    fps: 0,
+    meanGreen: null,
+    brightness: null,
+    skinRatio: 0,
+    motion: null,
+    samplesInWindow: 0,
+  });
 
   // Stress test state
   const stressBpms = useRef<number[]>([]);
@@ -89,6 +106,14 @@ function DiagnosticsPage() {
         setHrv(snap.hrv);
         setQuality(snap.signalQuality);
         setFaceDetected(snap.faceDetected);
+        setBioDiagnostics({
+          fps: snap.fps,
+          meanGreen: snap.meanGreen,
+          brightness: snap.brightness,
+          skinRatio: snap.skinRatio,
+          motion: snap.motion,
+          samplesInWindow: snap.samplesInWindow,
+        });
       });
       await engine.start(stream, videoRef.current!);
       setCameraReady(true);
