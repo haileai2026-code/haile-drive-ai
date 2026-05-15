@@ -1,8 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Bot, GraduationCap, Languages, ShieldCheck, Sparkles } from "lucide-react";
 import heroImg from "@/assets/hero-driver.jpg";
-import { useI18n } from "@/lib/i18n";
-import { LangSwitcher } from "@/components/LangSwitcher";
+import { useI18n, type LanguageCode } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
   head: () => ({
