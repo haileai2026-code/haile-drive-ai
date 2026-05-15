@@ -117,16 +117,16 @@ function Landing() {
 
       <section className="mx-auto grid max-w-6xl gap-4 px-5 pb-24 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { icon: GraduationCap, t: "Bus & Heavy Vehicle", d: "Air brakes, pre-trip, passenger safety, road signs." },
-          { icon: Bot, icon2: true, t: "AI Teacher", d: "Voice & chat — explains theory in simple Amharic." },
-          { icon: Languages, t: "3 Languages", d: "Switch anytime — full RTL for Hebrew & Amharic." },
-          { icon: ShieldCheck, t: "Exam Ready", d: "Practice quizzes and full exam simulation." },
+          { icon: GraduationCap, title: t("cardLessons"), d: t("cardLessonsDesc") },
+          { icon: Bot, title: t("cardAI"), d: t("cardAIDesc") },
+          { icon: Languages, title: t("cardLangs"), d: t("cardLangsDesc") },
+          { icon: ShieldCheck, title: t("cardExam"), d: t("cardExamDesc") },
         ].map((f) => (
-          <div key={f.t} className="group rounded-2xl border border-border/60 bg-card/40 p-5 transition hover:border-gold/40 hover:bg-card/70">
+          <div key={f.title} className="group rounded-2xl border border-border/60 bg-card/40 p-5 transition hover:border-gold/40 hover:bg-card/70">
             <span className="grid h-10 w-10 place-items-center rounded-xl bg-gold/15 text-gold">
               <f.icon className="h-5 w-5" />
             </span>
-            <h3 className="mt-4 text-base font-semibold">{f.t}</h3>
+            <h3 className="mt-4 text-base font-semibold">{f.title}</h3>
             <p className="mt-1 text-sm text-muted-foreground">{f.d}</p>
           </div>
         ))}
