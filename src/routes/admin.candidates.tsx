@@ -263,6 +263,10 @@ function CandidatesPage() {
                 </Field>
               </div>
               <Field label="הערות"><textarea value={editing.notes ?? ""} onChange={(e) => setEditing({ ...editing, notes: e.target.value })} className="inp min-h-[80px]" /></Field>
+              <label className="flex items-center gap-2 rounded-lg border border-violet-500/30 bg-violet-500/5 p-2 text-sm cursor-pointer">
+                <input type="checkbox" checked={!!(editing as any).beqa_access} onChange={(e) => setEditing({ ...editing, beqa_access: e.target.checked } as any)} />
+                <span>🧬 גישה לאבחון BEQA (תשלום נפרד)</span>
+              </label>
 
               <div className="flex justify-end gap-2 pt-2">
                 <button type="button" onClick={() => setEditing(null)} className="rounded-lg border border-border/60 px-4 py-2 text-sm">ביטול</button>
