@@ -2,9 +2,9 @@ import type { StringKey } from "./en";
 
 const dict: Partial<Record<StringKey, string>> = {
   appName: "Haile Drive AI",
-  tagline: "למד נהיגה מקצועית עם AI בשפה שלך.",
-  heroSub: "מורה AI לרישיון אוטובוס ומשאיות כבדות.",
-  getStarted: "התחל",
+  tagline: "למד נהיגה מקצועית עם AI בשפה שלך",
+  heroSub: "מורה AI לרישיון אוטובוס ומשאיות כבדות",
+  getStarted: "התחל עכשיו",
   login: "התחברות",
   phone: "מספר טלפון",
   sendCode: "שלח קוד",
