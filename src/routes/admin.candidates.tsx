@@ -70,6 +70,13 @@ function CandidatesPage() {
     onError: (e: any) => toast.error(e.message ?? "מחיקה נכשלה"),
   });
 
+  const paymentMut = useMutation({
+    mutationFn: (vars: { candidate_id: string; payment_status: "unpaid" | "paid" | "partial" }) =>
+      setPaymentFn({ data: vars }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["candidates"] }); toast.success("עודכן"); },
+    onError: (e: any) => toast.error(e.message ?? "עדכון נכשל"),
+  });
+
   const cityName = (id: string | null) => citiesQ.data?.find((c) => c.id === id)?.name_he ?? "—";
   const className = (id: string | null) => classesQ.data?.find((c) => c.id === id)?.name ?? "—";
 
