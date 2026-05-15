@@ -144,6 +144,8 @@ export function roleHomePath(role: Role | null): string {
       return "/teacher";
     case "student":
       return "/dashboard";
+    case "lead":
+      return "/dashboard";
     default:
       return "/login";
   }
