@@ -408,6 +408,34 @@ function DiagnosticsPage() {
               מדידת דיוק, יציבות פיזיולוגית ועקביות תגובה תחת סטרס
             </p>
           </div>
+  if (user && beqaAccess === false) {
+    return (
+      <AppShell requireAuth={false}>
+        <div dir="rtl" className="mx-auto max-w-md py-12 text-center space-y-4">
+          <div className="text-5xl">🧬</div>
+          <h1 className="text-2xl font-bold">אבחון BEQA נעול</h1>
+          <p className="text-base text-muted-foreground">
+            האבחון הביומטרי זמין בתשלום נפרד. לפרטים — פנה להנהלה.
+          </p>
+          <p className="text-sm text-muted-foreground" dir="ltr" lang="am">
+            የ BEQA ምርመራ የሚገኘው በተለየ ክፍያ ነው። ለዝርዝሮች አስተዳደርን ያነጋግሩ።
+          </p>
+          <Link to="/dashboard"><Button variant="outline" className="mt-4">חזרה</Button></Link>
+        </div>
+      </AppShell>
+    );
+  }
+
+  return (
+    <AppShell requireAuth={false}>
+      <div className="space-y-4" dir="rtl">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">אבחון ביומטרי BEQA</h1>
+            <p className="text-sm text-muted-foreground">
+              מדידת דיוק, יציבות פיזיולוגית ועקביות תגובה תחת סטרס
+            </p>
+          </div>
           <Link to="/beqa-history">
             <Button size="sm" variant="outline">היסטוריה</Button>
           </Link>
