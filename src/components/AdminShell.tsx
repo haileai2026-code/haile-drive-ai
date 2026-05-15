@@ -110,34 +110,35 @@ export function AdminShell({
                 <button
                   onClick={signOut}
                   title={profile?.email ?? "Sign out"}
-                  className="rounded-md border border-border/60 p-1.5 text-muted-foreground hover:bg-accent"
+                  className="grid h-11 w-11 place-items-center rounded-md border border-border/60 text-muted-foreground hover:bg-accent"
+                  aria-label="Sign out"
                 >
                   <LogOut className="h-4 w-4" />
                 </button>
               </div>
             </div>
 
-            <div className="flex gap-1 overflow-x-auto px-4 pb-3 lg:hidden">
+            <div className="flex gap-1.5 overflow-x-auto px-4 pb-3 lg:hidden">
               {items.map(({ to, icon: Icon, label }) => {
                 const active = to === "/admin" ? loc.pathname === "/admin" : loc.pathname.startsWith(to);
                 return (
                   <Link
                     key={to}
                     to={to}
-                    className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs ${
+                    className={`flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm ${
                       active
                         ? "border-gold/40 bg-gold/15 text-gold"
                         : "border-border/60 text-muted-foreground"
                     }`}
                   >
-                    <Icon className="h-3.5 w-3.5" /> {label}
+                    <Icon className="h-4 w-4" /> {label}
                   </Link>
                 );
               })}
             </div>
           </header>
 
-          <main className="px-4 py-6 lg:px-8 lg:py-8" dir="rtl">{children}</main>
+          <main className="px-4 py-6 lg:px-8 lg:py-8 overflow-x-auto" dir="rtl">{children}</main>
         </div>
       </div>
     </div>
