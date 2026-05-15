@@ -131,8 +131,8 @@ function Dashboard() {
       ?? sortedToday.find((e) => e.type === "exam");
   }, [sortedToday, now]);
 
-  const resumeLesson = resume ? lessonCatalog.find((l) => l.id === resume.lessonId) : null;
   const resumePct = resume ? Math.round((resume.positionSec / Math.max(1, resume.durationSec)) * 100) : 0;
+  const resumeActive = !!(resume && resume.positionSec > 5 && resume.positionSec < resume.durationSec - 3);
 
   return (
     <AppShell>
