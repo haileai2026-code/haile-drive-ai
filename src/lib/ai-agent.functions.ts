@@ -18,6 +18,8 @@ const InputSchema = z.object({
 
 async function buildSnapshot() {
   const since30 = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString().slice(0, 10);
+  const today = new Date().toISOString().slice(0, 10);
+  const in30 = new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().slice(0, 10);
 
   const [
     candidatesRes,
@@ -28,8 +30,9 @@ async function buildSnapshot() {
     contactRes,
     attendanceRes,
     recentCandidatesRes,
+    upcomingEventsRes,
   ] = await Promise.all([
-    supabaseAdmin.from("candidates").select("status, city_id, updated_at"),
+    supabaseAdmin.from("candidates").select("status, city_id, class_id, updated_at"),
     supabaseAdmin.from("classes").select("id, name"),
     supabaseAdmin.from("cities").select("id, name, name_he"),
     supabaseAdmin.from("exam_results").select("score, passed"),
@@ -38,9 +41,16 @@ async function buildSnapshot() {
     supabaseAdmin.from("attendance_records").select("mark").gte("lesson_date", since30),
     supabaseAdmin
       .from("candidates")
-      .select("full_name, status, city_id, updated_at")
+      .select("full_name, status, city_id, class_id, updated_at")
       .order("updated_at", { ascending: false })
       .limit(20),
+    supabaseAdmin
+      .from("schedule_events")
+      .select("title, type, event_date, start_time, end_time, class_id, location")
+      .gte("event_date", today)
+      .lte("event_date", in30)
+      .order("event_date", { ascending: true })
+      .limit(40),
   ]);
 
   const candidates = candidatesRes.data ?? [];
@@ -71,6 +81,20 @@ async function buildSnapshot() {
   const attPresent = att.filter((a) => a.mark === "present").length;
   const attPct = att.length ? Math.round((attPresent / att.length) * 100) : 0;
 
+  const classMap = new Map((classesRes.data ?? []).map((c) => [c.id, c.name]));
+  const className = (id: string | null) => (id ? classMap.get(id) ?? "—" : "—");
+
+  const upcoming = (upcomingEventsRes.data ?? []).map((e) => ({
+    class_name: className(e.class_id),
+    lesson_topic: e.title,
+    type: e.type,
+    date: e.event_date,
+    start: e.start_time,
+    end: e.end_time,
+    location: e.location,
+    display: `${className(e.class_id)} — ${e.title} | ${e.event_date}${e.start_time ? ` | ${String(e.start_time).slice(0, 5)}` : ""}`,
+  }));
+
   return {
     timestamp: new Date().toISOString(),
     candidates: {
@@ -82,6 +106,7 @@ async function buildSnapshot() {
         name: c.full_name,
         status: c.status,
         city: cityName(c.city_id),
+        class: className(c.class_id),
         updated: c.updated_at,
       })),
     },
@@ -89,6 +114,7 @@ async function buildSnapshot() {
       total: (classesRes.data ?? []).length,
       names: (classesRes.data ?? []).map((c) => c.name),
     },
+    schedule_upcoming_30d: upcoming,
     exam_results: {
       total: exams.length,
       passed: examPassed,
@@ -110,7 +136,8 @@ const SYSTEM = `אתה סוכן AI של Haile Drive AI — מערכת הכשרת
 כשיש נתונים — הצג אותם בצורה ברורה (רשימות, מספרים, אחוזים).
 המספרים חשובים — תמיד ציין כמה מועמדים, כמה השלימו, כמה נשרו.
 אם המשתמש מבקש לבצע פעולת כתיבה (עדכון/מחיקה/יצירה) — הסבר בקצרה איך לעשות זאת בפאנל המתאים, אך אל תבצע בעצמך.
-אל תמציא מספרים — השתמש רק בנתוני ה-SNAPSHOT שמסופקים לך.`;
+אל תמציא מספרים — השתמש רק בנתוני ה-SNAPSHOT שמסופקים לך.
+חשוב להבחין: "כיתה" (class_name) הוא שם הקבוצה (למשל "אוטובוס מתחילים"), ו"נושא שיעור" (lesson_topic) הוא הכותרת של אירוע יחיד (למשל "מבוא לתאוריה"). אל תבלבל ביניהם — תמיד הצג שניהם בפורמט: "[שם הכיתה] — [נושא השיעור] | [תאריך] | [שעה]".`;
 
 export const aiAgentChat = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
