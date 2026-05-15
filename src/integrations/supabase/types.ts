@@ -50,6 +50,51 @@ export type Database = {
         }
         Relationships: []
       }
+      beqa_diagnostic_sessions: {
+        Row: {
+          accuracy_score: number | null
+          baseline_hr: number | null
+          created_at: string
+          end_time: string | null
+          final_beqa_score: number | null
+          id: string
+          metadata: Json
+          reaction_time_avg: number | null
+          start_time: string
+          stress_hr: number | null
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          accuracy_score?: number | null
+          baseline_hr?: number | null
+          created_at?: string
+          end_time?: string | null
+          final_beqa_score?: number | null
+          id?: string
+          metadata?: Json
+          reaction_time_avg?: number | null
+          start_time?: string
+          stress_hr?: number | null
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          accuracy_score?: number | null
+          baseline_hr?: number | null
+          created_at?: string
+          end_time?: string | null
+          final_beqa_score?: number | null
+          id?: string
+          metadata?: Json
+          reaction_time_avg?: number | null
+          start_time?: string
+          stress_hr?: number | null
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       candidate_documents: {
         Row: {
           candidate_id: string
@@ -571,6 +616,47 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      raw_biometric_log: {
+        Row: {
+          bpm: number | null
+          event_type: string
+          hrv: number | null
+          id: string
+          payload: Json
+          recorded_at: string
+          session_id: string
+          student_id: string
+        }
+        Insert: {
+          bpm?: number | null
+          event_type: string
+          hrv?: number | null
+          id?: string
+          payload?: Json
+          recorded_at?: string
+          session_id: string
+          student_id: string
+        }
+        Update: {
+          bpm?: number | null
+          event_type?: string
+          hrv?: number | null
+          id?: string
+          payload?: Json
+          recorded_at?: string
+          session_id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "raw_biometric_log_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "beqa_diagnostic_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       schedule_events: {
         Row: {
