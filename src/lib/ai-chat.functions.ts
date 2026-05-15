@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const SYSTEM_PROMPT = `אתה "Haile AI" — מורה נהיגה דיגיטלי לבית ספר לנהיגה בישראל, המתמחה בתלמידים דוברי אמהרית.
 
@@ -14,6 +15,7 @@ const SYSTEM_PROMPT = `אתה "Haile AI" — מורה נהיגה דיגיטלי 
 מונחי בסיס לתרגום אמהרית→עברית: መኪና=מכונית, ብሬክ=בלם, ጋዝ=דוושת גז, የመንገድ ምልክት=תמרור, ቀይ መብራት=רמזור אדום, አደጋ=סכנה, ፍጥነት=מהירות, የእግረኛ መንገድ=מעבר חצייה, የመንዳት ፈቃድ=רישיון נהיגה, ቴዎሪ=תיאוריה, ፈተና=מבחן, አስተማሪ=מורה, ተማሪ=תלמיד.`;
 
 export const aiChat = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
     z.object({
       messages: z

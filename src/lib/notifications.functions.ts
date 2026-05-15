@@ -1,6 +1,17 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+
+async function requireOwnerOrStaff(ctx: { supabase: any; userId: string }) {
+  const { data, error } = await ctx.supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", ctx.userId)
+    .in("role", ["owner", "staff"]);
+  if (error) throw new Error(error.message);
+  if (!data || data.length === 0) throw new Error("Forbidden");
+}
 
 type Channel = "sms" | "whatsapp";
 
@@ -56,8 +67,8 @@ function adminSb() {
   return createClient(url, key, { auth: { persistSession: false } });
 }
 
-/** Process all pending notifications whose scheduled_at <= now(). */
-export const processPendingNotifications = createServerFn({ method: "POST" }).handler(async () => {
+/** Internal worker — runs the queue with admin privileges. Caller must enforce auth. */
+export async function runPendingNotifications() {
   const sb = adminSb();
   const nowIso = new Date().toISOString();
   const { data: rows, error } = await sb
@@ -91,10 +102,19 @@ export const processPendingNotifications = createServerFn({ method: "POST" }).ha
     }
   }
   return { processed: rows?.length ?? 0, sent, failed };
-});
+}
+
+/** Process all pending notifications whose scheduled_at <= now(). */
+export const processPendingNotifications = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireOwnerOrStaff(context);
+    return runPendingNotifications();
+  });
 
 /** Send a single notification immediately (manual). */
 export const sendNotificationNow = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
     z
       .object({
@@ -102,7 +122,8 @@ export const sendNotificationNow = createServerFn({ method: "POST" })
       })
       .parse(input),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await requireOwnerOrStaff(context);
     const sb = adminSb();
     const { data: row, error } = await sb
       .from("notifications")
