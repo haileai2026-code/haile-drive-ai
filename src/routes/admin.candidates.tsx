@@ -174,6 +174,21 @@ function CandidatesPage() {
                 <td className="px-3 py-3 text-muted-foreground">{c.language}</td>
                 <td className="px-3 py-3"><span className="rounded-full border border-gold/30 bg-gold/10 px-2 py-0.5 text-[10px] text-gold">{STATUS_LABELS[c.status] ?? c.status}</span></td>
                 <td className="px-3 py-3">
+                  {c.payment_status === "paid" ? (
+                    <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-300">
+                      <GraduationCap className="h-3 w-3" /> שילם
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => { if (confirm(`לאשר תשלום של ${c.full_name} ולהפוך לסטודנט?`)) paymentMut.mutate({ candidate_id: c.id, payment_status: "paid" }); }}
+                      className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[10px] text-amber-300 hover:bg-amber-500/20"
+                      title="אשר תשלום והפוך לסטודנט"
+                    >
+                      <UserCheck className="h-3 w-3" /> הפוך לסטודנט
+                    </button>
+                  )}
+                </td>
+                <td className="px-3 py-3">
                   <div className="flex justify-end gap-1">
                     <button onClick={() => setFolderFor(c)} title="תיק נהג" className="rounded-md p-1.5 text-gold hover:bg-gold/10"><FolderOpen className="h-3.5 w-3.5" /></button>
                     <button onClick={() => setEditing(c)} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent"><Pencil className="h-3.5 w-3.5" /></button>
