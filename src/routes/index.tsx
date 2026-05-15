@@ -107,7 +107,7 @@ function Landing() {
                 </span>
                 <div className="text-sm leading-tight">
                   <div className="font-semibold">{t("aiTeacher")}</div>
-                  <div className="text-xs text-white/70">"እንኳን ደህና መጡ — ዛሬ ስለ አየር ብሬክ እንማራለን።"</div>
+                  <div className="text-xs text-white/70">{t("aiQuote")}</div>
                 </div>
               </div>
             </div>
