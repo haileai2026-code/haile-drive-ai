@@ -51,3 +51,82 @@ export const createUserAccount = createServerFn({ method: "POST" })
 
     return { id: newId };
   });
+
+export const importStudents = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({
+      class_id: z.string().uuid(),
+      students: z.array(z.object({
+        full_name: z.string().min(1).max(200),
+        email: z.string().email().max(255),
+      })).min(1).max(500),
+    }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: roleRow } = await context.supabase
+      .from("user_roles").select("role")
+      .eq("user_id", context.userId).eq("role", "owner").maybeSingle();
+    if (!roleRow) throw new Error("Only owners can import students");
+
+    const results: { email: string; full_name: string; ok: boolean; error?: string }[] = [];
+
+    for (const s of data.students) {
+      try {
+        // check existing candidate by email
+        const { data: existCand } = await supabaseAdmin
+          .from("candidates").select("id").ilike("email", s.email).maybeSingle();
+        if (existCand) {
+          results.push({ email: s.email, full_name: s.full_name, ok: false, error: "אימייל כבר קיים" });
+          continue;
+        }
+
+        // invite via auth (creates user + sends email)
+        let userId: string | null = null;
+        const { data: invited, error: invErr } = await supabaseAdmin.auth.admin.inviteUserByEmail(
+          s.email,
+          { data: { full_name: s.full_name } },
+        );
+        if (invErr) {
+          // user may already exist in auth — try to look up
+          const { data: list } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
+          const found = list?.users?.find((u) => u.email?.toLowerCase() === s.email.toLowerCase());
+          if (found) {
+            userId = found.id;
+          } else {
+            results.push({ email: s.email, full_name: s.full_name, ok: false, error: invErr.message });
+            continue;
+          }
+        } else {
+          userId = invited.user?.id ?? null;
+        }
+
+        if (userId) {
+          await supabaseAdmin.from("profiles").upsert({
+            id: userId, email: s.email, full_name: s.full_name, is_active: true,
+          });
+          const { data: hasRole } = await supabaseAdmin
+            .from("user_roles").select("id")
+            .eq("user_id", userId).eq("role", "student").maybeSingle();
+          if (!hasRole) {
+            await supabaseAdmin.from("user_roles").insert({ user_id: userId, role: "student" });
+          }
+        }
+
+        const { error: candErr } = await supabaseAdmin.from("candidates").insert({
+          full_name: s.full_name, email: s.email, class_id: data.class_id, status: "active",
+        });
+        if (candErr) {
+          results.push({ email: s.email, full_name: s.full_name, ok: false, error: candErr.message });
+          continue;
+        }
+
+        results.push({ email: s.email, full_name: s.full_name, ok: true });
+      } catch (e: any) {
+        results.push({ email: s.email, full_name: s.full_name, ok: false, error: e.message ?? "שגיאה" });
+      }
+    }
+
+    const success = results.filter((r) => r.ok).length;
+    return { results, success, failed: results.length - success };
+  });

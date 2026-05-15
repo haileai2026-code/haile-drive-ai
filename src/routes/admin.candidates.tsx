@@ -6,6 +6,7 @@ import { adminApi, docsApi, type Candidate, type CandidateDocument } from "@/lib
 import { useAuth } from "@/lib/auth";
 import { Plus, Pencil, Trash2, Search, FolderOpen, Upload, FileText, X, Download } from "lucide-react";
 import { toast } from "sonner";
+import { ImportStudentsModal } from "@/components/admin/ImportStudentsModal";
 
 const DOC_PRESETS = [
   "טופס ירוק",
@@ -48,6 +49,7 @@ function CandidatesPage() {
   const [cityF, setCityF] = useState<string>("all");
   const [editing, setEditing] = useState<FormState | null>(null);
   const [folderFor, setFolderFor] = useState<Candidate | null>(null);
+  const [importing, setImporting] = useState(false);
 
   const candidatesQ = useQuery({ queryKey: ["candidates"], queryFn: () => adminApi.listCandidates(), enabled: canQuery });
   const citiesQ = useQuery({ queryKey: ["cities"], queryFn: adminApi.listCities, enabled: canQuery });
@@ -91,10 +93,15 @@ function CandidatesPage() {
           <option value="all">כל הסטטוסים</option>
           {STATUSES.map((s) => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
         </select>
-        <button onClick={() => setEditing({ ...empty })} className="ms-auto inline-flex h-10 items-center gap-1.5 rounded-xl bg-gold px-4 text-sm font-semibold text-gold-foreground hover:opacity-90">
+        <button onClick={() => setImporting(true)} className="ms-auto inline-flex h-10 items-center gap-1.5 rounded-xl border border-gold/40 bg-gold/10 px-4 text-sm font-semibold text-gold hover:bg-gold/20">
+          <Upload className="h-4 w-4" /> ייבוא CSV
+        </button>
+        <button onClick={() => setEditing({ ...empty })} className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-gold px-4 text-sm font-semibold text-gold-foreground hover:opacity-90">
           <Plus className="h-4 w-4" /> תלמיד חדש
         </button>
       </div>
+
+      {importing && <ImportStudentsModal onClose={() => setImporting(false)} />}
 
       {isLoading && <div className="mt-4"><AdminLoading label="טוען תלמידים, ערים וכיתות מהמסד…" /></div>}
       {(candidatesQ.error || citiesQ.error || classesQ.error) && (
