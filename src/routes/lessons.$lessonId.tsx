@@ -1,9 +1,9 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import { useI18n, localized } from "@/lib/i18n";
-import { lessons } from "@/lib/mock-data";
-import { Headphones, Play, Pause, FileText, ArrowRight, RotateCcw } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
+import { supabase } from "@/integrations/supabase/client";
+import { Headphones, Play, Pause, FileText, ArrowRight, RotateCcw, ExternalLink } from "lucide-react";
 import {
   getLessonProgress,
   saveLessonProgress,
@@ -14,26 +14,49 @@ import {
 export const Route = createFileRoute("/lessons/$lessonId")({
   head: () => ({ meta: [{ title: "Lesson — Haile Drive AI" }] }),
   component: LessonDetail,
-  notFoundComponent: () => (
-    <AppShell>
-      <p className="text-muted-foreground">Lesson not found.</p>
-      <Link to="/lessons" className="mt-4 inline-block text-gold">← Back</Link>
-    </AppShell>
-  ),
 });
+
+type Material = {
+  id: string;
+  title: string;
+  description: string | null;
+  type: string;
+  external_link: string | null;
+  file_url: string | null;
+};
+
+// Fallback duration when a material doesn't carry one (most don't yet).
+const DEFAULT_DURATION_MIN = 15;
 
 function LessonDetail() {
   const { lessonId } = Route.useParams();
-  const { t, lang } = useI18n();
-  const lesson = lessons.find((l) => l.id === lessonId);
-  if (!lesson) throw notFound();
+  const { t } = useI18n();
 
-  const totalSec = lesson.duration * 60;
+  const [material, setMaterial] = useState<Material | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const totalSec = DEFAULT_DURATION_MIN * 60;
   const [position, setPosition] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [resumed, setResumed] = useState(false);
   const tickRef = useRef<number | null>(null);
   const positionRef = useRef(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      const { data } = await supabase
+        .from("materials")
+        .select("id, title, description, type, external_link, file_url")
+        .eq("id", lessonId)
+        .maybeSingle();
+      if (cancelled) return;
+      setMaterial((data as Material | null) ?? null);
+      setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, [lessonId]);
 
   // Restore progress on mount
   useEffect(() => {
@@ -45,7 +68,6 @@ function LessonDetail() {
     }
   }, [lessonId, totalSec]);
 
-  // Persist on unmount / page-hide so exiting mid-lesson is safe
   useEffect(() => {
     const persist = () => {
       saveLessonProgress({
@@ -64,7 +86,6 @@ function LessonDetail() {
     };
   }, [lessonId, totalSec]);
 
-  // Playback "engine" — counts seconds. Persists every 5s.
   useEffect(() => {
     if (!playing) return;
     let lastSave = Date.now();
@@ -90,9 +111,31 @@ function LessonDetail() {
     };
   }, [playing, lessonId, totalSec]);
 
+  if (loading) {
+    return (
+      <AppShell>
+        <p className="text-muted-foreground">טוען…</p>
+      </AppShell>
+    );
+  }
+
+  if (!material) {
+    return (
+      <AppShell>
+        <Link to="/lessons" className="text-xs text-muted-foreground hover:text-gold">← {t("lessons")}</Link>
+        <h1 className="mt-3 text-2xl font-black tracking-tight">השיעור לא נמצא</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          ייתכן שהשיעור הוסר או טרם הועלה. חזור לרשימת השיעורים.
+        </p>
+        <Link to="/lessons" className="mt-4 inline-block text-gold">← חזור</Link>
+      </AppShell>
+    );
+  }
+
   const pct = Math.round((position / totalSec) * 100);
   const remaining = Math.max(0, totalSec - position);
   const completed = position >= totalSec - 1;
+  const externalHref = material.external_link || material.file_url;
 
   const togglePlay = () => {
     setResumed(false);
@@ -110,10 +153,14 @@ function LessonDetail() {
   return (
     <AppShell>
       <Link to="/lessons" className="text-xs text-muted-foreground hover:text-gold">← {t("lessons")}</Link>
-      <h1 className="mt-2 text-2xl font-black tracking-tight">{localized(lesson.title, lang)}</h1>
+      <h1 className="mt-2 text-2xl font-black tracking-tight">{material.title}</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        {lesson.duration} {t("minutes")} · נותרו {formatTime(remaining)}
+        {DEFAULT_DURATION_MIN} {t("minutes")} · נותרו {formatTime(remaining)}
       </p>
+
+      {material.description && (
+        <p className="mt-2 text-sm text-muted-foreground">{material.description}</p>
+      )}
 
       {resumed && (
         <div className="mt-3 rounded-xl border border-gold/40 bg-gold/10 px-3 py-2 text-xs text-gold">
@@ -121,10 +168,7 @@ function LessonDetail() {
         </div>
       )}
 
-      <div
-        className="mt-5 grid aspect-video place-items-center rounded-3xl border border-gold/20 shadow-[var(--shadow-elev)]"
-        style={{ background: `radial-gradient(circle at 50% 40%, oklch(0.6 0.15 ${lesson.thumbnailHue}), oklch(0.15 0.05 ${lesson.thumbnailHue}))` }}
-      >
+      <div className="mt-5 grid aspect-video place-items-center rounded-3xl border border-gold/20 bg-gradient-to-br from-amber-900/20 to-card shadow-[var(--shadow-elev)]">
         <button
           onClick={togglePlay}
           className="grid h-20 w-20 place-items-center rounded-full bg-gold text-gold-foreground shadow-[var(--shadow-gold)] transition hover:scale-105"
@@ -160,6 +204,17 @@ function LessonDetail() {
           </button>
         )}
       </div>
+
+      {externalHref && (
+        <a
+          href={externalHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 inline-flex items-center gap-2 rounded-xl border border-border/60 bg-card/60 px-3 py-2 text-xs text-muted-foreground hover:border-gold/40"
+        >
+          <ExternalLink className="h-3.5 w-3.5" /> פתח את החומר המלא
+        </a>
+      )}
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2">
         <button className="flex items-center gap-3 rounded-2xl border border-border/70 bg-card/60 p-4 text-start hover:border-gold/40">
