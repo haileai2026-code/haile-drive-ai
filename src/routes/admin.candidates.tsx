@@ -146,6 +146,7 @@ function CandidatesPage() {
               <th className="px-3 py-2">כיתה</th>
               <th className="px-3 py-2">שפה</th>
               <th className="px-3 py-2">סטטוס</th>
+              <th className="px-3 py-2">תשלום</th>
               <th className="px-3 py-2"></th>
             </tr>
           </thead>
