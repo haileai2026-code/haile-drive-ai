@@ -151,8 +151,8 @@ function CandidatesPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border/40">
-            {isLoading && <tr><td colSpan={7} className="px-3 py-10 text-center text-muted-foreground">טוען נתונים חיים…</td></tr>}
-            {!isLoading && filtered.length === 0 && <tr><td colSpan={7} className="px-3 py-10 text-center text-muted-foreground">אין רשומות</td></tr>}
+            {isLoading && <tr><td colSpan={8} className="px-3 py-10 text-center text-muted-foreground">טוען נתונים חיים…</td></tr>}
+            {!isLoading && filtered.length === 0 && <tr><td colSpan={8} className="px-3 py-10 text-center text-muted-foreground">אין רשומות</td></tr>}
             {filtered.map((c) => (
               <tr key={c.id} className="hover:bg-accent/30">
                 <td className="px-3 py-3 font-semibold">{c.full_name}</td>
