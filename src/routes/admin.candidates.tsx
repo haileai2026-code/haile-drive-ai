@@ -81,15 +81,30 @@ function CandidatesPage() {
   const className = (id: string | null) => classesQ.data?.find((c) => c.id === id)?.name ?? "—";
 
   const filtered = (candidatesQ.data ?? []).filter((c) => {
+    const isPaid = c.payment_status === "paid";
+    if (tab === "leads" && isPaid) return false;
+    if (tab === "students" && !isPaid) return false;
     if (statusF !== "all" && c.status !== statusF) return false;
     if (cityF !== "all" && c.city_id !== cityF) return false;
     if (q && !`${c.full_name} ${c.phone ?? ""} ${c.email ?? ""}`.toLowerCase().includes(q.toLowerCase())) return false;
     return true;
   });
+  const leadsCount = (candidatesQ.data ?? []).filter((c) => c.payment_status !== "paid").length;
+  const studentsCount = (candidatesQ.data ?? []).filter((c) => c.payment_status === "paid").length;
   const isLoading = candidatesQ.isLoading || citiesQ.isLoading || classesQ.isLoading;
 
   return (
     <AdminShell title="ניהול לידים ותלמידים">
+      <div className="mb-3 flex gap-1 rounded-xl border border-border/60 bg-card/40 p-1 w-fit">
+        <button onClick={() => setTab("leads")}
+          className={`inline-flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-sm font-semibold transition ${tab==="leads"?"bg-gold text-gold-foreground":"text-muted-foreground hover:text-foreground"}`}>
+          📋 לידים <span className="rounded-full bg-background/40 px-1.5 text-[10px]">{leadsCount}</span>
+        </button>
+        <button onClick={() => setTab("students")}
+          className={`inline-flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-sm font-semibold transition ${tab==="students"?"bg-gold text-gold-foreground":"text-muted-foreground hover:text-foreground"}`}>
+          🎓 סטודנטים <span className="rounded-full bg-background/40 px-1.5 text-[10px]">{studentsCount}</span>
+        </button>
+      </div>
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative min-w-[220px] flex-1">
           <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
