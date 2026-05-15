@@ -1,0 +1,240 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
+import { Camera, Heart, Play, Square, Activity } from "lucide-react";
+import { AppShell } from "@/components/AppShell";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
+import { RppgSimulator, type BiometricSample } from "@/lib/rppg-sdk";
+import { toast } from "sonner";
+
+export const Route = createFileRoute("/diagnostics")({
+  component: DiagnosticsPage,
+});
+
+const CALIBRATION_SECONDS = 30;
+
+type Phase = "idle" | "calibrating" | "calibrated" | "running" | "done";
+
+function DiagnosticsPage() {
+  const { user } = useAuth();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const sdkRef = useRef<RppgSimulator | null>(null);
+  const sessionIdRef = useRef<string | null>(null);
+  const calibSamples = useRef<number[]>([]);
+
+  const [phase, setPhase] = useState<Phase>("idle");
+  const [currentBpm, setCurrentBpm] = useState<number | null>(null);
+  const [currentHrv, setCurrentHrv] = useState<number | null>(null);
+  const [calibProgress, setCalibProgress] = useState(0);
+  const [baselineHr, setBaselineHr] = useState<number | null>(null);
+  const [cameraReady, setCameraReady] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      sdkRef.current?.stop();
+    };
+  }, []);
+
+  const requestCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user", width: 320, height: 240 },
+        audio: false,
+      });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+      }
+      const sdk = new RppgSimulator();
+      sdkRef.current = sdk;
+      sdk.onSample((s: BiometricSample) => {
+        setCurrentBpm(s.bpm);
+        setCurrentHrv(s.hrv);
+      });
+      await sdk.start(stream);
+      setCameraReady(true);
+      toast.success("המצלמה פעילה — מוכן לכיול");
+    } catch (e) {
+      console.error(e);
+      toast.error("גישה למצלמה נדחתה");
+    }
+  };
+
+  const startCalibration = async () => {
+    if (!user || !sdkRef.current) return;
+
+    // Create a session row in Supabase
+    const { data, error } = await supabase
+      .from("beqa_diagnostic_sessions")
+      .insert({ student_id: user.id, metadata: { phase: "calibration" } })
+      .select("id")
+      .single();
+    if (error || !data) {
+      toast.error("שגיאה ביצירת סשן");
+      return;
+    }
+    sessionIdRef.current = data.id;
+    calibSamples.current = [];
+    setPhase("calibrating");
+    sdkRef.current.setMode("rest");
+
+    const sub = sdkRef.current.onSample(async (s) => {
+      calibSamples.current.push(s.bpm);
+      // Log raw event
+      await supabase.from("raw_biometric_log").insert({
+        session_id: sessionIdRef.current!,
+        student_id: user.id,
+        event_type: "calibration_tick",
+        bpm: s.bpm,
+        hrv: s.hrv,
+      });
+    });
+
+    const startTs = Date.now();
+    const interval = setInterval(async () => {
+      const elapsed = (Date.now() - startTs) / 1000;
+      const pct = Math.min(100, (elapsed / CALIBRATION_SECONDS) * 100);
+      setCalibProgress(pct);
+      if (elapsed >= CALIBRATION_SECONDS) {
+        clearInterval(interval);
+        sub();
+        const avg =
+          calibSamples.current.reduce((a, b) => a + b, 0) /
+          Math.max(1, calibSamples.current.length);
+        const baseline = Math.round(avg * 10) / 10;
+        setBaselineHr(baseline);
+        await supabase
+          .from("beqa_diagnostic_sessions")
+          .update({ baseline_hr: baseline })
+          .eq("id", sessionIdRef.current!);
+        setPhase("calibrated");
+        toast.success(`כיול הסתיים — דופק מנוחה: ${baseline} BPM`);
+      }
+    }, 200);
+  };
+
+  const stopAll = () => {
+    sdkRef.current?.stop();
+    sdkRef.current = null;
+    setCameraReady(false);
+    setPhase("idle");
+    setCurrentBpm(null);
+    setCurrentHrv(null);
+    setCalibProgress(0);
+  };
+
+  return (
+    <AppShell>
+      <div className="space-y-4" dir="rtl">
+        <div>
+          <h1 className="text-2xl font-bold">אבחון ביומטרי BEQA</h1>
+          <p className="text-sm text-muted-foreground">
+            כיול דופק מנוחה דרך המצלמה (rPPG) — 30 שניות
+          </p>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Camera className="h-4 w-4" /> תצוגת מצלמה
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="relative mx-auto aspect-[4/3] w-full max-w-xs overflow-hidden rounded-xl bg-black">
+              <video
+                ref={videoRef}
+                playsInline
+                muted
+                className="h-full w-full object-cover"
+              />
+              {!cameraReady && (
+                <div className="absolute inset-0 grid place-items-center text-xs text-muted-foreground">
+                  המצלמה כבויה
+                </div>
+              )}
+              {phase === "calibrating" && (
+                <div className="absolute inset-0 ring-4 ring-gold/70 animate-pulse rounded-xl" />
+              )}
+            </div>
+
+            {!cameraReady ? (
+              <Button onClick={requestCamera} className="w-full">
+                <Camera className="ml-2 h-4 w-4" /> אפשר גישה למצלמה
+              </Button>
+            ) : (
+              <Button onClick={stopAll} variant="outline" className="w-full">
+                <Square className="ml-2 h-4 w-4" /> כבה מצלמה
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+
+        {cameraReady && (
+          <div className="grid grid-cols-2 gap-3">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Heart className="h-4 w-4 text-red-500" /> דופק (BPM)
+                </div>
+                <div className="mt-1 text-2xl font-bold">
+                  {currentBpm ?? "—"}
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Activity className="h-4 w-4 text-emerald-500" /> HRV
+                </div>
+                <div className="mt-1 text-2xl font-bold">
+                  {currentHrv ?? "—"}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {cameraReady && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">כיול ביומטרי (30 שניות)</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {phase === "calibrating" && (
+                <>
+                  <Progress value={calibProgress} />
+                  <p className="text-xs text-muted-foreground">
+                    אנא שב/י בנינוחות ונשום/י רגיל… {Math.round(calibProgress)}%
+                  </p>
+                </>
+              )}
+              {baselineHr !== null && (
+                <div className="rounded-lg bg-emerald-500/10 p-3 text-sm">
+                  ✅ דופק מנוחה (Baseline): <strong>{baselineHr} BPM</strong>
+                </div>
+              )}
+              {phase === "idle" || phase === "calibrated" ? (
+                <Button
+                  onClick={startCalibration}
+                  className="w-full"
+                  disabled={phase === "calibrated"}
+                >
+                  <Play className="ml-2 h-4 w-4" />
+                  {phase === "calibrated" ? "כיול הושלם" : "התחל כיול ביומטרי"}
+                </Button>
+              ) : null}
+              {phase === "calibrated" && (
+                <p className="text-xs text-muted-foreground">
+                  שלב 3 (מבחן תחת סטרס) ייפתח לאחר אישורך.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </AppShell>
+  );
+}
