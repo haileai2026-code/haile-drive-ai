@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Users, GraduationCap,
   Building2, ChevronRight, ClipboardCheck,
   UserCog, LogOut, FileText, FileQuestion, Loader2,
-  CalendarClock, Bell, TrendingUp,
+  CalendarClock, Bell, TrendingUp, Activity,
   type LucideIcon,
 } from "lucide-react";
 import { useRole } from "@/lib/role";

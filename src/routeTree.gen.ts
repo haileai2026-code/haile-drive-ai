@@ -43,6 +43,7 @@ import { Route as AdminClassesRouteImport } from './routes/admin.classes'
 import { Route as AdminCitiesRouteImport } from './routes/admin.cities'
 import { Route as AdminCandidatesRouteImport } from './routes/admin.candidates'
 import { Route as AdminBranchesRouteImport } from './routes/admin.branches'
+import { Route as AdminBeqaRouteImport } from './routes/admin.beqa'
 import { Route as AdminAttendanceRouteImport } from './routes/admin.attendance'
 import { Route as AdminExamsExamIdRouteImport } from './routes/admin.exams.$examId'
 import { Route as AdminAttendanceDrilldownRouteImport } from './routes/admin.attendance.drilldown'
@@ -218,6 +219,11 @@ const AdminBranchesRoute = AdminBranchesRouteImport.update({
   path: '/branches',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminBeqaRoute = AdminBeqaRouteImport.update({
+  id: '/beqa',
+  path: '/beqa',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAttendanceRoute = AdminAttendanceRouteImport.update({
   id: '/attendance',
   path: '/attendance',
@@ -258,6 +264,7 @@ export interface FileRoutesByFullPath {
   '/schedule': typeof ScheduleRoute
   '/teacher': typeof TeacherRouteWithChildren
   '/admin/attendance': typeof AdminAttendanceRouteWithChildren
+  '/admin/beqa': typeof AdminBeqaRoute
   '/admin/branches': typeof AdminBranchesRoute
   '/admin/candidates': typeof AdminCandidatesRoute
   '/admin/cities': typeof AdminCitiesRoute
@@ -298,6 +305,7 @@ export interface FileRoutesByTo {
   '/schedule': typeof ScheduleRoute
   '/teacher': typeof TeacherRouteWithChildren
   '/admin/attendance': typeof AdminAttendanceRouteWithChildren
+  '/admin/beqa': typeof AdminBeqaRoute
   '/admin/branches': typeof AdminBranchesRoute
   '/admin/candidates': typeof AdminCandidatesRoute
   '/admin/cities': typeof AdminCitiesRoute
@@ -339,6 +347,7 @@ export interface FileRoutesById {
   '/schedule': typeof ScheduleRoute
   '/teacher': typeof TeacherRouteWithChildren
   '/admin/attendance': typeof AdminAttendanceRouteWithChildren
+  '/admin/beqa': typeof AdminBeqaRoute
   '/admin/branches': typeof AdminBranchesRoute
   '/admin/candidates': typeof AdminCandidatesRoute
   '/admin/cities': typeof AdminCitiesRoute
@@ -381,6 +390,7 @@ export interface FileRouteTypes {
     | '/schedule'
     | '/teacher'
     | '/admin/attendance'
+    | '/admin/beqa'
     | '/admin/branches'
     | '/admin/candidates'
     | '/admin/cities'
@@ -421,6 +431,7 @@ export interface FileRouteTypes {
     | '/schedule'
     | '/teacher'
     | '/admin/attendance'
+    | '/admin/beqa'
     | '/admin/branches'
     | '/admin/candidates'
     | '/admin/cities'
@@ -461,6 +472,7 @@ export interface FileRouteTypes {
     | '/schedule'
     | '/teacher'
     | '/admin/attendance'
+    | '/admin/beqa'
     | '/admin/branches'
     | '/admin/candidates'
     | '/admin/cities'
@@ -744,6 +756,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBranchesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/beqa': {
+      id: '/admin/beqa'
+      path: '/beqa'
+      fullPath: '/admin/beqa'
+      preLoaderRoute: typeof AdminBeqaRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/attendance': {
       id: '/admin/attendance'
       path: '/attendance'
@@ -801,6 +820,7 @@ const AdminExamsRouteWithChildren = AdminExamsRoute._addFileChildren(
 
 interface AdminRouteChildren {
   AdminAttendanceRoute: typeof AdminAttendanceRouteWithChildren
+  AdminBeqaRoute: typeof AdminBeqaRoute
   AdminBranchesRoute: typeof AdminBranchesRoute
   AdminCandidatesRoute: typeof AdminCandidatesRoute
   AdminCitiesRoute: typeof AdminCitiesRoute
@@ -822,6 +842,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAttendanceRoute: AdminAttendanceRouteWithChildren,
+  AdminBeqaRoute: AdminBeqaRoute,
   AdminBranchesRoute: AdminBranchesRoute,
   AdminCandidatesRoute: AdminCandidatesRoute,
   AdminCitiesRoute: AdminCitiesRoute,
