@@ -32,6 +32,7 @@ import { Route as AdminTeachersRouteImport } from './routes/admin.teachers'
 import { Route as AdminStaffRouteImport } from './routes/admin.staff'
 import { Route as AdminScheduleRouteImport } from './routes/admin.schedule'
 import { Route as AdminProgressRouteImport } from './routes/admin.progress'
+import { Route as AdminOrganizationRouteImport } from './routes/admin.organization'
 import { Route as AdminNotificationsRouteImport } from './routes/admin.notifications'
 import { Route as AdminMaterialsRouteImport } from './routes/admin.materials'
 import { Route as AdminMakeupRouteImport } from './routes/admin.makeup'
@@ -167,6 +168,11 @@ const AdminProgressRoute = AdminProgressRouteImport.update({
   path: '/progress',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminOrganizationRoute = AdminOrganizationRouteImport.update({
+  id: '/organization',
+  path: '/organization',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminNotificationsRoute = AdminNotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
@@ -297,6 +303,7 @@ export interface FileRoutesByFullPath {
   '/admin/makeup': typeof AdminMakeupRoute
   '/admin/materials': typeof AdminMaterialsRoute
   '/admin/notifications': typeof AdminNotificationsRoute
+  '/admin/organization': typeof AdminOrganizationRoute
   '/admin/progress': typeof AdminProgressRoute
   '/admin/schedule': typeof AdminScheduleRoute
   '/admin/staff': typeof AdminStaffRoute
@@ -341,6 +348,7 @@ export interface FileRoutesByTo {
   '/admin/makeup': typeof AdminMakeupRoute
   '/admin/materials': typeof AdminMaterialsRoute
   '/admin/notifications': typeof AdminNotificationsRoute
+  '/admin/organization': typeof AdminOrganizationRoute
   '/admin/progress': typeof AdminProgressRoute
   '/admin/schedule': typeof AdminScheduleRoute
   '/admin/staff': typeof AdminStaffRoute
@@ -386,6 +394,7 @@ export interface FileRoutesById {
   '/admin/makeup': typeof AdminMakeupRoute
   '/admin/materials': typeof AdminMaterialsRoute
   '/admin/notifications': typeof AdminNotificationsRoute
+  '/admin/organization': typeof AdminOrganizationRoute
   '/admin/progress': typeof AdminProgressRoute
   '/admin/schedule': typeof AdminScheduleRoute
   '/admin/staff': typeof AdminStaffRoute
@@ -432,6 +441,7 @@ export interface FileRouteTypes {
     | '/admin/makeup'
     | '/admin/materials'
     | '/admin/notifications'
+    | '/admin/organization'
     | '/admin/progress'
     | '/admin/schedule'
     | '/admin/staff'
@@ -476,6 +486,7 @@ export interface FileRouteTypes {
     | '/admin/makeup'
     | '/admin/materials'
     | '/admin/notifications'
+    | '/admin/organization'
     | '/admin/progress'
     | '/admin/schedule'
     | '/admin/staff'
@@ -520,6 +531,7 @@ export interface FileRouteTypes {
     | '/admin/makeup'
     | '/admin/materials'
     | '/admin/notifications'
+    | '/admin/organization'
     | '/admin/progress'
     | '/admin/schedule'
     | '/admin/staff'
@@ -715,6 +727,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminProgressRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/organization': {
+      id: '/admin/organization'
+      path: '/organization'
+      fullPath: '/admin/organization'
+      preLoaderRoute: typeof AdminOrganizationRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/notifications': {
       id: '/admin/notifications'
       path: '/notifications'
@@ -892,6 +911,7 @@ interface AdminRouteChildren {
   AdminMakeupRoute: typeof AdminMakeupRoute
   AdminMaterialsRoute: typeof AdminMaterialsRoute
   AdminNotificationsRoute: typeof AdminNotificationsRoute
+  AdminOrganizationRoute: typeof AdminOrganizationRoute
   AdminProgressRoute: typeof AdminProgressRoute
   AdminScheduleRoute: typeof AdminScheduleRoute
   AdminStaffRoute: typeof AdminStaffRoute
@@ -917,6 +937,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminMakeupRoute: AdminMakeupRoute,
   AdminMaterialsRoute: AdminMaterialsRoute,
   AdminNotificationsRoute: AdminNotificationsRoute,
+  AdminOrganizationRoute: AdminOrganizationRoute,
   AdminProgressRoute: AdminProgressRoute,
   AdminScheduleRoute: AdminScheduleRoute,
   AdminStaffRoute: AdminStaffRoute,

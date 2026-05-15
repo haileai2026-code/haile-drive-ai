@@ -18,6 +18,10 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 function CitiesPage() {
+  return <AdminShell title="ערים, כיתות ותלמידים"><CitiesPanel /></AdminShell>;
+}
+
+export function CitiesPanel() {
   const qc = useQueryClient();
   const citiesQ = useQuery({ queryKey: ["cities"], queryFn: adminApi.listCities });
   const classesQ = useQuery({ queryKey: ["classes"], queryFn: adminApi.listClasses });
@@ -43,7 +47,7 @@ function CitiesPage() {
     teachersQ.data?.find((t) => t.id === id)?.full_name ?? "ללא מורה";
 
   return (
-    <AdminShell title="ערים, כיתות ותלמידים">
+    <div>
       <div className="flex justify-end">
         <button onClick={() => setEditing({ name: "", name_he: "" })} className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-gold px-4 text-sm font-semibold text-gold-foreground">
           <Plus className="h-4 w-4" /> עיר חדשה
@@ -161,6 +165,6 @@ function CitiesPage() {
           </div>
         </div>
       )}
-    </AdminShell>
+    </div>
   );
 }
