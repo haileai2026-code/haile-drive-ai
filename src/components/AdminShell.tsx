@@ -27,7 +27,7 @@ const NAV: NavItem[] = [
   { to: "/admin/notifications", icon: Bell, label: "תזכורות SMS / WhatsApp", roles: ["owner"] },
   { to: "/admin/inbox", icon: Inbox, label: "תיבת פניות ומשובים", roles: ["owner"] },
   { to: "/admin/content", icon: FileText, label: "📚 תוכן לימודי", roles: ["owner"] },
-  { to: "/admin/cities", icon: Building2, label: "ערים ומסלולים", roles: ["owner"] },
+  
   { to: "/admin/progress", icon: TrendingUp, label: "התקדמות תלמידים", roles: ["owner", "teacher"] },
   { to: "/admin/beqa", icon: Activity, label: "BEQA — אבחון ביומטרי", roles: ["owner"] },
   { to: "/teacher", icon: GraduationCap, label: "מסך מורה", roles: ["teacher"] },
