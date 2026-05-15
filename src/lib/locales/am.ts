@@ -2,9 +2,9 @@ import type { StringKey } from "./en";
 
 const dict: Partial<Record<StringKey, string>> = {
   appName: "ሃይሌ ድራይቭ AI",
-  tagline: "በራስዎ ቋንቋ ሙያዊ መንዳት ይማሩ።",
-  heroSub: "ለአውቶቡስና ለከባድ ተሽከርካሪ ፈቃድ የተዘጋጀ AI አስተማሪ።",
-  getStarted: "ጀምር",
+  tagline: "በቋንቋዎ ሙያዊ ሹፌርነት ከ AI ጋር ይማሩ",
+  heroSub: "ለአውቶቡስ እና ከባድ ተሽከርካሪ ፍቃድ AI መምህር",
+  getStarted: "አሁን ጀምር",
   login: "ግባ",
   phone: "ስልክ ቁጥር",
   sendCode: "ኮድ ላክ",
