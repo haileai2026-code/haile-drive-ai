@@ -18,15 +18,22 @@ const items: NavItem[] = [
   { to: "/community", icon: Users, key: "community" },
 ];
 
-export function AppShell({ children, roles }: { children: ReactNode; roles?: Role[] }) {
+export function AppShell({
+  children,
+  roles,
+  requireAuth = true,
+}: {
+  children: ReactNode;
+  roles?: Role[];
+  requireAuth?: boolean;
+}) {
   const { t } = useI18n();
   const loc = useLocation();
 
   const { signOut, role } = useAuth();
   const homePath = roleHomePath(role);
 
-  return (
-    <RequireAuth roles={roles}>
+  const shell = (
     <div className="min-h-screen bg-night pb-24">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl">
         <div className="mx-auto flex max-w-screen-md items-center justify-between px-4 py-3">
@@ -66,6 +73,7 @@ export function AppShell({ children, roles }: { children: ReactNode; roles?: Rol
         </ul>
       </nav>
     </div>
-    </RequireAuth>
   );
+
+  return requireAuth ? <RequireAuth roles={roles}>{shell}</RequireAuth> : shell;
 }
