@@ -41,7 +41,9 @@ function AIAgentPage() {
       const res = await chat({ data: { message: trimmed, history: messages.slice(-20) } });
       const reply =
         res.error === "no_key"
-          ? "⚠️ חסר ANTHROPIC_API_KEY בהגדרות המערכת."
+          ? "⚠️ חסר LOVABLE_API_KEY בהגדרות המערכת."
+          : res.error === "no_credits"
+            ? "💳 אין יתרת קרדיטים ב-Lovable AI. הוסף קרדיטים בהגדרות הענן."
           : res.error === "forbidden"
             ? "⛔ פעולה זו זמינה לבעלים בלבד."
             : res.error === "rate_limited"
