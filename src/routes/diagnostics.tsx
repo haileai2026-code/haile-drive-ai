@@ -141,6 +141,129 @@ function DiagnosticsPage() {
     setCalibProgress(0);
   };
 
+  // ---- Stress test ----
+  const startStressTest = () => {
+    if (!sdkRef.current || !user || !sessionIdRef.current) return;
+    sdkRef.current.setMode("stress");
+    stressSamples.current = [];
+    setAnswers([]);
+    setQIndex(0);
+    setPhase("running");
+
+    // Capture stress BPM samples
+    sdkRef.current.onSample(async (s) => {
+      stressSamples.current.push(s.bpm);
+      await supabase.from("raw_biometric_log").insert({
+        session_id: sessionIdRef.current!,
+        student_id: user.id,
+        event_type: "bpm_sample",
+        bpm: s.bpm,
+        hrv: s.hrv,
+      });
+    });
+
+    showQuestion(0);
+  };
+
+  const showQuestion = async (idx: number) => {
+    if (!user || !sessionIdRef.current) return;
+    questionShownAt.current = Date.now();
+    setQIndex(idx);
+    setQTimeLeft(STRESS_TEST_CONFIG.timePerQuestionMs / 1000);
+    await supabase.from("raw_biometric_log").insert({
+      session_id: sessionIdRef.current,
+      student_id: user.id,
+      event_type: "question_shown",
+      bpm: currentBpm ?? null,
+      hrv: currentHrv ?? null,
+      payload: { question_id: STRESS_QUESTIONS[idx].id, index: idx },
+    });
+  };
+
+  // Per-question countdown
+  useEffect(() => {
+    if (phase !== "running") return;
+    const t = setInterval(() => {
+      setQTimeLeft((prev) => {
+        if (prev <= 1) {
+          // timeout — count as wrong
+          submitAnswer(-1, true);
+          return STRESS_TEST_CONFIG.timePerQuestionMs / 1000;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, qIndex]);
+
+  const submitAnswer = async (selectedIdx: number, timeout = false) => {
+    if (!user || !sessionIdRef.current) return;
+    const q = STRESS_QUESTIONS[qIndex];
+    const rt = Date.now() - questionShownAt.current;
+    const correct = !timeout && selectedIdx === q.correctIndex;
+    const next = [...answers, { correct, rt }];
+    setAnswers(next);
+
+    await supabase.from("raw_biometric_log").insert({
+      session_id: sessionIdRef.current,
+      student_id: user.id,
+      event_type: "answer_submitted",
+      bpm: currentBpm ?? null,
+      hrv: currentHrv ?? null,
+      payload: {
+        question_id: q.id,
+        selected: selectedIdx,
+        correct,
+        timeout,
+        reaction_time_ms: rt,
+      },
+    });
+
+    if (qIndex + 1 < STRESS_QUESTIONS.length) {
+      showQuestion(qIndex + 1);
+    } else {
+      await finishTest(next);
+    }
+  };
+
+  const finishTest = async (allAnswers: { correct: boolean; rt: number }[]) => {
+    if (!sessionIdRef.current || !baselineHr) return;
+    const correctAnswers = allAnswers.filter((a) => a.correct).length;
+    const stressHr = stressSamples.current.length
+      ? Math.round(
+          (stressSamples.current.reduce((a, b) => a + b, 0) /
+            stressSamples.current.length) * 10,
+        ) / 10
+      : baselineHr;
+    const avgRt = Math.round(
+      allAnswers.reduce((a, b) => a + b.rt, 0) / Math.max(1, allAnswers.length),
+    );
+    const score = calculateBeqaScore({
+      correctAnswers,
+      totalQuestions: STRESS_QUESTIONS.length,
+      baselineHr,
+      stressHr,
+    });
+
+    await supabase
+      .from("beqa_diagnostic_sessions")
+      .update({
+        end_time: new Date().toISOString(),
+        stress_hr: stressHr,
+        accuracy_score: score.accuracy,
+        reaction_time_avg: avgRt,
+        final_beqa_score: score.beqa,
+        metadata: { phase: "complete", correct: correctAnswers, total: STRESS_QUESTIONS.length },
+      })
+      .eq("id", sessionIdRef.current);
+
+    setFinalScore({ ...score, avgRt, stressHr });
+    setPhase("done");
+    sdkRef.current?.setMode("rest");
+    toast.success(`ציון BEQA: ${score.beqa}%`);
+  };
+
   return (
     <AppShell>
       <div className="space-y-4" dir="rtl">
