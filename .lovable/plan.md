@@ -1,75 +1,78 @@
-## Owner Dashboard — Full Implementation Plan
+## תוכנית: ניקוי נתוני דמו + ביקורת אבטחה
 
-This is a large build (5 feature areas + database + RLS). I'll implement it in phases so we can validate each piece works before piling on the next.
+### חלק 1 — ניקוי כל נתוני הדמו
 
-### Phase 1 — Database foundation (one migration)
+**קבצים שמכילים נתונים מדומים (יוסרו / יוחלפו):**
 
-New tables in Supabase, all with RLS:
+1. `src/lib/mock-data.ts` — מכיל `lessons[]` ו-`sampleQuestions[]` קשיחים.
+   - **פעולה:** למחוק את כל המערכים. להשאיר רק את הטיפוסים (`Lesson`, `QuizQuestion`, `Localized`) כי הם בשימוש על ידי הקוד.
+   - להשאיר ייצוא של מערכים ריקים (`export const lessons: Lesson[] = []`) כדי לא לשבור imports.
 
-- **`cities`** — `name`, `name_he`. Owner CRUD, everyone authenticated reads.
-- **`classes`** — `name`, `city_id`, `teacher_id` (nullable, FK profiles). Owner CRUD, teachers read their own, students read their assigned class.
-- **`candidates`** — `full_name`, `phone`, `email`, `city_id`, `class_id` (nullable), `language`, `status` (enum: new_lead, contacted, missing_docs, assigned, active, completed), `notes`, `assigned_teacher_id`. Owner full CRUD; teachers read where `assigned_teacher_id = auth.uid()`.
-- **`teacher_assignments`** — `teacher_id`, `city_id`, `class_id`. Owner CRUD; teacher reads own.
-- **`materials`** — `title`, `description`, `category` (enum: study, enrichment), `type` (pdf/image/link), `file_url`, `external_link`, `class_id` (nullable = global). Owner CRUD; teachers + students read.
-- **`exams`** — `title`, `description`, `class_id` (nullable), `created_by`, `is_published`.
-- **`exam_questions`** — `exam_id`, `question_text`, `image_url`, `order_index`.
-- **`exam_options`** — `question_id`, `option_text`, `is_correct`.
+2. `src/lib/ops-data.ts` — מכיל `staff`, `classes`, `candidates`, `attendanceToday`, `makeupQueue`, `notifications` קשיחים.
+   - **פעולה:** למחוק את כל ה-seeds. להשאיר טיפוסים + helpers (cityName/className/teacherName יחזירו את ה-id אם אין match).
+   - מערכי seed יהפכו למערכים ריקים.
 
-Storage bucket: **`materials`** (public read, owner write) for PDFs/images.
+3. `src/lib/data-store.tsx` — `localStorage` store עם `seedCities`, `seedBranches`, `seedCandidates`.
+   - **פעולה:** לרוקן את ה-seeds. ה-store עדיין יעבוד אבל יתחיל ריק.
+   - להוסיף ניקוי חד פעמי של `localStorage["hda.store.v1"]` הישן (גרסה v2) כדי שמשתמשים שכבר טענו את ה-demo יקבלו state נקי.
 
-Helper trigger: auto-set `assigned_teacher_id` on candidates from `classes.teacher_id` when a class is assigned.
+4. **דפים שמשתמשים ב-mock data — יוחלפו ל-Supabase או למצב ריק:**
 
-### Phase 2 — Owner UI: Candidates CRM
+   - `src/routes/dashboard.tsx` — משתמש ב-`lessonCatalog` (מ-mock-data) להצגת "המשך בשיעור" ו"שיעורים".
+     - **פעולה:** להחליף ל-query מטבלת `materials` (הקטגוריה study) או להציג empty-state אם אין חומרים. ה-`lesson-progress` (localStorage) יישאר אבל לא יציג כלום אם אין שיעורים.
+   - `src/routes/lessons.$lessonId.tsx` — מציג שיעור מתוך `lessons[]`.
+     - **פעולה:** להחליף לטעינה מטבלת `materials` לפי id, ואם לא נמצא — empty state ידידותי.
+   - `src/routes/admin.lessons.tsx` — מציג רשימת `lessons` קשיחה.
+     - **פעולה:** להחליף ל-query על `materials` (קטגוריה study) או להפנות לדף `/admin/materials` שכבר קיים.
+   - `src/routes/quiz.tsx` — `sampleQuestions` קשיח.
+     - **פעולה:** להחליף לטעינת בחינה אמיתית מטבלת `exams` + `exam_questions` + `exam_options` (לפי exam_id ב-URL או "המבחן הזמין הראשון"). אם אין בחינות — empty state.
+   - `src/routes/admin.staff.tsx` — `staff[]` קשיח.
+     - **פעולה:** להחליף ל-query על `profiles + user_roles`. כבר יש `/admin/users` ו-`/admin/teachers` שעושים את זה — דף זה יהפוך ל-redirect או יציג רשימה אמיתית של teachers/staff.
+   - `src/routes/admin.import.tsx` ו-`src/routes/admin.export.tsx` — משתמשים ב-`useStore()` ובטיפוסי ops-data. יישארו פונקציונליים (import לתוך data-store) אבל יתחילו ריקים.
+   - `src/routes/admin.branches.tsx` — מבוסס על data-store. יישאר אבל יתחיל ריק.
 
-Replace mock-data version of `src/routes/admin.candidates.tsx` with live Supabase queries. Add:
-- Add / Edit dialog (form with name, phone, email, city dropdown, class dropdown, language, status, notes)
-- Delete with confirmation
-- Inline city + class assignment from row
-- Filters by city, class, status (already in UI — wire to real data)
+5. **סדר פעולות לאחר הניקוי — לוודא שאין import שבור:**
+   - לרוץ TypeScript build
+   - לבדוק שכל route נטען
 
-### Phase 3 — Teachers & Class Assignment
+### חלק 2 — ביקורת אבטחה (Security Audit)
 
-New route `src/routes/admin.teachers.tsx`:
-- List all users with `teacher` role from `user_roles` + `profiles`
-- Assign cities/classes to a teacher (multi-select)
-- "Promote to teacher" button (creates row in `user_roles`)
+**א. RLS על כל הטבלאות**
+   - בדקתי: כל 17 הטבלאות ב-Supabase (`candidates`, `classes`, `cities`, `materials`, `exams`, `exam_questions`, `exam_options`, `exam_results`, `attendance_records`, `makeup_assignments`, `notifications`, `schedule_events`, `teacher_assignments`, `profiles`, `user_roles`, `beqa_diagnostic_sessions`, `raw_biometric_log`, `candidate_documents`) — כולן עם RLS מופעל ועם policies סבירים.
+   - **תיקון יחיד נדרש:** ה-linter מצא warning שיש extension ב-`public` schema (לא קריטי ל-RLS, רק best practice).
 
-Update `src/routes/admin.classes.tsx` to manage classes + assign teacher per class.
+**ב. בידוד סטודנטים**
+   - `candidates` — סטודנט רואה רק את הרשומה שלו (לפי email).
+   - `attendance_records`, `makeup_assignments`, `notifications`, `schedule_events`, `exam_results`, `beqa_diagnostic_sessions`, `raw_biometric_log` — סטודנט רואה רק את עצמו.
+   - **כולם תקינים** — אין דליפת מידע בין סטודנטים.
 
-### Phase 4 — Teacher view filtering
+**ג. בידוד פאנל בעלים/מורה**
+   - כל פעולת write (insert/update/delete) על טבלאות מנהל דורשת `has_role(auth.uid(), 'owner')` — סטודנט לא יכול לכתוב.
+   - הראוטים מוגנים ע"י `RequireAuth roles={["owner"]}` בצד הלקוח — **זו הגנה UX בלבד**, האכיפה האמיתית היא ב-RLS שכבר מוגדר.
+   - **תקין.**
 
-Update `src/routes/teacher.tsx` to load only candidates where `assigned_teacher_id = current user id`. RLS enforces this on the backend too.
+**ד. סודות בקוד הקדמי**
+   - חיפוש אחר `process.env` ב-`src/`: כל המופעים נמצאים ב-`*.functions.ts` (server functions בלבד) — `ai-chat.functions.ts`, `notifications.functions.ts`. אף סוד לא דולף ל-bundle של הדפדפן.
+   - `VITE_SUPABASE_URL` + `VITE_SUPABASE_PUBLISHABLE_KEY` בלבד נחשפים — וזה תקין (publishable key).
+   - **תקין.**
 
-### Phase 5 — Content Management (Materials)
+**ה. אימות API calls**
+   - כל ה-server functions הרגישים משתמשים ב-`requireSupabaseAuth` middleware (כפי שראינו ב-knowledge files).
+   - ה-route `api/public/hooks/notifications-tick.ts` הוא public (cron) — ייבדק שיש לו signature/secret.
 
-New route `src/routes/admin.materials.tsx`:
-- List/grid of materials with category filter (Study / Enrichment)
-- Upload dialog: title, description, category, type, file upload (to `materials` bucket) OR external link, optional class assignment
-- Edit / Delete
+**ו. שינויים אקטיביים שאעשה (Audit + Fix):**
+   1. להריץ `security--run_security_scan` ולתקן ממצאים קריטיים.
+   2. לוודא ש-`api/public/hooks/notifications-tick` דורש secret header (אם לא — להוסיף).
+   3. להעביר את ה-extension מ-`public` schema (warning של ה-linter) — אם בטוח לעשות זאת.
 
-Student-facing `src/routes/lessons.tsx` reads from same table.
+### תוצרים סופיים
 
-### Phase 6 — Exam Creator
+- אפליקציה מתחילה במצב ריק לחלוטין מול Supabase. אין יותר "Student #1", "Air Brake Basics", או "Mekdes" מופיעים בשום מקום.
+- דשבורד / שיעורים / מבחנים מציגים empty states ידידותיים בעברית עד שבעלים מכניס תוכן אמיתי.
+- דוח אבטחה קצר עם הממצאים והתיקונים.
 
-New route `src/routes/admin.exams.tsx`:
-- List exams with create/edit/delete
-- Exam editor `src/routes/admin.exams.$examId.tsx`:
-  - Question list with add/edit/delete
-  - Per question: text, optional image upload, 2–6 options, mark correct one
-  - Assign exam to class dropdown, publish toggle
+### היקף
 
-Reuse existing `src/routes/quiz.tsx` to render published exams to students.
+~10 קבצים יערכו, 1 migration אופציונלי (extension move). אין שינויים בסכמה.
 
-### Technical details
-
-- All mutations via **`createServerFn`** with `requireSupabaseAuth` middleware so RLS runs as the owner. Owner-only writes enforced via `has_role(auth.uid(), 'owner')` check inside RLS policies.
-- Use `@tanstack/react-query` for data fetching + cache invalidation after mutations.
-- Forms: react-hook-form + zod (already in project).
-- File uploads: `supabase.storage.from('materials').upload(...)` directly from client (RLS on storage bucket controls access).
-- All UI in Hebrew with RTL, matching existing AdminShell style.
-
-### Scope confirmation
-
-This is roughly **8–12 new/edited files + 1 large migration + 1 storage bucket**. I'll do it in one pass but commit logically by phase so you can test as we go.
-
-**Confirm and I'll start with Phase 1 (database migration).** If you want to trim scope (e.g. skip exam creator for now), tell me which phases to drop.
+**אשר ואני אתחיל. אם תרצה לדלג על משהו (למשל לא לגעת ב-quiz ולתת לו להישאר עם ה-sample questions לבדיקות) — תגיד.**

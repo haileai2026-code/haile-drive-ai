@@ -1,14 +1,9 @@
-// Runtime data store for entities that can be created/imported at runtime.
-// Persists to localStorage so it survives reloads in mock mode.
-// Once Lovable Cloud is enabled, swap reads/writes for Supabase calls.
+// Runtime data store. Demo seeds removed — starts empty until the owner
+// adds real cities / branches / candidates from the admin UI.
+// Persists to localStorage so import flows still survive reloads.
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import {
-  cities as seedCities,
-  candidates as seedCandidates,
-  type City,
-  type Candidate,
-} from "./ops-data";
+import type { City, Candidate } from "./ops-data";
 
 export type Branch = {
   id: string;
@@ -18,17 +13,13 @@ export type Branch = {
   address?: string;
 };
 
-const seedBranches: Branch[] = [
-  { id: "b-pt-main", name: "Petah Tikva — Main", cityId: "c-pt", address: "Jabotinsky 101" },
-  { id: "b-as-main", name: "Ashdod — Center", cityId: "c-as", address: "Rogozin 14" },
-  { id: "b-hf-main", name: "Haifa — Carmel", cityId: "c-hf", address: "Horev 22" },
-];
-
 type StoreShape = {
   cities: City[];
   branches: Branch[];
   candidates: Candidate[];
 };
+
+const EMPTY: StoreShape = { cities: [], branches: [], candidates: [] };
 
 type Ctx = StoreShape & {
   addCity: (name: string) => City;
@@ -40,21 +31,23 @@ type Ctx = StoreShape & {
   reset: () => void;
 };
 
-const KEY = "hda.store.v1";
+// Bumped to v2 — the v1 key in localStorage carried demo seeds for old users.
+const KEY = "hda.store.v2";
+const LEGACY_KEY = "hda.store.v1";
 const StoreCtx = createContext<Ctx | null>(null);
 
 const slug = (s: string) =>
   s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 24) || "x";
 
 function load(): StoreShape {
-  if (typeof window === "undefined") {
-    return { cities: seedCities, branches: seedBranches, candidates: seedCandidates };
-  }
+  if (typeof window === "undefined") return EMPTY;
   try {
+    // Drop legacy demo cache once
+    localStorage.removeItem(LEGACY_KEY);
     const raw = localStorage.getItem(KEY);
     if (raw) return JSON.parse(raw);
   } catch {}
-  return { cities: seedCities, branches: seedBranches, candidates: seedCandidates };
+  return EMPTY;
 }
 
 export function DataStoreProvider({ children }: { children: ReactNode }) {
@@ -101,7 +94,7 @@ export function DataStoreProvider({ children }: { children: ReactNode }) {
     },
     removeCandidate: (id) =>
       setState((s) => ({ ...s, candidates: s.candidates.filter((c) => c.id !== id) })),
-    reset: () => setState({ cities: seedCities, branches: seedBranches, candidates: seedCandidates }),
+    reset: () => setState(EMPTY),
   }), [state]);
 
   return <StoreCtx.Provider value={value}>{children}</StoreCtx.Provider>;

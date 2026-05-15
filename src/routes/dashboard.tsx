@@ -1,11 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import { useI18n, localized } from "@/lib/i18n";
+import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { scheduleApi, type ScheduleEvent } from "@/lib/admin-api";
-import { lessons as lessonCatalog } from "@/lib/mock-data";
 import {
   getLastLessonProgress,
   formatTime,
@@ -60,7 +59,7 @@ function formatCountdown(ms: number): string {
 }
 
 function Dashboard() {
-  const { t, lang } = useI18n();
+  const { t } = useI18n();
   const { user } = useAuth();
 
   const [beqaScore, setBeqaScore] = useState<number | null>(null);
@@ -132,8 +131,8 @@ function Dashboard() {
       ?? sortedToday.find((e) => e.type === "exam");
   }, [sortedToday, now]);
 
-  const resumeLesson = resume ? lessonCatalog.find((l) => l.id === resume.lessonId) : null;
   const resumePct = resume ? Math.round((resume.positionSec / Math.max(1, resume.durationSec)) * 100) : 0;
+  const resumeActive = !!(resume && resume.positionSec > 5 && resume.positionSec < resume.durationSec - 3);
 
   return (
     <AppShell>
@@ -168,11 +167,11 @@ function Dashboard() {
       </section>
 
       {/* Resume lesson */}
-      {resumeLesson && resume && resume.positionSec < resume.durationSec - 3 && (
+      {resumeActive && resume && (
         <section className="mt-4">
           <Link
             to="/lessons/$lessonId"
-            params={{ lessonId: resumeLesson.id }}
+            params={{ lessonId: resume.lessonId }}
             className="flex items-center gap-3 rounded-2xl border border-emerald-500/40 bg-gradient-to-br from-emerald-900/30 to-card p-4 transition hover:border-emerald-400"
           >
             <span className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-500/20 text-emerald-300">
@@ -180,7 +179,7 @@ function Dashboard() {
             </span>
             <div className="min-w-0 flex-1">
               <div className="text-[11px] uppercase tracking-wider text-emerald-300">המשך מהנקודה האחרונה</div>
-              <div className="truncate text-sm font-semibold">{localized(resumeLesson.title, lang)}</div>
+              <div className="truncate text-sm font-semibold">השיעור האחרון שלך</div>
               <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-background/60">
                 <div className="h-full rounded-full bg-emerald-400" style={{ width: `${resumePct}%` }} />
               </div>
