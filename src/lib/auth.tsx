@@ -27,7 +27,7 @@ type AuthCtx = {
 
 const Ctx = createContext<AuthCtx | null>(null);
 
-const ROLE_PRIORITY: Record<Role, number> = { owner: 1, staff: 2, teacher: 3, student: 4 };
+const ROLE_PRIORITY: Record<Role, number> = { owner: 1, staff: 2, teacher: 3, student: 4, lead: 5 };
 
 export async function getPrimaryRole(userId: string): Promise<Role | null> {
   const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", userId);
