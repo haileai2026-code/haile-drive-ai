@@ -91,3 +91,32 @@ function MaterialGrid({ items }: { items: Material[] }) {
     </ul>
   );
 }
+
+function ScheduledLessonsList({ items, classMap }: { items: ScheduleEvent[]; classMap: Map<string, string> }) {
+  return (
+    <ul className="space-y-2">
+      {items.map((event) => {
+        const date = new Date(event.event_date).toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+        const time = event.start_time && event.end_time
+          ? `${event.start_time.slice(0, 5)}–${event.end_time.slice(0, 5)}`
+          : event.start_time?.slice(0, 5) ?? "";
+        const className = event.class_id ? classMap.get(event.class_id) : null;
+        return (
+          <li key={event.id} className="rounded-2xl border border-border/60 bg-card/40 p-4">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[11px] text-emerald-300">
+                <PlayCircle className="h-3 w-3" /> שיעור
+              </span>
+              <span className="truncate text-sm font-semibold">{event.title}</span>
+            </div>
+            <div className="mt-2 text-xs text-muted-foreground">
+              {[className, time, event.location].filter(Boolean).join(" · ")}
+            </div>
+            <div className="mt-1 text-[11px] text-muted-foreground">{date}</div>
+            {event.notes && <p className="mt-2 text-xs text-muted-foreground">{event.notes}</p>}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
