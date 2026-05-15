@@ -59,7 +59,7 @@ export function MaterialsPanel() {
   const loadError = matsQ.error || classesQ.error;
 
   return (
-    <AdminShell title="חומרי לימוד והעשרה">
+    <>
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex gap-2">
           <button onClick={() => setTab("study")} className={`rounded-xl px-4 py-2 text-sm ${tab === "study" ? "bg-gold text-gold-foreground" : "border border-border/60"}`}>חומרי לימוד</button>
