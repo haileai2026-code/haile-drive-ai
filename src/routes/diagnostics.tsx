@@ -355,7 +355,7 @@ function DiagnosticsPage() {
   };
 
   return (
-    <AppShell>
+    <AppShell roles={["owner", "staff", "teacher", "student"]}>
       <div className="space-y-4" dir="rtl">
         <div className="flex items-center justify-between">
           <div>
