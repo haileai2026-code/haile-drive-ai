@@ -132,6 +132,7 @@ function SchedulePage() {
 
   async function checkRecurring() {
     if (!recurring) return;
+    if (!recurring.class_id) { toast.error("חובה לבחור כיתה"); return; }
     if (!recurring.title.trim()) { toast.error("חסר שם השיעור"); return; }
     const dates = generateDates(recurring.start_date, recurring.weekdays, recurring.mode, recurring.count, recurring.until_date);
     if (!dates.length) { toast.error("לא נוצרו תאריכים — בחר ימים בשבוע"); return; }
