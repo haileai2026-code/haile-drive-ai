@@ -17,6 +17,7 @@ type NavItem = { to: string; icon: LucideIcon; label: string; roles: Role[] };
 
 const NAV: NavItem[] = [
   { to: "/admin", icon: LayoutDashboard, label: "סקירת בעלים", roles: ["owner"] },
+  { to: "/admin/ai-agent", icon: Bot, label: "🤖 סוכן AI", roles: ["owner"] },
   { to: "/admin/candidates", icon: Users, label: "תלמידים ומועמדים", roles: ["owner"] },
   { to: "/admin/teachers", icon: UserCog, label: "מורים והרשאות", roles: ["owner"] },
   { to: "/admin/classes", icon: GraduationCap, label: "כיתות וקבוצות", roles: ["owner"] },
