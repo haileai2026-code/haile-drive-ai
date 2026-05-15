@@ -264,6 +264,112 @@ export type Database = {
           },
         ]
       }
+      community_comments: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          id: string
+          post_id: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          id?: string
+          post_id: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_posts: {
+        Row: {
+          author_id: string
+          class_id: string | null
+          content: string
+          created_at: string
+          id: string
+          media_url: string | null
+          post_type: Database["public"]["Enums"]["community_post_type"]
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          class_id?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          media_url?: string | null
+          post_type?: Database["public"]["Enums"]["community_post_type"]
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          class_id?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          media_url?: string | null
+          post_type?: Database["public"]["Enums"]["community_post_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      contact_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_read: boolean
+          parent_id: string | null
+          recipient_role: Database["public"]["Enums"]["contact_recipient"]
+          sender_id: string
+          subject: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          parent_id?: string | null
+          recipient_role: Database["public"]["Enums"]["contact_recipient"]
+          sender_id: string
+          subject: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          parent_id?: string | null
+          recipient_role?: Database["public"]["Enums"]["contact_recipient"]
+          sender_id?: string
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_messages_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "contact_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exam_options: {
         Row: {
           created_at: string
@@ -416,6 +522,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      feedback_reports: {
+        Row: {
+          admin_response: string | null
+          author_id: string
+          content: string
+          created_at: string
+          id: string
+          responded_at: string | null
+          responded_by: string | null
+          status: Database["public"]["Enums"]["feedback_status"]
+          title: string
+          type: Database["public"]["Enums"]["feedback_type"]
+          updated_at: string
+        }
+        Insert: {
+          admin_response?: string | null
+          author_id: string
+          content: string
+          created_at?: string
+          id?: string
+          responded_at?: string | null
+          responded_by?: string | null
+          status?: Database["public"]["Enums"]["feedback_status"]
+          title: string
+          type: Database["public"]["Enums"]["feedback_type"]
+          updated_at?: string
+        }
+        Update: {
+          admin_response?: string | null
+          author_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          responded_at?: string | null
+          responded_by?: string | null
+          status?: Database["public"]["Enums"]["feedback_status"]
+          title?: string
+          type?: Database["public"]["Enums"]["feedback_type"]
+          updated_at?: string
+        }
+        Relationships: []
       }
       makeup_assignments: {
         Row: {
@@ -796,6 +944,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      current_user_class_id: { Args: never; Returns: string }
       get_primary_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
@@ -821,6 +970,10 @@ export type Database = {
         | "completed"
         | "inactive"
         | "failed"
+      community_post_type: "post" | "question" | "announcement"
+      contact_recipient: "owner" | "teacher" | "secretary"
+      feedback_status: "open" | "in_review" | "resolved"
+      feedback_type: "bug" | "feature" | "complaint" | "compliment"
       makeup_status: "pending" | "scheduled" | "completed" | "cancelled"
       material_category: "study" | "enrichment"
       material_type: "pdf" | "image" | "link" | "video"
@@ -967,6 +1120,10 @@ export const Constants = {
         "inactive",
         "failed",
       ],
+      community_post_type: ["post", "question", "announcement"],
+      contact_recipient: ["owner", "teacher", "secretary"],
+      feedback_status: ["open", "in_review", "resolved"],
+      feedback_type: ["bug", "feature", "complaint", "compliment"],
       makeup_status: ["pending", "scheduled", "completed", "cancelled"],
       material_category: ["study", "enrichment"],
       material_type: ["pdf", "image", "link", "video"],
