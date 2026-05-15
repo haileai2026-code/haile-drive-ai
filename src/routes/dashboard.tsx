@@ -1,11 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import { useI18n, localized } from "@/lib/i18n";
+import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { scheduleApi, type ScheduleEvent } from "@/lib/admin-api";
-import { lessons as lessonCatalog } from "@/lib/mock-data";
 import {
   getLastLessonProgress,
   formatTime,
