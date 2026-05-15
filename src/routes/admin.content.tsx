@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { AdminShell } from "@/components/AdminShell";
 import { MaterialsPanel } from "@/components/admin/MaterialsPanel";
-import { ExamsListPanel } from "./admin.exams";
+import { ExamsListPanel } from "@/components/admin/ExamsListPanel";
 
 export const Route = createFileRoute("/admin/content")({
   head: () => ({ meta: [{ title: "תוכן לימודי — Haile Drive AI" }] }),
