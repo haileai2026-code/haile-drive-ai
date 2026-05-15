@@ -411,7 +411,7 @@ function DiagnosticsPage() {
             የ BEQA ምርመራ ዋጋ 1,200 ₪ ነው። ለመግዛት — አስተዳደሩን ያነጋግሩ።
           </p>
           <div className="flex flex-col gap-2 pt-2">
-            <Link to="/community" search={{ tab: "contact" } as any}>
+            <Link to="/community">
               <Button className="w-full">📩 פנה להנהלה</Button>
             </Link>
             <Link to="/dashboard"><Button variant="outline" className="w-full">חזרה</Button></Link>
