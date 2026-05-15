@@ -55,6 +55,18 @@ const QUALITY_COLOR: Record<SignalQuality, string> = {
 
 function DiagnosticsPage() {
   const { user } = useAuth();
+  const [beqaAccess, setBeqaAccess] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (!user) { setBeqaAccess(null); return; }
+    (async () => {
+      const { data } = await supabase
+        .from("candidates")
+        .select("beqa_access")
+        .or(`id.eq.${user.id},email.eq.${user.email ?? ""}`)
+        .maybeSingle();
+      setBeqaAccess(!!data?.beqa_access);
+    })();
+  }, [user]);
   const videoRef = useRef<HTMLVideoElement>(null);
   const engineRef = useRef<RppgEngine | null>(null);
   const sessionIdRef = useRef<string | null>(null);
