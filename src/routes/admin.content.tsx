@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { AdminShell } from "@/components/AdminShell";
-import { MaterialsPanel } from "./admin.materials";
+import { MaterialsPanel } from "@/components/admin/MaterialsPanel";
 import { ExamsListPanel } from "./admin.exams";
 
 export const Route = createFileRoute("/admin/content")({
