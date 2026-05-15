@@ -54,6 +54,7 @@ function CandidatesPage() {
   const [folderFor, setFolderFor] = useState<Candidate | null>(null);
   const [importing, setImporting] = useState(false);
   const setPaymentFn = useServerFn(setCandidatePayment);
+  const setBeqaFn = useServerFn(setCandidateBeqaAccess);
 
   const candidatesQ = useQuery({ queryKey: ["candidates"], queryFn: () => adminApi.listCandidates(), enabled: canQuery });
   const citiesQ = useQuery({ queryKey: ["cities"], queryFn: adminApi.listCities, enabled: canQuery });
