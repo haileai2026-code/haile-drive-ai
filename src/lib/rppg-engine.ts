@@ -243,6 +243,7 @@ export class RppgEngine {
             const quality = this.assessQuality();
 
             this.snapshot = {
+              ...this.snapshot,
               bpm,
               hrv: Math.round(hrv),
               signalQuality: quality,
