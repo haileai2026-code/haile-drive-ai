@@ -167,11 +167,11 @@ function Dashboard() {
       </section>
 
       {/* Resume lesson */}
-      {resumeLesson && resume && resume.positionSec < resume.durationSec - 3 && (
+      {resumeActive && resume && (
         <section className="mt-4">
           <Link
             to="/lessons/$lessonId"
-            params={{ lessonId: resumeLesson.id }}
+            params={{ lessonId: resume.lessonId }}
             className="flex items-center gap-3 rounded-2xl border border-emerald-500/40 bg-gradient-to-br from-emerald-900/30 to-card p-4 transition hover:border-emerald-400"
           >
             <span className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-500/20 text-emerald-300">
@@ -179,7 +179,7 @@ function Dashboard() {
             </span>
             <div className="min-w-0 flex-1">
               <div className="text-[11px] uppercase tracking-wider text-emerald-300">המשך מהנקודה האחרונה</div>
-              <div className="truncate text-sm font-semibold">{localized(resumeLesson.title, lang)}</div>
+              <div className="truncate text-sm font-semibold">השיעור האחרון שלך</div>
               <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-background/60">
                 <div className="h-full rounded-full bg-emerald-400" style={{ width: `${resumePct}%` }} />
               </div>
