@@ -49,6 +49,7 @@ function DiagnosticsPage() {
   const engineRef = useRef<RppgEngine | null>(null);
   const sessionIdRef = useRef<string | null>(null);
   const calibBpms = useRef<number[]>([]);
+  const stressPulseUnsubRef = useRef<(() => void) | null>(null);
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [bpm, setBpm] = useState<number | null>(null);
