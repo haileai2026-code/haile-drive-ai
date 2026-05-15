@@ -3,6 +3,7 @@ import { LayoutDashboard, BookOpen, Bot, Trophy, Users, LogOut, Activity, type L
 import { useI18n } from "@/lib/i18n";
 import { LangSwitcher } from "./LangSwitcher";
 import { RequireAuth } from "./RequireAuth";
+import { LeadLockScreen } from "./LeadLockScreen";
 import { useAuth, roleHomePath } from "@/lib/auth";
 import type { ReactNode } from "react";
 import type { Role } from "@/lib/ops-data";
