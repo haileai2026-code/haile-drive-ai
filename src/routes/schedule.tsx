@@ -75,19 +75,21 @@ function StudentSchedule() {
                         ? ev.start_time.slice(0, 5)
                         : "";
                   const cls = ev.class_id ? classMap.get(ev.class_id) : null;
+                  const shortDate = d.toLocaleDateString("he-IL", { day: "numeric", month: "numeric", year: "numeric" });
+                  const headline = [cls?.name, ev.title].filter(Boolean).join(" — ");
                   return (
                     <li key={ev.id} className="rounded-2xl border border-border/60 bg-card/40 p-3">
                       <div className="flex items-center gap-2">
                         <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] ${meta.cls}`}>
                           <meta.Icon className="h-3 w-3" /> {meta.label}
                         </span>
-                        <span className="truncate text-sm font-semibold">{ev.title}</span>
+                        <span className="truncate text-sm font-semibold">{headline}</span>
                       </div>
                       <div className="mt-1 text-xs text-muted-foreground">
-                        {[dateLabel, ev.title, time].filter(Boolean).join(" | ")}
+                        {[shortDate, time].filter(Boolean).join(" | ")}
                       </div>
                       <div className="mt-1 text-[11px] text-muted-foreground">
-                        {cls && <>כיתה: {cls.name}</>}
+                        {cls && <>כיתה: <span className="font-semibold text-foreground">{cls.name}</span> · נושא: <span className="font-semibold text-foreground">{ev.title}</span></>}
                         {ev.location && <> · {ev.location}</>}
                       </div>
                       {ev.notes && <p className="mt-1 text-xs text-muted-foreground">{ev.notes}</p>}
