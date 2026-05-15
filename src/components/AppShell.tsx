@@ -34,6 +34,10 @@ export function AppShell({
   const { signOut, role } = useAuth();
   const homePath = roleHomePath(role);
 
+  const isLead = role === "lead";
+  const allowedForLead = loc.pathname.startsWith("/profile");
+  const lockContent = isLead && !allowedForLead;
+
   const shell = (
     <div className="min-h-screen bg-night pb-24">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl">
@@ -51,28 +55,30 @@ export function AppShell({
         </div>
       </header>
 
-      <main className="mx-auto max-w-screen-md px-4 py-6">{children}</main>
+      <main className="mx-auto max-w-screen-md px-4 py-6">{lockContent ? <LeadLockScreen /> : children}</main>
 
-      <nav className="fixed bottom-4 left-1/2 z-40 w-[calc(100%-2rem)] max-w-screen-md -translate-x-1/2 rounded-2xl border border-border/70 bg-card/90 p-2 shadow-[var(--shadow-elev)] backdrop-blur-xl">
-        <ul className="grid grid-cols-6 gap-1">
-          {items.map(({ to, icon: Icon, key, label }) => {
-            const active = loc.pathname.startsWith(to);
-            return (
-              <li key={to}>
-                <Link
-                  to={to}
-                  className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] font-medium transition ${
-                    active ? "bg-gold/15 text-gold" : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <Icon className="h-5 w-5" />
-                  <span className="truncate">{key ? t(key) : label}</span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+      {!isLead && (
+        <nav className="fixed bottom-4 left-1/2 z-40 w-[calc(100%-2rem)] max-w-screen-md -translate-x-1/2 rounded-2xl border border-border/70 bg-card/90 p-2 shadow-[var(--shadow-elev)] backdrop-blur-xl">
+          <ul className="grid grid-cols-6 gap-1">
+            {items.map(({ to, icon: Icon, key, label }) => {
+              const active = loc.pathname.startsWith(to);
+              return (
+                <li key={to}>
+                  <Link
+                    to={to}
+                    className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] font-medium transition ${
+                      active ? "bg-gold/15 text-gold" : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Icon className="h-5 w-5" />
+                    <span className="truncate">{key ? t(key) : label}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+      )}
     </div>
   );
 
