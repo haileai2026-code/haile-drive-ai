@@ -1,13 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Camera, Heart, Play, Square, Activity, Brain, Trophy } from "lucide-react";
+import { Camera, Heart, Play, Square, Activity, Brain, Trophy, Wifi } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { RppgSimulator, type BiometricSample } from "@/lib/rppg-sdk";
+import { RppgEngine, type SignalQuality } from "@/lib/rppg-engine";
 import { STRESS_QUESTIONS, STRESS_TEST_CONFIG, calculateBeqaScore } from "@/lib/beqa-questions";
 import { toast } from "sonner";
 
@@ -19,26 +20,44 @@ const CALIBRATION_SECONDS = 30;
 
 type Phase = "idle" | "calibrating" | "calibrated" | "running" | "done";
 
+const QUALITY_LABEL: Record<SignalQuality, string> = {
+  none: "אין סיגנל",
+  low: "נמוך",
+  medium: "בינוני",
+  high: "גבוה",
+};
+
+const QUALITY_COLOR: Record<SignalQuality, string> = {
+  none: "bg-gray-500",
+  low: "bg-red-500",
+  medium: "bg-amber-500",
+  high: "bg-emerald-500",
+};
+
 function DiagnosticsPage() {
   const { user } = useAuth();
   const videoRef = useRef<HTMLVideoElement>(null);
-  const sdkRef = useRef<RppgSimulator | null>(null);
+  const engineRef = useRef<RppgEngine | null>(null);
   const sessionIdRef = useRef<string | null>(null);
-  const calibSamples = useRef<number[]>([]);
+  const calibBpms = useRef<number[]>([]);
 
   const [phase, setPhase] = useState<Phase>("idle");
-  const [currentBpm, setCurrentBpm] = useState<number | null>(null);
-  const [currentHrv, setCurrentHrv] = useState<number | null>(null);
+  const [bpm, setBpm] = useState<number | null>(null);
+  const [hrv, setHrv] = useState<number | null>(null);
+  const [quality, setQuality] = useState<SignalQuality>("none");
+  const [faceDetected, setFaceDetected] = useState(false);
   const [calibProgress, setCalibProgress] = useState(0);
   const [baselineHr, setBaselineHr] = useState<number | null>(null);
+  const [baselineHrv, setBaselineHrv] = useState<number | null>(null);
   const [cameraReady, setCameraReady] = useState(false);
 
   // Stress test state
-  const stressSamples = useRef<number[]>([]);
+  const stressBpms = useRef<number[]>([]);
   const questionShownAt = useRef<number>(0);
+  const questionShownBpm = useRef<number | null>(null);
   const [qIndex, setQIndex] = useState(0);
   const [qTimeLeft, setQTimeLeft] = useState(STRESS_TEST_CONFIG.timePerQuestionMs / 1000);
-  const [answers, setAnswers] = useState<{ correct: boolean; rt: number }[]>([]);
+  const [answers, setAnswers] = useState<{ correct: boolean; rt: number; bpm: number | null }[]>([]);
   const [finalScore, setFinalScore] = useState<{
     accuracy: number;
     stability: number;
@@ -49,29 +68,31 @@ function DiagnosticsPage() {
 
   useEffect(() => {
     return () => {
-      sdkRef.current?.stop();
+      engineRef.current?.stop();
     };
   }, []);
 
   const requestCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: 320, height: 240 },
+        video: { facingMode: "user", width: 640, height: 480, frameRate: { ideal: 30 } },
         audio: false,
       });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
       }
-      const sdk = new RppgSimulator();
-      sdkRef.current = sdk;
-      sdk.onSample((s: BiometricSample) => {
-        setCurrentBpm(s.bpm);
-        setCurrentHrv(s.hrv);
+      const engine = new RppgEngine();
+      engineRef.current = engine;
+      engine.onSample((snap) => {
+        setBpm(snap.bpm);
+        setHrv(snap.hrv);
+        setQuality(snap.signalQuality);
+        setFaceDetected(snap.faceDetected);
       });
-      await sdk.start(stream);
+      await engine.start(stream, videoRef.current!);
       setCameraReady(true);
-      toast.success("המצלמה פעילה — מוכן לכיול");
+      toast.success("המצלמה פעילה — מתחיל ניתוח rPPG");
     } catch (e) {
       console.error(e);
       toast.error("גישה למצלמה נדחתה");
@@ -79,12 +100,11 @@ function DiagnosticsPage() {
   };
 
   const startCalibration = async () => {
-    if (!user || !sdkRef.current) return;
+    if (!user || !engineRef.current) return;
 
-    // Create a session row in Supabase
     const { data, error } = await supabase
       .from("beqa_diagnostic_sessions")
-      .insert({ student_id: user.id, metadata: { phase: "calibration" } })
+      .insert({ student_id: user.id, metadata: { phase: "calibration", engine: "rppg-real-v1" } })
       .select("id")
       .single();
     if (error || !data) {
@@ -92,19 +112,23 @@ function DiagnosticsPage() {
       return;
     }
     sessionIdRef.current = data.id;
-    calibSamples.current = [];
+    calibBpms.current = [];
     setPhase("calibrating");
-    sdkRef.current.setMode("rest");
 
-    const sub = sdkRef.current.onSample(async (s) => {
-      calibSamples.current.push(s.bpm);
-      // Log raw event
+    // הקשבה לפעימות אמיתיות בלבד
+    const offPulse = engineRef.current.onPulse(async (pulse) => {
+      calibBpms.current.push(pulse.bpm);
       await supabase.from("raw_biometric_log").insert({
         session_id: sessionIdRef.current!,
         student_id: user.id,
-        event_type: "calibration_tick",
-        bpm: s.bpm,
-        hrv: s.hrv,
+        event_type: "pulse_detected",
+        bpm: pulse.bpm,
+        hrv: pulse.hrv,
+        payload: {
+          phase: "calibration",
+          rr_ms: pulse.rrIntervalMs,
+          signal_quality: pulse.signalQuality,
+        },
       });
     });
 
@@ -115,50 +139,73 @@ function DiagnosticsPage() {
       setCalibProgress(pct);
       if (elapsed >= CALIBRATION_SECONDS) {
         clearInterval(interval);
-        sub();
-        const avg =
-          calibSamples.current.reduce((a, b) => a + b, 0) /
-          Math.max(1, calibSamples.current.length);
-        const baseline = Math.round(avg * 10) / 10;
+        offPulse();
+        if (calibBpms.current.length < 5) {
+          toast.error("לא הצלחנו לזהות מספיק פעימות. נסה שוב בתאורה טובה יותר.");
+          setPhase("idle");
+          setCalibProgress(0);
+          return;
+        }
+        const avg = calibBpms.current.reduce((a, b) => a + b, 0) / calibBpms.current.length;
+        const baseline = Math.round(avg);
+        const baselineHrvVal = engineRef.current?.getSnapshot().hrv ?? null;
         setBaselineHr(baseline);
+        setBaselineHrv(baselineHrvVal);
         await supabase
           .from("beqa_diagnostic_sessions")
-          .update({ baseline_hr: baseline })
+          .update({
+            baseline_hr: baseline,
+            metadata: {
+              phase: "calibrated",
+              engine: "rppg-real-v1",
+              baseline_hrv: baselineHrvVal,
+              pulses_captured: calibBpms.current.length,
+            },
+          })
           .eq("id", sessionIdRef.current!);
         setPhase("calibrated");
-        toast.success(`כיול הסתיים — דופק מנוחה: ${baseline} BPM`);
+        toast.success(`כיול הסתיים — דופק מנוחה: ${baseline} BPM (${calibBpms.current.length} פעימות)`);
       }
     }, 200);
   };
 
   const stopAll = () => {
-    sdkRef.current?.stop();
-    sdkRef.current = null;
+    engineRef.current?.stop();
+    engineRef.current = null;
     setCameraReady(false);
     setPhase("idle");
-    setCurrentBpm(null);
-    setCurrentHrv(null);
+    setBpm(null);
+    setHrv(null);
+    setQuality("none");
+    setFaceDetected(false);
     setCalibProgress(0);
   };
 
   // ---- Stress test ----
   const startStressTest = () => {
-    if (!sdkRef.current || !user || !sessionIdRef.current) return;
-    sdkRef.current.setMode("stress");
-    stressSamples.current = [];
+    if (!engineRef.current || !user || !sessionIdRef.current) return;
+    if (quality !== "high") {
+      toast.error("איכות סיגנל לא מספקת. המתן לסיגנל גבוה.");
+      return;
+    }
+    stressBpms.current = [];
     setAnswers([]);
     setQIndex(0);
     setPhase("running");
 
-    // Capture stress BPM samples
-    sdkRef.current.onSample(async (s) => {
-      stressSamples.current.push(s.bpm);
+    engineRef.current.onPulse(async (pulse) => {
+      stressBpms.current.push(pulse.bpm);
       await supabase.from("raw_biometric_log").insert({
         session_id: sessionIdRef.current!,
         student_id: user.id,
-        event_type: "bpm_sample",
-        bpm: s.bpm,
-        hrv: s.hrv,
+        event_type: "pulse_detected",
+        bpm: pulse.bpm,
+        hrv: pulse.hrv,
+        payload: {
+          phase: "stress",
+          rr_ms: pulse.rrIntervalMs,
+          signal_quality: pulse.signalQuality,
+        },
       });
     });
 
@@ -168,25 +215,24 @@ function DiagnosticsPage() {
   const showQuestion = async (idx: number) => {
     if (!user || !sessionIdRef.current) return;
     questionShownAt.current = Date.now();
+    questionShownBpm.current = bpm;
     setQIndex(idx);
     setQTimeLeft(STRESS_TEST_CONFIG.timePerQuestionMs / 1000);
     await supabase.from("raw_biometric_log").insert({
       session_id: sessionIdRef.current,
       student_id: user.id,
       event_type: "question_shown",
-      bpm: currentBpm ?? null,
-      hrv: currentHrv ?? null,
+      bpm,
+      hrv,
       payload: { question_id: STRESS_QUESTIONS[idx].id, index: idx },
     });
   };
 
-  // Per-question countdown
   useEffect(() => {
     if (phase !== "running") return;
     const t = setInterval(() => {
       setQTimeLeft((prev) => {
         if (prev <= 1) {
-          // timeout — count as wrong
           submitAnswer(-1, true);
           return STRESS_TEST_CONFIG.timePerQuestionMs / 1000;
         }
@@ -202,21 +248,23 @@ function DiagnosticsPage() {
     const q = STRESS_QUESTIONS[qIndex];
     const rt = Date.now() - questionShownAt.current;
     const correct = !timeout && selectedIdx === q.correctIndex;
-    const next = [...answers, { correct, rt }];
+    const next = [...answers, { correct, rt, bpm }];
     setAnswers(next);
 
     await supabase.from("raw_biometric_log").insert({
       session_id: sessionIdRef.current,
       student_id: user.id,
       event_type: "answer_submitted",
-      bpm: currentBpm ?? null,
-      hrv: currentHrv ?? null,
+      bpm,
+      hrv,
       payload: {
         question_id: q.id,
         selected: selectedIdx,
         correct,
         timeout,
         reaction_time_ms: rt,
+        bpm_at_show: questionShownBpm.current,
+        bpm_at_answer: bpm,
       },
     });
 
@@ -227,14 +275,11 @@ function DiagnosticsPage() {
     }
   };
 
-  const finishTest = async (allAnswers: { correct: boolean; rt: number }[]) => {
+  const finishTest = async (allAnswers: { correct: boolean; rt: number; bpm: number | null }[]) => {
     if (!sessionIdRef.current || !baselineHr) return;
     const correctAnswers = allAnswers.filter((a) => a.correct).length;
-    const stressHr = stressSamples.current.length
-      ? Math.round(
-          (stressSamples.current.reduce((a, b) => a + b, 0) /
-            stressSamples.current.length) * 10,
-        ) / 10
+    const stressHr = stressBpms.current.length
+      ? Math.round(stressBpms.current.reduce((a, b) => a + b, 0) / stressBpms.current.length)
       : baselineHr;
     const avgRt = Math.round(
       allAnswers.reduce((a, b) => a + b.rt, 0) / Math.max(1, allAnswers.length),
@@ -254,13 +299,19 @@ function DiagnosticsPage() {
         accuracy_score: score.accuracy,
         reaction_time_avg: avgRt,
         final_beqa_score: score.beqa,
-        metadata: { phase: "complete", correct: correctAnswers, total: STRESS_QUESTIONS.length },
+        metadata: {
+          phase: "complete",
+          engine: "rppg-real-v1",
+          correct: correctAnswers,
+          total: STRESS_QUESTIONS.length,
+          baseline_hrv: baselineHrv,
+          stress_pulses_captured: stressBpms.current.length,
+        },
       })
       .eq("id", sessionIdRef.current);
 
     setFinalScore({ ...score, avgRt, stressHr });
     setPhase("done");
-    sdkRef.current?.setMode("rest");
     toast.success(`ציון BEQA: ${score.beqa}%`);
   };
 
@@ -271,7 +322,7 @@ function DiagnosticsPage() {
           <div>
             <h1 className="text-2xl font-bold">אבחון ביומטרי BEQA</h1>
             <p className="text-sm text-muted-foreground">
-              כיול דופק מנוחה דרך המצלמה (rPPG) — 30 שניות
+              עיבוד rPPG אמיתי דרך המצלמה — חילוץ דופק מערוץ ירוק
             </p>
           </div>
           <Link to="/beqa-history">
@@ -293,13 +344,27 @@ function DiagnosticsPage() {
                 muted
                 className="h-full w-full object-cover"
               />
+              {/* ROI overlay */}
+              {cameraReady && (
+                <div
+                  className="pointer-events-none absolute border-2 border-emerald-400/70 rounded"
+                  style={{
+                    width: "25%",
+                    height: "25%",
+                    left: "37.5%",
+                    top: "17.5%",
+                  }}
+                />
+              )}
               {!cameraReady && (
                 <div className="absolute inset-0 grid place-items-center text-xs text-muted-foreground">
                   המצלמה כבויה
                 </div>
               )}
-              {phase === "calibrating" && (
-                <div className="absolute inset-0 ring-4 ring-gold/70 animate-pulse rounded-xl" />
+              {cameraReady && !faceDetected && (
+                <div className="absolute inset-x-0 bottom-0 bg-amber-500/90 text-white text-xs p-2 text-center">
+                  מכייל… נא להישאר יציב מול המצלמה
+                </div>
               )}
             </div>
 
@@ -316,31 +381,39 @@ function DiagnosticsPage() {
         </Card>
 
         {cameraReady && (
-          <div className="grid grid-cols-2 gap-3">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Heart className="h-4 w-4 text-red-500" /> דופק (BPM)
-                </div>
-                <div className="mt-1 text-2xl font-bold">
-                  {currentBpm ?? "—"}
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Activity className="h-4 w-4 text-emerald-500" /> HRV
-                </div>
-                <div className="mt-1 text-2xl font-bold">
-                  {currentHrv ?? "—"}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <>
+            <div className="grid grid-cols-3 gap-2">
+              <Card>
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                    <Heart className="h-3 w-3 text-red-500" /> BPM
+                  </div>
+                  <div className="mt-1 text-xl font-bold">{bpm ?? "—"}</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                    <Activity className="h-3 w-3 text-emerald-500" /> HRV
+                  </div>
+                  <div className="mt-1 text-xl font-bold">{hrv ?? "—"}</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                    <Wifi className="h-3 w-3" /> איכות
+                  </div>
+                  <Badge className={`mt-1 ${QUALITY_COLOR[quality]} text-white text-[10px]`}>
+                    {QUALITY_LABEL[quality]}
+                  </Badge>
+                </CardContent>
+              </Card>
+            </div>
+          </>
         )}
 
-        {cameraReady && (
+        {cameraReady && (phase === "idle" || phase === "calibrating" || phase === "calibrated") && (
           <Card>
             <CardHeader>
               <CardTitle className="text-base">כיול ביומטרי (30 שניות)</CardTitle>
@@ -350,28 +423,41 @@ function DiagnosticsPage() {
                 <>
                   <Progress value={calibProgress} />
                   <p className="text-xs text-muted-foreground">
-                    אנא שב/י בנינוחות ונשום/י רגיל… {Math.round(calibProgress)}%
+                    מנתח אות PPG מערוץ ירוק… פעימות שזוהו: {calibBpms.current.length}
                   </p>
                 </>
               )}
               {baselineHr !== null && (
-                <div className="rounded-lg bg-emerald-500/10 p-3 text-sm">
-                  ✅ דופק מנוחה (Baseline): <strong>{baselineHr} BPM</strong>
+                <div className="rounded-lg bg-emerald-500/10 p-3 text-sm space-y-1">
+                  <div>✅ דופק מנוחה: <strong>{baselineHr} BPM</strong></div>
+                  {baselineHrv !== null && (
+                    <div className="text-xs text-muted-foreground">
+                      HRV (RMSSD): {baselineHrv} ms
+                    </div>
+                  )}
                 </div>
               )}
-              {phase === "idle" || phase === "calibrated" ? (
+              {phase === "idle" && (
                 <Button
                   onClick={startCalibration}
                   className="w-full"
-                  disabled={phase === "calibrated"}
+                  disabled={!faceDetected}
                 >
                   <Play className="ml-2 h-4 w-4" />
-                  {phase === "calibrated" ? "כיול הושלם" : "התחל כיול ביומטרי"}
+                  {faceDetected ? "התחל כיול ביומטרי" : "ממתין לזיהוי פנים…"}
                 </Button>
-              ) : null}
+              )}
               {phase === "calibrated" && (
-                <Button onClick={startStressTest} variant="default" className="w-full">
-                  <Brain className="ml-2 h-4 w-4" /> התחל מבחן תחת סטרס
+                <Button
+                  onClick={startStressTest}
+                  variant="default"
+                  className="w-full"
+                  disabled={quality !== "high"}
+                >
+                  <Brain className="ml-2 h-4 w-4" />
+                  {quality === "high"
+                    ? "התחל מבחן תחת סטרס"
+                    : `ממתין לסיגנל גבוה (כעת: ${QUALITY_LABEL[quality]})`}
                 </Button>
               )}
             </CardContent>
@@ -385,14 +471,14 @@ function DiagnosticsPage() {
                 <span className="flex items-center gap-2">
                   <Brain className="h-4 w-4" /> שאלה {qIndex + 1}/{STRESS_QUESTIONS.length}
                 </span>
-                <span className="text-xs text-muted-foreground">⏱ {qTimeLeft}s</span>
+                <span className="text-xs text-muted-foreground">
+                  ⏱ {qTimeLeft}s · ❤ {bpm ?? "—"}
+                </span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <Progress
-                value={
-                  (qTimeLeft / (STRESS_TEST_CONFIG.timePerQuestionMs / 1000)) * 100
-                }
+                value={(qTimeLeft / (STRESS_TEST_CONFIG.timePerQuestionMs / 1000)) * 100}
               />
               <p className="font-medium text-sm leading-relaxed">
                 {STRESS_QUESTIONS[qIndex].text}
