@@ -92,6 +92,11 @@ function SchedulePage() {
 
   async function save() {
     if (!editing) return;
+    const isMakeupForCandidate = editing.type === "makeup" && !!editing.candidate_id;
+    if (!editing.class_id && !isMakeupForCandidate) {
+      toast.error("חובה לבחור כיתה — בלי כיתה אף סטודנט לא יראה את האירוע");
+      return;
+    }
     try {
       await scheduleApi.upsert({
         ...editing,
@@ -127,6 +132,7 @@ function SchedulePage() {
 
   async function checkRecurring() {
     if (!recurring) return;
+    if (!recurring.class_id) { toast.error("חובה לבחור כיתה"); return; }
     if (!recurring.title.trim()) { toast.error("חסר שם השיעור"); return; }
     const dates = generateDates(recurring.start_date, recurring.weekdays, recurring.mode, recurring.count, recurring.until_date);
     if (!dates.length) { toast.error("לא נוצרו תאריכים — בחר ימים בשבוע"); return; }
@@ -145,6 +151,7 @@ function SchedulePage() {
 
   async function saveRecurringDirect() {
     if (!recurring) return;
+    if (!recurring.class_id) { toast.error("חובה לבחור כיתה"); return; }
     if (!recurring.title.trim()) { toast.error("חסר שם השיעור"); return; }
     const dates = generateDates(recurring.start_date, recurring.weekdays, recurring.mode, recurring.count, recurring.until_date);
     if (!dates.length) { toast.error("לא נוצרו תאריכים — בחר ימים בשבוע"); return; }
@@ -297,15 +304,19 @@ function SchedulePage() {
               />
             </label>
 
-            <label className="block text-xs">כיתה
+            <label className="block text-xs">כיתה <span className="text-rose-400">*</span>
               <select
                 value={editing.class_id ?? ""}
                 onChange={(e) => setEditing({ ...editing, class_id: e.target.value || null })}
+                required
                 className="mt-1 h-10 w-full rounded-lg border border-border/60 bg-background px-3 text-sm"
               >
-                <option value="">— ללא —</option>
+                <option value="">— בחר כיתה —</option>
                 {classes?.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
+              <span className="mt-1 block text-[11px] text-muted-foreground">
+                בלי כיתה — אף סטודנט לא יראה את השיעור.
+              </span>
             </label>
 
             {editing.type === "exam" && (
@@ -401,9 +412,9 @@ function SchedulePage() {
                   <option value="makeup">השלמה</option>
                 </select>
               </label>
-              <label className="block text-xs">כיתה
-                <select value={recurring.class_id} onChange={(e) => setRecurring({ ...recurring, class_id: e.target.value })} className="mt-1 h-10 w-full rounded-lg border border-border/60 bg-background px-3 text-sm">
-                  <option value="">— ללא —</option>
+              <label className="block text-xs">כיתה <span className="text-rose-400">*</span>
+                <select value={recurring.class_id} onChange={(e) => setRecurring({ ...recurring, class_id: e.target.value })} required className="mt-1 h-10 w-full rounded-lg border border-border/60 bg-background px-3 text-sm">
+                  <option value="">— בחר כיתה —</option>
                   {classes?.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </label>
