@@ -196,6 +196,8 @@ function DiagnosticsPage() {
   };
 
   const stopAll = () => {
+    stressPulseUnsubRef.current?.();
+    stressPulseUnsubRef.current = null;
     engineRef.current?.stop();
     engineRef.current = null;
     sessionIdRef.current = null;
