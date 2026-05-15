@@ -6,6 +6,7 @@ import { adminApi, docsApi, type Candidate, type CandidateDocument } from "@/lib
 import { useAuth } from "@/lib/auth";
 import { Plus, Pencil, Trash2, Search, FolderOpen, Upload, FileText, X, Download } from "lucide-react";
 import { toast } from "sonner";
+import { ImportStudentsModal } from "@/components/admin/ImportStudentsModal";
 
 const DOC_PRESETS = [
   "טופס ירוק",
