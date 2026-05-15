@@ -1,7 +1,7 @@
 // Demo seeds removed. Types and pure helpers are kept so existing imports
 // keep compiling. Real data lives in Supabase tables.
 
-export type Role = "owner" | "staff" | "teacher" | "student";
+export type Role = "owner" | "staff" | "teacher" | "student" | "lead";
 
 export type City = { id: string; name: string };
 export type Program = { id: string; name: string; cityIds: string[] };

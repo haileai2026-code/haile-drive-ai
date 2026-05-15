@@ -25,6 +25,7 @@ export type Candidate = {
   status: string;
   notes: string | null;
   tags: string[] | null;
+  payment_status?: "unpaid" | "paid" | "partial" | null;
   created_at: string;
 };
 export type Material = {

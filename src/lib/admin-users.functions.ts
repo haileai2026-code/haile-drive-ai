@@ -107,14 +107,14 @@ export const importStudents = createServerFn({ method: "POST" })
           });
           const { data: hasRole } = await supabaseAdmin
             .from("user_roles").select("id")
-            .eq("user_id", userId).eq("role", "student").maybeSingle();
+            .eq("user_id", userId).eq("role", "lead").maybeSingle();
           if (!hasRole) {
-            await supabaseAdmin.from("user_roles").insert({ user_id: userId, role: "student" });
+            await supabaseAdmin.from("user_roles").insert({ user_id: userId, role: "lead" });
           }
         }
 
         const { error: candErr } = await supabaseAdmin.from("candidates").insert({
-          full_name: s.full_name, email: s.email, class_id: data.class_id, status: "active",
+          full_name: s.full_name, email: s.email, class_id: data.class_id, status: "new_lead", payment_status: "unpaid",
         });
         if (candErr) {
           results.push({ email: s.email, full_name: s.full_name, ok: false, error: candErr.message });
@@ -129,4 +129,48 @@ export const importStudents = createServerFn({ method: "POST" })
 
     const success = results.filter((r) => r.ok).length;
     return { results, success, failed: results.length - success };
+  });
+
+export const setCandidatePayment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({
+      candidate_id: z.string().uuid(),
+      payment_status: z.enum(["unpaid", "paid", "partial"]),
+    }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: roleRow } = await context.supabase
+      .from("user_roles").select("role")
+      .eq("user_id", context.userId).eq("role", "owner").maybeSingle();
+    if (!roleRow) throw new Error("Only owners can change payment status");
+
+    const { data: cand, error: candErr } = await supabaseAdmin
+      .from("candidates").select("id,email")
+      .eq("id", data.candidate_id).maybeSingle();
+    if (candErr || !cand) throw new Error(candErr?.message ?? "Candidate not found");
+
+    await supabaseAdmin.from("candidates")
+      .update({ payment_status: data.payment_status })
+      .eq("id", data.candidate_id);
+
+    // Sync user role: paid -> student, unpaid -> lead
+    if (cand.email) {
+      const { data: profile } = await supabaseAdmin
+        .from("profiles").select("id").ilike("email", cand.email).maybeSingle();
+      if (profile) {
+        const newRole = data.payment_status === "paid" ? "student" : "lead";
+        const dropRole = data.payment_status === "paid" ? "lead" : "student";
+        await supabaseAdmin.from("user_roles")
+          .delete().eq("user_id", profile.id).eq("role", dropRole);
+        const { data: existing } = await supabaseAdmin
+          .from("user_roles").select("id")
+          .eq("user_id", profile.id).eq("role", newRole).maybeSingle();
+        if (!existing) {
+          await supabaseAdmin.from("user_roles").insert({ user_id: profile.id, role: newRole });
+        }
+      }
+    }
+
+    return { ok: true };
   });

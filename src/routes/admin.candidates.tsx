@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { AdminLoading, AdminShell } from "@/components/AdminShell";
 import { adminApi, docsApi, type Candidate, type CandidateDocument } from "@/lib/admin-api";
+import { setCandidatePayment } from "@/lib/admin-users.functions";
 import { useAuth } from "@/lib/auth";
-import { Plus, Pencil, Trash2, Search, FolderOpen, Upload, FileText, X, Download } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, FolderOpen, Upload, FileText, X, Download, GraduationCap, UserCheck } from "lucide-react";
 import { toast } from "sonner";
 import { ImportStudentsModal } from "@/components/admin/ImportStudentsModal";
 
@@ -44,12 +46,14 @@ function CandidatesPage() {
   const qc = useQueryClient();
   const { user, loading } = useAuth();
   const canQuery = !loading && !!user;
+  const [tab, setTab] = useState<"leads" | "students">("leads");
   const [q, setQ] = useState("");
   const [statusF, setStatusF] = useState<string>("all");
   const [cityF, setCityF] = useState<string>("all");
   const [editing, setEditing] = useState<FormState | null>(null);
   const [folderFor, setFolderFor] = useState<Candidate | null>(null);
   const [importing, setImporting] = useState(false);
+  const setPaymentFn = useServerFn(setCandidatePayment);
 
   const candidatesQ = useQuery({ queryKey: ["candidates"], queryFn: () => adminApi.listCandidates(), enabled: canQuery });
   const citiesQ = useQuery({ queryKey: ["cities"], queryFn: adminApi.listCities, enabled: canQuery });
@@ -66,19 +70,41 @@ function CandidatesPage() {
     onError: (e: any) => toast.error(e.message ?? "מחיקה נכשלה"),
   });
 
+  const paymentMut = useMutation({
+    mutationFn: (vars: { candidate_id: string; payment_status: "unpaid" | "paid" | "partial" }) =>
+      setPaymentFn({ data: vars }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["candidates"] }); toast.success("עודכן"); },
+    onError: (e: any) => toast.error(e.message ?? "עדכון נכשל"),
+  });
+
   const cityName = (id: string | null) => citiesQ.data?.find((c) => c.id === id)?.name_he ?? "—";
   const className = (id: string | null) => classesQ.data?.find((c) => c.id === id)?.name ?? "—";
 
   const filtered = (candidatesQ.data ?? []).filter((c) => {
+    const isPaid = c.payment_status === "paid";
+    if (tab === "leads" && isPaid) return false;
+    if (tab === "students" && !isPaid) return false;
     if (statusF !== "all" && c.status !== statusF) return false;
     if (cityF !== "all" && c.city_id !== cityF) return false;
     if (q && !`${c.full_name} ${c.phone ?? ""} ${c.email ?? ""}`.toLowerCase().includes(q.toLowerCase())) return false;
     return true;
   });
+  const leadsCount = (candidatesQ.data ?? []).filter((c) => c.payment_status !== "paid").length;
+  const studentsCount = (candidatesQ.data ?? []).filter((c) => c.payment_status === "paid").length;
   const isLoading = candidatesQ.isLoading || citiesQ.isLoading || classesQ.isLoading;
 
   return (
     <AdminShell title="ניהול לידים ותלמידים">
+      <div className="mb-3 flex gap-1 rounded-xl border border-border/60 bg-card/40 p-1 w-fit">
+        <button onClick={() => setTab("leads")}
+          className={`inline-flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-sm font-semibold transition ${tab==="leads"?"bg-gold text-gold-foreground":"text-muted-foreground hover:text-foreground"}`}>
+          📋 לידים <span className="rounded-full bg-background/40 px-1.5 text-[10px]">{leadsCount}</span>
+        </button>
+        <button onClick={() => setTab("students")}
+          className={`inline-flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-sm font-semibold transition ${tab==="students"?"bg-gold text-gold-foreground":"text-muted-foreground hover:text-foreground"}`}>
+          🎓 סטודנטים <span className="rounded-full bg-background/40 px-1.5 text-[10px]">{studentsCount}</span>
+        </button>
+      </div>
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative min-w-[220px] flex-1">
           <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -120,12 +146,13 @@ function CandidatesPage() {
               <th className="px-3 py-2">כיתה</th>
               <th className="px-3 py-2">שפה</th>
               <th className="px-3 py-2">סטטוס</th>
+              <th className="px-3 py-2">תשלום</th>
               <th className="px-3 py-2"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border/40">
-            {isLoading && <tr><td colSpan={7} className="px-3 py-10 text-center text-muted-foreground">טוען נתונים חיים…</td></tr>}
-            {!isLoading && filtered.length === 0 && <tr><td colSpan={7} className="px-3 py-10 text-center text-muted-foreground">אין רשומות</td></tr>}
+            {isLoading && <tr><td colSpan={8} className="px-3 py-10 text-center text-muted-foreground">טוען נתונים חיים…</td></tr>}
+            {!isLoading && filtered.length === 0 && <tr><td colSpan={8} className="px-3 py-10 text-center text-muted-foreground">אין רשומות</td></tr>}
             {filtered.map((c) => (
               <tr key={c.id} className="hover:bg-accent/30">
                 <td className="px-3 py-3 font-semibold">{c.full_name}</td>
@@ -146,6 +173,21 @@ function CandidatesPage() {
                 </td>
                 <td className="px-3 py-3 text-muted-foreground">{c.language}</td>
                 <td className="px-3 py-3"><span className="rounded-full border border-gold/30 bg-gold/10 px-2 py-0.5 text-[10px] text-gold">{STATUS_LABELS[c.status] ?? c.status}</span></td>
+                <td className="px-3 py-3">
+                  {c.payment_status === "paid" ? (
+                    <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-300">
+                      <GraduationCap className="h-3 w-3" /> שילם
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => { if (confirm(`לאשר תשלום של ${c.full_name} ולהפוך לסטודנט?`)) paymentMut.mutate({ candidate_id: c.id, payment_status: "paid" }); }}
+                      className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[10px] text-amber-300 hover:bg-amber-500/20"
+                      title="אשר תשלום והפוך לסטודנט"
+                    >
+                      <UserCheck className="h-3 w-3" /> הפוך לסטודנט
+                    </button>
+                  )}
+                </td>
                 <td className="px-3 py-3">
                   <div className="flex justify-end gap-1">
                     <button onClick={() => setFolderFor(c)} title="תיק נהג" className="rounded-md p-1.5 text-gold hover:bg-gold/10"><FolderOpen className="h-3.5 w-3.5" /></button>
