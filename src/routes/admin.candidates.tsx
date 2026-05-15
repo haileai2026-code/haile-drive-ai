@@ -78,6 +78,13 @@ function CandidatesPage() {
     onError: (e: any) => toast.error(e.message ?? "עדכון נכשל"),
   });
 
+  const beqaMut = useMutation({
+    mutationFn: (vars: { candidate_id: string; beqa_access: boolean }) =>
+      setBeqaFn({ data: vars }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["candidates"] }); toast.success("גישת BEQA עודכנה"); },
+    onError: (e: any) => toast.error(e.message ?? "עדכון נכשל"),
+  });
+
   const cityName = (id: string | null) => citiesQ.data?.find((c) => c.id === id)?.name_he ?? "—";
   const className = (id: string | null) => classesQ.data?.find((c) => c.id === id)?.name ?? "—";
 
