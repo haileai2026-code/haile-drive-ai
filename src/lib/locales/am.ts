@@ -2,9 +2,9 @@ import type { StringKey } from "./en";
 
 const dict: Partial<Record<StringKey, string>> = {
   appName: "ሃይሌ ድራይቭ AI",
-  tagline: "በራስዎ ቋንቋ ሙያዊ መንዳት ይማሩ።",
-  heroSub: "ለአውቶቡስና ለከባድ ተሽከርካሪ ፈቃድ የተዘጋጀ AI አስተማሪ።",
-  getStarted: "ጀምር",
+  tagline: "በቋንቋዎ ሙያዊ ሹፌርነት ከ AI ጋር ይማሩ",
+  heroSub: "ለአውቶቡስ እና ከባድ ተሽከርካሪ ፍቃድ AI መምህር",
+  getStarted: "አሁን ጀምር",
   login: "ግባ",
   phone: "ስልክ ቁጥር",
   sendCode: "ኮድ ላክ",
@@ -34,6 +34,16 @@ const dict: Partial<Record<StringKey, string>> = {
   addLanguage: "ቋንቋ ጨምር",
   uploadVoiceover: "ድምጽ ስቀል",
   coverage: "ሽፋን",
+  langBadge: "አማርኛ · ዕብራይስጥ · እንግሊዝኛ",
+  aiQuote: "እንኳን ደህና መጡ — ዛሬ ስለ አየር ብሬክ እንማራለን።",
+  cardLessons: "ትምህርቶች",
+  cardLessonsDesc: "አየር ብሬክ፣ ቅድመ-ጉዞ ፍተሻ፣ የተሳፋሪ ደህንነት፣ የመንገድ ምልክቶች።",
+  cardAI: "AI መምህር",
+  cardAIDesc: "ድምፅና ቻት — ቲዎሪውን በቀላል ቋንቋ ያስረዳል።",
+  cardLangs: "3 ቋንቋዎች",
+  cardLangsDesc: "በማንኛውም ጊዜ ይቀይሩ — ለዕብራይስጥና አማርኛ ሙሉ RTL።",
+  cardExam: "ለፈተና ዝግጁ",
+  cardExamDesc: "የልምምድ ፈተናዎችና ሙሉ የፈተና ማስመሰል።",
 };
 
 export default dict;

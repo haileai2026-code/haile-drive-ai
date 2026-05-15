@@ -1,8 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Bot, GraduationCap, Languages, ShieldCheck, Sparkles } from "lucide-react";
 import heroImg from "@/assets/hero-driver.jpg";
-import { useI18n } from "@/lib/i18n";
-import { LangSwitcher } from "@/components/LangSwitcher";
+import { useI18n, type LanguageCode } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -21,7 +20,12 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
-  const { t, dir } = useI18n();
+  const { t, dir, lang, setLang } = useI18n();
+  const langButtons: { code: LanguageCode; label: string }[] = [
+    { code: "he", label: "עב" },
+    { code: "am", label: "አማ" },
+    { code: "en", label: "EN" },
+  ];
   return (
     <div className="min-h-screen bg-night text-foreground" dir={dir}>
       <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
@@ -29,8 +33,20 @@ function Landing() {
           <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-gold to-amber-600 text-gold-foreground text-lg font-black shadow-[var(--shadow-gold)]">H</span>
           <span className="text-sm font-semibold tracking-tight sm:text-base">{t("appName")}</span>
         </div>
-        <div className="flex items-center gap-3">
-          <LangSwitcher />
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="inline-flex items-center gap-1 rounded-full border border-border bg-card/60 p-1 backdrop-blur">
+            {langButtons.map((l) => (
+              <button
+                key={l.code}
+                onClick={() => setLang(l.code)}
+                className={`min-h-[36px] rounded-full px-3 py-1 text-xs font-bold transition ${
+                  lang === l.code ? "bg-gold text-gold-foreground" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {l.label}
+              </button>
+            ))}
+          </div>
           <Link
             to="/login"
             className="hidden rounded-full border border-border bg-card/60 px-4 py-2 text-sm font-medium text-foreground hover:bg-card sm:inline-flex"
@@ -44,7 +60,7 @@ function Landing() {
         <div className="space-y-6">
           <span className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs font-medium text-gold">
             <Sparkles className="h-3.5 w-3.5" />
-            አማርኛ · עברית · English
+            {t("langBadge")}
           </span>
           <h1 className="text-balance text-4xl font-black leading-[1.05] sm:text-5xl md:text-6xl">
             <span className="text-gradient-gold">{t("tagline")}</span>
@@ -54,27 +70,9 @@ function Landing() {
           <div className="flex flex-wrap gap-3 pt-2">
             <Link
               to="/login"
-              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-br from-gold to-amber-600 px-6 py-3 text-base font-semibold text-gold-foreground shadow-[var(--shadow-gold)] transition hover:scale-[1.02]"
+              className="inline-flex min-h-[48px] items-center gap-2 rounded-full bg-gradient-to-br from-gold to-amber-600 px-6 py-3 text-base font-semibold text-gold-foreground shadow-[var(--shadow-gold)] transition hover:scale-[1.02]"
             >
               {t("getStarted")} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-            </Link>
-            <Link
-              to="/dashboard"
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-6 py-3 text-base font-medium hover:bg-card"
-            >
-              {t("dashboard")}
-            </Link>
-            <Link
-              to="/admin"
-              className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-card/60 px-6 py-3 text-base font-medium text-gold hover:bg-card"
-            >
-              Operations
-            </Link>
-            <Link
-              to="/diagnostics"
-              className="inline-flex items-center gap-2 rounded-full border border-success/40 bg-card/60 px-6 py-3 text-base font-medium text-success hover:bg-card"
-            >
-              BEQA Live
             </Link>
           </div>
 
@@ -82,7 +80,7 @@ function Landing() {
             {[
               { n: "120+", l: t("lessons") },
               { n: "AI", l: t("aiTeacher") },
-              { n: "RTL", l: "Amharic / עברית" },
+              { n: "RTL", l: t("cardLangs") },
             ].map((s) => (
               <div key={s.l} className="rounded-2xl border border-border/60 bg-card/40 p-3">
                 <dt className="text-xl font-black text-gold">{s.n}</dt>
@@ -109,7 +107,7 @@ function Landing() {
                 </span>
                 <div className="text-sm leading-tight">
                   <div className="font-semibold">{t("aiTeacher")}</div>
-                  <div className="text-xs text-white/70">"እንኳን ደህና መጡ — ዛሬ ስለ አየር ብሬክ እንማራለን።"</div>
+                  <div className="text-xs text-white/70">{t("aiQuote")}</div>
                 </div>
               </div>
             </div>
@@ -119,16 +117,16 @@ function Landing() {
 
       <section className="mx-auto grid max-w-6xl gap-4 px-5 pb-24 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { icon: GraduationCap, t: "Bus & Heavy Vehicle", d: "Air brakes, pre-trip, passenger safety, road signs." },
-          { icon: Bot, icon2: true, t: "AI Teacher", d: "Voice & chat — explains theory in simple Amharic." },
-          { icon: Languages, t: "3 Languages", d: "Switch anytime — full RTL for Hebrew & Amharic." },
-          { icon: ShieldCheck, t: "Exam Ready", d: "Practice quizzes and full exam simulation." },
+          { icon: GraduationCap, title: t("cardLessons"), d: t("cardLessonsDesc") },
+          { icon: Bot, title: t("cardAI"), d: t("cardAIDesc") },
+          { icon: Languages, title: t("cardLangs"), d: t("cardLangsDesc") },
+          { icon: ShieldCheck, title: t("cardExam"), d: t("cardExamDesc") },
         ].map((f) => (
-          <div key={f.t} className="group rounded-2xl border border-border/60 bg-card/40 p-5 transition hover:border-gold/40 hover:bg-card/70">
+          <div key={f.title} className="group rounded-2xl border border-border/60 bg-card/40 p-5 transition hover:border-gold/40 hover:bg-card/70">
             <span className="grid h-10 w-10 place-items-center rounded-xl bg-gold/15 text-gold">
               <f.icon className="h-5 w-5" />
             </span>
-            <h3 className="mt-4 text-base font-semibold">{f.t}</h3>
+            <h3 className="mt-4 text-base font-semibold">{f.title}</h3>
             <p className="mt-1 text-sm text-muted-foreground">{f.d}</p>
           </div>
         ))}

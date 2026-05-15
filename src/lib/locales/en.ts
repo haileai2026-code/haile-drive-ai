@@ -1,9 +1,9 @@
 // English locale — also serves as the canonical key list and fallback.
 const dict = {
   appName: "Haile Drive AI",
-  tagline: "Learn professional driving with AI in your own language.",
-  heroSub: "An AI instructor for bus & heavy-vehicle licenses — in your language.",
-  getStarted: "Get started",
+  tagline: "Learn Professional Driving with AI in Your Language",
+  heroSub: "AI Teacher for Bus & Heavy Vehicle License",
+  getStarted: "Get Started",
   login: "Sign in",
   phone: "Phone number",
   sendCode: "Send code",
@@ -33,6 +33,16 @@ const dict = {
   addLanguage: "Add language",
   uploadVoiceover: "Upload voiceover",
   coverage: "Coverage",
+  langBadge: "Amharic · Hebrew · English",
+  aiQuote: "Welcome — today we'll learn about air brakes.",
+  cardLessons: "Lessons",
+  cardLessonsDesc: "Air brakes, pre-trip checks, passenger safety, road signs.",
+  cardAI: "AI Teacher",
+  cardAIDesc: "Voice & chat — explains theory in simple language.",
+  cardLangs: "3 Languages",
+  cardLangsDesc: "Switch anytime — full RTL for Hebrew & Amharic.",
+  cardExam: "Exam Ready",
+  cardExamDesc: "Practice quizzes and full exam simulation.",
 };
 
 export type StringKey = keyof typeof dict;
