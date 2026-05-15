@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { AdminShell } from "@/components/AdminShell";
-import { ClassesPanel } from "./admin.classes";
-import { BranchesPanel } from "./admin.branches";
-import { CitiesPanel } from "./admin.cities";
+import { ClassesPanel } from "@/components/admin/ClassesPanel";
+import { BranchesPanel } from "@/components/admin/BranchesPanel";
+import { CitiesPanel } from "@/components/admin/CitiesPanel";
 
 export const Route = createFileRoute("/admin/organization")({
   head: () => ({ meta: [{ title: "ארגון — Haile Drive AI" }] }),
