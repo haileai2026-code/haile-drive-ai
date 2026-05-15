@@ -16,10 +16,14 @@ function ExamsPage() {
   const location = useLocation();
   if (location.pathname !== "/admin/exams") return <Outlet />;
 
-  return <ExamsList />;
+  return (
+    <AdminShell title="בנק מבחנים">
+      <ExamsListPanel />
+    </AdminShell>
+  );
 }
 
-function ExamsList() {
+export function ExamsListPanel() {
   const qc = useQueryClient();
   const { user, loading } = useAuth();
   const canQuery = !loading && !!user;
