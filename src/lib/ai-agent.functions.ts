@@ -18,6 +18,8 @@ const InputSchema = z.object({
 
 async function buildSnapshot() {
   const since30 = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString().slice(0, 10);
+  const today = new Date().toISOString().slice(0, 10);
+  const in30 = new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().slice(0, 10);
 
   const [
     candidatesRes,
@@ -28,8 +30,9 @@ async function buildSnapshot() {
     contactRes,
     attendanceRes,
     recentCandidatesRes,
+    upcomingEventsRes,
   ] = await Promise.all([
-    supabaseAdmin.from("candidates").select("status, city_id, updated_at"),
+    supabaseAdmin.from("candidates").select("status, city_id, class_id, updated_at"),
     supabaseAdmin.from("classes").select("id, name"),
     supabaseAdmin.from("cities").select("id, name, name_he"),
     supabaseAdmin.from("exam_results").select("score, passed"),
@@ -38,9 +41,16 @@ async function buildSnapshot() {
     supabaseAdmin.from("attendance_records").select("mark").gte("lesson_date", since30),
     supabaseAdmin
       .from("candidates")
-      .select("full_name, status, city_id, updated_at")
+      .select("full_name, status, city_id, class_id, updated_at")
       .order("updated_at", { ascending: false })
       .limit(20),
+    supabaseAdmin
+      .from("schedule_events")
+      .select("title, type, event_date, start_time, end_time, class_id, location")
+      .gte("event_date", today)
+      .lte("event_date", in30)
+      .order("event_date", { ascending: true })
+      .limit(40),
   ]);
 
   const candidates = candidatesRes.data ?? [];
