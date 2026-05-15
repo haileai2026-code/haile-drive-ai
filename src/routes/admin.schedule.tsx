@@ -412,9 +412,9 @@ function SchedulePage() {
                   <option value="makeup">השלמה</option>
                 </select>
               </label>
-              <label className="block text-xs">כיתה
-                <select value={recurring.class_id} onChange={(e) => setRecurring({ ...recurring, class_id: e.target.value })} className="mt-1 h-10 w-full rounded-lg border border-border/60 bg-background px-3 text-sm">
-                  <option value="">— ללא —</option>
+              <label className="block text-xs">כיתה <span className="text-rose-400">*</span>
+                <select value={recurring.class_id} onChange={(e) => setRecurring({ ...recurring, class_id: e.target.value })} required className="mt-1 h-10 w-full rounded-lg border border-border/60 bg-background px-3 text-sm">
+                  <option value="">— בחר כיתה —</option>
                   {classes?.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </label>
