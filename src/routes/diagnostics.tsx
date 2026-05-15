@@ -33,6 +33,20 @@ function DiagnosticsPage() {
   const [baselineHr, setBaselineHr] = useState<number | null>(null);
   const [cameraReady, setCameraReady] = useState(false);
 
+  // Stress test state
+  const stressSamples = useRef<number[]>([]);
+  const questionShownAt = useRef<number>(0);
+  const [qIndex, setQIndex] = useState(0);
+  const [qTimeLeft, setQTimeLeft] = useState(STRESS_TEST_CONFIG.timePerQuestionMs / 1000);
+  const [answers, setAnswers] = useState<{ correct: boolean; rt: number }[]>([]);
+  const [finalScore, setFinalScore] = useState<{
+    accuracy: number;
+    stability: number;
+    beqa: number;
+    avgRt: number;
+    stressHr: number;
+  } | null>(null);
+
   useEffect(() => {
     return () => {
       sdkRef.current?.stop();
