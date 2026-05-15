@@ -17,6 +17,7 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LessonsRouteImport } from './routes/lessons'
 import { Route as LanguageRouteImport } from './routes/language'
+import { Route as DiagnosticsRouteImport } from './routes/diagnostics'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CommunityRouteImport } from './routes/community'
 import { Route as AiRouteImport } from './routes/ai'
@@ -84,6 +85,11 @@ const LessonsRoute = LessonsRouteImport.update({
 const LanguageRoute = LanguageRouteImport.update({
   id: '/language',
   path: '/language',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DiagnosticsRoute = DiagnosticsRouteImport.update({
+  id: '/diagnostics',
+  path: '/diagnostics',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -235,6 +241,7 @@ export interface FileRoutesByFullPath {
   '/ai': typeof AiRoute
   '/community': typeof CommunityRoute
   '/dashboard': typeof DashboardRoute
+  '/diagnostics': typeof DiagnosticsRoute
   '/language': typeof LanguageRoute
   '/lessons': typeof LessonsRouteWithChildren
   '/login': typeof LoginRoute
@@ -273,6 +280,7 @@ export interface FileRoutesByTo {
   '/ai': typeof AiRoute
   '/community': typeof CommunityRoute
   '/dashboard': typeof DashboardRoute
+  '/diagnostics': typeof DiagnosticsRoute
   '/language': typeof LanguageRoute
   '/lessons': typeof LessonsRouteWithChildren
   '/login': typeof LoginRoute
@@ -312,6 +320,7 @@ export interface FileRoutesById {
   '/ai': typeof AiRoute
   '/community': typeof CommunityRoute
   '/dashboard': typeof DashboardRoute
+  '/diagnostics': typeof DiagnosticsRoute
   '/language': typeof LanguageRoute
   '/lessons': typeof LessonsRouteWithChildren
   '/login': typeof LoginRoute
@@ -352,6 +361,7 @@ export interface FileRouteTypes {
     | '/ai'
     | '/community'
     | '/dashboard'
+    | '/diagnostics'
     | '/language'
     | '/lessons'
     | '/login'
@@ -390,6 +400,7 @@ export interface FileRouteTypes {
     | '/ai'
     | '/community'
     | '/dashboard'
+    | '/diagnostics'
     | '/language'
     | '/lessons'
     | '/login'
@@ -428,6 +439,7 @@ export interface FileRouteTypes {
     | '/ai'
     | '/community'
     | '/dashboard'
+    | '/diagnostics'
     | '/language'
     | '/lessons'
     | '/login'
@@ -467,6 +479,7 @@ export interface RootRouteChildren {
   AiRoute: typeof AiRoute
   CommunityRoute: typeof CommunityRoute
   DashboardRoute: typeof DashboardRoute
+  DiagnosticsRoute: typeof DiagnosticsRoute
   LanguageRoute: typeof LanguageRoute
   LessonsRoute: typeof LessonsRouteWithChildren
   LoginRoute: typeof LoginRoute
@@ -534,6 +547,13 @@ declare module '@tanstack/react-router' {
       path: '/language'
       fullPath: '/language'
       preLoaderRoute: typeof LanguageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/diagnostics': {
+      id: '/diagnostics'
+      path: '/diagnostics'
+      fullPath: '/diagnostics'
+      preLoaderRoute: typeof DiagnosticsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -831,6 +851,7 @@ const rootRouteChildren: RootRouteChildren = {
   AiRoute: AiRoute,
   CommunityRoute: CommunityRoute,
   DashboardRoute: DashboardRoute,
+  DiagnosticsRoute: DiagnosticsRoute,
   LanguageRoute: LanguageRoute,
   LessonsRoute: LessonsRouteWithChildren,
   LoginRoute: LoginRoute,
