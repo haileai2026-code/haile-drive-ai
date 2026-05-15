@@ -1,7 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { AdminLoading, AdminShell } from "@/components/AdminShell";
+import { AdminLoading } from "@/components/AdminShell";
 import { adminApi, type Material } from "@/lib/admin-api";
 import { useAuth } from "@/lib/auth";
 import { Plus, Trash2, FileText, Image as ImageIcon, Link as LinkIcon, Pencil } from "lucide-react";
@@ -11,14 +10,6 @@ export const Route = createFileRoute("/admin/materials")({
   head: () => ({ meta: [{ title: "חומרי לימוד — Haile Drive AI" }] }),
   component: MaterialsPage,
 });
-
-function MaterialsPage() {
-  return (
-    <AdminShell title="חומרי לימוד והעשרה">
-      <MaterialsPanel />
-    </AdminShell>
-  );
-}
 
 export function MaterialsPanel() {
   const qc = useQueryClient();
