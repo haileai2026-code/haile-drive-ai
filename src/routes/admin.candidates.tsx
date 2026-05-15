@@ -49,6 +49,7 @@ function CandidatesPage() {
   const [cityF, setCityF] = useState<string>("all");
   const [editing, setEditing] = useState<FormState | null>(null);
   const [folderFor, setFolderFor] = useState<Candidate | null>(null);
+  const [importing, setImporting] = useState(false);
 
   const candidatesQ = useQuery({ queryKey: ["candidates"], queryFn: () => adminApi.listCandidates(), enabled: canQuery });
   const citiesQ = useQuery({ queryKey: ["cities"], queryFn: adminApi.listCities, enabled: canQuery });
