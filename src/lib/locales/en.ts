@@ -1,9 +1,9 @@
 // English locale — also serves as the canonical key list and fallback.
 const dict = {
   appName: "Haile Drive AI",
-  tagline: "Learn professional driving with AI in your own language.",
-  heroSub: "An AI instructor for bus & heavy-vehicle licenses — in your language.",
-  getStarted: "Get started",
+  tagline: "Learn Professional Driving with AI in Your Language",
+  heroSub: "AI Teacher for Bus & Heavy Vehicle License",
+  getStarted: "Get Started",
   login: "Sign in",
   phone: "Phone number",
   sendCode: "Send code",
