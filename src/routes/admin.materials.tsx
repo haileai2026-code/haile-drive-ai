@@ -159,7 +159,7 @@ export function MaterialsPanel() {
           </div>
         </div>
       )}
-    </>
+    </div>
 
   );
 }
