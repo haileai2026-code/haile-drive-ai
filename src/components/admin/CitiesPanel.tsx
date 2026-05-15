@@ -11,9 +11,7 @@ const STATUS_LABELS: Record<string, string> = {
   completed: "סיים", inactive: "לא פעיל", failed: "נכשל",
 };
 
-function CitiesPage() {
-  return <AdminShell title="ערים, כיתות ותלמידים"><CitiesPanel /></AdminShell>;
-}
+
 
 export function CitiesPanel() {
   const qc = useQueryClient();
