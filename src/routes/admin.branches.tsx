@@ -1,12 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { AdminShell } from "@/components/AdminShell";
-import { BranchesPanel } from "@/components/admin/BranchesPanel";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/admin/branches")({
-  head: () => ({ meta: [{ title: "Branches — Haile Drive AI" }] }),
-  component: BranchesPage,
+  beforeLoad: () => { throw redirect({ to: "/admin/organization" }); },
 });
-
-function BranchesPage() {
-  return <AdminShell title="Branches"><BranchesPanel /></AdminShell>;
-}

@@ -86,9 +86,9 @@ function AdminOverviewContent() {
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <QuickLink to="/admin/candidates" icon={Users} title="לידים ותלמידים" desc="הוסף, ערוך, שייך לכיתה" />
         <QuickLink to="/admin/teachers" icon={UserCog} title="מורים והרשאות" desc="הענק הרשאת מורה ושייך לכיתות" />
-        <QuickLink to="/admin/classes" icon={GraduationCap} title="כיתות וקבוצות" desc="צור כיתות לפי עיר" />
+        <QuickLink to="/admin/organization" icon={GraduationCap} title="כיתות וקבוצות" desc="צור כיתות לפי עיר" />
         <QuickLink to="/admin/content" icon={FileText} title="📚 תוכן לימודי" desc="חומרי לימוד ובנק מבחנים" />
-        <QuickLink to="/admin/cities" icon={Building2} title="ערים ומסלולים" desc="ניהול סניפי הלימוד" />
+        <QuickLink to="/admin/organization" icon={Building2} title="ערים ומסלולים" desc="ניהול סניפי הלימוד" />
       </div>
 
       {announceOpen && (
