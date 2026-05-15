@@ -116,6 +116,7 @@ export function ExamsListPanel() {
           </div>
         </div>
       )}
-    </AdminShell>
+    </>
+
   );
 }
