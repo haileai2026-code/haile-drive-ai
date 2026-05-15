@@ -372,6 +372,82 @@ function DiagnosticsPage() {
             </CardContent>
           </Card>
         )}
+
+        {phase === "running" && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between text-base">
+                <span className="flex items-center gap-2">
+                  <Brain className="h-4 w-4" /> שאלה {qIndex + 1}/{STRESS_QUESTIONS.length}
+                </span>
+                <span className="text-xs text-muted-foreground">⏱ {qTimeLeft}s</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Progress
+                value={
+                  (qTimeLeft / (STRESS_TEST_CONFIG.timePerQuestionMs / 1000)) * 100
+                }
+              />
+              <p className="font-medium text-sm leading-relaxed">
+                {STRESS_QUESTIONS[qIndex].text}
+              </p>
+              <div className="space-y-2">
+                {STRESS_QUESTIONS[qIndex].options.map((opt, i) => (
+                  <Button
+                    key={i}
+                    variant="outline"
+                    className="w-full justify-start text-right"
+                    onClick={() => submitAnswer(i)}
+                  >
+                    {opt}
+                  </Button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {phase === "done" && finalScore && (
+          <Card className="border-2 border-emerald-500/40">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Trophy className="h-4 w-4 text-emerald-500" /> תוצאות BEQA
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="rounded-xl bg-gradient-to-br from-emerald-500/20 to-blue-500/10 p-4 text-center">
+                <div className="text-xs text-muted-foreground">ציון BEQA סופי</div>
+                <div className="text-4xl font-bold">{finalScore.beqa}%</div>
+                <div className="text-[10px] text-muted-foreground mt-1">
+                  (Accuracy × 0.6) + (Stability × 0.4)
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="rounded-lg bg-muted/50 p-3">
+                  <div className="text-xs text-muted-foreground">דיוק</div>
+                  <div className="font-bold">{finalScore.accuracy}%</div>
+                </div>
+                <div className="rounded-lg bg-muted/50 p-3">
+                  <div className="text-xs text-muted-foreground">יציבות</div>
+                  <div className="font-bold">{finalScore.stability}%</div>
+                </div>
+                <div className="rounded-lg bg-muted/50 p-3">
+                  <div className="text-xs text-muted-foreground">דופק מנוחה</div>
+                  <div className="font-bold">{baselineHr} BPM</div>
+                </div>
+                <div className="rounded-lg bg-muted/50 p-3">
+                  <div className="text-xs text-muted-foreground">דופק תחת סטרס</div>
+                  <div className="font-bold">{finalScore.stressHr} BPM</div>
+                </div>
+                <div className="rounded-lg bg-muted/50 p-3 col-span-2">
+                  <div className="text-xs text-muted-foreground">זמן תגובה ממוצע</div>
+                  <div className="font-bold">{finalScore.avgRt} ms</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </AppShell>
   );
