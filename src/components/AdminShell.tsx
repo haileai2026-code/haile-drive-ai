@@ -20,7 +20,7 @@ const NAV: NavItem[] = [
   { to: "/admin/ai-agent", icon: Bot, label: "🤖 סוכן AI", roles: ["owner"] },
   { to: "/admin/candidates", icon: Users, label: "תלמידים ומועמדים", roles: ["owner"] },
   { to: "/admin/teachers", icon: UserCog, label: "מורים והרשאות", roles: ["owner"] },
-  { to: "/admin/classes", icon: GraduationCap, label: "כיתות וקבוצות", roles: ["owner"] },
+  { to: "/admin/organization", icon: Building2, label: "🏫 ארגון", roles: ["owner"] },
   { to: "/admin/attendance", icon: ClipboardCheck, label: "ניתוח נוכחות", roles: ["owner"] },
   { to: "/admin/makeup", icon: CalendarClock, label: "השלמות שיעורים", roles: ["owner"] },
   { to: "/admin/schedule", icon: CalendarClock, label: "לוז שיעורים ומבחנים", roles: ["owner"] },
