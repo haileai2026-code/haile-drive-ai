@@ -116,7 +116,7 @@ export function ExamsListPanel() {
           </div>
         </div>
       )}
-    </>
+    </div>
 
   );
 }
