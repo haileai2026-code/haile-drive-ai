@@ -449,6 +449,16 @@ function DiagnosticsPage() {
                 </CardContent>
               </Card>
             </div>
+            <Card>
+              <CardContent className="grid grid-cols-3 gap-2 p-3 text-[10px] text-muted-foreground">
+                <div><span className="block text-foreground">{bioDiagnostics.fps}</span> FPS</div>
+                <div><span className="block text-foreground">{bioDiagnostics.samplesInWindow}</span> דגימות</div>
+                <div><span className="block text-foreground">{Math.round(bioDiagnostics.skinRatio * 100)}%</span> ROI עור</div>
+                <div><span className="block text-foreground">{bioDiagnostics.meanGreen?.toFixed(1) ?? "—"}</span> Green</div>
+                <div><span className="block text-foreground">{bioDiagnostics.brightness?.toFixed(1) ?? "—"}</span> תאורה</div>
+                <div><span className="block text-foreground">{bioDiagnostics.motion?.toFixed(2) ?? "—"}</span> תנועה</div>
+              </CardContent>
+            </Card>
           </>
         )}
 
