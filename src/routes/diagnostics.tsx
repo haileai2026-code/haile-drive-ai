@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Camera, Heart, Play, Square, Activity, Brain, Trophy } from "lucide-react";
 import { AppShell } from "@/components/AppShell";

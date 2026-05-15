@@ -20,6 +20,7 @@ import { Route as LanguageRouteImport } from './routes/language'
 import { Route as DiagnosticsRouteImport } from './routes/diagnostics'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CommunityRouteImport } from './routes/community'
+import { Route as BeqaHistoryRouteImport } from './routes/beqa-history'
 import { Route as AiRouteImport } from './routes/ai'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -100,6 +101,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const CommunityRoute = CommunityRouteImport.update({
   id: '/community',
   path: '/community',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BeqaHistoryRoute = BeqaHistoryRouteImport.update({
+  id: '/beqa-history',
+  path: '/beqa-history',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AiRoute = AiRouteImport.update({
@@ -239,6 +245,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/ai': typeof AiRoute
+  '/beqa-history': typeof BeqaHistoryRoute
   '/community': typeof CommunityRoute
   '/dashboard': typeof DashboardRoute
   '/diagnostics': typeof DiagnosticsRoute
@@ -278,6 +285,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/ai': typeof AiRoute
+  '/beqa-history': typeof BeqaHistoryRoute
   '/community': typeof CommunityRoute
   '/dashboard': typeof DashboardRoute
   '/diagnostics': typeof DiagnosticsRoute
@@ -318,6 +326,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/ai': typeof AiRoute
+  '/beqa-history': typeof BeqaHistoryRoute
   '/community': typeof CommunityRoute
   '/dashboard': typeof DashboardRoute
   '/diagnostics': typeof DiagnosticsRoute
@@ -359,6 +368,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/ai'
+    | '/beqa-history'
     | '/community'
     | '/dashboard'
     | '/diagnostics'
@@ -398,6 +408,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/ai'
+    | '/beqa-history'
     | '/community'
     | '/dashboard'
     | '/diagnostics'
@@ -437,6 +448,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/ai'
+    | '/beqa-history'
     | '/community'
     | '/dashboard'
     | '/diagnostics'
@@ -477,6 +489,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   AiRoute: typeof AiRoute
+  BeqaHistoryRoute: typeof BeqaHistoryRoute
   CommunityRoute: typeof CommunityRoute
   DashboardRoute: typeof DashboardRoute
   DiagnosticsRoute: typeof DiagnosticsRoute
@@ -568,6 +581,13 @@ declare module '@tanstack/react-router' {
       path: '/community'
       fullPath: '/community'
       preLoaderRoute: typeof CommunityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/beqa-history': {
+      id: '/beqa-history'
+      path: '/beqa-history'
+      fullPath: '/beqa-history'
+      preLoaderRoute: typeof BeqaHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ai': {
@@ -849,6 +869,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   AiRoute: AiRoute,
+  BeqaHistoryRoute: BeqaHistoryRoute,
   CommunityRoute: CommunityRoute,
   DashboardRoute: DashboardRoute,
   DiagnosticsRoute: DiagnosticsRoute,
