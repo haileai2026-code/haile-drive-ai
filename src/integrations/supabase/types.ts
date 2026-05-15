@@ -147,6 +147,7 @@ export type Database = {
           id: string
           language: string | null
           notes: string | null
+          payment_status: string
           phone: string | null
           status: Database["public"]["Enums"]["candidate_status"]
           tags: string[] | null
@@ -162,6 +163,7 @@ export type Database = {
           id?: string
           language?: string | null
           notes?: string | null
+          payment_status?: string
           phone?: string | null
           status?: Database["public"]["Enums"]["candidate_status"]
           tags?: string[] | null
@@ -177,6 +179,7 @@ export type Database = {
           id?: string
           language?: string | null
           notes?: string | null
+          payment_status?: string
           phone?: string | null
           status?: Database["public"]["Enums"]["candidate_status"]
           tags?: string[] | null
@@ -958,7 +961,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "owner" | "staff" | "teacher" | "student"
+      app_role: "owner" | "staff" | "teacher" | "student" | "lead"
       attendance_mark: "present" | "late" | "missing" | "makeup_completed"
       candidate_status:
         | "new_lead"
@@ -1107,7 +1110,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["owner", "staff", "teacher", "student"],
+      app_role: ["owner", "staff", "teacher", "student", "lead"],
       attendance_mark: ["present", "late", "missing", "makeup_completed"],
       candidate_status: [
         "new_lead",
