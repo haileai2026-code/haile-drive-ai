@@ -796,11 +796,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      current_user_in_class: { Args: { _class_id: string }; Returns: boolean }
-      current_user_matches_candidate: {
-        Args: { _candidate_id: string }
-        Returns: boolean
-      }
       get_primary_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
