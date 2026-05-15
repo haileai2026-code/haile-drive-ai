@@ -95,14 +95,34 @@ function DiagnosticsPage() {
   useEffect(() => () => { engineRef.current?.stop(); }, []);
 
   const requestCamera = async () => {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      toast.error("הדפדפן לא תומך במצלמה. נסה Chrome/Safari עדכני.");
+      return;
+    }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user", width: 640, height: 480, frameRate: { ideal: 30 } },
         audio: false,
       });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
+      // mount the <video> element first, then attach the stream
+      setPhase("idle");
+      await new Promise<void>((r) => requestAnimationFrame(() => r()));
+      // wait up to ~1s for ref to mount
+      for (let i = 0; i < 30 && !videoRef.current; i++) {
+        await new Promise<void>((r) => requestAnimationFrame(() => r()));
+      }
+      if (!videoRef.current) {
+        stream.getTracks().forEach((t) => t.stop());
+        toast.error("לא ניתן לאתחל את תצוגת הוידאו");
+        return;
+      }
+      videoRef.current.srcObject = stream;
+      videoRef.current.muted = true;
+      videoRef.current.playsInline = true;
+      try {
         await videoRef.current.play();
+      } catch (playErr) {
+        console.warn("video.play() failed, will retry on user gesture", playErr);
       }
       const engine = new RppgEngine();
       engineRef.current = engine;
