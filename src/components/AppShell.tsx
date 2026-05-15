@@ -48,7 +48,7 @@ export function AppShell({
           </Link>
           <div className="flex items-center gap-2">
             <LangSwitcher />
-            <button onClick={signOut} className="rounded-lg p-2 text-muted-foreground hover:bg-accent" title="Sign out">
+            <button onClick={signOut} className="grid h-11 w-11 place-items-center rounded-lg text-muted-foreground hover:bg-accent" title="Sign out" aria-label="Sign out">
               <LogOut className="h-4 w-4" />
             </button>
           </div>
