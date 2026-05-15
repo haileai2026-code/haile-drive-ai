@@ -198,6 +198,15 @@ function CandidatesPage() {
                   )}
                 </td>
                 <td className="px-3 py-3">
+                  <button
+                    onClick={() => beqaMut.mutate({ candidate_id: c.id, beqa_access: !c.beqa_access })}
+                    title={c.beqa_access ? "בטל גישת BEQA" : "אפשר גישת BEQA"}
+                    className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] transition ${c.beqa_access ? "border-violet-500/40 bg-violet-500/10 text-violet-300 hover:bg-violet-500/20" : "border-border/50 bg-background/40 text-muted-foreground hover:border-violet-500/30"}`}
+                  >
+                    {c.beqa_access ? "🧬 BEQA" : "🔒 ללא"}
+                  </button>
+                </td>
+                <td className="px-3 py-3">
                   <div className="flex justify-end gap-1">
                     <button onClick={() => setFolderFor(c)} title="תיק נהג" className="rounded-md p-1.5 text-gold hover:bg-gold/10"><FolderOpen className="h-3.5 w-3.5" /></button>
                     <button onClick={() => setEditing(c)} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent"><Pencil className="h-3.5 w-3.5" /></button>
