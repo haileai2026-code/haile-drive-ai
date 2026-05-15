@@ -302,15 +302,19 @@ function SchedulePage() {
               />
             </label>
 
-            <label className="block text-xs">כיתה
+            <label className="block text-xs">כיתה <span className="text-rose-400">*</span>
               <select
                 value={editing.class_id ?? ""}
                 onChange={(e) => setEditing({ ...editing, class_id: e.target.value || null })}
+                required
                 className="mt-1 h-10 w-full rounded-lg border border-border/60 bg-background px-3 text-sm"
               >
-                <option value="">— ללא —</option>
+                <option value="">— בחר כיתה —</option>
                 {classes?.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
+              <span className="mt-1 block text-[11px] text-muted-foreground">
+                בלי כיתה — אף סטודנט לא יראה את השיעור.
+              </span>
             </label>
 
             {editing.type === "exam" && (
