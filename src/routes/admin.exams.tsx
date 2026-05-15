@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminLoading, AdminShell } from "@/components/AdminShell";
@@ -9,19 +9,13 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/exams")({
   head: () => ({ meta: [{ title: "מבחנים — Haile Drive AI" }] }),
-  component: ExamsPage,
+  beforeLoad: ({ location }) => {
+    if (location.pathname === "/admin/exams" || location.pathname === "/admin/exams/") {
+      throw redirect({ to: "/admin/content" });
+    }
+  },
+  component: () => <Outlet />,
 });
-
-function ExamsPage() {
-  const location = useLocation();
-  if (location.pathname !== "/admin/exams") return <Outlet />;
-
-  return (
-    <AdminShell title="בנק מבחנים">
-      <ExamsListPanel />
-    </AdminShell>
-  );
-}
 
 export function ExamsListPanel() {
   const qc = useQueryClient();

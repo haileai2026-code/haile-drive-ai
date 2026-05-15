@@ -1,12 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { AdminShell } from "@/components/AdminShell";
-import { CitiesPanel } from "@/components/admin/CitiesPanel";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/admin/cities")({
-  head: () => ({ meta: [{ title: "ערים — Haile Drive AI" }] }),
-  component: CitiesPage,
+  beforeLoad: () => { throw redirect({ to: "/admin/organization" }); },
 });
-
-function CitiesPage() {
-  return <AdminShell title="ערים, כיתות ותלמידים"><CitiesPanel /></AdminShell>;
-}
