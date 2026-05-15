@@ -1,78 +1,55 @@
-## תוכנית: ניקוי נתוני דמו + ביקורת אבטחה
+# תוכנית — סוכן AI לבעלים `/admin/ai-agent`
 
-### חלק 1 — ניקוי כל נתוני הדמו
+## 1. Secret
+- בקשה מהמשתמש להוסיף `ANTHROPIC_API_KEY` (דרך `add_secret`) — חובה לפני הפעלה.
+- מודל: `claude-haiku-4-5` (Anthropic Messages API ישירות, לא דרך Lovable Gateway — Gateway לא תומך ב-Claude).
 
-**קבצים שמכילים נתונים מדומים (יוסרו / יוחלפו):**
+## 2. Server function — `src/lib/ai-agent.functions.ts`
+`aiAgentChat` (POST) עם `requireSupabaseAuth` + בדיקת role=`owner` (אחרת 403).
 
-1. `src/lib/mock-data.ts` — מכיל `lessons[]` ו-`sampleQuestions[]` קשיחים.
-   - **פעולה:** למחוק את כל המערכים. להשאיר רק את הטיפוסים (`Lesson`, `QuizQuestion`, `Localized`) כי הם בשימוש על ידי הקוד.
-   - להשאיר ייצוא של מערכים ריקים (`export const lessons: Lesson[] = []`) כדי לא לשבור imports.
+קלט (Zod):
+- `message: string` (1..4000)
+- `history: Array<{role:'user'|'assistant', content:string}>` (max 30)
 
-2. `src/lib/ops-data.ts` — מכיל `staff`, `classes`, `candidates`, `attendanceToday`, `makeupQueue`, `notifications` קשיחים.
-   - **פעולה:** למחוק את כל ה-seeds. להשאיר טיפוסים + helpers (cityName/className/teacherName יחזירו את ה-id אם אין match).
-   - מערכי seed יהפכו למערכים ריקים.
+זרימה:
+1. **שליפת snapshot מצומצם** (read-only, service-role דרך client.server, אבל רק אחרי בדיקת owner) — מספרים בלבד, לא PII מיותר:
+   - מועמדים: count לפי `status`, count לפי `city_id`, רשימת 20 אחרונים (שם/סטטוס/עיר/עדכון אחרון)
+   - כיתות: count + שמות
+   - exam_results: count, ממוצע ציון, % עוברים (passed=true)
+   - feedback_reports: count לפי status
+   - contact_messages: count `is_read=false`
+   - attendance: % נוכחות 30 ימים אחרונים
+2. בנה system prompt עם ה-snapshot כ-JSON קומפקטי + ההנחיות שהמשתמש סיפק.
+3. POST ל-`https://api.anthropic.com/v1/messages` עם `x-api-key`, `anthropic-version: 2023-06-01`, model=`claude-haiku-4-5`, max_tokens=1024, system+messages.
+4. טיפול שגיאות: 401/429/402/אחר → `{error, text:''}`.
+5. החזר `{text}`.
 
-3. `src/lib/data-store.tsx` — `localStorage` store עם `seedCities`, `seedBranches`, `seedCandidates`.
-   - **פעולה:** לרוקן את ה-seeds. ה-store עדיין יעבוד אבל יתחיל ריק.
-   - להוסיף ניקוי חד פעמי של `localStorage["hda.store.v1"]` הישן (גרסה v2) כדי שמשתמשים שכבר טענו את ה-demo יקבלו state נקי.
+הערה: בגרסה ראשונה הסוכן **קורא בלבד** ועונה בטקסט. פעולות עדכון ("עדכן את X לשלב Test") יוסברו כהוראה למשתמש לבצע ידנית — מניעת סיכוני אבטחה. אם תרצה כתיבה אמיתית בעתיד — נוסיף tool-calling עם אישור.
 
-4. **דפים שמשתמשים ב-mock data — יוחלפו ל-Supabase או למצב ריק:**
+## 3. דף — `src/routes/admin.ai-agent.tsx`
+- עטוף ב-`AdminShell` עם `roles=["owner"]`, title "🤖 סוכן AI".
+- State: `messages`, `input`, `loading`.
+- 3 כפתורי quick action שממלאים input ושולחים: "דוח יומי" / "מועמדים ממתינים" / "סיכום pipeline".
+- Chat bubbles: user (זהב מימין) / assistant (כרטיס שחור משמאל) — RTL, מובייל-פירסט.
+- Markdown rendering לתשובות (react-markdown כבר ב-deps אם קיים, אחרת טקסט פשוט עם `whitespace-pre-wrap`).
+- Typing indicator (שלוש נקודות מנצנצות) בזמן `loading`.
+- textarea + כפתור שליחה (Enter=שלח, Shift+Enter=שורה).
+- auto-scroll לתחתית.
 
-   - `src/routes/dashboard.tsx` — משתמש ב-`lessonCatalog` (מ-mock-data) להצגת "המשך בשיעור" ו"שיעורים".
-     - **פעולה:** להחליף ל-query מטבלת `materials` (הקטגוריה study) או להציג empty-state אם אין חומרים. ה-`lesson-progress` (localStorage) יישאר אבל לא יציג כלום אם אין שיעורים.
-   - `src/routes/lessons.$lessonId.tsx` — מציג שיעור מתוך `lessons[]`.
-     - **פעולה:** להחליף לטעינה מטבלת `materials` לפי id, ואם לא נמצא — empty state ידידותי.
-   - `src/routes/admin.lessons.tsx` — מציג רשימת `lessons` קשיחה.
-     - **פעולה:** להחליף ל-query על `materials` (קטגוריה study) או להפנות לדף `/admin/materials` שכבר קיים.
-   - `src/routes/quiz.tsx` — `sampleQuestions` קשיח.
-     - **פעולה:** להחליף לטעינת בחינה אמיתית מטבלת `exams` + `exam_questions` + `exam_options` (לפי exam_id ב-URL או "המבחן הזמין הראשון"). אם אין בחינות — empty state.
-   - `src/routes/admin.staff.tsx` — `staff[]` קשיח.
-     - **פעולה:** להחליף ל-query על `profiles + user_roles`. כבר יש `/admin/users` ו-`/admin/teachers` שעושים את זה — דף זה יהפוך ל-redirect או יציג רשימה אמיתית של teachers/staff.
-   - `src/routes/admin.import.tsx` ו-`src/routes/admin.export.tsx` — משתמשים ב-`useStore()` ובטיפוסי ops-data. יישארו פונקציונליים (import לתוך data-store) אבל יתחילו ריקים.
-   - `src/routes/admin.branches.tsx` — מבוסס על data-store. יישאר אבל יתחיל ריק.
+## 4. ניווט
+ב-`src/components/AdminShell.tsx` להוסיף ל-`NAV` (אחרי dashboard):
+```ts
+{ to: "/admin/ai-agent", icon: Sparkles, label: "🤖 סוכן AI", roles: ["owner"] }
+```
 
-5. **סדר פעולות לאחר הניקוי — לוודא שאין import שבור:**
-   - לרוץ TypeScript build
-   - לבדוק שכל route נטען
+## 5. עיצוב
+שחור-זהב קיים (`bg-night`, `text-gold`, `border-gold/40`) — עקבי עם שאר הפאנל.
 
-### חלק 2 — ביקורת אבטחה (Security Audit)
+## 6. בדיקה
+- ללא secret → הודעת שגיאה ידידותית "חסר ANTHROPIC_API_KEY".
+- non-owner → 403.
+- שאלה "כמה מועמדים יש לי?" → תשובה עם מספר מדויק מה-snapshot.
 
-**א. RLS על כל הטבלאות**
-   - בדקתי: כל 17 הטבלאות ב-Supabase (`candidates`, `classes`, `cities`, `materials`, `exams`, `exam_questions`, `exam_options`, `exam_results`, `attendance_records`, `makeup_assignments`, `notifications`, `schedule_events`, `teacher_assignments`, `profiles`, `user_roles`, `beqa_diagnostic_sessions`, `raw_biometric_log`, `candidate_documents`) — כולן עם RLS מופעל ועם policies סבירים.
-   - **תיקון יחיד נדרש:** ה-linter מצא warning שיש extension ב-`public` schema (לא קריטי ל-RLS, רק best practice).
+---
 
-**ב. בידוד סטודנטים**
-   - `candidates` — סטודנט רואה רק את הרשומה שלו (לפי email).
-   - `attendance_records`, `makeup_assignments`, `notifications`, `schedule_events`, `exam_results`, `beqa_diagnostic_sessions`, `raw_biometric_log` — סטודנט רואה רק את עצמו.
-   - **כולם תקינים** — אין דליפת מידע בין סטודנטים.
-
-**ג. בידוד פאנל בעלים/מורה**
-   - כל פעולת write (insert/update/delete) על טבלאות מנהל דורשת `has_role(auth.uid(), 'owner')` — סטודנט לא יכול לכתוב.
-   - הראוטים מוגנים ע"י `RequireAuth roles={["owner"]}` בצד הלקוח — **זו הגנה UX בלבד**, האכיפה האמיתית היא ב-RLS שכבר מוגדר.
-   - **תקין.**
-
-**ד. סודות בקוד הקדמי**
-   - חיפוש אחר `process.env` ב-`src/`: כל המופעים נמצאים ב-`*.functions.ts` (server functions בלבד) — `ai-chat.functions.ts`, `notifications.functions.ts`. אף סוד לא דולף ל-bundle של הדפדפן.
-   - `VITE_SUPABASE_URL` + `VITE_SUPABASE_PUBLISHABLE_KEY` בלבד נחשפים — וזה תקין (publishable key).
-   - **תקין.**
-
-**ה. אימות API calls**
-   - כל ה-server functions הרגישים משתמשים ב-`requireSupabaseAuth` middleware (כפי שראינו ב-knowledge files).
-   - ה-route `api/public/hooks/notifications-tick.ts` הוא public (cron) — ייבדק שיש לו signature/secret.
-
-**ו. שינויים אקטיביים שאעשה (Audit + Fix):**
-   1. להריץ `security--run_security_scan` ולתקן ממצאים קריטיים.
-   2. לוודא ש-`api/public/hooks/notifications-tick` דורש secret header (אם לא — להוסיף).
-   3. להעביר את ה-extension מ-`public` schema (warning של ה-linter) — אם בטוח לעשות זאת.
-
-### תוצרים סופיים
-
-- אפליקציה מתחילה במצב ריק לחלוטין מול Supabase. אין יותר "Student #1", "Air Brake Basics", או "Mekdes" מופיעים בשום מקום.
-- דשבורד / שיעורים / מבחנים מציגים empty states ידידותיים בעברית עד שבעלים מכניס תוכן אמיתי.
-- דוח אבטחה קצר עם הממצאים והתיקונים.
-
-### היקף
-
-~10 קבצים יערכו, 1 migration אופציונלי (extension move). אין שינויים בסכמה.
-
-**אשר ואני אתחיל. אם תרצה לדלג על משהו (למשל לא לגעת ב-quiz ולתת לו להישאר עם ה-sample questions לבדיקות) — תגיד.**
+**שאלה אחת לפני ביצוע:** ANTHROPIC_API_KEY עדיין לא קיים ב-secrets. אאשר ואבקש אותו ממך בתחילת הביצוע — מתאים?
