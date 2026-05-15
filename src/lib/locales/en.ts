@@ -33,6 +33,16 @@ const dict = {
   addLanguage: "Add language",
   uploadVoiceover: "Upload voiceover",
   coverage: "Coverage",
+  langBadge: "Amharic · Hebrew · English",
+  aiQuote: "Welcome — today we'll learn about air brakes.",
+  cardLessons: "Lessons",
+  cardLessonsDesc: "Air brakes, pre-trip checks, passenger safety, road signs.",
+  cardAI: "AI Teacher",
+  cardAIDesc: "Voice & chat — explains theory in simple language.",
+  cardLangs: "3 Languages",
+  cardLangsDesc: "Switch anytime — full RTL for Hebrew & Amharic.",
+  cardExam: "Exam Ready",
+  cardExamDesc: "Practice quizzes and full exam simulation.",
 };
 
 export type StringKey = keyof typeof dict;
