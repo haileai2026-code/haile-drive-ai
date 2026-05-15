@@ -55,6 +55,18 @@ const QUALITY_COLOR: Record<SignalQuality, string> = {
 
 function DiagnosticsPage() {
   const { user } = useAuth();
+  const [beqaAccess, setBeqaAccess] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (!user) { setBeqaAccess(null); return; }
+    (async () => {
+      const { data } = await supabase
+        .from("candidates")
+        .select("beqa_access")
+        .or(`id.eq.${user.id},email.eq.${user.email ?? ""}`)
+        .maybeSingle();
+      setBeqaAccess(!!data?.beqa_access);
+    })();
+  }, [user]);
   const videoRef = useRef<HTMLVideoElement>(null);
   const engineRef = useRef<RppgEngine | null>(null);
   const sessionIdRef = useRef<string | null>(null);
@@ -385,6 +397,25 @@ function DiagnosticsPage() {
     BPM: a.bpmAtAnswer ?? a.bpmAtShow ?? 0,
     "RT (ms)": a.rt,
   }));
+
+  if (user && beqaAccess === false) {
+    return (
+      <AppShell requireAuth={false}>
+        <div dir="rtl" className="mx-auto max-w-md py-12 text-center space-y-4">
+          <div className="text-5xl">🧬</div>
+          <h1 className="text-2xl font-bold">אבחון BEQA נעול</h1>
+          <p className="text-base text-muted-foreground">
+            האבחון הביומטרי זמין בתשלום נפרד. לפרטים — פנה להנהלה.
+          </p>
+          <p className="text-sm text-muted-foreground" dir="ltr" lang="am">
+            የ BEQA ምርመራ የሚገኘው በተለየ ክፍያ ነው። ለዝርዝሮች አስተዳደርን ያነጋግሩ።
+          </p>
+          <Link to="/dashboard"><Button variant="outline" className="mt-4">חזרה</Button></Link>
+        </div>
+      </AppShell>
+    );
+  }
+
 
   return (
     <AppShell requireAuth={false}>

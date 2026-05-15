@@ -139,6 +139,7 @@ export type Database = {
       candidates: {
         Row: {
           assigned_teacher_id: string | null
+          beqa_access: boolean
           city_id: string | null
           class_id: string | null
           created_at: string
@@ -155,6 +156,7 @@ export type Database = {
         }
         Insert: {
           assigned_teacher_id?: string | null
+          beqa_access?: boolean
           city_id?: string | null
           class_id?: string | null
           created_at?: string
@@ -171,6 +173,7 @@ export type Database = {
         }
         Update: {
           assigned_teacher_id?: string | null
+          beqa_access?: boolean
           city_id?: string | null
           class_id?: string | null
           created_at?: string
@@ -948,6 +951,7 @@ export type Database = {
     }
     Functions: {
       current_user_class_id: { Args: never; Returns: string }
+      current_user_has_beqa_access: { Args: never; Returns: boolean }
       get_primary_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]

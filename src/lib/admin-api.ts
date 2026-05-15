@@ -26,6 +26,7 @@ export type Candidate = {
   notes: string | null;
   tags: string[] | null;
   payment_status?: "unpaid" | "paid" | "partial" | null;
+  beqa_access?: boolean | null;
   created_at: string;
 };
 export type Material = {

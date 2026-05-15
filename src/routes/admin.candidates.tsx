@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { AdminLoading, AdminShell } from "@/components/AdminShell";
 import { adminApi, docsApi, type Candidate, type CandidateDocument } from "@/lib/admin-api";
-import { setCandidatePayment } from "@/lib/admin-users.functions";
+import { setCandidatePayment, setCandidateBeqaAccess } from "@/lib/admin-users.functions";
 import { useAuth } from "@/lib/auth";
 import { Plus, Pencil, Trash2, Search, FolderOpen, Upload, FileText, X, Download, GraduationCap, UserCheck } from "lucide-react";
 import { toast } from "sonner";
@@ -54,6 +54,7 @@ function CandidatesPage() {
   const [folderFor, setFolderFor] = useState<Candidate | null>(null);
   const [importing, setImporting] = useState(false);
   const setPaymentFn = useServerFn(setCandidatePayment);
+  const setBeqaFn = useServerFn(setCandidateBeqaAccess);
 
   const candidatesQ = useQuery({ queryKey: ["candidates"], queryFn: () => adminApi.listCandidates(), enabled: canQuery });
   const citiesQ = useQuery({ queryKey: ["cities"], queryFn: adminApi.listCities, enabled: canQuery });
@@ -74,6 +75,13 @@ function CandidatesPage() {
     mutationFn: (vars: { candidate_id: string; payment_status: "unpaid" | "paid" | "partial" }) =>
       setPaymentFn({ data: vars }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["candidates"] }); toast.success("עודכן"); },
+    onError: (e: any) => toast.error(e.message ?? "עדכון נכשל"),
+  });
+
+  const beqaMut = useMutation({
+    mutationFn: (vars: { candidate_id: string; beqa_access: boolean }) =>
+      setBeqaFn({ data: vars }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["candidates"] }); toast.success("גישת BEQA עודכנה"); },
     onError: (e: any) => toast.error(e.message ?? "עדכון נכשל"),
   });
 
@@ -147,12 +155,13 @@ function CandidatesPage() {
               <th className="px-3 py-2">שפה</th>
               <th className="px-3 py-2">סטטוס</th>
               <th className="px-3 py-2">תשלום</th>
+              <th className="px-3 py-2">BEQA</th>
               <th className="px-3 py-2"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border/40">
-            {isLoading && <tr><td colSpan={8} className="px-3 py-10 text-center text-muted-foreground">טוען נתונים חיים…</td></tr>}
-            {!isLoading && filtered.length === 0 && <tr><td colSpan={8} className="px-3 py-10 text-center text-muted-foreground">אין רשומות</td></tr>}
+            {isLoading && <tr><td colSpan={9} className="px-3 py-10 text-center text-muted-foreground">טוען נתונים חיים…</td></tr>}
+            {!isLoading && filtered.length === 0 && <tr><td colSpan={9} className="px-3 py-10 text-center text-muted-foreground">אין רשומות</td></tr>}
             {filtered.map((c) => (
               <tr key={c.id} className="hover:bg-accent/30">
                 <td className="px-3 py-3 font-semibold">{c.full_name}</td>
@@ -187,6 +196,15 @@ function CandidatesPage() {
                       <UserCheck className="h-3 w-3" /> הפוך לסטודנט
                     </button>
                   )}
+                </td>
+                <td className="px-3 py-3">
+                  <button
+                    onClick={() => beqaMut.mutate({ candidate_id: c.id, beqa_access: !c.beqa_access })}
+                    title={c.beqa_access ? "בטל גישת BEQA" : "אפשר גישת BEQA"}
+                    className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] transition ${c.beqa_access ? "border-violet-500/40 bg-violet-500/10 text-violet-300 hover:bg-violet-500/20" : "border-border/50 bg-background/40 text-muted-foreground hover:border-violet-500/30"}`}
+                  >
+                    {c.beqa_access ? "🧬 BEQA" : "🔒 ללא"}
+                  </button>
                 </td>
                 <td className="px-3 py-3">
                   <div className="flex justify-end gap-1">
@@ -245,6 +263,10 @@ function CandidatesPage() {
                 </Field>
               </div>
               <Field label="הערות"><textarea value={editing.notes ?? ""} onChange={(e) => setEditing({ ...editing, notes: e.target.value })} className="inp min-h-[80px]" /></Field>
+              <label className="flex items-center gap-2 rounded-lg border border-violet-500/30 bg-violet-500/5 p-2 text-sm cursor-pointer">
+                <input type="checkbox" checked={!!(editing as any).beqa_access} onChange={(e) => setEditing({ ...editing, beqa_access: e.target.checked } as any)} />
+                <span>🧬 גישה לאבחון BEQA (תשלום נפרד)</span>
+              </label>
 
               <div className="flex justify-end gap-2 pt-2">
                 <button type="button" onClick={() => setEditing(null)} className="rounded-lg border border-border/60 px-4 py-2 text-sm">ביטול</button>
