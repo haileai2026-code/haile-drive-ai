@@ -77,7 +77,7 @@ export function CitiesPanel() {
                   {cityClasses.length === 0 && (
                     <div className="flex items-center justify-between rounded-xl border border-dashed border-border/60 p-3 text-sm text-muted-foreground">
                       <span>אין כיתות בעיר זו</span>
-                      <Link to="/admin/classes" className="rounded-lg border border-border/60 bg-background/40 px-3 py-1.5 text-xs">פתח כיתה חדשה</Link>
+                      <Link to="/admin/organization" className="rounded-lg border border-border/60 bg-background/40 px-3 py-1.5 text-xs">פתח כיתה חדשה</Link>
                     </div>
                   )}
                   <div className="space-y-2">

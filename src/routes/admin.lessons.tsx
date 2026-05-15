@@ -42,7 +42,7 @@ function LessonsAdmin() {
     <AdminShell title="ניהול שיעורים">
       <div className="flex flex-wrap items-center gap-2">
         <Link
-          to="/admin/materials"
+          to="/admin/content"
           className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-gold px-4 text-sm font-semibold text-gold-foreground"
         >
           <Plus className="h-4 w-4" /> נהל חומרי לימוד
@@ -57,7 +57,7 @@ function LessonsAdmin() {
         <div className="mt-4 rounded-2xl border border-dashed border-border/60 bg-card/40 p-8 text-center text-sm text-muted-foreground">
           <FileText className="mx-auto h-6 w-6 text-muted-foreground" />
           <div className="mt-2">עדיין לא הועלו שיעורים.</div>
-          <Link to="/admin/materials" className="mt-3 inline-block text-xs text-gold">
+          <Link to="/admin/content" className="mt-3 inline-block text-xs text-gold">
             עבור ל"חומרי לימוד" כדי להעלות
           </Link>
         </div>
