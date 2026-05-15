@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Camera, Heart, Play, Square, Activity } from "lucide-react";
+import { Camera, Heart, Play, Square, Activity, Brain, Trophy } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { RppgSimulator, type BiometricSample } from "@/lib/rppg-sdk";
+import { STRESS_QUESTIONS, STRESS_TEST_CONFIG, calculateBeqaScore } from "@/lib/beqa-questions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/diagnostics")({
