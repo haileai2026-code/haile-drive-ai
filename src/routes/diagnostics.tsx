@@ -197,6 +197,9 @@ function DiagnosticsPage() {
   const stopAll = () => {
     engineRef.current?.stop();
     engineRef.current = null;
+    sessionIdRef.current = null;
+    calibBpms.current = [];
+    stressBpms.current = [];
     setCameraReady(false);
     setPhase("idle");
     setBpm(null);
@@ -204,6 +207,11 @@ function DiagnosticsPage() {
     setQuality("none");
     setFaceDetected(false);
     setCalibProgress(0);
+    setBaselineHr(null);
+    setBaselineHrv(null);
+    setAnswers([]);
+    setFinalScore(null);
+    setBioDiagnostics({ fps: 0, meanGreen: null, brightness: null, skinRatio: 0, motion: null, samplesInWindow: 0 });
   };
 
   // ---- Stress test ----
@@ -218,7 +226,7 @@ function DiagnosticsPage() {
     setQIndex(0);
     setPhase("running");
 
-    engineRef.current.onPulse(async (pulse) => {
+    const offStressPulse = engineRef.current.onPulse(async (pulse) => {
       stressBpms.current.push(pulse.bpm);
       await supabase.from("raw_biometric_log").insert({
         session_id: sessionIdRef.current!,
@@ -233,6 +241,7 @@ function DiagnosticsPage() {
         },
       });
     });
+    stressPulseUnsubRef.current = offStressPulse;
 
     showQuestion(0);
   };
