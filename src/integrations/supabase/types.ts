@@ -53,13 +53,18 @@ export type Database = {
       beqa_diagnostic_sessions: {
         Row: {
           accuracy_score: number | null
+          answers: Json
+          assessment_type: string
           baseline_hr: number | null
+          community_type: string | null
           created_at: string
           end_time: string | null
           final_beqa_score: number | null
           id: string
           metadata: Json
+          psychological_score: number | null
           reaction_time_avg: number | null
+          recommendation: string | null
           start_time: string
           stress_hr: number | null
           student_id: string
@@ -67,13 +72,18 @@ export type Database = {
         }
         Insert: {
           accuracy_score?: number | null
+          answers?: Json
+          assessment_type?: string
           baseline_hr?: number | null
+          community_type?: string | null
           created_at?: string
           end_time?: string | null
           final_beqa_score?: number | null
           id?: string
           metadata?: Json
+          psychological_score?: number | null
           reaction_time_avg?: number | null
+          recommendation?: string | null
           start_time?: string
           stress_hr?: number | null
           student_id: string
@@ -81,13 +91,18 @@ export type Database = {
         }
         Update: {
           accuracy_score?: number | null
+          answers?: Json
+          assessment_type?: string
           baseline_hr?: number | null
+          community_type?: string | null
           created_at?: string
           end_time?: string | null
           final_beqa_score?: number | null
           id?: string
           metadata?: Json
+          psychological_score?: number | null
           reaction_time_avg?: number | null
+          recommendation?: string | null
           start_time?: string
           stress_hr?: number | null
           student_id?: string
