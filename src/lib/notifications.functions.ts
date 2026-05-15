@@ -67,11 +67,8 @@ function adminSb() {
   return createClient(url, key, { auth: { persistSession: false } });
 }
 
-/** Process all pending notifications whose scheduled_at <= now(). */
-export const processPendingNotifications = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-  await requireOwnerOrStaff(context);
+/** Internal worker — runs the queue with admin privileges. Caller must enforce auth. */
+export async function runPendingNotifications() {
   const sb = adminSb();
   const nowIso = new Date().toISOString();
   const { data: rows, error } = await sb
@@ -105,7 +102,15 @@ export const processPendingNotifications = createServerFn({ method: "POST" })
     }
   }
   return { processed: rows?.length ?? 0, sent, failed };
-});
+}
+
+/** Process all pending notifications whose scheduled_at <= now(). */
+export const processPendingNotifications = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireOwnerOrStaff(context);
+    return runPendingNotifications();
+  });
 
 /** Send a single notification immediately (manual). */
 export const sendNotificationNow = createServerFn({ method: "POST" })
