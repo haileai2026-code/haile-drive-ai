@@ -405,12 +405,17 @@ function DiagnosticsPage() {
           <div className="text-5xl">🧬</div>
           <h1 className="text-2xl font-bold">אבחון BEQA נעול</h1>
           <p className="text-base text-muted-foreground">
-            האבחון הביומטרי זמין בתשלום נפרד. לפרטים — פנה להנהלה.
+            האבחון הביומטרי זמין בתשלום של 1,200 ₪. לרכישה — פנה להנהלה או שלח הודעה דרך פורטל הקהילה.
           </p>
-          <p className="text-sm text-muted-foreground" dir="ltr" lang="am">
-            የ BEQA ምርመራ የሚገኘው በተለየ ክፍያ ነው። ለዝርዝሮች አስተዳደርን ያነጋግሩ።
+          <p className="text-sm text-muted-foreground" lang="am">
+            የ BEQA ምርመራ ዋጋ 1,200 ₪ ነው። ለመግዛት — አስተዳደሩን ያነጋግሩ።
           </p>
-          <Link to="/dashboard"><Button variant="outline" className="mt-4">חזרה</Button></Link>
+          <div className="flex flex-col gap-2 pt-2">
+            <Link to="/community" search={{ tab: "contact" } as any}>
+              <Button className="w-full">📩 פנה להנהלה</Button>
+            </Link>
+            <Link to="/dashboard"><Button variant="outline" className="w-full">חזרה</Button></Link>
+          </div>
         </div>
       </AppShell>
     );
