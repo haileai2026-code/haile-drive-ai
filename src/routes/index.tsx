@@ -80,7 +80,7 @@ function Landing() {
             {[
               { n: "120+", l: t("lessons") },
               { n: "AI", l: t("aiTeacher") },
-              { n: "RTL", l: "Amharic / עברית" },
+              { n: "RTL", l: t("cardLangs") },
             ].map((s) => (
               <div key={s.l} className="rounded-2xl border border-border/60 bg-card/40 p-3">
                 <dt className="text-xl font-black text-gold">{s.n}</dt>
