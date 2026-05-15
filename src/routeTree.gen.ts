@@ -46,6 +46,7 @@ import { Route as AdminCandidatesRouteImport } from './routes/admin.candidates'
 import { Route as AdminBranchesRouteImport } from './routes/admin.branches'
 import { Route as AdminBeqaRouteImport } from './routes/admin.beqa'
 import { Route as AdminAttendanceRouteImport } from './routes/admin.attendance'
+import { Route as AdminAiAgentRouteImport } from './routes/admin.ai-agent'
 import { Route as AdminExamsExamIdRouteImport } from './routes/admin.exams.$examId'
 import { Route as AdminAttendanceDrilldownRouteImport } from './routes/admin.attendance.drilldown'
 import { Route as ApiPublicHooksNotificationsTickRouteImport } from './routes/api/public/hooks/notifications-tick'
@@ -235,6 +236,11 @@ const AdminAttendanceRoute = AdminAttendanceRouteImport.update({
   path: '/attendance',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAiAgentRoute = AdminAiAgentRouteImport.update({
+  id: '/ai-agent',
+  path: '/ai-agent',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminExamsExamIdRoute = AdminExamsExamIdRouteImport.update({
   id: '/$examId',
   path: '/$examId',
@@ -269,6 +275,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/schedule': typeof ScheduleRoute
   '/teacher': typeof TeacherRouteWithChildren
+  '/admin/ai-agent': typeof AdminAiAgentRoute
   '/admin/attendance': typeof AdminAttendanceRouteWithChildren
   '/admin/beqa': typeof AdminBeqaRoute
   '/admin/branches': typeof AdminBranchesRoute
@@ -311,6 +318,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/schedule': typeof ScheduleRoute
   '/teacher': typeof TeacherRouteWithChildren
+  '/admin/ai-agent': typeof AdminAiAgentRoute
   '/admin/attendance': typeof AdminAttendanceRouteWithChildren
   '/admin/beqa': typeof AdminBeqaRoute
   '/admin/branches': typeof AdminBranchesRoute
@@ -354,6 +362,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/schedule': typeof ScheduleRoute
   '/teacher': typeof TeacherRouteWithChildren
+  '/admin/ai-agent': typeof AdminAiAgentRoute
   '/admin/attendance': typeof AdminAttendanceRouteWithChildren
   '/admin/beqa': typeof AdminBeqaRoute
   '/admin/branches': typeof AdminBranchesRoute
@@ -398,6 +407,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/schedule'
     | '/teacher'
+    | '/admin/ai-agent'
     | '/admin/attendance'
     | '/admin/beqa'
     | '/admin/branches'
@@ -440,6 +450,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/schedule'
     | '/teacher'
+    | '/admin/ai-agent'
     | '/admin/attendance'
     | '/admin/beqa'
     | '/admin/branches'
@@ -482,6 +493,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/schedule'
     | '/teacher'
+    | '/admin/ai-agent'
     | '/admin/attendance'
     | '/admin/beqa'
     | '/admin/branches'
@@ -789,6 +801,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAttendanceRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/ai-agent': {
+      id: '/admin/ai-agent'
+      path: '/ai-agent'
+      fullPath: '/admin/ai-agent'
+      preLoaderRoute: typeof AdminAiAgentRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/exams/$examId': {
       id: '/admin/exams/$examId'
       path: '/$examId'
@@ -838,6 +857,7 @@ const AdminExamsRouteWithChildren = AdminExamsRoute._addFileChildren(
 )
 
 interface AdminRouteChildren {
+  AdminAiAgentRoute: typeof AdminAiAgentRoute
   AdminAttendanceRoute: typeof AdminAttendanceRouteWithChildren
   AdminBeqaRoute: typeof AdminBeqaRoute
   AdminBranchesRoute: typeof AdminBranchesRoute
@@ -861,6 +881,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAiAgentRoute: AdminAiAgentRoute,
   AdminAttendanceRoute: AdminAttendanceRouteWithChildren,
   AdminBeqaRoute: AdminBeqaRoute,
   AdminBranchesRoute: AdminBranchesRoute,
