@@ -13,6 +13,14 @@ export const Route = createFileRoute("/admin/materials")({
 });
 
 function MaterialsPage() {
+  return (
+    <AdminShell title="חומרי לימוד והעשרה">
+      <MaterialsPanel />
+    </AdminShell>
+  );
+}
+
+export function MaterialsPanel() {
   const qc = useQueryClient();
   const { user, loading } = useAuth();
   const canQuery = !loading && !!user;
