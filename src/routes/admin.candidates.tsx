@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { AdminLoading, AdminShell } from "@/components/AdminShell";
 import { adminApi, docsApi, type Candidate, type CandidateDocument } from "@/lib/admin-api";
+import { setCandidatePayment } from "@/lib/admin-users.functions";
 import { useAuth } from "@/lib/auth";
-import { Plus, Pencil, Trash2, Search, FolderOpen, Upload, FileText, X, Download } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, FolderOpen, Upload, FileText, X, Download, GraduationCap, UserCheck } from "lucide-react";
 import { toast } from "sonner";
 import { ImportStudentsModal } from "@/components/admin/ImportStudentsModal";
 
