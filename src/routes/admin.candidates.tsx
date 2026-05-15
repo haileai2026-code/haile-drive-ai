@@ -46,12 +46,14 @@ function CandidatesPage() {
   const qc = useQueryClient();
   const { user, loading } = useAuth();
   const canQuery = !loading && !!user;
+  const [tab, setTab] = useState<"leads" | "students">("leads");
   const [q, setQ] = useState("");
   const [statusF, setStatusF] = useState<string>("all");
   const [cityF, setCityF] = useState<string>("all");
   const [editing, setEditing] = useState<FormState | null>(null);
   const [folderFor, setFolderFor] = useState<Candidate | null>(null);
   const [importing, setImporting] = useState(false);
+  const setPaymentFn = useServerFn(setCandidatePayment);
 
   const candidatesQ = useQuery({ queryKey: ["candidates"], queryFn: () => adminApi.listCandidates(), enabled: canQuery });
   const citiesQ = useQuery({ queryKey: ["cities"], queryFn: adminApi.listCities, enabled: canQuery });
