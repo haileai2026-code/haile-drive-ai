@@ -2,16 +2,21 @@ import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CheckCircle2, RotateCcw } from "lucide-react";
 
 type Community = "ethiopian" | "russian" | "manashe";
+type Category =
+  | "motivation"
+  | "selfControl"
+  | "safety"
+  | "communication"
+  | "support"
+  | "scenario"
+  | "community";
 
 type Option = { he: string; score: number };
-type Category = "motivation" | "selfControl" | "safety" | "communication" | "support" | "scenario" | "community";
-
 type Question = {
   id: string;
   he: string;
@@ -40,7 +45,7 @@ const CORE: Question[] = [
     { he: "עוצר ומסביר בשקט", score: 3 },
     { he: "מתנצל ומנסה להרגיע", score: 4 },
   ]},
-  { id: "q3", category: "safety", he: "מצאת תקלה קטנה ברכב לפני יציאה — מה אתה עושה?", am: "ከመውጣት በፊት ትንሽ ብልሽት አገኘህ — ምን ታደርጋለህ?", options: [
+  { id: "q3", category: "safety", he: "מצאת תקלה קטנה ברכב לפני יציאה — מה אתה עושה?", am: "ትንሽ ብልሽት አገኘህ — ምን ታደርጋለህ?", options: [
     { he: "יוצא בכל זאת, זה לא חמור", score: 1 },
     { he: "מדווח אבל יוצא אם אין תשובה", score: 2 },
     { he: "מדווח ומחכה לאישור", score: 3 },
@@ -52,7 +57,7 @@ const CORE: Question[] = [
     { he: "עד 4.5 שעות לפי החוק", score: 3 },
     { he: "תלוי במצב הכביש", score: 4 },
   ]},
-  { id: "q5", category: "motivation", he: "אחרי כישלון במבחן — מה אתה עושה?", am: "ከፈተና ውድቀት በኋላ — ምን ታደርጋለህ?", options: [
+  { id: "q5", category: "motivation", he: "אחרי כישלון במבחן — מה אתה עושה?", am: "ከውድቀት በኋላ ምን ታደርጋለህ?", options: [
     { he: "מוותר, זה לא בשבילי", score: 1 },
     { he: "מחכה הרבה זמן לפני שמנסה שוב", score: 2 },
     { he: "מנסה שוב אחרי מנוחה קצרה", score: 3 },
@@ -64,13 +69,13 @@ const CORE: Question[] = [
     { he: "כן, אבל עם חששות", score: 3 },
     { he: "כן, לגמרי תומכים", score: 4 },
   ]},
-  { id: "q7", category: "communication", he: "לא הבנת הוראה בעברית — מה אתה עושה?", am: "በዕብራይስጥ መመሪያ አልተረዳህም — ምን ታደርጋለህ?", options: [
+  { id: "q7", category: "communication", he: "לא הבנת הוראה בעברית — מה אתה עושה?", am: "በዕብራይስጥ አልተረዳህም — ምን ታደርጋለህ?", options: [
     { he: "מעמיד פנים שהבנת", score: 1 },
     { he: "עושה מה שנראה לך נכון", score: 2 },
     { he: "שואל חבר לאחר מכן", score: 3 },
     { he: "מבקש הסבר מחדש מיד", score: 4 },
   ]},
-  { id: "q8", category: "motivation", he: "כמה שעות בשבוע אתה מוכן ללמוד תיאוריה?", am: "በሳምንት ስንት ሰዓት ለማጥናት ዝግጁ ነህ?", options: [
+  { id: "q8", category: "motivation", he: "כמה שעות בשבוע אתה מוכן ללמוד תיאוריה?", am: "በሳምንት ስንት ሰዓት ለማጥናት ዝግጁ?", options: [
     { he: "שעה-שעתיים", score: 1 },
     { he: "3-4 שעות", score: 2 },
     { he: "5-7 שעות", score: 3 },
@@ -82,4 +87,38 @@ const CORE: Question[] = [
     { he: "8,000-12,000 ₪", score: 3 },
     { he: "מוכן להתחיל בפחות ולצמוח", score: 4 },
   ]},
-  { id: "q10", category: "commun
+  { id: "q10", category: "communication", he: "תאר את עצמך כנהג:", am: "እራስህን እንደ ሹፌር ግለጽ:", options: [
+    { he: "מהיר ויעיל", score: 1 },
+    { he: "סבלני ומכבד", score: 3 },
+    { he: "מקצועי ובטיחותי", score: 4 },
+    { he: "אדיב ושירותי", score: 3 },
+  ]},
+];
+
+const SCENARIO: Question = {
+  id: "q_scenario", category: "scenario",
+  he: "אתה נוסע עם 40 נוסעים. שמעת צליל מוזר מהמנוע. מה אתה עושה?",
+  am: "ከ40 ተሳፋሪዎች ጋር እየነዳህ ከሞተር ያልተለመደ ድምፅ ሰማህ — ምን ታደርጋለህ?",
+  options: [
+    { he: "ממשיך — כנראה לא חמור", score: 1 },
+    { he: "מאט ומגיע לתחנה הבאה", score: 2 },
+    { he: "עוצר בצד בבטחה ומדווח", score: 4 },
+    { he: "מתקשר למנהל תוך כדי נסיעה", score: 2 },
+  ],
+};
+
+const COMMUNITY_QUESTIONS: Record<Community, Question[]> = {
+  ethiopian: [
+    { id: "e1", category: "community", tag: "חוסן", he: "אם לא עברת מבחן — מה תגיד למשפחה?", options: [
+      { he: "אסתיר את זה", score: 1 },
+      { he: "אגיד אבל אצטער מאוד", score: 2 },
+      { he: "אספר ואבקש תמיכה", score: 3 },
+      { he: "אספר ואסביר את התוכנית להמשך", score: 4 },
+    ]},
+    { id: "e2", category: "community", tag: "ערכים", he: "מישהו שאתה מכבד — מה הוא היה אומר על המקצוע הזה?", options: [
+      { he: "שזה לא מתאים לי", score: 1 },
+      { he: "שזה קשה מדי", score: 2 },
+      { he: "שזה כבוד גדול לעזור לאנשים", score: 4 },
+      { he: "שזה מקצוע טוב לפרנסה", score: 3 },
+    ]},
+    { id: "e3", category: "community", tag: "אומץ", he: "פחדת פעם מכישלון ועשית בכל זאת — איך זה ה
