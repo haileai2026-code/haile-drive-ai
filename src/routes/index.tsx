@@ -70,6 +70,12 @@ function Landing() {
             >
               Operations
             </Link>
+            <Link
+              to="/diagnostics"
+              className="inline-flex items-center gap-2 rounded-full border border-success/40 bg-card/60 px-6 py-3 text-base font-medium text-success hover:bg-card"
+            >
+              BEQA Live
+            </Link>
           </div>
 
           <dl className="grid grid-cols-3 gap-4 pt-6 text-center">

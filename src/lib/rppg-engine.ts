@@ -15,6 +15,12 @@ export type SignalSnapshot = {
   hrv: number | null;
   signalQuality: SignalQuality;
   faceDetected: boolean;
+  fps: number;
+  meanGreen: number | null;
+  brightness: number | null;
+  skinRatio: number;
+  motion: number | null;
+  samplesInWindow: number;
 };
 
 export type SignalQuality = "none" | "low" | "medium" | "high";
@@ -39,6 +45,9 @@ export class RppgEngine {
   private samples: { t: number; g: number; brightness: number }[] = [];
   private rrIntervals: number[] = []; // ms
   private peakTimestamps: number[] = []; // ms
+  private lastFrameAt = 0;
+  private lastMeanG: number | null = null;
+  private fpsTicks: number[] = [];
 
   private sampleListeners = new Set<SampleListener>();
   private pulseListeners = new Set<PulseListener>();
@@ -48,6 +57,12 @@ export class RppgEngine {
     hrv: null,
     signalQuality: "none",
     faceDetected: false,
+    fps: 0,
+    meanGreen: null,
+    brightness: null,
+    skinRatio: 0,
+    motion: null,
+    samplesInWindow: 0,
   };
 
   constructor() {
@@ -63,6 +78,9 @@ export class RppgEngine {
     this.samples = [];
     this.rrIntervals = [];
     this.peakTimestamps = [];
+    this.lastFrameAt = 0;
+    this.lastMeanG = null;
+    this.fpsTicks = [];
     this.loop();
   }
 
@@ -92,6 +110,10 @@ export class RppgEngine {
 
   private loop = () => {
     this.rafId = requestAnimationFrame(this.loop);
+    const frameNow = performance.now();
+    if (frameNow - this.lastFrameAt < 1000 / TARGET_FPS) return;
+    this.lastFrameAt = frameNow;
+
     const v = this.video;
     if (!v || !this.ctx || v.readyState < 2) return;
 
@@ -124,7 +146,12 @@ export class RppgEngine {
         this.canvas.height,
       );
       const { meanG, brightness, skinRatio } = analyzePixels(img.data);
-      const t = performance.now();
+      const t = frameNow;
+      const motion = this.lastMeanG === null ? 0 : Math.abs(meanG - this.lastMeanG);
+      this.lastMeanG = meanG;
+      this.fpsTicks.push(t);
+      const fpsCutoff = t - 1000;
+      while (this.fpsTicks.length && this.fpsTicks[0] < fpsCutoff) this.fpsTicks.shift();
 
       this.samples.push({ t, g: meanG, brightness });
       // שמור רק את חלון הניתוח האחרון
@@ -133,7 +160,7 @@ export class RppgEngine {
         this.samples.shift();
       }
 
-      const faceDetected = brightness > 30 && brightness < 230 && skinRatio > 0.15;
+      const faceDetected = brightness > 30 && brightness < 230 && skinRatio > 0.12 && motion < 8;
 
       // עיבוד DSP — צריך לפחות 3 שניות נתונים
       if (this.samples.length > TARGET_FPS * 3 && faceDetected) {
@@ -144,10 +171,25 @@ export class RppgEngine {
           hrv: null,
           signalQuality: "none",
           faceDetected: false,
+          fps: this.fpsTicks.length,
+          meanGreen: meanG,
+          brightness,
+          skinRatio,
+          motion,
+          samplesInWindow: this.samples.length,
         };
       }
 
-      this.snapshot = { ...this.snapshot, faceDetected };
+      this.snapshot = {
+        ...this.snapshot,
+        faceDetected,
+        fps: this.fpsTicks.length,
+        meanGreen: meanG,
+        brightness,
+        skinRatio,
+        motion,
+        samplesInWindow: this.samples.length,
+      };
       this.sampleListeners.forEach((l) => l(this.snapshot));
     } catch {
       // התעלם מפריימים פגומים
@@ -201,6 +243,7 @@ export class RppgEngine {
             const quality = this.assessQuality();
 
             this.snapshot = {
+              ...this.snapshot,
               bpm,
               hrv: Math.round(hrv),
               signalQuality: quality,

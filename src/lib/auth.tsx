@@ -55,15 +55,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const hydrate = async (s: Session | null) => {
     setSession(s);
     setUser(s?.user ?? null);
-    if (s?.user) {
-      const { profile, role } = await loadUserContext(s.user.id);
-      setProfile(profile);
-      setRole(role);
-    } else {
+    try {
+      if (s?.user) {
+        const { profile, role } = await loadUserContext(s.user.id);
+        setProfile(profile);
+        setRole(role);
+      } else {
+        setProfile(null);
+        setRole(null);
+      }
+    } catch (error) {
+      console.error("Failed to load user context", error);
       setProfile(null);
       setRole(null);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {

@@ -20,6 +20,15 @@ const CALIBRATION_SECONDS = 30;
 
 type Phase = "idle" | "calibrating" | "calibrated" | "running" | "done";
 
+type BioDiagnostics = {
+  fps: number;
+  meanGreen: number | null;
+  brightness: number | null;
+  skinRatio: number;
+  motion: number | null;
+  samplesInWindow: number;
+};
+
 const QUALITY_LABEL: Record<SignalQuality, string> = {
   none: "אין סיגנל",
   low: "נמוך",
@@ -40,6 +49,7 @@ function DiagnosticsPage() {
   const engineRef = useRef<RppgEngine | null>(null);
   const sessionIdRef = useRef<string | null>(null);
   const calibBpms = useRef<number[]>([]);
+  const stressPulseUnsubRef = useRef<(() => void) | null>(null);
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [bpm, setBpm] = useState<number | null>(null);
@@ -50,6 +60,14 @@ function DiagnosticsPage() {
   const [baselineHr, setBaselineHr] = useState<number | null>(null);
   const [baselineHrv, setBaselineHrv] = useState<number | null>(null);
   const [cameraReady, setCameraReady] = useState(false);
+  const [bioDiagnostics, setBioDiagnostics] = useState<BioDiagnostics>({
+    fps: 0,
+    meanGreen: null,
+    brightness: null,
+    skinRatio: 0,
+    motion: null,
+    samplesInWindow: 0,
+  });
 
   // Stress test state
   const stressBpms = useRef<number[]>([]);
@@ -89,6 +107,14 @@ function DiagnosticsPage() {
         setHrv(snap.hrv);
         setQuality(snap.signalQuality);
         setFaceDetected(snap.faceDetected);
+        setBioDiagnostics({
+          fps: snap.fps,
+          meanGreen: snap.meanGreen,
+          brightness: snap.brightness,
+          skinRatio: snap.skinRatio,
+          motion: snap.motion,
+          samplesInWindow: snap.samplesInWindow,
+        });
       });
       await engine.start(stream, videoRef.current!);
       setCameraReady(true);
@@ -170,8 +196,13 @@ function DiagnosticsPage() {
   };
 
   const stopAll = () => {
+    stressPulseUnsubRef.current?.();
+    stressPulseUnsubRef.current = null;
     engineRef.current?.stop();
     engineRef.current = null;
+    sessionIdRef.current = null;
+    calibBpms.current = [];
+    stressBpms.current = [];
     setCameraReady(false);
     setPhase("idle");
     setBpm(null);
@@ -179,6 +210,11 @@ function DiagnosticsPage() {
     setQuality("none");
     setFaceDetected(false);
     setCalibProgress(0);
+    setBaselineHr(null);
+    setBaselineHrv(null);
+    setAnswers([]);
+    setFinalScore(null);
+    setBioDiagnostics({ fps: 0, meanGreen: null, brightness: null, skinRatio: 0, motion: null, samplesInWindow: 0 });
   };
 
   // ---- Stress test ----
@@ -193,7 +229,7 @@ function DiagnosticsPage() {
     setQIndex(0);
     setPhase("running");
 
-    engineRef.current.onPulse(async (pulse) => {
+    const offStressPulse = engineRef.current.onPulse(async (pulse) => {
       stressBpms.current.push(pulse.bpm);
       await supabase.from("raw_biometric_log").insert({
         session_id: sessionIdRef.current!,
@@ -208,6 +244,7 @@ function DiagnosticsPage() {
         },
       });
     });
+    stressPulseUnsubRef.current = offStressPulse;
 
     showQuestion(0);
   };
@@ -277,6 +314,8 @@ function DiagnosticsPage() {
 
   const finishTest = async (allAnswers: { correct: boolean; rt: number; bpm: number | null }[]) => {
     if (!sessionIdRef.current || !baselineHr) return;
+    stressPulseUnsubRef.current?.();
+    stressPulseUnsubRef.current = null;
     const correctAnswers = allAnswers.filter((a) => a.correct).length;
     const stressHr = stressBpms.current.length
       ? Math.round(stressBpms.current.reduce((a, b) => a + b, 0) / stressBpms.current.length)
@@ -316,7 +355,7 @@ function DiagnosticsPage() {
   };
 
   return (
-    <AppShell>
+    <AppShell requireAuth={false}>
       <div className="space-y-4" dir="rtl">
         <div className="flex items-center justify-between">
           <div>
@@ -410,6 +449,16 @@ function DiagnosticsPage() {
                 </CardContent>
               </Card>
             </div>
+            <Card>
+              <CardContent className="grid grid-cols-3 gap-2 p-3 text-[10px] text-muted-foreground">
+                <div><span className="block text-foreground">{bioDiagnostics.fps}</span> FPS</div>
+                <div><span className="block text-foreground">{bioDiagnostics.samplesInWindow}</span> דגימות</div>
+                <div><span className="block text-foreground">{Math.round(bioDiagnostics.skinRatio * 100)}%</span> ROI עור</div>
+                <div><span className="block text-foreground">{bioDiagnostics.meanGreen?.toFixed(1) ?? "—"}</span> Green</div>
+                <div><span className="block text-foreground">{bioDiagnostics.brightness?.toFixed(1) ?? "—"}</span> תאורה</div>
+                <div><span className="block text-foreground">{bioDiagnostics.motion?.toFixed(2) ?? "—"}</span> תנועה</div>
+              </CardContent>
+            </Card>
           </>
         )}
 
