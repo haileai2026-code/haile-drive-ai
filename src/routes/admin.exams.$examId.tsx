@@ -75,7 +75,7 @@ function ExamEditor() {
   return (
     <AdminShell title={`עריכת שאלות — ${examQ.data?.title ?? ""}`}>
       <div className="mb-4 flex items-center gap-2 text-sm">
-        <Link to="/admin/exams" className="text-muted-foreground hover:text-foreground">בנק מבחנים</Link>
+        <Link to="/admin/content" className="text-muted-foreground hover:text-foreground">בנק מבחנים</Link>
         <ChevronRight className="h-3 w-3 rotate-180 text-muted-foreground" />
         <span className="font-semibold">{examQ.data?.title}</span>
       </div>
