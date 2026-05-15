@@ -355,7 +355,7 @@ function DiagnosticsPage() {
   };
 
   return (
-    <AppShell roles={["owner", "staff", "teacher", "student"]}>
+    <AppShell requireAuth={false}>
       <div className="space-y-4" dir="rtl">
         <div className="flex items-center justify-between">
           <div>
