@@ -140,9 +140,19 @@ function DiagnosticsPage() {
       setCameraReady(true);
       setPhase("idle");
       toast.success("המצלמה פעילה — מתחיל ניתוח rPPG");
-    } catch (e) {
-      console.error(e);
-      toast.error("גישה למצלמה נדחתה");
+    } catch (e: any) {
+      console.error("camera error:", e);
+      const name = e?.name || "";
+      if (name === "NotAllowedError" || name === "PermissionDeniedError") {
+        toast.error("גישה למצלמה נחסמה. אפשר אותה בהגדרות הדפדפן.");
+      } else if (name === "NotFoundError" || name === "DevicesNotFoundError") {
+        toast.error("לא נמצאה מצלמה במכשיר");
+      } else if (name === "NotReadableError") {
+        toast.error("המצלמה בשימוש על ידי אפליקציה אחרת");
+      } else {
+        toast.error(`שגיאת מצלמה: ${e?.message || name || "לא ידוע"}`);
+      }
+      setPhase("welcome");
     }
   };
 
