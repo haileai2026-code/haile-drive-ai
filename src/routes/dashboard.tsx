@@ -59,7 +59,7 @@ function formatCountdown(ms: number): string {
 }
 
 function Dashboard() {
-  const { t, lang } = useI18n();
+  const { t } = useI18n();
   const { user } = useAuth();
 
   const [beqaScore, setBeqaScore] = useState<number | null>(null);
