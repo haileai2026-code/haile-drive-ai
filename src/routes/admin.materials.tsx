@@ -159,6 +159,7 @@ export function MaterialsPanel() {
           </div>
         </div>
       )}
-    </AdminShell>
+    </>
+
   );
 }
