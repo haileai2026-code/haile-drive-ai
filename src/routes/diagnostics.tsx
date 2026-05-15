@@ -365,9 +365,9 @@ function DiagnosticsPage() {
                 </Button>
               ) : null}
               {phase === "calibrated" && (
-                <p className="text-xs text-muted-foreground">
-                  שלב 3 (מבחן תחת סטרס) ייפתח לאחר אישורך.
-                </p>
+                <Button onClick={startStressTest} variant="default" className="w-full">
+                  <Brain className="ml-2 h-4 w-4" /> התחל מבחן תחת סטרס
+                </Button>
               )}
             </CardContent>
           </Card>
