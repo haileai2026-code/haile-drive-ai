@@ -34,6 +34,16 @@ const dict: Partial<Record<StringKey, string>> = {
   addLanguage: "הוסף שפה",
   uploadVoiceover: "העלה הקלטה",
   coverage: "כיסוי",
+  langBadge: "אמהרית · עברית · אנגלית",
+  aiQuote: "ברוך הבא — היום נלמד על בלמי אוויר.",
+  cardLessons: "שיעורים",
+  cardLessonsDesc: "בלמי אוויר, בדיקות טרום־נסיעה, בטיחות נוסעים, תמרורים.",
+  cardAI: "מורה AI",
+  cardAIDesc: "קול וצ׳אט — מסביר את התאוריה בשפה פשוטה.",
+  cardLangs: "3 שפות",
+  cardLangsDesc: "החלף בכל רגע — תמיכה מלאה בעברית ואמהרית.",
+  cardExam: "מוכן למבחן",
+  cardExamDesc: "מבחני תרגול וסימולציית מבחן מלאה.",
 };
 
 export default dict;
