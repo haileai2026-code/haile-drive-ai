@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { LayoutDashboard, BookOpen, Bot, Trophy, Users, LogOut, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, BookOpen, Bot, Trophy, Users, LogOut, Activity, type LucideIcon } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { LangSwitcher } from "./LangSwitcher";
 import { RequireAuth } from "./RequireAuth";
@@ -7,22 +7,22 @@ import { useAuth, roleHomePath } from "@/lib/auth";
 import type { ReactNode } from "react";
 import type { Role } from "@/lib/ops-data";
 
-type NavItem = { to: string; icon: LucideIcon; key: "dashboard" | "lessons" | "aiTeacher" | "quiz" | "community" };
+type NavItem = { to: string; icon: LucideIcon; key?: "dashboard" | "lessons" | "aiTeacher" | "quiz" | "community"; label?: string };
 
 const items: NavItem[] = [
   { to: "/dashboard", icon: LayoutDashboard, key: "dashboard" },
   { to: "/lessons", icon: BookOpen, key: "lessons" },
   { to: "/ai", icon: Bot, key: "aiTeacher" },
   { to: "/quiz", icon: Trophy, key: "quiz" },
+  { to: "/diagnostics", icon: Activity, label: "BEQA" },
   { to: "/community", icon: Users, key: "community" },
 ];
 
-export function AppShell({ children }: { children: ReactNode }) {
+export function AppShell({ children, roles }: { children: ReactNode; roles?: Role[] }) {
   const { t } = useI18n();
   const loc = useLocation();
 
   const { signOut, role } = useAuth();
-  const roles: Role[] | undefined = role === "owner" || role === "staff" || role === "teacher" ? ["student"] : undefined;
   const homePath = roleHomePath(role);
 
   return (
@@ -46,7 +46,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main className="mx-auto max-w-screen-md px-4 py-6">{children}</main>
 
       <nav className="fixed bottom-4 left-1/2 z-40 w-[calc(100%-2rem)] max-w-screen-md -translate-x-1/2 rounded-2xl border border-border/70 bg-card/90 p-2 shadow-[var(--shadow-elev)] backdrop-blur-xl">
-        <ul className="grid grid-cols-5 gap-1">
+        <ul className="grid grid-cols-6 gap-1">
           {items.map(({ to, icon: Icon, key }) => {
             const active = loc.pathname.startsWith(to);
             return (
@@ -58,7 +58,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   }`}
                 >
                   <Icon className="h-5 w-5" />
-                  <span className="truncate">{t(key)}</span>
+                  <span className="truncate">{key ? t(key) : label}</span>
                 </Link>
               </li>
             );
