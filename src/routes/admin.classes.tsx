@@ -13,6 +13,10 @@ export const Route = createFileRoute("/admin/classes")({
 });
 
 function ClassesPage() {
+  return <AdminShell title="ניהול כיתות"><ClassesPanel /></AdminShell>;
+}
+
+export function ClassesPanel() {
   const qc = useQueryClient();
   const { user, loading } = useAuth();
   const canQuery = !loading && !!user;
@@ -38,7 +42,7 @@ function ClassesPage() {
   const loadError = classesQ.error || citiesQ.error || teachersQ.error;
 
   return (
-    <AdminShell title="ניהול כיתות">
+    <div>
       <div className="flex justify-end">
         <button onClick={() => setEditing({ name: "", capacity: 20 })} className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-gold px-4 text-sm font-semibold text-gold-foreground">
           <Plus className="h-4 w-4" /> כיתה חדשה
@@ -112,6 +116,6 @@ function ClassesPage() {
           </div>
         </div>
       )}
-    </AdminShell>
+    </div>
   );
 }

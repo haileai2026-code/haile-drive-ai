@@ -10,6 +10,10 @@ export const Route = createFileRoute("/admin/branches")({
 });
 
 function BranchesPage() {
+  return <AdminShell title="Branches"><BranchesPanel /></AdminShell>;
+}
+
+export function BranchesPanel() {
   const { branches, cities, addBranch, removeBranch, addCity } = useStore();
   const [name, setName] = useState("");
   const [cityId, setCityId] = useState("");
@@ -26,7 +30,7 @@ function BranchesPage() {
   };
 
   return (
-    <AdminShell title="Branches">
+    <div>
       <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
         <section className="rounded-2xl border border-border/60 bg-card/40 p-4">
           <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold">
@@ -88,7 +92,7 @@ function BranchesPage() {
           </div>
         </aside>
       </div>
-    </AdminShell>
+    </div>
   );
 }
 
