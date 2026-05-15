@@ -124,7 +124,19 @@ function CandidatesPage() {
                 <td className="px-3 py-3 font-semibold">{c.full_name}</td>
                 <td className="px-3 py-3 text-muted-foreground">{c.phone}</td>
                 <td className="px-3 py-3 text-muted-foreground">{cityName(c.city_id)}</td>
-                <td className="px-3 py-3 text-muted-foreground">{className(c.class_id)}</td>
+                <td className="px-3 py-3">
+                  <select
+                    value={c.class_id ?? ""}
+                    onChange={(e) => saveMut.mutate({ ...c, class_id: e.target.value || null } as any)}
+                    className="rounded-md border border-input bg-background px-2 py-1 text-xs"
+                    title="שייך לכיתה"
+                  >
+                    <option value="">— ללא כיתה —</option>
+                    {classesQ.data?.filter((cl) => !c.city_id || cl.city_id === c.city_id || !cl.city_id).map((cl) => (
+                      <option key={cl.id} value={cl.id}>{cl.name}</option>
+                    ))}
+                  </select>
+                </td>
                 <td className="px-3 py-3 text-muted-foreground">{c.language}</td>
                 <td className="px-3 py-3"><span className="rounded-full border border-gold/30 bg-gold/10 px-2 py-0.5 text-[10px] text-gold">{STATUS_LABELS[c.status] ?? c.status}</span></td>
                 <td className="px-3 py-3">
