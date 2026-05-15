@@ -2,7 +2,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, GraduationCap,
   Building2, ChevronRight, ClipboardCheck,
-  UserCog, LogOut, FileText, FileQuestion, Loader2,
+  UserCog, LogOut, FileText, Loader2,
   CalendarClock, Bell, TrendingUp, Activity, Inbox, Bot,
   type LucideIcon,
 } from "lucide-react";
