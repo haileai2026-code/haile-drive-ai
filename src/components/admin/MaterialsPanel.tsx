@@ -6,11 +6,6 @@ import { useAuth } from "@/lib/auth";
 import { Plus, Trash2, FileText, Image as ImageIcon, Link as LinkIcon, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/admin/materials")({
-  head: () => ({ meta: [{ title: "חומרי לימוד — Haile Drive AI" }] }),
-  component: MaterialsPage,
-});
-
 export function MaterialsPanel() {
   const qc = useQueryClient();
   const { user, loading } = useAuth();
