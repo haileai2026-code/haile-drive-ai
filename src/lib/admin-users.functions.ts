@@ -107,14 +107,14 @@ export const importStudents = createServerFn({ method: "POST" })
           });
           const { data: hasRole } = await supabaseAdmin
             .from("user_roles").select("id")
-            .eq("user_id", userId).eq("role", "student").maybeSingle();
+            .eq("user_id", userId).eq("role", "lead").maybeSingle();
           if (!hasRole) {
-            await supabaseAdmin.from("user_roles").insert({ user_id: userId, role: "student" });
+            await supabaseAdmin.from("user_roles").insert({ user_id: userId, role: "lead" });
           }
         }
 
         const { error: candErr } = await supabaseAdmin.from("candidates").insert({
-          full_name: s.full_name, email: s.email, class_id: data.class_id, status: "active",
+          full_name: s.full_name, email: s.email, class_id: data.class_id, status: "new_lead", payment_status: "unpaid",
         });
         if (candErr) {
           results.push({ email: s.email, full_name: s.full_name, ok: false, error: candErr.message });
