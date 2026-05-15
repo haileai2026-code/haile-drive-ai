@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { useQuery } from "@tanstack/react-query";
 import { scheduleApi, adminApi, type ScheduleEvent, type ScheduleEventType } from "@/lib/admin-api";
+import { supabase } from "@/integrations/supabase/client";
 import { BookOpen, FileQuestion, RotateCcw, CalendarClock } from "lucide-react";
 
 export const Route = createFileRoute("/schedule")({
@@ -16,8 +17,6 @@ const TYPE_META: Record<ScheduleEventType, { label: string; cls: string; Icon: a
 };
 
 function StudentSchedule() {
-  // RLS auto-filters to events matching the student's class_id (or candidate_id).
-  // Show full class schedule (past + future) so the student sees the whole year.
   const { data: events, isLoading } = useQuery({
     queryKey: ["my-schedule-all"],
     queryFn: () => scheduleApi.list({}),
@@ -27,6 +26,23 @@ function StudentSchedule() {
     queryFn: () => adminApi.listClasses(),
   });
 
+  const teacherIds = Array.from(
+    new Set((classes ?? []).map((c) => c.teacher_id).filter(Boolean) as string[]),
+  );
+  const { data: teachers } = useQuery({
+    queryKey: ["teacher-profiles", teacherIds.sort().join(",")],
+    enabled: teacherIds.length > 0,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .in("id", teacherIds);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const teacherMap = new Map((teachers ?? []).map((t) => [t.id, t.full_name]));
+
   const classMap = new Map((classes ?? []).map((c) => [c.id, c]));
   const list = events ?? [];
   const grouped = new Map<string, ScheduleEvent[]>();
@@ -35,7 +51,6 @@ function StudentSchedule() {
     grouped.get(e.event_date)!.push(e);
   });
 
-  // Detect the student's class from the data they actually see.
   const myClassId = list.find((e) => e.class_id)?.class_id ?? null;
   const myClass = myClassId ? classMap.get(myClassId) : null;
 
@@ -61,10 +76,11 @@ function StudentSchedule() {
         )}
         {Array.from(grouped.entries()).map(([date, items]) => {
           const d = new Date(date);
-          const dateLabel = d.toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+          const dateHeader = d.toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+          const shortDate = d.toLocaleDateString("he-IL", { day: "numeric", month: "numeric", year: "numeric" });
           return (
             <div key={date}>
-              <div className="mb-2 text-sm font-bold text-gold">{dateLabel}</div>
+              <div className="mb-2 text-sm font-bold text-gold">{dateHeader}</div>
               <ul className="space-y-2">
                 {items.map((ev) => {
                   const meta = TYPE_META[ev.type];
@@ -75,24 +91,42 @@ function StudentSchedule() {
                         ? ev.start_time.slice(0, 5)
                         : "";
                   const cls = ev.class_id ? classMap.get(ev.class_id) : null;
-                  const shortDate = d.toLocaleDateString("he-IL", { day: "numeric", month: "numeric", year: "numeric" });
-                  const headline = [cls?.name, ev.title].filter(Boolean).join(" — ");
+                  const teacherName = cls?.teacher_id ? teacherMap.get(cls.teacher_id) ?? null : null;
                   return (
-                    <li key={ev.id} className="rounded-2xl border border-border/60 bg-card/40 p-3">
-                      <div className="flex items-center gap-2">
+                    <li key={ev.id} className="rounded-2xl border border-border/60 bg-card/40 p-4">
+                      <div className="mb-2 flex items-center gap-2">
                         <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] ${meta.cls}`}>
                           <meta.Icon className="h-3 w-3" /> {meta.label}
                         </span>
-                        <span className="truncate text-sm font-semibold">{headline}</span>
                       </div>
-                      <div className="mt-1 text-xs text-muted-foreground">
-                        {[shortDate, time].filter(Boolean).join(" | ")}
-                      </div>
-                      <div className="mt-1 text-[11px] text-muted-foreground">
-                        {cls && <>כיתה: <span className="font-semibold text-foreground">{cls.name}</span> · נושא: <span className="font-semibold text-foreground">{ev.title}</span></>}
-                        {ev.location && <> · {ev.location}</>}
-                      </div>
-                      {ev.notes && <p className="mt-1 text-xs text-muted-foreground">{ev.notes}</p>}
+                      <dl className="space-y-1.5 text-sm">
+                        <div className="flex gap-2">
+                          <dt className="w-14 shrink-0 text-muted-foreground">כיתה:</dt>
+                          <dd className="font-semibold text-foreground">{cls?.name ?? "—"}</dd>
+                        </div>
+                        <div className="flex gap-2">
+                          <dt className="w-14 shrink-0 text-muted-foreground">שיעור:</dt>
+                          <dd className="font-semibold text-foreground">{ev.title}</dd>
+                        </div>
+                        <div className="flex gap-2">
+                          <dt className="w-14 shrink-0 text-muted-foreground">מורה:</dt>
+                          <dd className="font-semibold text-foreground">{teacherName ?? "—"}</dd>
+                        </div>
+                        <div className="flex gap-2">
+                          <dt className="w-14 shrink-0 text-muted-foreground">תאריך:</dt>
+                          <dd className="font-semibold text-foreground">
+                            {shortDate}
+                            {time && <> | <span className="text-muted-foreground">שעה:</span> {time}</>}
+                          </dd>
+                        </div>
+                        {ev.location && (
+                          <div className="flex gap-2">
+                            <dt className="w-14 shrink-0 text-muted-foreground">מיקום:</dt>
+                            <dd className="text-foreground">{ev.location}</dd>
+                          </div>
+                        )}
+                      </dl>
+                      {ev.notes && <p className="mt-2 text-xs text-muted-foreground">{ev.notes}</p>}
                       {ev.exam_id && ev.type === "exam" && (
                         <Link to="/quiz" className="mt-2 inline-block text-xs font-semibold text-gold">פתח מבחן ←</Link>
                       )}
