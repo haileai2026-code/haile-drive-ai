@@ -267,11 +267,16 @@ function DiagnosticsPage() {
   return (
     <AppShell>
       <div className="space-y-4" dir="rtl">
-        <div>
-          <h1 className="text-2xl font-bold">אבחון ביומטרי BEQA</h1>
-          <p className="text-sm text-muted-foreground">
-            כיול דופק מנוחה דרך המצלמה (rPPG) — 30 שניות
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">אבחון ביומטרי BEQA</h1>
+            <p className="text-sm text-muted-foreground">
+              כיול דופק מנוחה דרך המצלמה (rPPG) — 30 שניות
+            </p>
+          </div>
+          <Link to="/beqa-history">
+            <Button size="sm" variant="outline">היסטוריה</Button>
+          </Link>
         </div>
 
         <Card>
