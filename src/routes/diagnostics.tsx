@@ -398,16 +398,6 @@ function DiagnosticsPage() {
     "RT (ms)": a.rt,
   }));
 
-  return (
-    <AppShell requireAuth={false}>
-      <div className="space-y-4" dir="rtl">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">אבחון ביומטרי BEQA</h1>
-            <p className="text-sm text-muted-foreground">
-              מדידת דיוק, יציבות פיזיולוגית ועקביות תגובה תחת סטרס
-            </p>
-          </div>
   if (user && beqaAccess === false) {
     return (
       <AppShell requireAuth={false}>
@@ -425,6 +415,7 @@ function DiagnosticsPage() {
       </AppShell>
     );
   }
+
 
   return (
     <AppShell requireAuth={false}>
