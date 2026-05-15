@@ -81,6 +81,20 @@ async function buildSnapshot() {
   const attPresent = att.filter((a) => a.mark === "present").length;
   const attPct = att.length ? Math.round((attPresent / att.length) * 100) : 0;
 
+  const classMap = new Map((classesRes.data ?? []).map((c) => [c.id, c.name]));
+  const className = (id: string | null) => (id ? classMap.get(id) ?? "—" : "—");
+
+  const upcoming = (upcomingEventsRes.data ?? []).map((e) => ({
+    class_name: className(e.class_id),
+    lesson_topic: e.title,
+    type: e.type,
+    date: e.event_date,
+    start: e.start_time,
+    end: e.end_time,
+    location: e.location,
+    display: `${className(e.class_id)} — ${e.title} | ${e.event_date}${e.start_time ? ` | ${String(e.start_time).slice(0, 5)}` : ""}`,
+  }));
+
   return {
     timestamp: new Date().toISOString(),
     candidates: {
@@ -92,6 +106,7 @@ async function buildSnapshot() {
         name: c.full_name,
         status: c.status,
         city: cityName(c.city_id),
+        class: className(c.class_id),
         updated: c.updated_at,
       })),
     },
@@ -99,6 +114,7 @@ async function buildSnapshot() {
       total: (classesRes.data ?? []).length,
       names: (classesRes.data ?? []).map((c) => c.name),
     },
+    schedule_upcoming_30d: upcoming,
     exam_results: {
       total: exams.length,
       passed: examPassed,
