@@ -47,7 +47,7 @@ export function AppShell({ children, roles }: { children: ReactNode; roles?: Rol
 
       <nav className="fixed bottom-4 left-1/2 z-40 w-[calc(100%-2rem)] max-w-screen-md -translate-x-1/2 rounded-2xl border border-border/70 bg-card/90 p-2 shadow-[var(--shadow-elev)] backdrop-blur-xl">
         <ul className="grid grid-cols-6 gap-1">
-          {items.map(({ to, icon: Icon, key }) => {
+          {items.map(({ to, icon: Icon, key, label }) => {
             const active = loc.pathname.startsWith(to);
             return (
               <li key={to}>
