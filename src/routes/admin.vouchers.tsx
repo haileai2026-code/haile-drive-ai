@@ -211,8 +211,8 @@ function VouchersPage() {
 }
 
 function PaymentCell({ row, payment, onClick, extraBadge }: { row: VoucherRow; payment: 1 | 2 | 3; onClick: () => void; extraBadge?: boolean }) {
-  const status = row[`payment_${payment}_status` as const] as PaymentStatus;
-  const date = row[`payment_${payment}_date` as const] as string | null;
+  const status = (row as any)[`payment_${payment}_status`] as PaymentStatus;
+  const date = (row as any)[`payment_${payment}_date`] as string | null;
   return (
     <button onClick={onClick} className="text-right transition hover:opacity-80">
       <div className="flex items-center gap-1.5">
