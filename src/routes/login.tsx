@@ -211,7 +211,7 @@ function LoginPage() {
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder={isOwnerPortal ? "haileai.2026@gmail.com" : "you@example.com"}
+                placeholder="you@example.com"
                 className="flex-1 bg-transparent text-base outline-none"
               />
             </div>
