@@ -26,6 +26,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TeacherAttendanceRouteImport } from './routes/teacher.attendance'
 import { Route as LessonsLessonIdRouteImport } from './routes/lessons.$lessonId'
+import { Route as ClassroomSessionIdRouteImport } from './routes/classroom.$sessionId'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminTranslationsRouteImport } from './routes/admin.translations'
 import { Route as AdminTeachersRouteImport } from './routes/admin.teachers'
@@ -137,6 +138,11 @@ const LessonsLessonIdRoute = LessonsLessonIdRouteImport.update({
   id: '/$lessonId',
   path: '/$lessonId',
   getParentRoute: () => LessonsRoute,
+} as any)
+const ClassroomSessionIdRoute = ClassroomSessionIdRouteImport.update({
+  id: '/classroom/$sessionId',
+  path: '/classroom/$sessionId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/users',
@@ -310,6 +316,7 @@ export interface FileRoutesByFullPath {
   '/admin/teachers': typeof AdminTeachersRoute
   '/admin/translations': typeof AdminTranslationsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/classroom/$sessionId': typeof ClassroomSessionIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/teacher/attendance': typeof TeacherAttendanceRoute
   '/admin/attendance/drilldown': typeof AdminAttendanceDrilldownRoute
@@ -355,6 +362,7 @@ export interface FileRoutesByTo {
   '/admin/teachers': typeof AdminTeachersRoute
   '/admin/translations': typeof AdminTranslationsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/classroom/$sessionId': typeof ClassroomSessionIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/teacher/attendance': typeof TeacherAttendanceRoute
   '/admin/attendance/drilldown': typeof AdminAttendanceDrilldownRoute
@@ -401,6 +409,7 @@ export interface FileRoutesById {
   '/admin/teachers': typeof AdminTeachersRoute
   '/admin/translations': typeof AdminTranslationsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/classroom/$sessionId': typeof ClassroomSessionIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/teacher/attendance': typeof TeacherAttendanceRoute
   '/admin/attendance/drilldown': typeof AdminAttendanceDrilldownRoute
@@ -448,6 +457,7 @@ export interface FileRouteTypes {
     | '/admin/teachers'
     | '/admin/translations'
     | '/admin/users'
+    | '/classroom/$sessionId'
     | '/lessons/$lessonId'
     | '/teacher/attendance'
     | '/admin/attendance/drilldown'
@@ -493,6 +503,7 @@ export interface FileRouteTypes {
     | '/admin/teachers'
     | '/admin/translations'
     | '/admin/users'
+    | '/classroom/$sessionId'
     | '/lessons/$lessonId'
     | '/teacher/attendance'
     | '/admin/attendance/drilldown'
@@ -538,6 +549,7 @@ export interface FileRouteTypes {
     | '/admin/teachers'
     | '/admin/translations'
     | '/admin/users'
+    | '/classroom/$sessionId'
     | '/lessons/$lessonId'
     | '/teacher/attendance'
     | '/admin/attendance/drilldown'
@@ -561,6 +573,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   ScheduleRoute: typeof ScheduleRoute
   TeacherRoute: typeof TeacherRouteWithChildren
+  ClassroomSessionIdRoute: typeof ClassroomSessionIdRoute
   ApiPublicHooksNotificationsTickRoute: typeof ApiPublicHooksNotificationsTickRoute
 }
 
@@ -684,6 +697,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/lessons/$lessonId'
       preLoaderRoute: typeof LessonsLessonIdRouteImport
       parentRoute: typeof LessonsRoute
+    }
+    '/classroom/$sessionId': {
+      id: '/classroom/$sessionId'
+      path: '/classroom/$sessionId'
+      fullPath: '/classroom/$sessionId'
+      preLoaderRoute: typeof ClassroomSessionIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/admin/users': {
       id: '/admin/users'
@@ -986,6 +1006,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   ScheduleRoute: ScheduleRoute,
   TeacherRoute: TeacherRouteWithChildren,
+  ClassroomSessionIdRoute: ClassroomSessionIdRoute,
   ApiPublicHooksNotificationsTickRoute: ApiPublicHooksNotificationsTickRoute,
 }
 export const routeTree = rootRouteImport
