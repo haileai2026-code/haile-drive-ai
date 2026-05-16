@@ -966,6 +966,78 @@ export type Database = {
         }
         Relationships: []
       }
+      voucher_tracking: {
+        Row: {
+          candidate_id: string
+          class_id: string | null
+          course_start_date: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          payment_1_amount: number | null
+          payment_1_date: string | null
+          payment_1_doc_url: string | null
+          payment_1_status: string
+          payment_2_amount: number | null
+          payment_2_date: string | null
+          payment_2_doc_url: string | null
+          payment_2_status: string
+          payment_3_amount: number | null
+          payment_3_date: string | null
+          payment_3_doc_url: string | null
+          payment_3_status: string
+          total_received: number
+          updated_at: string
+          voucher_amount: number
+        }
+        Insert: {
+          candidate_id: string
+          class_id?: string | null
+          course_start_date?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          payment_1_amount?: number | null
+          payment_1_date?: string | null
+          payment_1_doc_url?: string | null
+          payment_1_status?: string
+          payment_2_amount?: number | null
+          payment_2_date?: string | null
+          payment_2_doc_url?: string | null
+          payment_2_status?: string
+          payment_3_amount?: number | null
+          payment_3_date?: string | null
+          payment_3_doc_url?: string | null
+          payment_3_status?: string
+          total_received?: number
+          updated_at?: string
+          voucher_amount?: number
+        }
+        Update: {
+          candidate_id?: string
+          class_id?: string | null
+          course_start_date?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          payment_1_amount?: number | null
+          payment_1_date?: string | null
+          payment_1_doc_url?: string | null
+          payment_1_status?: string
+          payment_2_amount?: number | null
+          payment_2_date?: string | null
+          payment_2_doc_url?: string | null
+          payment_2_status?: string
+          payment_3_amount?: number | null
+          payment_3_date?: string | null
+          payment_3_doc_url?: string | null
+          payment_3_status?: string
+          total_received?: number
+          updated_at?: string
+          voucher_amount?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
