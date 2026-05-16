@@ -85,7 +85,11 @@ function CandidatesPage() {
     onError: (e: any) => toast.error(e.message ?? "עדכון נכשל"),
   });
 
-  const cityName = (id: string | null) => citiesQ.data?.find((c) => c.id === id)?.name_he ?? "—";
+  const cityName = (id: string | null) => {
+    if (!id) return null;
+    const c = citiesQ.data?.find((c) => c.id === id);
+    return c?.name_he ?? c?.name ?? null;
+  };
   const className = (id: string | null) => classesQ.data?.find((c) => c.id === id)?.name ?? "—";
 
   const LANG_DISPLAY: Record<string, string> = {
@@ -177,7 +181,15 @@ function CandidatesPage() {
               <tr key={c.id} className="hover:bg-accent/30">
                 <td className="px-3 py-3 font-semibold">{c.full_name}</td>
                 <td className="px-3 py-3 text-muted-foreground">{c.phone}</td>
-                <td className="px-3 py-3 text-muted-foreground">{cityName(c.city_id)}</td>
+                <td className="px-3 py-3">
+                  {cityName(c.city_id) ? (
+                    <span className="inline-flex items-center gap-1 rounded-full border border-sky-500/30 bg-sky-500/10 px-2 py-0.5 text-[11px] font-medium text-sky-300">
+                      📍 {cityName(c.city_id)}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-muted-foreground/60 italic">לא צוין</span>
+                  )}
+                </td>
                 <td className="px-3 py-3">
                   <select
                     value={c.class_id ?? ""}
@@ -288,7 +300,7 @@ function CandidatesPage() {
         </div>
       )}
 
-      {folderFor && <DriverFolderModal candidate={folderFor} onClose={() => setFolderFor(null)} />}
+      {folderFor && <DriverFolderModal candidate={folderFor} cityLabel={cityName(folderFor.city_id)} onClose={() => setFolderFor(null)} />}
 
       <style>{`.inp{display:block;width:100%;border-radius:.5rem;border:1px solid hsl(var(--input));background:hsl(var(--background));padding:.5rem .75rem;font-size:.875rem;outline:none}.inp:focus{box-shadow:0 0 0 1px hsl(var(--ring))}`}</style>
     </AdminShell>
@@ -304,7 +316,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function DriverFolderModal({ candidate, onClose }: { candidate: Candidate; onClose: () => void }) {
+function DriverFolderModal({ candidate, cityLabel, onClose }: { candidate: Candidate; cityLabel?: string | null; onClose: () => void }) {
   const qc = useQueryClient();
   const [label, setLabel] = useState<string>(DOC_PRESETS[0]);
   const [busy, setBusy] = useState(false);
@@ -357,6 +369,9 @@ function DriverFolderModal({ candidate, onClose }: { candidate: Candidate; onClo
           <div>
             <div className="text-[11px] uppercase tracking-wider text-muted-foreground">תיק נהג</div>
             <h3 className="text-lg font-bold">{candidate.full_name}</h3>
+            <div className="mt-1 text-sm font-semibold text-sky-300">
+              📍 {cityLabel ?? "לא צוינה עיר"}
+            </div>
           </div>
           <button onClick={onClose} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent"><X className="h-4 w-4" /></button>
         </div>
