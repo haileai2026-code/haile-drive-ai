@@ -1,7 +1,7 @@
 // Parse CSV / XLSX into rows, and serialize rows back out.
-// Pure utility — no React, no DOM dependencies beyond File/Blob.
+// Uses exceljs (xlsx replaced for security).
 
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 import Papa from "papaparse";
 
 export type RawRow = Record<string, string>;
@@ -14,13 +14,48 @@ export async function parseFile(file: File): Promise<{ headers: string[]; rows: 
     const headers = res.meta.fields ?? [];
     return { headers, rows: (res.data ?? []).map(normalizeRow) };
   }
-  // xlsx / xls
+  // xlsx / xls via exceljs
   const buf = await file.arrayBuffer();
-  const wb = XLSX.read(buf, { type: "array" });
-  const ws = wb.Sheets[wb.SheetNames[0]];
-  const json = XLSX.utils.sheet_to_json<RawRow>(ws, { defval: "", raw: false });
-  const headers = json.length ? Object.keys(json[0]) : [];
-  return { headers, rows: json.map(normalizeRow) };
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.load(buf);
+  const ws = wb.worksheets[0];
+  if (!ws) return { headers: [], rows: [] };
+
+  const headers: string[] = [];
+  const headerRow = ws.getRow(1);
+  headerRow.eachCell({ includeEmpty: false }, (cell, colNumber) => {
+    headers[colNumber - 1] = String(cell.value ?? "").trim();
+  });
+  for (let i = 0; i < headers.length; i++) if (!headers[i]) headers[i] = `col_${i + 1}`;
+
+  const rows: RawRow[] = [];
+  ws.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+    if (rowNumber === 1) return;
+    const r: RawRow = {};
+    headers.forEach((h, idx) => {
+      const v = row.getCell(idx + 1).value;
+      r[h] = cellToString(v);
+    });
+    // skip rows where everything is empty
+    if (Object.values(r).some((v) => v !== "")) rows.push(normalizeRow(r));
+  });
+  return { headers, rows };
+}
+
+function cellToString(v: unknown): string {
+  if (v == null) return "";
+  if (typeof v === "string" || typeof v === "number" || typeof v === "boolean") return String(v).trim();
+  if (v instanceof Date) return v.toISOString().slice(0, 10);
+  // Rich text / hyperlink / formula objects
+  if (typeof v === "object") {
+    const obj = v as Record<string, unknown>;
+    if (typeof obj.text === "string") return obj.text.trim();
+    if (typeof obj.result !== "undefined") return String(obj.result).trim();
+    if (Array.isArray((obj as { richText?: unknown[] }).richText)) {
+      return ((obj as { richText: { text: string }[] }).richText).map((r) => r.text).join("").trim();
+    }
+  }
+  return String(v).trim();
 }
 
 function normalizeRow(r: RawRow): RawRow {
@@ -83,21 +118,28 @@ export function validate(
 }
 
 // ---------- Export ----------
-export function exportRows(
+export async function exportRows(
   rows: Record<string, unknown>[],
   filename: string,
   format: "csv" | "xlsx",
-) {
+): Promise<void> {
   if (format === "csv") {
     const csv = Papa.unparse(rows);
     download(new Blob([csv], { type: "text/csv;charset=utf-8" }), `${filename}.csv`);
     return;
   }
-  const ws = XLSX.utils.json_to_sheet(rows);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Export");
-  const out = XLSX.write(wb, { type: "array", bookType: "xlsx" });
-  download(new Blob([out], { type: "application/octet-stream" }), `${filename}.xlsx`);
+  const wb = new ExcelJS.Workbook();
+  const ws = wb.addWorksheet("Export");
+  const headers = rows.length ? Object.keys(rows[0]) : [];
+  if (headers.length) {
+    ws.columns = headers.map((h) => ({ header: h, key: h, width: Math.max(12, h.length + 2) }));
+    rows.forEach((r) => ws.addRow(r));
+  }
+  const out = await wb.xlsx.writeBuffer();
+  download(
+    new Blob([out], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }),
+    `${filename}.xlsx`,
+  );
 }
 
 function download(blob: Blob, name: string) {
