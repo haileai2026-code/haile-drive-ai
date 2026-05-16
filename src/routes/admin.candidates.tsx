@@ -300,7 +300,7 @@ function CandidatesPage() {
         </div>
       )}
 
-      {folderFor && <DriverFolderModal candidate={folderFor} onClose={() => setFolderFor(null)} />}
+      {folderFor && <DriverFolderModal candidate={folderFor} cityLabel={cityName(folderFor.city_id)} onClose={() => setFolderFor(null)} />}
 
       <style>{`.inp{display:block;width:100%;border-radius:.5rem;border:1px solid hsl(var(--input));background:hsl(var(--background));padding:.5rem .75rem;font-size:.875rem;outline:none}.inp:focus{box-shadow:0 0 0 1px hsl(var(--ring))}`}</style>
     </AdminShell>
