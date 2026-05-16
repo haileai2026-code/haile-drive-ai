@@ -298,6 +298,11 @@ export const scheduleApi = {
     const { error } = await (supabase as any).from("schedule_events").upsert(e);
     if (error) throw error;
   },
+  async upsertReturning(e: Partial<ScheduleEvent> & { title: string; event_date: string; type: ScheduleEventType }): Promise<ScheduleEvent> {
+    const { data, error } = await (supabase as any).from("schedule_events").upsert(e).select("*").single();
+    if (error) throw error;
+    return data as ScheduleEvent;
+  },
   async remove(id: string) {
     const { error } = await (supabase as any).from("schedule_events").delete().eq("id", id);
     if (error) throw error;
