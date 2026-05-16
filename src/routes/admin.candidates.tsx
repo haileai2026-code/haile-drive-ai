@@ -88,6 +88,17 @@ function CandidatesPage() {
   const cityName = (id: string | null) => citiesQ.data?.find((c) => c.id === id)?.name_he ?? "—";
   const className = (id: string | null) => classesQ.data?.find((c) => c.id === id)?.name ?? "—";
 
+  const LANG_DISPLAY: Record<string, string> = {
+    am: "🇪🇹 אמהרית",
+    he: "🇮🇱 עברית",
+    ru: "🇷🇺 רוסית",
+    ku: "✡️ קוקי",
+    kuki: "✡️ קוקי",
+    en: "🇬🇧 אנגלית",
+    fr: "🇫🇷 צרפתית",
+  };
+  const langLabel = (code: string | null) => LANG_DISPLAY[code ?? ""] ?? (code || "—");
+
   const filtered = (candidatesQ.data ?? []).filter((c) => {
     const isPaid = c.payment_status === "paid";
     if (tab === "leads" && isPaid) return false;
