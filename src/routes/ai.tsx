@@ -76,8 +76,8 @@ export function AiPage() {
         toast.error("יותר מדי בקשות — נסה/י שוב בעוד רגע");
         return;
       }
-      if (res.error === "no_credits") {
-        toast.error("נגמרו הקרדיטים ב-Lovable AI — הוסף/י credits");
+      if (res.error === "unauthorized") {
+        toast.error("שגיאת אימות AI — פנה למנהל המערכת");
         return;
       }
       if (res.error || !res.text) {
