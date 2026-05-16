@@ -181,7 +181,15 @@ function CandidatesPage() {
               <tr key={c.id} className="hover:bg-accent/30">
                 <td className="px-3 py-3 font-semibold">{c.full_name}</td>
                 <td className="px-3 py-3 text-muted-foreground">{c.phone}</td>
-                <td className="px-3 py-3 text-muted-foreground">{cityName(c.city_id)}</td>
+                <td className="px-3 py-3">
+                  {cityName(c.city_id) ? (
+                    <span className="inline-flex items-center gap-1 rounded-full border border-sky-500/30 bg-sky-500/10 px-2 py-0.5 text-[11px] font-medium text-sky-300">
+                      📍 {cityName(c.city_id)}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-muted-foreground/60 italic">לא צוין</span>
+                  )}
+                </td>
                 <td className="px-3 py-3">
                   <select
                     value={c.class_id ?? ""}
