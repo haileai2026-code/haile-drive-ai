@@ -191,7 +191,7 @@ function CandidatesPage() {
                     ))}
                   </select>
                 </td>
-                <td className="px-3 py-3 text-muted-foreground">{c.language}</td>
+                <td className="px-3 py-3 text-muted-foreground">{langLabel(c.language)}</td>
                 <td className="px-3 py-3"><span className="rounded-full border border-gold/30 bg-gold/10 px-2 py-0.5 text-[10px] text-gold">{STATUS_LABELS[c.status] ?? c.status}</span></td>
                 <td className="px-3 py-3">
                   {c.payment_status === "paid" ? (
