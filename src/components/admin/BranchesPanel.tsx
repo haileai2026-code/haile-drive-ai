@@ -2,28 +2,58 @@ import { useState } from "react";
 import { useStore } from "@/lib/data-store";
 import { Network, Plus, Trash2, MapPin } from "lucide-react";
 
+const ISRAELI_CITIES = [
+  "תל אביב", "ירושלים", "חיפה", "באר שבע", "אשדוד", "אשקלון", "נתניה",
+  "רחובות", "רמלה", "לוד", "פתח תקווה", "ראשון לציון", "הרצליה", "כפר סבא",
+  "רעננה", "מודיעין", "בית שמש", "קריית גת", "דימונה", "אופקים",
+  "קריית מלאכי", "יבנה", "גדרה", "נס ציונה", "חולון", "בת ים",
+  "גבעתיים", "רמת גן", "בני ברק", "קריית שמונה",
+];
+
+const NEW_CITY_VALUE = "__new__";
+
 export function BranchesPanel() {
   const { branches, cities, addBranch, removeBranch, addCity } = useStore();
   const [name, setName] = useState("");
-  const [cityId, setCityId] = useState("");
+  const [citySelect, setCitySelect] = useState("");
   const [newCity, setNewCity] = useState("");
   const [address, setAddress] = useState("");
 
   const create = () => {
-    if (!name.trim()) return;
-    let cid = cityId;
-    if (!cid && newCity.trim()) cid = addCity(newCity).id;
-    if (!cid) return alert("Pick a city or enter a new one.");
+    if (!name.trim()) return alert("יש להזין שם סניף");
+    let cityName = "";
+    let cid = "";
+
+    if (citySelect === NEW_CITY_VALUE) {
+      if (!newCity.trim()) return alert("יש להזין שם עיר חדשה");
+      cityName = newCity.trim();
+    } else if (citySelect.startsWith("existing:")) {
+      cid = citySelect.slice("existing:".length);
+    } else if (citySelect.startsWith("preset:")) {
+      cityName = citySelect.slice("preset:".length);
+    } else {
+      return alert("יש לבחור עיר");
+    }
+
+    if (!cid && cityName) {
+      const existing = cities.find((c) => c.name.trim() === cityName);
+      cid = existing ? existing.id : addCity(cityName).id;
+    }
+    if (!cid) return;
+
     addBranch({ name: name.trim(), cityId: cid, address: address.trim() || undefined });
-    setName(""); setNewCity(""); setAddress("");
+    setName(""); setNewCity(""); setAddress(""); setCitySelect("");
   };
 
+  const existingCityNames = new Set(cities.map((c) => c.name.trim()));
+  const presetUnused = ISRAELI_CITIES.filter((n) => !existingCityNames.has(n));
+
   return (
-    <div>
+    <div dir="rtl">
       <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
         <section className="rounded-2xl border border-border/60 bg-card/40 p-4">
           <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold">
-            <Network className="h-4 w-4 text-gold" /> All branches ({branches.length})
+            <Network className="h-4 w-4 text-gold" /> כל הסניפים ({branches.length})
           </h2>
           <ul className="divide-y divide-border/40">
             {branches.map((b) => {
@@ -37,7 +67,7 @@ export function BranchesPanel() {
                     </div>
                   </div>
                   <button
-                    onClick={() => confirm(`Delete ${b.name}?`) && removeBranch(b.id)}
+                    onClick={() => confirm(`למחוק את ${b.name}?`) && removeBranch(b.id)}
                     className="rounded-md p-2 text-rose-400 hover:bg-rose-500/10"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -45,38 +75,71 @@ export function BranchesPanel() {
                 </li>
               );
             })}
-            {branches.length === 0 && <li className="py-8 text-center text-sm text-muted-foreground">No branches yet.</li>}
+            {branches.length === 0 && (
+              <li className="py-8 text-center text-sm text-muted-foreground">עדיין אין סניפים.</li>
+            )}
           </ul>
         </section>
 
-        <aside className="rounded-2xl border border-border/60 bg-card/40 p-4">
-          <h3 className="text-sm font-semibold">Add branch</h3>
+        <aside className="rounded-2xl border border-gold/30 bg-card/40 p-4">
+          <h3 className="text-sm font-semibold text-gold">הוסף סניף</h3>
           <div className="mt-3 space-y-3">
-            <Field label="Branch name">
-              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Tel Aviv — North"
-                className="h-10 w-full rounded-xl border border-input bg-background px-3 text-sm" />
+            <Field label="שם הסניף">
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="לדוגמה: סניף אשדוד"
+                className="h-10 w-full rounded-xl border border-input bg-background px-3 text-sm"
+              />
             </Field>
-            <Field label="City">
-              <select value={cityId} onChange={(e) => setCityId(e.target.value)}
-                className="h-10 w-full rounded-xl border border-input bg-background px-3 text-sm">
-                <option value="">— select existing —</option>
-                {cities.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            <Field label="עיר">
+              <select
+                value={citySelect}
+                onChange={(e) => setCitySelect(e.target.value)}
+                className="h-10 w-full rounded-xl border border-input bg-background px-3 text-sm"
+              >
+                <option value="">— בחר/י עיר —</option>
+                {cities.length > 0 && (
+                  <optgroup label="ערים שכבר נוספו">
+                    {cities.map((c) => (
+                      <option key={c.id} value={`existing:${c.id}`}>{c.name}</option>
+                    ))}
+                  </optgroup>
+                )}
+                {presetUnused.length > 0 && (
+                  <optgroup label="ערים בישראל">
+                    {presetUnused.map((n) => (
+                      <option key={n} value={`preset:${n}`}>{n}</option>
+                    ))}
+                  </optgroup>
+                )}
+                <option value={NEW_CITY_VALUE}>➕ הוסף עיר חדשה...</option>
               </select>
             </Field>
-            <div className="text-center text-[10px] uppercase tracking-wider text-muted-foreground">or create new city</div>
-            <input value={newCity} onChange={(e) => { setNewCity(e.target.value); setCityId(""); }}
-              placeholder="New city name" disabled={!!cityId}
-              className="h-10 w-full rounded-xl border border-input bg-background px-3 text-sm disabled:opacity-40" />
-            <Field label="Address (optional)">
-              <input value={address} onChange={(e) => setAddress(e.target.value)}
-                className="h-10 w-full rounded-xl border border-input bg-background px-3 text-sm" />
+            {citySelect === NEW_CITY_VALUE && (
+              <input
+                value={newCity}
+                onChange={(e) => setNewCity(e.target.value)}
+                placeholder="שם העיר החדשה"
+                className="h-10 w-full rounded-xl border border-gold/40 bg-background px-3 text-sm"
+              />
+            )}
+            <Field label="כתובת (לא חובה)">
+              <input
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="רחוב ומספר"
+                className="h-10 w-full rounded-xl border border-input bg-background px-3 text-sm"
+              />
             </Field>
-            <button onClick={create}
-              className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-gold text-sm font-semibold text-gold-foreground">
-              <Plus className="h-4 w-4" /> Create branch
+            <button
+              onClick={create}
+              className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-gold text-sm font-semibold text-gold-foreground hover:opacity-90"
+            >
+              <Plus className="h-4 w-4" /> צור סניף
             </button>
-            <p className="text-[11px] text-muted-foreground">
-              Unlimited branches & cities — system supports nationwide expansion.
+            <p className="text-[11px] text-center text-muted-foreground">
+              המערכת תומכת בפריסה ארצית ללא הגבלת סניפים וערים
             </p>
           </div>
         </aside>
