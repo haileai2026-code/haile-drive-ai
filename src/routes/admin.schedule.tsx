@@ -3,8 +3,10 @@ import { AdminShell, AdminLoading } from "@/components/AdminShell";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi, scheduleApi, type ScheduleEvent, type ScheduleEventType } from "@/lib/admin-api";
 import { useState, useMemo } from "react";
-import { Plus, Trash2, Pencil, BookOpen, FileQuestion, RotateCcw, CalendarRange, AlertTriangle } from "lucide-react";
+import { Plus, Trash2, Pencil, BookOpen, FileQuestion, RotateCcw, CalendarRange, AlertTriangle, Video } from "lucide-react";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
+import { createDailyRoom } from "@/lib/live-classes.functions";
 
 const WEEKDAYS = [
   { v: 0, label: "א׳" },

@@ -278,6 +278,8 @@ export type ScheduleEvent = {
   end_time: string | null;
   location: string | null;
   notes: string | null;
+  room_url: string | null;
+  is_live: boolean;
   created_at: string;
   updated_at: string;
 };
