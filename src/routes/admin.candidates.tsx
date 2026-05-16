@@ -85,7 +85,11 @@ function CandidatesPage() {
     onError: (e: any) => toast.error(e.message ?? "עדכון נכשל"),
   });
 
-  const cityName = (id: string | null) => citiesQ.data?.find((c) => c.id === id)?.name_he ?? "—";
+  const cityName = (id: string | null) => {
+    if (!id) return null;
+    const c = citiesQ.data?.find((c) => c.id === id);
+    return c?.name_he ?? c?.name ?? null;
+  };
   const className = (id: string | null) => classesQ.data?.find((c) => c.id === id)?.name ?? "—";
 
   const LANG_DISPLAY: Record<string, string> = {
