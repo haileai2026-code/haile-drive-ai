@@ -973,9 +973,27 @@ export type Database = {
     Functions: {
       current_user_class_id: { Args: never; Returns: string }
       current_user_has_beqa_access: { Args: never; Returns: boolean }
+      get_exam_options: {
+        Args: { p_exam_id: string }
+        Returns: {
+          id: string
+          option_text: string
+          order_index: number
+          question_id: string
+        }[]
+      }
       get_primary_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
+      }
+      grade_exam_attempt: {
+        Args: { p_answers: Json; p_exam_id: string }
+        Returns: {
+          correct_by_question: Json
+          passed: boolean
+          score: number
+          total: number
+        }[]
       }
       has_role: {
         Args: {
