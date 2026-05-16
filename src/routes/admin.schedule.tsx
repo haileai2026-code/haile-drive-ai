@@ -65,6 +65,7 @@ type Form = Partial<ScheduleEvent> & { title: string; event_date: string; type: 
 
 function SchedulePage() {
   const qc = useQueryClient();
+  const createRoom = useServerFn(createDailyRoom);
   const [filterClass, setFilterClass] = useState<string>("");
   const [editing, setEditing] = useState<Form | null>(null);
   const [recurring, setRecurring] = useState<RecurringForm | null>(null);
@@ -100,13 +101,24 @@ function SchedulePage() {
       return;
     }
     try {
-      await scheduleApi.upsert({
+      const wantsLive = !!editing.is_live;
+      const saved = await scheduleApi.upsertReturning({
         ...editing,
+        is_live: wantsLive && !!editing.room_url ? true : wantsLive,
         class_id: editing.class_id || null,
         exam_id: editing.type === "exam" ? editing.exam_id || null : null,
         candidate_id: editing.type === "makeup" ? editing.candidate_id || null : null,
       });
-      toast.success("נשמר");
+      if (wantsLive && saved && !saved.room_url) {
+        try {
+          await createRoom({ data: { eventId: saved.id, classId: saved.class_id, title: saved.title } });
+          toast.success("שיעור חי נוצר");
+        } catch (e: any) {
+          toast.error("השיעור נשמר אך יצירת חדר נכשלה: " + (e?.message ?? ""));
+        }
+      } else {
+        toast.success("נשמר");
+      }
       setEditing(null);
       qc.invalidateQueries({ queryKey: ["schedule"] });
     } catch (e: any) {
