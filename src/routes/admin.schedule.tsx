@@ -269,6 +269,11 @@ function SchedulePage() {
                     <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] ${meta.cls}`}>
                       <meta.Icon className="h-3 w-3" /> {meta.label}
                     </span>
+                    {ev.is_live && (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-rose-500/40 bg-rose-500/10 px-2 py-0.5 text-[11px] font-bold text-rose-300">
+                        <Video className="h-3 w-3" /> LIVE
+                      </span>
+                    )}
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-semibold">{ev.title}</div>
                       <div className="text-xs text-muted-foreground">
