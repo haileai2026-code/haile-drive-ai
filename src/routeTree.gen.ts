@@ -28,6 +28,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as TeacherAttendanceRouteImport } from './routes/teacher.attendance'
 import { Route as LessonsLessonIdRouteImport } from './routes/lessons.$lessonId'
 import { Route as ClassroomSessionIdRouteImport } from './routes/classroom.$sessionId'
+import { Route as AdminVouchersRouteImport } from './routes/admin.vouchers'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminTranslationsRouteImport } from './routes/admin.translations'
 import { Route as AdminTeachersRouteImport } from './routes/admin.teachers'
@@ -149,6 +150,11 @@ const ClassroomSessionIdRoute = ClassroomSessionIdRouteImport.update({
   id: '/classroom/$sessionId',
   path: '/classroom/$sessionId',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminVouchersRoute = AdminVouchersRouteImport.update({
+  id: '/vouchers',
+  path: '/vouchers',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/users',
@@ -323,6 +329,7 @@ export interface FileRoutesByFullPath {
   '/admin/teachers': typeof AdminTeachersRoute
   '/admin/translations': typeof AdminTranslationsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/admin/vouchers': typeof AdminVouchersRoute
   '/classroom/$sessionId': typeof ClassroomSessionIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/teacher/attendance': typeof TeacherAttendanceRoute
@@ -370,6 +377,7 @@ export interface FileRoutesByTo {
   '/admin/teachers': typeof AdminTeachersRoute
   '/admin/translations': typeof AdminTranslationsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/admin/vouchers': typeof AdminVouchersRoute
   '/classroom/$sessionId': typeof ClassroomSessionIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/teacher/attendance': typeof TeacherAttendanceRoute
@@ -418,6 +426,7 @@ export interface FileRoutesById {
   '/admin/teachers': typeof AdminTeachersRoute
   '/admin/translations': typeof AdminTranslationsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/admin/vouchers': typeof AdminVouchersRoute
   '/classroom/$sessionId': typeof ClassroomSessionIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/teacher/attendance': typeof TeacherAttendanceRoute
@@ -467,6 +476,7 @@ export interface FileRouteTypes {
     | '/admin/teachers'
     | '/admin/translations'
     | '/admin/users'
+    | '/admin/vouchers'
     | '/classroom/$sessionId'
     | '/lessons/$lessonId'
     | '/teacher/attendance'
@@ -514,6 +524,7 @@ export interface FileRouteTypes {
     | '/admin/teachers'
     | '/admin/translations'
     | '/admin/users'
+    | '/admin/vouchers'
     | '/classroom/$sessionId'
     | '/lessons/$lessonId'
     | '/teacher/attendance'
@@ -561,6 +572,7 @@ export interface FileRouteTypes {
     | '/admin/teachers'
     | '/admin/translations'
     | '/admin/users'
+    | '/admin/vouchers'
     | '/classroom/$sessionId'
     | '/lessons/$lessonId'
     | '/teacher/attendance'
@@ -724,6 +736,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/classroom/$sessionId'
       preLoaderRoute: typeof ClassroomSessionIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/vouchers': {
+      id: '/admin/vouchers'
+      path: '/vouchers'
+      fullPath: '/admin/vouchers'
+      preLoaderRoute: typeof AdminVouchersRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/users': {
       id: '/admin/users'
@@ -958,6 +977,7 @@ interface AdminRouteChildren {
   AdminTeachersRoute: typeof AdminTeachersRoute
   AdminTranslationsRoute: typeof AdminTranslationsRoute
   AdminUsersRoute: typeof AdminUsersRoute
+  AdminVouchersRoute: typeof AdminVouchersRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
@@ -984,6 +1004,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminTeachersRoute: AdminTeachersRoute,
   AdminTranslationsRoute: AdminTranslationsRoute,
   AdminUsersRoute: AdminUsersRoute,
+  AdminVouchersRoute: AdminVouchersRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)

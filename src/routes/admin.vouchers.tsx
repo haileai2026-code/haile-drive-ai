@@ -252,14 +252,15 @@ function EditPaymentModal({ row, payment, onClose, onSaved }: { row: VoucherRow;
       [`payment_${payment}_doc_url`]: docUrl,
     };
     // Recalc total_received
+    const r = row as any;
     const amounts = [1, 2, 3].map((p) => {
-      const s = p === payment ? status : (row[`payment_${p}_status` as const] as PaymentStatus);
-      const a = p === payment ? amount : Number(row[`payment_${p}_amount` as const] || 0);
+      const s = p === payment ? status : (r[`payment_${p}_status`] as PaymentStatus);
+      const a = p === payment ? amount : Number(r[`payment_${p}_amount`] || 0);
       return s === "received" ? a : 0;
     });
     patch.total_received = amounts.reduce((s, a) => s + a, 0);
 
-    const { error } = await supabase.from("voucher_tracking").update(patch).eq("id", row.id);
+    const { error } = await supabase.from("voucher_tracking").update(patch as any).eq("id", row.id);
     setSaving(false);
     if (error) { toast.error(error.message); return; }
     toast.success("עודכן בהצלחה");
