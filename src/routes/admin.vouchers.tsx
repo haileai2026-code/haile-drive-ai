@@ -226,10 +226,11 @@ function PaymentCell({ row, payment, onClick, extraBadge }: { row: VoucherRow; p
 }
 
 function EditPaymentModal({ row, payment, onClose, onSaved }: { row: VoucherRow; payment: 1 | 2 | 3; onClose: () => void; onSaved: () => void }) {
-  const [status, setStatus] = useState<PaymentStatus>(row[`payment_${payment}_status` as const] as PaymentStatus);
-  const [date, setDate] = useState<string>(row[`payment_${payment}_date` as const] ?? "");
-  const [amount, setAmount] = useState<number>(Number(row[`payment_${payment}_amount` as const] || 0));
-  const [docUrl, setDocUrl] = useState<string | null>(row[`payment_${payment}_doc_url` as const] as string | null);
+  const r0 = row as any;
+  const [status, setStatus] = useState<PaymentStatus>(r0[`payment_${payment}_status`] as PaymentStatus);
+  const [date, setDate] = useState<string>(r0[`payment_${payment}_date`] ?? "");
+  const [amount, setAmount] = useState<number>(Number(r0[`payment_${payment}_amount`] || 0));
+  const [docUrl, setDocUrl] = useState<string | null>(r0[`payment_${payment}_doc_url`] as string | null);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
 
