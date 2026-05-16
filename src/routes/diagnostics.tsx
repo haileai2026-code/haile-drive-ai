@@ -437,6 +437,20 @@ function DiagnosticsPage() {
           </Link>
         </div>
 
+        <Link to="/psych-diagnostic" className="block">
+          <Card className="border-primary/40 bg-gradient-to-br from-primary/10 to-transparent hover:border-primary transition">
+            <CardContent className="p-4 flex items-center justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2 font-bold">🧠 אבחון פסיכולוגי-תעסוקתי</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  14 שאלות · ~5 דקות · מתאים לכל הקהילות (אמהרית · רוסית · קוקי)
+                </p>
+              </div>
+              <Button size="sm">התחל →</Button>
+            </CardContent>
+          </Card>
+        </Link>
+
         {phase === "welcome" && (
           <Card className="border-emerald-500/40">
             <CardHeader>

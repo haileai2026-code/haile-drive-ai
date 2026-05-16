@@ -13,6 +13,7 @@ import { Route as TeacherRouteImport } from './routes/teacher'
 import { Route as ScheduleRouteImport } from './routes/schedule'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as QuizRouteImport } from './routes/quiz'
+import { Route as PsychDiagnosticRouteImport } from './routes/psych-diagnostic'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LessonsRouteImport } from './routes/lessons'
@@ -72,6 +73,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const QuizRoute = QuizRouteImport.update({
   id: '/quiz',
   path: '/quiz',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PsychDiagnosticRoute = PsychDiagnosticRouteImport.update({
+  id: '/psych-diagnostic',
+  path: '/psych-diagnostic',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -289,6 +295,7 @@ export interface FileRoutesByFullPath {
   '/lessons': typeof LessonsRouteWithChildren
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
+  '/psych-diagnostic': typeof PsychDiagnosticRoute
   '/quiz': typeof QuizRoute
   '/reset-password': typeof ResetPasswordRoute
   '/schedule': typeof ScheduleRoute
@@ -335,6 +342,7 @@ export interface FileRoutesByTo {
   '/lessons': typeof LessonsRouteWithChildren
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
+  '/psych-diagnostic': typeof PsychDiagnosticRoute
   '/quiz': typeof QuizRoute
   '/reset-password': typeof ResetPasswordRoute
   '/schedule': typeof ScheduleRoute
@@ -382,6 +390,7 @@ export interface FileRoutesById {
   '/lessons': typeof LessonsRouteWithChildren
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
+  '/psych-diagnostic': typeof PsychDiagnosticRoute
   '/quiz': typeof QuizRoute
   '/reset-password': typeof ResetPasswordRoute
   '/schedule': typeof ScheduleRoute
@@ -430,6 +439,7 @@ export interface FileRouteTypes {
     | '/lessons'
     | '/login'
     | '/profile'
+    | '/psych-diagnostic'
     | '/quiz'
     | '/reset-password'
     | '/schedule'
@@ -476,6 +486,7 @@ export interface FileRouteTypes {
     | '/lessons'
     | '/login'
     | '/profile'
+    | '/psych-diagnostic'
     | '/quiz'
     | '/reset-password'
     | '/schedule'
@@ -522,6 +533,7 @@ export interface FileRouteTypes {
     | '/lessons'
     | '/login'
     | '/profile'
+    | '/psych-diagnostic'
     | '/quiz'
     | '/reset-password'
     | '/schedule'
@@ -569,6 +581,7 @@ export interface RootRouteChildren {
   LessonsRoute: typeof LessonsRouteWithChildren
   LoginRoute: typeof LoginRoute
   ProfileRoute: typeof ProfileRoute
+  PsychDiagnosticRoute: typeof PsychDiagnosticRoute
   QuizRoute: typeof QuizRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ScheduleRoute: typeof ScheduleRoute
@@ -605,6 +618,13 @@ declare module '@tanstack/react-router' {
       path: '/quiz'
       fullPath: '/quiz'
       preLoaderRoute: typeof QuizRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/psych-diagnostic': {
+      id: '/psych-diagnostic'
+      path: '/psych-diagnostic'
+      fullPath: '/psych-diagnostic'
+      preLoaderRoute: typeof PsychDiagnosticRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -1002,6 +1022,7 @@ const rootRouteChildren: RootRouteChildren = {
   LessonsRoute: LessonsRouteWithChildren,
   LoginRoute: LoginRoute,
   ProfileRoute: ProfileRoute,
+  PsychDiagnosticRoute: PsychDiagnosticRoute,
   QuizRoute: QuizRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ScheduleRoute: ScheduleRoute,
