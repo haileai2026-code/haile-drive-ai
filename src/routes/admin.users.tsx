@@ -68,8 +68,7 @@ function UsersPage() {
       <div className="mb-6 rounded-2xl border border-border/60 bg-card/40 p-4">
         <h2 className="flex items-center gap-2 text-sm font-bold"><UserPlus className="h-4 w-4" /> Invite a user</h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Have new users sign up at <span className="font-mono text-gold">/login</span>. They land as <b>student</b> by default; assign roles below.
-          The email <span className="font-mono text-gold">haileai.2026@gmail.com</span> always becomes <b>owner</b>.
+          Have new users sign up at <span className="font-mono text-gold">/login</span>. They land as <b>lead</b> by default; assign roles below.
         </p>
       </div>
 
