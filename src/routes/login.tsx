@@ -258,7 +258,7 @@ function LoginPage() {
 
         {isOwnerPortal && (
           <p className="text-center text-xs text-muted-foreground">
-            הבעלים נקבע מראש לכתובת <span className="font-mono text-gold">haileai.2026@gmail.com</span>
+            כניסת בעלים — הרשאה ניתנת ידנית דרך ניהול משתמשים
           </p>
         )}
       </div>
