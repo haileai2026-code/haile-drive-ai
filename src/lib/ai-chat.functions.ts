@@ -53,33 +53,33 @@ export const aiChat = createServerFn({ method: "POST" })
     }).parse(input),
   )
   .handler(async ({ data }) => {
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) throw new Error("ANTHROPIC_API_KEY not configured");
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          ...data.messages,
-        ],
+        model: "claude-haiku-4-5",
+        max_tokens: 1024,
+        system: SYSTEM_PROMPT,
+        messages: data.messages,
       }),
     });
 
     if (res.status === 429) return { error: "rate_limited", text: "" };
-    if (res.status === 402) return { error: "no_credits", text: "" };
+    if (res.status === 401) return { error: "unauthorized", text: "" };
     if (!res.ok) {
       const t = await res.text();
-      console.error("AI gateway error:", res.status, t);
+      console.error("Anthropic error:", res.status, t);
       return { error: "ai_error", text: "" };
     }
 
     const json = await res.json();
-    const text: string = json?.choices?.[0]?.message?.content ?? "";
+    const text: string = json?.content?.[0]?.text ?? "";
     return { error: null as null, text };
   });
