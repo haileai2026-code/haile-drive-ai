@@ -404,6 +404,25 @@ function SchedulePage() {
               />
             </label>
 
+            {editing.type === "lesson" && (
+              <label className="flex items-center justify-between rounded-lg border border-gold/40 bg-gold/5 px-3 py-2 text-sm">
+                <span className="flex items-center gap-2 font-semibold">
+                  <Video className="h-4 w-4 text-gold" /> 📹 שיעור חי
+                </span>
+                <input
+                  type="checkbox"
+                  checked={!!editing.is_live}
+                  onChange={(e) => setEditing({ ...editing, is_live: e.target.checked })}
+                  className="h-4 w-4 accent-gold"
+                />
+              </label>
+            )}
+            {editing.is_live && editing.room_url && (
+              <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-[11px] text-emerald-300">
+                ✓ חדר חי פעיל
+              </div>
+            )}
+
             <div className="flex justify-end gap-2 pt-2">
               <button onClick={() => setEditing(null)} className="rounded-lg border border-border/60 px-4 py-2 text-sm">ביטול</button>
               <button onClick={save} className="rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-gold-foreground">שמור</button>
