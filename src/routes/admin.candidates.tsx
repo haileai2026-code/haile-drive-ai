@@ -369,6 +369,9 @@ function DriverFolderModal({ candidate, cityLabel, onClose }: { candidate: Candi
           <div>
             <div className="text-[11px] uppercase tracking-wider text-muted-foreground">תיק נהג</div>
             <h3 className="text-lg font-bold">{candidate.full_name}</h3>
+            <div className="mt-1 text-sm font-semibold text-sky-300">
+              📍 {cityLabel ?? "לא צוינה עיר"}
+            </div>
           </div>
           <button onClick={onClose} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent"><X className="h-4 w-4" /></button>
         </div>
