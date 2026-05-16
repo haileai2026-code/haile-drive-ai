@@ -11,7 +11,7 @@ export const Route = createFileRoute("/quiz")({
   component: QuizPage,
 });
 
-type Option = { id: string; option_text: string; is_correct: boolean; order_index: number };
+type Option = { id: string; option_text: string; order_index: number };
 type Question = { id: string; question_text: string; image_url: string | null; order_index: number; options: Option[] };
 type Exam = { id: string; title: string; description: string | null; questions: Question[] };
 
@@ -22,8 +22,10 @@ function QuizPage() {
   const [loading, setLoading] = useState(true);
   const [i, setI] = useState(0);
   const [picked, setPicked] = useState<string | null>(null);
-  const [score, setScore] = useState(0);
+  // answers keyed by question id -> option id
+  const [answers, setAnswers] = useState<Record<string, string>>({});
   const [done, setDone] = useState(false);
+  const [result, setResult] = useState<{ score: number; total: number; correctByQuestion: Record<string, string> } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -39,16 +41,22 @@ function QuizPage() {
       if (!first) { if (!cancelled) { setExam(null); setLoading(false); } return; }
       const { data: qs } = await supabase
         .from("exam_questions")
-        .select("id, question_text, image_url, order_index, exam_options(id, option_text, is_correct, order_index)")
+        .select("id, question_text, image_url, order_index")
         .eq("exam_id", first.id)
         .order("order_index", { ascending: true });
+      // Options come from a SECURITY DEFINER RPC that does not expose is_correct
+      const { data: opts } = await supabase.rpc("get_exam_options", { p_exam_id: first.id });
       if (cancelled) return;
+      const byQ: Record<string, Option[]> = {};
+      (opts ?? []).forEach((o: any) => {
+        (byQ[o.question_id] ||= []).push({ id: o.id, option_text: o.option_text, order_index: o.order_index });
+      });
       const questions: Question[] = (qs ?? []).map((q: any) => ({
         id: q.id,
         question_text: q.question_text,
         image_url: q.image_url,
         order_index: q.order_index,
-        options: (q.exam_options ?? []).sort((a: Option, b: Option) => a.order_index - b.order_index),
+        options: (byQ[q.id] ?? []).sort((a, b) => a.order_index - b.order_index),
       }));
       setExam({ ...first, questions });
       setLoading(false);
@@ -74,44 +82,42 @@ function QuizPage() {
   }
 
   const q = exam.questions[i];
-  const correctOpt = q.options.find((o) => o.is_correct);
-  const correct = picked !== null && picked === correctOpt?.id;
 
   const next = async () => {
     if (picked === null) return;
-    const newScore = score + (correct ? 1 : 0);
-    if (correct) setScore(newScore);
+    const nextAnswers = { ...answers, [q.id]: picked };
+    setAnswers(nextAnswers);
     setPicked(null);
     if (i + 1 >= exam.questions.length) {
-      setDone(true);
-      if (user) {
-        const total = exam.questions.length;
-        await supabase.from("exam_results").insert({
-          user_id: user.id,
-          exam_id: exam.id,
-          exam_title: exam.title,
-          category: "general",
-          score: newScore,
-          total_questions: total,
-          passed: newScore / total >= 0.6,
-          failed_questions: [],
+      // Submit to server for grading
+      const { data, error } = await supabase.rpc("grade_exam_attempt", {
+        p_exam_id: exam.id,
+        p_answers: nextAnswers,
+      });
+      if (!error && data && data[0]) {
+        const row: any = data[0];
+        setResult({
+          score: row.score,
+          total: row.total,
+          correctByQuestion: row.correct_by_question ?? {},
         });
       }
+      setDone(true);
     } else {
       setI((n) => n + 1);
     }
   };
 
-  const reset = () => { setI(0); setPicked(null); setScore(0); setDone(false); };
+  const reset = () => { setI(0); setPicked(null); setAnswers({}); setDone(false); setResult(null); };
 
-  if (done) {
-    const pct = Math.round((score / exam.questions.length) * 100);
+  if (done && result) {
+    const pct = Math.round((result.score / Math.max(result.total, 1)) * 100);
     return (
       <AppShell>
         <div className="mx-auto mt-10 max-w-md rounded-3xl border border-gold/30 bg-gradient-to-br from-amber-900/40 via-card to-card p-8 text-center shadow-[var(--shadow-gold)]">
           <div className="text-xs uppercase tracking-widest text-gold/80">{t("completed")}</div>
           <div className="mt-2 text-6xl font-black text-gradient-gold">{pct}%</div>
-          <p className="mt-2 text-sm text-muted-foreground">{score} / {exam.questions.length}</p>
+          <p className="mt-2 text-sm text-muted-foreground">{result.score} / {result.total}</p>
           <button onClick={reset} className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-gold px-6 py-3 text-sm font-semibold text-gold-foreground">
             <RotateCcw className="h-4 w-4" /> שוב
           </button>
@@ -137,22 +143,16 @@ function QuizPage() {
         <ul className="mt-5 space-y-2">
           {q.options.map((opt) => {
             const isPicked = picked === opt.id;
-            const showCorrect = picked !== null && opt.is_correct;
-            const showWrong = isPicked && !opt.is_correct;
             return (
               <li key={opt.id}>
                 <button
-                  disabled={picked !== null}
                   onClick={() => setPicked(opt.id)}
                   className={`flex w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-start text-sm transition ${
-                    showCorrect ? "border-success/60 bg-success/15 text-success-foreground" :
-                    showWrong ? "border-destructive/60 bg-destructive/15" :
                     isPicked ? "border-gold/60 bg-gold/10" : "border-border bg-background/40 hover:border-gold/40"
                   }`}
                 >
                   <span>{opt.option_text}</span>
-                  {showCorrect && <CheckCircle2 className="h-5 w-5 text-success" />}
-                  {showWrong && <XCircle className="h-5 w-5 text-destructive" />}
+                  {isPicked && <CheckCircle2 className="h-5 w-5 text-gold" />}
                 </button>
               </li>
             );
@@ -167,6 +167,8 @@ function QuizPage() {
           {i + 1 >= exam.questions.length ? "סיום" : "הבא →"}
         </button>
       </div>
+      {/* hide unused icon imports lint */}
+      <span className="hidden"><XCircle /></span>
     </AppShell>
   );
 }

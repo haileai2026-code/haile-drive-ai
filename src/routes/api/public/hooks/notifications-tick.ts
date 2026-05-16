@@ -24,7 +24,7 @@ export const Route = createFileRoute("/api/public/hooks/notifications-tick")({
           });
         }
       },
-      GET: async () => Response.json({ ok: true, hint: "POST with x-cron-secret to process queue" }),
+      GET: async () => new Response("Method Not Allowed", { status: 405 }),
     },
   },
 });
