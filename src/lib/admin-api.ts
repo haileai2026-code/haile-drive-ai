@@ -278,6 +278,8 @@ export type ScheduleEvent = {
   end_time: string | null;
   location: string | null;
   notes: string | null;
+  room_url: string | null;
+  is_live: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -295,6 +297,11 @@ export const scheduleApi = {
   async upsert(e: Partial<ScheduleEvent> & { title: string; event_date: string; type: ScheduleEventType }) {
     const { error } = await (supabase as any).from("schedule_events").upsert(e);
     if (error) throw error;
+  },
+  async upsertReturning(e: Partial<ScheduleEvent> & { title: string; event_date: string; type: ScheduleEventType }): Promise<ScheduleEvent> {
+    const { data, error } = await (supabase as any).from("schedule_events").upsert(e).select("*").single();
+    if (error) throw error;
+    return data as ScheduleEvent;
   },
   async remove(id: string) {
     const { error } = await (supabase as any).from("schedule_events").delete().eq("id", id);

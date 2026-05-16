@@ -3,8 +3,10 @@ import { AdminShell, AdminLoading } from "@/components/AdminShell";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi, scheduleApi, type ScheduleEvent, type ScheduleEventType } from "@/lib/admin-api";
 import { useState, useMemo } from "react";
-import { Plus, Trash2, Pencil, BookOpen, FileQuestion, RotateCcw, CalendarRange, AlertTriangle } from "lucide-react";
+import { Plus, Trash2, Pencil, BookOpen, FileQuestion, RotateCcw, CalendarRange, AlertTriangle, Video } from "lucide-react";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
+import { createDailyRoom } from "@/lib/live-classes.functions";
 
 const WEEKDAYS = [
   { v: 0, label: "א׳" },
@@ -63,6 +65,7 @@ type Form = Partial<ScheduleEvent> & { title: string; event_date: string; type: 
 
 function SchedulePage() {
   const qc = useQueryClient();
+  const createRoom = useServerFn(createDailyRoom);
   const [filterClass, setFilterClass] = useState<string>("");
   const [editing, setEditing] = useState<Form | null>(null);
   const [recurring, setRecurring] = useState<RecurringForm | null>(null);
@@ -98,13 +101,24 @@ function SchedulePage() {
       return;
     }
     try {
-      await scheduleApi.upsert({
+      const wantsLive = !!editing.is_live;
+      const saved = await scheduleApi.upsertReturning({
         ...editing,
+        is_live: wantsLive && !!editing.room_url ? true : wantsLive,
         class_id: editing.class_id || null,
         exam_id: editing.type === "exam" ? editing.exam_id || null : null,
         candidate_id: editing.type === "makeup" ? editing.candidate_id || null : null,
       });
-      toast.success("נשמר");
+      if (wantsLive && saved && !saved.room_url) {
+        try {
+          await createRoom({ data: { eventId: saved.id, classId: saved.class_id, title: saved.title } });
+          toast.success("שיעור חי נוצר");
+        } catch (e: any) {
+          toast.error("השיעור נשמר אך יצירת חדר נכשלה: " + (e?.message ?? ""));
+        }
+      } else {
+        toast.success("נשמר");
+      }
       setEditing(null);
       qc.invalidateQueries({ queryKey: ["schedule"] });
     } catch (e: any) {
@@ -255,6 +269,11 @@ function SchedulePage() {
                     <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] ${meta.cls}`}>
                       <meta.Icon className="h-3 w-3" /> {meta.label}
                     </span>
+                    {ev.is_live && (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-rose-500/40 bg-rose-500/10 px-2 py-0.5 text-[11px] font-bold text-rose-300">
+                        <Video className="h-3 w-3" /> LIVE
+                      </span>
+                    )}
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-semibold">{ev.title}</div>
                       <div className="text-xs text-muted-foreground">
@@ -389,6 +408,25 @@ function SchedulePage() {
                 rows={2}
               />
             </label>
+
+            {editing.type === "lesson" && (
+              <label className="flex items-center justify-between rounded-lg border border-gold/40 bg-gold/5 px-3 py-2 text-sm">
+                <span className="flex items-center gap-2 font-semibold">
+                  <Video className="h-4 w-4 text-gold" /> 📹 שיעור חי
+                </span>
+                <input
+                  type="checkbox"
+                  checked={!!editing.is_live}
+                  onChange={(e) => setEditing({ ...editing, is_live: e.target.checked })}
+                  className="h-4 w-4 accent-gold"
+                />
+              </label>
+            )}
+            {editing.is_live && editing.room_url && (
+              <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-[11px] text-emerald-300">
+                ✓ חדר חי פעיל
+              </div>
+            )}
 
             <div className="flex justify-end gap-2 pt-2">
               <button onClick={() => setEditing(null)} className="rounded-lg border border-border/60 px-4 py-2 text-sm">ביטול</button>

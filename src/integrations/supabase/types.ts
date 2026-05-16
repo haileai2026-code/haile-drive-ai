@@ -837,8 +837,10 @@ export type Database = {
           event_date: string
           exam_id: string | null
           id: string
+          is_live: boolean
           location: string | null
           notes: string | null
+          room_url: string | null
           start_time: string | null
           title: string
           type: Database["public"]["Enums"]["schedule_event_type"]
@@ -853,8 +855,10 @@ export type Database = {
           event_date: string
           exam_id?: string | null
           id?: string
+          is_live?: boolean
           location?: string | null
           notes?: string | null
+          room_url?: string | null
           start_time?: string | null
           title: string
           type?: Database["public"]["Enums"]["schedule_event_type"]
@@ -869,8 +873,10 @@ export type Database = {
           event_date?: string
           exam_id?: string | null
           id?: string
+          is_live?: boolean
           location?: string | null
           notes?: string | null
+          room_url?: string | null
           start_time?: string | null
           title?: string
           type?: Database["public"]["Enums"]["schedule_event_type"]
