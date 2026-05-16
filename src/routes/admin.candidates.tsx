@@ -88,6 +88,17 @@ function CandidatesPage() {
   const cityName = (id: string | null) => citiesQ.data?.find((c) => c.id === id)?.name_he ?? "—";
   const className = (id: string | null) => classesQ.data?.find((c) => c.id === id)?.name ?? "—";
 
+  const LANG_DISPLAY: Record<string, string> = {
+    am: "🇪🇹 אמהרית",
+    he: "🇮🇱 עברית",
+    ru: "🇷🇺 רוסית",
+    ku: "✡️ קוקי",
+    kuki: "✡️ קוקי",
+    en: "🇬🇧 אנגלית",
+    fr: "🇫🇷 צרפתית",
+  };
+  const langLabel = (code: string | null) => LANG_DISPLAY[code ?? ""] ?? (code || "—");
+
   const filtered = (candidatesQ.data ?? []).filter((c) => {
     const isPaid = c.payment_status === "paid";
     if (tab === "leads" && isPaid) return false;
@@ -180,7 +191,7 @@ function CandidatesPage() {
                     ))}
                   </select>
                 </td>
-                <td className="px-3 py-3 text-muted-foreground">{c.language}</td>
+                <td className="px-3 py-3 text-muted-foreground">{langLabel(c.language)}</td>
                 <td className="px-3 py-3"><span className="rounded-full border border-gold/30 bg-gold/10 px-2 py-0.5 text-[10px] text-gold">{STATUS_LABELS[c.status] ?? c.status}</span></td>
                 <td className="px-3 py-3">
                   {c.payment_status === "paid" ? (
