@@ -192,9 +192,12 @@ function SessionDetail({
         <Button size="sm" variant="outline" onClick={onBack}>
           <ChevronLeft className="h-4 w-4 ml-1" /> חזרה לרשימה
         </Button>
-        <Badge variant="outline" className={`${rec.color} text-sm`}>
-          {rec.emoji} {rec.label}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className={`${rec.color} text-sm`}>
+            {rec.emoji} {rec.label}
+          </Badge>
+          <PdfButton session={session} profile={profile} />
+        </div>
       </div>
 
       <Card>
