@@ -6,6 +6,7 @@ import type {
   DiagLanguage,
 } from "./interfaces";
 import { ttsElevenLabs } from "@/lib/tts.functions";
+import { AZURE_TTS_CONFIG, GOOGLE_TTS_CONFIG } from "./config";
 
 // --- TTS via ElevenLabs (server function) -------------------------------
 export class TTSElevenLabs implements TTSProvider {
