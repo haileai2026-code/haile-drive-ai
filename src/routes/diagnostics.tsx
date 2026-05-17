@@ -230,7 +230,7 @@ function DiagnosticsPage() {
         session_id: user.id, // session row inserted at finish; use student id as grouping fallback
         event_type: "answer_submitted",
         bpm, hrv,
-        payload: { q: q.id, score: opt.score, rt_ms: row.rtMs, emotion: emotion ?? null },
+        payload: { q: q.id, score: opt.score, rt_ms: row.rtMs, emotion: emotion as any },
       }).then(() => {}, () => {});
     }
 
@@ -504,7 +504,7 @@ function Welcome({ onStart }: { onStart: () => void }) {
 
 function CommunityChooser({
   onPick, videoRef,
-}: { onPick: (c: Community) => void; videoRef: React.RefObject<HTMLVideoElement> }) {
+}: { onPick: (c: Community) => void; videoRef: React.RefObject<HTMLVideoElement | null> }) {
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <div className="rounded-2xl border bg-black/60 p-3">
@@ -527,7 +527,7 @@ function CommunityChooser({
 function LiveMonitor({
   videoRef, bpm, hrv, emotion,
 }: {
-  videoRef: React.RefObject<HTMLVideoElement>;
+  videoRef: React.RefObject<HTMLVideoElement | null>;
   bpm: number | null; hrv: number | null; emotion: FaceEmotion | null;
 }) {
   return (
