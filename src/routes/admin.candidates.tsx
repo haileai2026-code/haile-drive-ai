@@ -370,6 +370,7 @@ function OpenVoucherPrompt({ candidate, onClose, onOpened }: { candidate: Candid
   );
 }
 
+function DriverFolderModal({ candidate, cityLabel, onClose }: { candidate: Candidate; cityLabel?: string | null; onClose: () => void }) {
   const qc = useQueryClient();
   const [label, setLabel] = useState<string>(DOC_PRESETS[0]);
   const [busy, setBusy] = useState(false);
