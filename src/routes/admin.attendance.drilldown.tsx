@@ -125,7 +125,7 @@ function DrilldownPage() {
 
       {/* Per teacher */}
       <section className="mt-6">
-        <h2 className="mb-3 text-sm font-semibold">פילוח לפי מורה</h2>
+        <h2 className="mb-3 text-sm font-semibold">פילוח לפי מרצה</h2>
         {byTeacher.length === 0 ? (
           <div className="rounded-2xl border border-border/60 bg-card/40 p-6 text-center text-sm text-muted-foreground">
             אין סימונים בטווח שנבחר.
@@ -135,7 +135,7 @@ function DrilldownPage() {
             <table className="w-full text-sm">
               <thead className="bg-background/40 text-right text-[11px] uppercase tracking-wider text-muted-foreground">
                 <tr>
-                  <th className="px-3 py-2">מורה</th>
+                  <th className="px-3 py-2">מרצה</th>
                   <th className="px-3 py-2">נוכח</th>
                   <th className="px-3 py-2">איחור</th>
                   <th className="px-3 py-2">חסר</th>

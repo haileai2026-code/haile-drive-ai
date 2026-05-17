@@ -61,7 +61,7 @@ function AdminOverviewContent() {
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div>
             <p className="text-xs font-semibold text-gold">ניהול מלא של Haile Drive AI</p>
-            <h2 className="mt-1 text-2xl font-black tracking-tight">בעלים: תלמידים, מורים, חומרי לימוד ומבחנים</h2>
+            <h2 className="mt-1 text-2xl font-black tracking-tight">בעלים: תלמידים, מרצים, חומרי לימוד ומבחנים</h2>
             <p className="mt-2 max-w-3xl text-sm text-muted-foreground">פעולות מהיר — כל פעולה כאן מעדכנת את מסד הנתונים בזמן אמת.</p>
           </div>
           <button
@@ -78,14 +78,14 @@ function AdminOverviewContent() {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard label="סה״כ לידים/תלמידים" value={candidates.length} hint={`${active} פעילים`} tone="gold" icon={Users} />
         <StatCard label="כיתות" value={classesQ.data?.length ?? 0} icon={GraduationCap} />
-        <StatCard label="מורים" value={teachersQ.data?.length ?? 0} icon={UserCog} />
+        <StatCard label="מרצים" value={teachersQ.data?.length ?? 0} icon={UserCog} />
         <StatCard label="חומרים" value={materialsQ.data?.length ?? 0} icon={FileText} />
         <StatCard label="מבחנים" value={examsQ.data?.length ?? 0} icon={FileText} />
       </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <QuickLink to="/admin/candidates" icon={Users} title="לידים ותלמידים" desc="הוסף, ערוך, שייך לכיתה" />
-        <QuickLink to="/admin/teachers" icon={UserCog} title="מורים והרשאות" desc="הענק הרשאת מורה ושייך לכיתות" />
+        <QuickLink to="/admin/teachers" icon={UserCog} title="מרצים והרשאות" desc="הענק הרשאת מרצה ושייך לכיתות" />
         <QuickLink to="/admin/organization" icon={GraduationCap} title="כיתות וקבוצות" desc="צור כיתות לפי עיר" />
         <QuickLink to="/admin/content" icon={FileText} title="📚 תוכן לימודי" desc="חומרי לימוד ובנק מבחנים" />
         <QuickLink to="/admin/organization" icon={Building2} title="ערים ומסלולים" desc="ניהול סניפי הלימוד" />

@@ -221,7 +221,7 @@ function AttendancePage() {
       </section>
 
       <div className="mt-6 text-xs text-muted-foreground">
-        סימון נוכחות מתבצע במסך המורה. <Link to="/teacher/attendance" className="text-gold underline">פתח כעת</Link>
+        סימון נוכחות מתבצע במסך המרצה. <Link to="/teacher/attendance" className="text-gold underline">פתח כעת</Link>
       </div>
     </AdminShell>
   );

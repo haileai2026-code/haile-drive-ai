@@ -43,7 +43,7 @@ const TYPE_LABEL: Record<string, string> = {
 };
 const ROLE_LABEL: Record<string, string> = {
   owner: "🏢 הנהלה",
-  teacher: "👨‍🏫 מורה",
+  teacher: "👨‍🏫 מרצה",
   secretary: "📋 מזכירה",
 };
 

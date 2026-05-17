@@ -31,7 +31,7 @@ const PORTALS: Record<PortalRole, {
   },
   teacher: {
     label: "Teacher",
-    labelHe: "מורה",
+    labelHe: "מרצה",
     icon: BookOpen,
     accent: "text-sky-300",
     ring: "ring-sky-400/60",

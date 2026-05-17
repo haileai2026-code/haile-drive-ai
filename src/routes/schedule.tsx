@@ -134,7 +134,7 @@ function StudentSchedule() {
                           <dd className="font-semibold text-foreground">{ev.title}</dd>
                         </div>
                         <div className="flex gap-2">
-                          <dt className="w-14 shrink-0 text-muted-foreground">מורה:</dt>
+                          <dt className="w-14 shrink-0 text-muted-foreground">מרצה:</dt>
                           <dd className="font-semibold text-foreground">{teacherName ?? "—"}</dd>
                         </div>
                         <div className="flex gap-2">

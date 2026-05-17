@@ -542,7 +542,7 @@ function FeedbackTab() {
 
 // ---------- Tab 4: Contact ----------
 const RECIPIENTS: Array<{ key: "teacher" | "owner" | "secretary"; he: string; am: string; icon: any }> = [
-  { key: "teacher", he: "👨‍🏫 מורה", am: "👨‍🏫 መምህር", icon: GraduationCap },
+  { key: "teacher", he: "👨‍🏫 מרצה", am: "👨‍🏫 መምህር", icon: GraduationCap },
   { key: "owner", he: "🏢 הנהלה", am: "🏢 አስተዳደር", icon: Building2 },
   { key: "secretary", he: "📋 מזכירה", am: "📋 ጸሐፊ", icon: ClipboardList },
 ];

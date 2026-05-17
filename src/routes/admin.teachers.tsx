@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { UserCog, Plus } from "lucide-react";
 
 export const Route = createFileRoute("/admin/teachers")({
-  head: () => ({ meta: [{ title: "מורים והרשאות — Haile Drive AI" }] }),
+  head: () => ({ meta: [{ title: "מרצים והרשאות — Haile Drive AI" }] }),
   component: TeachersPage,
 });
 
@@ -59,16 +59,16 @@ function TeachersPage() {
   const loadError = usersQ.error || teachersQ.error || classesQ.error;
 
   return (
-    <AdminShell title="מורים והרשאות">
+    <AdminShell title="מרצים והרשאות">
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <button onClick={() => setTab("users")} className={`rounded-xl px-4 py-2 text-sm ${tab === "users" ? "bg-gold text-gold-foreground" : "border border-border/60"}`}>הרשאות מורה</button>
+        <button onClick={() => setTab("users")} className={`rounded-xl px-4 py-2 text-sm ${tab === "users" ? "bg-gold text-gold-foreground" : "border border-border/60"}`}>הרשאות מרצה</button>
         <button onClick={() => setTab("assign")} className={`rounded-xl px-4 py-2 text-sm ${tab === "assign" ? "bg-gold text-gold-foreground" : "border border-border/60"}`}>שיבוץ לכיתות</button>
         <button onClick={() => setNewUser({ ...emptyUser })} className="ms-auto inline-flex h-10 items-center gap-1.5 rounded-xl bg-gold px-4 text-sm font-semibold text-gold-foreground">
           <Plus className="h-4 w-4" /> חשבון חדש
         </button>
       </div>
 
-      {isLoading && <AdminLoading label="טוען משתמשים, מורים וכיתות מהמסד…" />}
+      {isLoading && <AdminLoading label="טוען משתמשים, מרצים וכיתות מהמסד…" />}
       {loadError && (
         <div className="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-300">
           טעינת הנתונים נכשלה: {(loadError as Error).message}
@@ -79,7 +79,7 @@ function TeachersPage() {
         <div className="overflow-hidden rounded-2xl border border-border/60 bg-card/40">
           <table className="w-full text-sm">
             <thead className="bg-background/40 text-right text-[11px] uppercase tracking-wider text-muted-foreground">
-              <tr><th className="px-3 py-2">שם</th><th className="px-3 py-2">אימייל</th><th className="px-3 py-2 w-40">מורה?</th></tr>
+              <tr><th className="px-3 py-2">שם</th><th className="px-3 py-2">אימייל</th><th className="px-3 py-2 w-40">מרצה?</th></tr>
             </thead>
             <tbody className="divide-y divide-border/40">
               {isLoading && <tr><td colSpan={3} className="px-3 py-10 text-center text-muted-foreground">טוען נתונים חיים…</td></tr>}
@@ -95,7 +95,7 @@ function TeachersPage() {
                         onClick={() => toggleMut.mutate({ userId: u.id, makeTeacher: !isT })}
                         className={`inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold ${isT ? "bg-emerald-500/15 text-emerald-300" : "border border-border/60 text-muted-foreground"}`}
                       >
-                        <UserCog className="h-3.5 w-3.5" /> {isT ? "מורה" : "הפוך למורה"}
+                        <UserCog className="h-3.5 w-3.5" /> {isT ? "מרצה" : "הפוך למרצה"}
                       </button>
                     </td>
                   </tr>
@@ -110,7 +110,7 @@ function TeachersPage() {
         <div className="overflow-hidden rounded-2xl border border-border/60 bg-card/40">
           <table className="w-full text-sm">
             <thead className="bg-background/40 text-right text-[11px] uppercase tracking-wider text-muted-foreground">
-              <tr><th className="px-3 py-2">כיתה</th><th className="px-3 py-2">מורה משויך</th></tr>
+              <tr><th className="px-3 py-2">כיתה</th><th className="px-3 py-2">מרצה משויך</th></tr>
             </thead>
             <tbody className="divide-y divide-border/40">
               {isLoading && <tr><td colSpan={2} className="px-3 py-10 text-center text-muted-foreground">טוען נתונים חיים…</td></tr>}
@@ -124,7 +124,7 @@ function TeachersPage() {
                       onChange={(e) => assignClassMut.mutate({ classId: cl.id, teacherId: e.target.value || null })}
                       className="rounded-md border border-input bg-background px-3 py-1.5 text-sm"
                     >
-                      <option value="">— ללא מורה —</option>
+                      <option value="">— ללא מרצה —</option>
                       {teachersQ.data?.map((t) => <option key={t.id} value={t.id}>{t.full_name ?? t.email}</option>)}
                     </select>
                   </td>
@@ -159,7 +159,7 @@ function TeachersPage() {
               <label className="block">
                 <span className="mb-1 block text-xs font-semibold">תפקיד *</span>
                 <select value={newUser.role} onChange={(e) => setNewUser({ ...newUser, role: e.target.value as any })} className="block w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                  <option value="teacher">מורה</option>
+                  <option value="teacher">מרצה</option>
                   <option value="student">תלמיד</option>
                   <option value="staff">צוות</option>
                 </select>
