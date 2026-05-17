@@ -4,11 +4,13 @@ import { AdminShell, AdminLoading } from "@/components/AdminShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Brain, Heart, Activity, ChevronLeft } from "lucide-react";
+import { Brain, Heart, Activity, ChevronLeft, Download } from "lucide-react";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend,
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
+import { generateDiagnosticPdf } from "@/lib/diagnostics/pdf-report";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/diagnostics")({
   head: () => ({ meta: [{ title: "דוחות אבחון — Owner" }] }),
@@ -121,27 +123,27 @@ function SessionList({
           const p = profiles[r.student_id];
           const rec = recBadge(r.recommendation, r.final_beqa_score);
           return (
-            <button
+            <div
               key={r.id}
-              onClick={() => onSelect(r.id)}
-              className="w-full text-right rounded-lg border border-border/60 p-3 hover:bg-muted/40 transition"
+              className="flex items-start justify-between gap-3 rounded-lg border border-border/60 p-3 hover:bg-muted/40 transition"
             >
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <div className="font-medium truncate">
-                    {p?.full_name || p?.email || r.student_id.slice(0, 8)}
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
-                    {new Date(r.start_time).toLocaleString("he-IL")} ·
-                    {" "}{r.community_type ?? "—"} ·
-                    {" "}<Heart className="inline h-3 w-3 text-red-500" /> {r.baseline_hr ?? "—"}→{r.stress_hr ?? "—"}
-                  </div>
+              <button onClick={() => onSelect(r.id)} className="text-right min-w-0 flex-1">
+                <div className="font-medium truncate">
+                  {p?.full_name || p?.email || r.student_id.slice(0, 8)}
                 </div>
+                <div className="text-xs text-muted-foreground mt-0.5">
+                  {new Date(r.start_time).toLocaleString("he-IL")} ·
+                  {" "}{r.community_type ?? "—"} ·
+                  {" "}<Heart className="inline h-3 w-3 text-red-500" /> {r.baseline_hr ?? "—"}→{r.stress_hr ?? "—"}
+                </div>
+              </button>
+              <div className="flex items-center gap-2 shrink-0">
                 <Badge variant="outline" className={`${rec.color} whitespace-nowrap`}>
                   {rec.emoji} {Math.round(r.final_beqa_score ?? 0)}
                 </Badge>
+                <PdfButton session={r} profile={p} size="sm" />
               </div>
-            </button>
+            </div>
           );
         })}
       </CardContent>
@@ -190,9 +192,12 @@ function SessionDetail({
         <Button size="sm" variant="outline" onClick={onBack}>
           <ChevronLeft className="h-4 w-4 ml-1" /> חזרה לרשימה
         </Button>
-        <Badge variant="outline" className={`${rec.color} text-sm`}>
-          {rec.emoji} {rec.label}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className={`${rec.color} text-sm`}>
+            {rec.emoji} {rec.label}
+          </Badge>
+          <PdfButton session={session} profile={profile} />
+        </div>
       </div>
 
       <Card>
@@ -314,5 +319,37 @@ function Stat({ label, value, tone }: { label: string; value: string; tone: "eme
       <div className="text-[10px] text-muted-foreground">{label}</div>
       <div className={`text-base font-bold ${color}`}>{value}</div>
     </div>
+  );
+}
+
+function PdfButton({
+  session, profile, size = "default",
+}: {
+  session: Session;
+  profile: Profile | undefined;
+  size?: "default" | "sm";
+}) {
+  const [busy, setBusy] = useState(false);
+  return (
+    <Button
+      size={size}
+      variant="default"
+      disabled={busy}
+      onClick={async (e) => {
+        e.stopPropagation();
+        setBusy(true);
+        try {
+          await generateDiagnosticPdf(session, profile);
+        } catch (err) {
+          console.error(err);
+          toast.error("שגיאה ביצירת ה-PDF");
+        } finally {
+          setBusy(false);
+        }
+      }}
+    >
+      <Download className="h-4 w-4 ml-1" />
+      {busy ? "מפיק…" : "הפק דוח אבחון PDF"}
+    </Button>
   );
 }
