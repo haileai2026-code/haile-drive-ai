@@ -118,3 +118,102 @@ export class RPPGSimulator implements RPPGProvider {
     }
   }
 }
+
+// --- TTS via Azure Cognitive Services ----------------------------------
+export class AzureTTS implements TTSProvider {
+  private audio: HTMLAudioElement | null = null;
+
+  async speak(text: string, language: DiagLanguage): Promise<void> {
+    this.stop();
+    const key = import.meta.env.VITE_AZURE_TTS_KEY as string | undefined;
+    const region = (import.meta.env.VITE_AZURE_TTS_REGION as string | undefined) || "eastus";
+    const voice = AZURE_TTS_CONFIG.voices[language];
+
+    if (!key) {
+      console.warn("Azure TTS key not set — falling back to browser TTS");
+      return new TTSSimulator().speak(text, language);
+    }
+
+    const xmlLang =
+      language === "he" ? "he-IL" :
+      language === "am" ? "am-ET" :
+      language === "ru" ? "ru-RU" :
+      "am-ET";
+
+    const ssml = `<speak version='1.0' xml:lang='${xmlLang}'><voice name='${voice}'>${text}</voice></speak>`;
+
+    try {
+      const response = await fetch(
+        `https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`,
+        {
+          method: "POST",
+          headers: {
+            "Ocp-Apim-Subscription-Key": key,
+            "Content-Type": "application/ssml+xml",
+            "X-Microsoft-OutputFormat": "audio-16khz-128kbitrate-mono-mp3",
+          },
+          body: ssml,
+        },
+      );
+      if (!response.ok) throw new Error("Azure TTS error");
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      this.audio = new Audio(url);
+      await this.audio.play();
+    } catch (e) {
+      console.warn("Azure TTS failed, falling back", e);
+      return new TTSSimulator().speak(text, language);
+    }
+  }
+
+  stop(): void {
+    if (this.audio) {
+      try { this.audio.pause(); } catch {}
+      this.audio = null;
+    }
+  }
+}
+
+// --- TTS via Google Cloud Text-to-Speech --------------------------------
+export class GoogleTTS implements TTSProvider {
+  private audio: HTMLAudioElement | null = null;
+
+  async speak(text: string, language: DiagLanguage): Promise<void> {
+    this.stop();
+    const key = import.meta.env.VITE_GOOGLE_TTS_KEY as string | undefined;
+    if (!key) {
+      console.warn("Google TTS key not set — falling back to browser TTS");
+      return new TTSSimulator().speak(text, language);
+    }
+    const voice = GOOGLE_TTS_CONFIG.voices[language];
+    try {
+      const response = await fetch(
+        `https://texttospeech.googleapis.com/v1/text:synthesize?key=${key}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            input: { text },
+            voice: { name: voice, languageCode: voice.split("-").slice(0, 2).join("-") },
+            audioConfig: { audioEncoding: "MP3" },
+          }),
+        },
+      );
+      if (!response.ok) throw new Error("Google TTS error");
+      const { audioContent } = await response.json();
+      const audio = new Audio(`data:audio/mp3;base64,${audioContent}`);
+      this.audio = audio;
+      await audio.play();
+    } catch (e) {
+      console.warn("Google TTS failed, falling back", e);
+      return new TTSSimulator().speak(text, language);
+    }
+  }
+
+  stop(): void {
+    if (this.audio) {
+      try { this.audio.pause(); } catch {}
+      this.audio = null;
+    }
+  }
+}
