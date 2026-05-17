@@ -74,7 +74,7 @@ function QuizPage() {
         <div className="mx-auto mt-10 max-w-md rounded-3xl border border-dashed border-border/60 bg-card/40 p-8 text-center">
           <FileQuestion className="mx-auto h-10 w-10 text-muted-foreground" />
           <h1 className="mt-3 text-xl font-bold">אין מבחן זמין</h1>
-          <p className="mt-2 text-sm text-muted-foreground">המורה טרם פרסם מבחן. חזור מאוחר יותר.</p>
+          <p className="mt-2 text-sm text-muted-foreground">המרצה טרם פרסם מבחן. חזור מאוחר יותר.</p>
           <Link to="/dashboard" className="mt-5 inline-block text-gold">חזור לדשבורד</Link>
         </div>
       </AppShell>

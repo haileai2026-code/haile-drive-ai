@@ -51,7 +51,7 @@ export function ClassesPanel() {
         </button>
       </div>
 
-      {isLoading && <div className="mt-4"><AdminLoading label="טוען כיתות, ערים, מורים ותלמידים…" /></div>}
+      {isLoading && <div className="mt-4"><AdminLoading label="טוען כיתות, ערים, מרצים ותלמידים…" /></div>}
       {loadError && <div className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-300">טעינת הנתונים נכשלה: {(loadError as Error).message}</div>}
 
       <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -70,7 +70,7 @@ export function ClassesPanel() {
                 </div>
               </div>
               <div className="mt-3 space-y-1 text-sm text-muted-foreground">
-                <div>מורה: {teacherName(c.teacher_id)}</div>
+                <div>מרצה: {teacherName(c.teacher_id)}</div>
                 <div>שעות: {c.schedule ?? "—"}</div>
                 <div>קיבולת: {students.length}/{c.capacity}</div>
               </div>
@@ -129,7 +129,7 @@ export function ClassesPanel() {
                 </select>
               </label>
               <label className="block">
-                <span className="mb-1 block text-xs font-semibold">מורה משויך</span>
+                <span className="mb-1 block text-xs font-semibold">מרצה משויך</span>
                 <select value={editing.teacher_id ?? ""} onChange={(e) => setEditing({ ...editing, teacher_id: e.target.value || null })} className="block w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
                   <option value="">—</option>
                   {teachersQ.data?.map((t) => <option key={t.id} value={t.id}>{t.full_name ?? t.email}</option>)}

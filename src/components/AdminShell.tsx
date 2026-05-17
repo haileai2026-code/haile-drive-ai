@@ -19,7 +19,7 @@ const NAV: NavItem[] = [
   { to: "/admin", icon: LayoutDashboard, label: "סקירת בעלים", roles: ["owner"] },
   { to: "/admin/ai-agent", icon: Bot, label: "🤖 סוכן AI", roles: ["owner"] },
   { to: "/admin/candidates", icon: Users, label: "תלמידים ומועמדים", roles: ["owner", "staff"] },
-  { to: "/admin/teachers", icon: UserCog, label: "מורים והרשאות", roles: ["owner"] },
+  { to: "/admin/teachers", icon: UserCog, label: "מרצים והרשאות", roles: ["owner"] },
   { to: "/admin/organization", icon: Building2, label: "🏫 ארגון", roles: ["owner", "staff"] },
   { to: "/admin/attendance", icon: ClipboardCheck, label: "ניתוח נוכחות", roles: ["owner"] },
   { to: "/admin/makeup", icon: CalendarClock, label: "השלמות שיעורים", roles: ["owner"] },
@@ -31,14 +31,14 @@ const NAV: NavItem[] = [
   { to: "/admin/beqa", icon: Activity, label: "BEQA — אבחון ביומטרי", roles: ["owner"] },
   { to: "/admin/diagnostics", icon: Brain, label: "🧠 דוחות אבחון", roles: ["owner", "staff"] },
   { to: "/admin/vouchers", icon: Wallet, label: '💰 ויצ"ר', roles: ["owner", "staff"] },
-  { to: "/teacher", icon: GraduationCap, label: "מסך מורה", roles: ["teacher"] },
+  { to: "/teacher", icon: GraduationCap, label: "מסך מרצה", roles: ["teacher"] },
   { to: "/teacher/attendance", icon: ClipboardCheck, label: "סימון נוכחות", roles: ["teacher"] },
 ];
 
 const ROLE_LABEL: Record<Role, string> = {
   owner: "בעלים",
   staff: "צוות",
-  teacher: "מורה",
+  teacher: "מרצה",
   student: "תלמיד",
   lead: "ליד",
 };

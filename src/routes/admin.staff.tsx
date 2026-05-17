@@ -18,7 +18,7 @@ function StaffPage() {
             משתמשים
           </Link>
           <Link to="/admin/teachers" className="rounded-xl border border-border/60 px-4 py-2 text-sm">
-            מורים
+            מרצים
           </Link>
         </div>
       </div>

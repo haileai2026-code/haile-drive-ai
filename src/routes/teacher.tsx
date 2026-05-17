@@ -6,7 +6,7 @@ import { useAuth } from "@/lib/auth";
 import { ClipboardCheck, Users, BookOpen } from "lucide-react";
 
 export const Route = createFileRoute("/teacher")({
-  head: () => ({ meta: [{ title: "מסך מורה — Haile Drive AI" }] }),
+  head: () => ({ meta: [{ title: "מסך מרצה — Haile Drive AI" }] }),
   component: TeacherDashboard,
 });
 

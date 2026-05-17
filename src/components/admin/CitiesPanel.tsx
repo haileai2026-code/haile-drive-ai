@@ -36,7 +36,7 @@ export function CitiesPanel() {
   });
 
   const teacherName = (id: string | null) =>
-    teachersQ.data?.find((t) => t.id === id)?.full_name ?? "ללא מורה";
+    teachersQ.data?.find((t) => t.id === id)?.full_name ?? "ללא מרצה";
 
   return (
     <div>
@@ -96,7 +96,7 @@ export function CitiesPanel() {
                               <div>
                                 <div className="text-sm font-semibold">{cl.name}</div>
                                 <div className="text-[11px] text-muted-foreground">
-                                  מורה: {teacherName(cl.teacher_id)} · {cl.schedule ?? "ללא מערכת"}
+                                  מרצה: {teacherName(cl.teacher_id)} · {cl.schedule ?? "ללא מערכת"}
                                 </div>
                               </div>
                             </div>

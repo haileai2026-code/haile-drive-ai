@@ -307,7 +307,7 @@ function Dashboard() {
           <div className="rounded-2xl border border-border/60 bg-card/40 p-6 text-center text-sm text-muted-foreground">טוען…</div>
         ) : materials.length === 0 ? (
           <div className="rounded-2xl border border-border/60 bg-card/40 p-6 text-center text-sm text-muted-foreground">
-            עדיין אין חומרי לימוד זמינים. פנה למורה.
+            עדיין אין חומרי לימוד זמינים. פנה למרצה.
           </div>
         ) : (
           <ul className="grid gap-2">
