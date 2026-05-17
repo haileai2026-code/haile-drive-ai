@@ -7,12 +7,12 @@ import { supabase } from "@/integrations/supabase/client";
  */
 export async function resolveMaterialUrl(fileUrl: string | null | undefined): Promise<string | null> {
   if (!fileUrl) return null;
-  if (/^https?:\/\//i.test(fileUrl)) return fileUrl;
+  if (/^https?:\/\//i.test(fileUrl)) return fileUrl.replace(/^http:\/\//i, "https://");
   const { data, error } = await supabase.storage
     .from("materials")
     .createSignedUrl(fileUrl, 3600);
   if (error || !data?.signedUrl) return null;
-  return data.signedUrl;
+  return data.signedUrl.replace(/^http:\/\//i, "https://");
 }
 
 /** Open a material in a new tab, resolving its URL first. */
