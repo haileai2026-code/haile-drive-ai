@@ -5,6 +5,40 @@ import type {
   RPPGProvider,
   DiagLanguage,
 } from "./interfaces";
+import { ttsElevenLabs } from "@/lib/tts.functions";
+
+// --- TTS via ElevenLabs (server function) -------------------------------
+export class TTSElevenLabs implements TTSProvider {
+  private audio: HTMLAudioElement | null = null;
+  private currentUrl: string | null = null;
+
+  async speak(text: string, language: DiagLanguage): Promise<void> {
+    this.stop();
+    try {
+      const res = await ttsElevenLabs({ data: { text, language } });
+      if (res.error || !res.audio) {
+        // Fallback to Web Speech if ElevenLabs fails
+        return new TTSSimulator().speak(text, language);
+      }
+      const url = `data:audio/mpeg;base64,${res.audio}`;
+      const a = new Audio(url);
+      this.audio = a;
+      this.currentUrl = url;
+      await a.play();
+    } catch (e) {
+      console.warn("ElevenLabs TTS failed, falling back", e);
+      return new TTSSimulator().speak(text, language);
+    }
+  }
+
+  stop(): void {
+    if (this.audio) {
+      try { this.audio.pause(); } catch {}
+      this.audio = null;
+    }
+    this.currentUrl = null;
+  }
+}
 
 // --- TTS using built-in Web Speech API (free, in-browser) ----------------
 export class TTSSimulator implements TTSProvider {
