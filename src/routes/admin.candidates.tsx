@@ -53,6 +53,7 @@ function CandidatesPage() {
   const [editing, setEditing] = useState<FormState | null>(null);
   const [folderFor, setFolderFor] = useState<Candidate | null>(null);
   const [importing, setImporting] = useState(false);
+  const [voucherPrompt, setVoucherPrompt] = useState<Candidate | null>(null);
   const setPaymentFn = useServerFn(setCandidatePayment);
   const setBeqaFn = useServerFn(setCandidateBeqaAccess);
 
