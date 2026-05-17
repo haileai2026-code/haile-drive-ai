@@ -63,23 +63,33 @@ function AdminDiagnosticsPage() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
-        .from("beqa_diagnostic_sessions")
-        .select("*")
-        .in("assessment_type", ["unified", "psychological", "biometric"])
-        .order("start_time", { ascending: false })
-        .limit(300);
-      const list = (data ?? []) as unknown as Session[];
-      setRows(list);
-      const ids = Array.from(new Set(list.map((r) => r.student_id)));
-      if (ids.length) {
-        const { data: profs } = await supabase
-          .from("profiles").select("id, full_name, email").in("id", ids);
-        const map: Record<string, Profile> = {};
-        (profs ?? []).forEach((p) => { map[p.id] = p as Profile; });
-        setProfiles(map);
+      try {
+        const { data, error } = await supabase
+          .from("beqa_diagnostic_sessions")
+          .select("*")
+          .in("assessment_type", ["unified", "psychological", "biometric"])
+          .order("start_time", { ascending: false })
+          .limit(300);
+        if (error) throw error;
+        const list = ((data ?? []) as unknown as Session[]).filter((r) => r && r.id);
+        setRows(list);
+        const ids = Array.from(
+          new Set(list.map((r) => r.student_id).filter((id): id is string => !!id)),
+        );
+        if (ids.length) {
+          const { data: profs } = await supabase
+            .from("profiles").select("id, full_name, email").in("id", ids);
+          const map: Record<string, Profile> = {};
+          (profs ?? []).forEach((p) => { if (p?.id) map[p.id] = p as Profile; });
+          setProfiles(map);
+        }
+      } catch (err) {
+        console.error("Failed to load diagnostic sessions:", err);
+        toast.error("שגיאה בטעינת סשני האבחון");
+        setRows([]);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     })();
   }, []);
 
@@ -129,7 +139,7 @@ function SessionList({
             >
               <button onClick={() => onSelect(r.id)} className="text-right min-w-0 flex-1">
                 <div className="font-medium truncate">
-                  {p?.full_name || p?.email || r.student_id.slice(0, 8)}
+                  {p?.full_name || p?.email || (r.student_id ?? "—").slice(0, 8)}
                 </div>
                 <div className="text-xs text-muted-foreground mt-0.5">
                   {new Date(r.start_time).toLocaleString("he-IL")} ·
@@ -203,7 +213,7 @@ function SessionDetail({
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
-            {profile?.full_name || profile?.email || session.student_id.slice(0, 8)}
+            {profile?.full_name || profile?.email || (session.student_id ?? "—").slice(0, 8)}
           </CardTitle>
           <div className="text-xs text-muted-foreground">
             {new Date(session.start_time).toLocaleString("he-IL")} · קהילה: {session.community_type ?? "—"}
