@@ -96,7 +96,31 @@ function AdminDiagnosticsPage() {
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => alert(JSON.stringify(session, null, 2))}
+                        onClick={async () => {
+                          try {
+                            const { data: full, error: fErr } = await supabase
+                              .from("beqa_diagnostic_sessions")
+                              .select("*")
+                              .eq("id", session.id)
+                              .maybeSingle();
+                            if (fErr || !full) throw fErr ?? new Error("not found");
+                            let profile = undefined as
+                              | { id: string; full_name: string | null; email: string | null }
+                              | undefined;
+                            if (full.student_id) {
+                              const { data: p } = await supabase
+                                .from("profiles")
+                                .select("id, full_name, email")
+                                .eq("id", full.student_id)
+                                .maybeSingle();
+                              profile = p ?? undefined;
+                            }
+                            await generateDiagnosticPdf(full as never, profile);
+                          } catch (e) {
+                            console.error(e);
+                            toast.error("שגיאה ביצירת PDF");
+                          }
+                        }}
                       >
                         הורד PDF
                       </Button>
