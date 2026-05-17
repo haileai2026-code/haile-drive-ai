@@ -64,6 +64,14 @@ export function MaterialsPanel() {
         {list.map((m) => {
           const Icon = TYPE_ICON[m.type];
           const url = m.file_url ?? m.external_link ?? "#";
+          const openUrl = async (e: React.MouseEvent) => {
+            if (!m.file_url || m.external_link) return; // external link uses href directly
+            e.preventDefault();
+            try {
+              const signed = await adminApi.getMaterialSignedUrl(m.file_url);
+              window.open(signed, "_blank", "noopener");
+            } catch (err: any) { toast.error(err.message ?? "פתיחת הקובץ נכשלה"); }
+          };
           return (
             <article key={m.id} className="rounded-2xl border border-border/60 bg-card/40 p-4">
               <div className="flex items-start justify-between">
