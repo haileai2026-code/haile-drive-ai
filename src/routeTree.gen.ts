@@ -35,6 +35,7 @@ import { Route as AdminTeachersRouteImport } from './routes/admin.teachers'
 import { Route as AdminStaffRouteImport } from './routes/admin.staff'
 import { Route as AdminScheduleRouteImport } from './routes/admin.schedule'
 import { Route as AdminProgressRouteImport } from './routes/admin.progress'
+import { Route as AdminPhoneRequestsRouteImport } from './routes/admin.phone-requests'
 import { Route as AdminOrganizationRouteImport } from './routes/admin.organization'
 import { Route as AdminNotificationsRouteImport } from './routes/admin.notifications'
 import { Route as AdminMaterialsRouteImport } from './routes/admin.materials'
@@ -187,6 +188,11 @@ const AdminProgressRoute = AdminProgressRouteImport.update({
   path: '/progress',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminPhoneRequestsRoute = AdminPhoneRequestsRouteImport.update({
+  id: '/phone-requests',
+  path: '/phone-requests',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminOrganizationRoute = AdminOrganizationRouteImport.update({
   id: '/organization',
   path: '/organization',
@@ -330,6 +336,7 @@ export interface FileRoutesByFullPath {
   '/admin/materials': typeof AdminMaterialsRoute
   '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/organization': typeof AdminOrganizationRoute
+  '/admin/phone-requests': typeof AdminPhoneRequestsRoute
   '/admin/progress': typeof AdminProgressRoute
   '/admin/schedule': typeof AdminScheduleRoute
   '/admin/staff': typeof AdminStaffRoute
@@ -379,6 +386,7 @@ export interface FileRoutesByTo {
   '/admin/materials': typeof AdminMaterialsRoute
   '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/organization': typeof AdminOrganizationRoute
+  '/admin/phone-requests': typeof AdminPhoneRequestsRoute
   '/admin/progress': typeof AdminProgressRoute
   '/admin/schedule': typeof AdminScheduleRoute
   '/admin/staff': typeof AdminStaffRoute
@@ -429,6 +437,7 @@ export interface FileRoutesById {
   '/admin/materials': typeof AdminMaterialsRoute
   '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/organization': typeof AdminOrganizationRoute
+  '/admin/phone-requests': typeof AdminPhoneRequestsRoute
   '/admin/progress': typeof AdminProgressRoute
   '/admin/schedule': typeof AdminScheduleRoute
   '/admin/staff': typeof AdminStaffRoute
@@ -480,6 +489,7 @@ export interface FileRouteTypes {
     | '/admin/materials'
     | '/admin/notifications'
     | '/admin/organization'
+    | '/admin/phone-requests'
     | '/admin/progress'
     | '/admin/schedule'
     | '/admin/staff'
@@ -529,6 +539,7 @@ export interface FileRouteTypes {
     | '/admin/materials'
     | '/admin/notifications'
     | '/admin/organization'
+    | '/admin/phone-requests'
     | '/admin/progress'
     | '/admin/schedule'
     | '/admin/staff'
@@ -578,6 +589,7 @@ export interface FileRouteTypes {
     | '/admin/materials'
     | '/admin/notifications'
     | '/admin/organization'
+    | '/admin/phone-requests'
     | '/admin/progress'
     | '/admin/schedule'
     | '/admin/staff'
@@ -798,6 +810,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminProgressRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/phone-requests': {
+      id: '/admin/phone-requests'
+      path: '/phone-requests'
+      fullPath: '/admin/phone-requests'
+      preLoaderRoute: typeof AdminPhoneRequestsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/organization': {
       id: '/admin/organization'
       path: '/organization'
@@ -991,6 +1010,7 @@ interface AdminRouteChildren {
   AdminMaterialsRoute: typeof AdminMaterialsRoute
   AdminNotificationsRoute: typeof AdminNotificationsRoute
   AdminOrganizationRoute: typeof AdminOrganizationRoute
+  AdminPhoneRequestsRoute: typeof AdminPhoneRequestsRoute
   AdminProgressRoute: typeof AdminProgressRoute
   AdminScheduleRoute: typeof AdminScheduleRoute
   AdminStaffRoute: typeof AdminStaffRoute
@@ -1019,6 +1039,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminMaterialsRoute: AdminMaterialsRoute,
   AdminNotificationsRoute: AdminNotificationsRoute,
   AdminOrganizationRoute: AdminOrganizationRoute,
+  AdminPhoneRequestsRoute: AdminPhoneRequestsRoute,
   AdminProgressRoute: AdminProgressRoute,
   AdminScheduleRoute: AdminScheduleRoute,
   AdminStaffRoute: AdminStaffRoute,
@@ -1075,3 +1096,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
