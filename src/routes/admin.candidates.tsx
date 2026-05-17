@@ -214,7 +214,13 @@ function CandidatesPage() {
                     </span>
                   ) : (
                     <button
-                      onClick={() => { if (confirm(`לאשר תשלום של ${c.full_name} ולהפוך לסטודנט?`)) paymentMut.mutate({ candidate_id: c.id, payment_status: "paid" }); }}
+                      onClick={() => {
+                        if (!confirm(`לאשר תשלום של ${c.full_name} ולהפוך לסטודנט?`)) return;
+                        paymentMut.mutate(
+                          { candidate_id: c.id, payment_status: "paid" },
+                          { onSuccess: () => setVoucherPrompt(c) },
+                        );
+                      }}
                       className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[10px] text-amber-300 hover:bg-amber-500/20"
                       title="אשר תשלום והפוך לסטודנט"
                     >
