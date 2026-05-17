@@ -321,3 +321,35 @@ function Stat({ label, value, tone }: { label: string; value: string; tone: "eme
     </div>
   );
 }
+
+function PdfButton({
+  session, profile, size = "default",
+}: {
+  session: Session;
+  profile: Profile | undefined;
+  size?: "default" | "sm";
+}) {
+  const [busy, setBusy] = useState(false);
+  return (
+    <Button
+      size={size}
+      variant="default"
+      disabled={busy}
+      onClick={async (e) => {
+        e.stopPropagation();
+        setBusy(true);
+        try {
+          await generateDiagnosticPdf(session, profile);
+        } catch (err) {
+          console.error(err);
+          toast.error("שגיאה ביצירת ה-PDF");
+        } finally {
+          setBusy(false);
+        }
+      }}
+    >
+      <Download className="h-4 w-4 ml-1" />
+      {busy ? "מפיק…" : "הפק דוח אבחון PDF"}
+    </Button>
+  );
+}
