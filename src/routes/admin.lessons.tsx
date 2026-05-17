@@ -74,7 +74,14 @@ function LessonsAdmin() {
             </thead>
             <tbody className="divide-y divide-border/40">
               {rows.map((l) => {
+                const isExternal = !!l.external_link;
                 const href = l.external_link || l.file_url;
+                const onOpen = async (e: React.MouseEvent) => {
+                  if (isExternal || !l.file_url) return;
+                  e.preventDefault();
+                  const { data } = await supabase.storage.from("materials").createSignedUrl(l.file_url, 3600);
+                  if (data?.signedUrl) window.open(data.signedUrl, "_blank", "noopener");
+                };
                 return (
                   <tr key={l.id} className="hover:bg-accent/30">
                     <td className="px-3 py-3 font-semibold">{l.title}</td>
@@ -84,6 +91,7 @@ function LessonsAdmin() {
                       {href ? (
                         <a
                           href={href}
+                          onClick={onOpen}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 rounded-lg border border-border/60 bg-background/40 px-3 py-1.5 text-xs hover:border-gold/40"
