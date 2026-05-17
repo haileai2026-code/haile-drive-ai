@@ -244,6 +244,38 @@ function PaymentCell({ row, payment, onClick, extraBadge }: { row: VoucherRow; p
   );
 }
 
+function EditableAmount({ row, onSaved }: { row: VoucherRow; onSaved: () => void }) {
+  const [editing, setEditing] = useState(false);
+  const [val, setVal] = useState<number>(Number(row.voucher_amount || 0));
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    setSaving(true);
+    const { error } = await supabase.from("voucher_tracking").update({ voucher_amount: val }).eq("id", row.id);
+    setSaving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("סכום השובר עודכן");
+    setEditing(false);
+    onSaved();
+  };
+
+  if (!editing) {
+    return (
+      <button onClick={() => setEditing(true)} className="inline-flex items-center gap-1 text-muted-foreground hover:text-gold" title="ערוך סכום">
+        ₪{Number(row.voucher_amount).toLocaleString()}
+        <Pencil className="h-3 w-3 opacity-60" />
+      </button>
+    );
+  }
+  return (
+    <div className="flex items-center gap-1">
+      <Input type="number" value={val} onChange={(e) => setVal(Number(e.target.value))} className="h-8 w-28" autoFocus />
+      <button onClick={save} disabled={saving} className="rounded-md p-1 text-emerald-500 hover:bg-emerald-500/10" title="שמור"><Check className="h-3.5 w-3.5" /></button>
+      <button onClick={() => { setEditing(false); setVal(Number(row.voucher_amount || 0)); }} className="rounded-md p-1 text-muted-foreground hover:bg-accent" title="ביטול"><X className="h-3.5 w-3.5" /></button>
+    </div>
+  );
+}
+
 function EditPaymentModal({ row, payment, onClose, onSaved }: { row: VoucherRow; payment: 1 | 2 | 3; onClose: () => void; onSaved: () => void }) {
   const r0 = row as any;
   const [status, setStatus] = useState<PaymentStatus>(r0[`payment_${payment}_status`] as PaymentStatus);
