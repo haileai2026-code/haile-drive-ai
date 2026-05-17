@@ -17,18 +17,17 @@ function AdminDiagnosticsPage() {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
-  const [detail, setDetail] = useState<any | null>(null);
 
   useEffect(() => {
     let active = true;
     (async () => {
-      const { data, error } = await supabase
-        .from("beqa_diagnostic_sessions")
-        .select("*")
+      const { data: sessions, error } = await supabase
+        .from('beqa_diagnostic_sessions')
+        .select('id, student_id, created_at, final_beqa_score, accuracy_score, baseline_hr, stress_hr')
         .order("created_at", { ascending: false });
       if (!active) return;
       if (error) setErr(error.message);
-      else setRows(data ?? []);
+      else setRows(sessions ?? []);
       setLoading(false);
     })();
     return () => { active = false; };
@@ -49,31 +48,36 @@ function AdminDiagnosticsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-right">מזהה סטודנט</TableHead>
                   <TableHead className="text-right">תאריך</TableHead>
+                  <TableHead className="text-right">student_id</TableHead>
                   <TableHead className="text-right">ציון BEQA</TableHead>
                   <TableHead className="text-right">דיוק</TableHead>
-                  <TableHead className="text-right"></TableHead>
+                  <TableHead className="text-right">כפתור</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {rows.map((r) => (
-                  <TableRow key={r.id}>
+                {rows.map((session) => (
+                  <TableRow key={session?.id}>
+                    <TableCell>
+                      {session?.created_at ? new Date(session.created_at).toLocaleDateString("he-IL") : "—"}
+                    </TableCell>
                     <TableCell className="font-mono text-xs">
-                      {r.student_id ? String(r.student_id).slice(0, 8) : "—"}
+                      {session?.student_id ?? "—"}
                     </TableCell>
                     <TableCell>
-                      {r.created_at ? new Date(r.created_at).toLocaleString("he-IL") : "—"}
+                      {session?.final_beqa_score?.toFixed(1) ?? "—"}
                     </TableCell>
                     <TableCell>
-                      {r.final_beqa_score == null ? "טרם חושב" : Math.round(Number(r.final_beqa_score))}
+                      {session?.accuracy_score?.toFixed(1) ?? "—"}
                     </TableCell>
                     <TableCell>
-                      {r.accuracy_score == null ? "—" : `${Math.round(Number(r.accuracy_score) * 100)}%`}
-                    </TableCell>
-                    <TableCell>
-                      <Button type="button" variant="outline" size="sm" onClick={() => setDetail(r)}>
-                        פרטים
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => alert(JSON.stringify(session, null, 2))}
+                      >
+                        הורד PDF
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -83,20 +87,6 @@ function AdminDiagnosticsPage() {
           )}
         </CardContent>
       </Card>
-
-      {detail && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" onClick={() => setDetail(null)}>
-          <div onClick={(e) => e.stopPropagation()} className="w-full max-w-2xl rounded-2xl border border-border bg-background p-5" dir="rtl">
-            <h3 className="mb-3 text-lg font-bold">פרטי אבחון</h3>
-            <pre className="max-h-[60vh] overflow-auto rounded-lg bg-muted/30 p-3 text-xs" dir="ltr">
-              {JSON.stringify(detail, null, 2)}
-            </pre>
-            <div className="mt-3 flex justify-end">
-              <Button variant="outline" size="sm" onClick={() => setDetail(null)}>סגור</Button>
-            </div>
-          </div>
-        </div>
-      )}
     </AdminShell>
   );
 }
