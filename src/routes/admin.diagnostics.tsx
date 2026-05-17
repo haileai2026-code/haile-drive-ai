@@ -115,7 +115,13 @@ function AdminDiagnosticsPage() {
                                 .maybeSingle();
                               profile = p ?? undefined;
                             }
-                            await generateDiagnosticPdf(full as never, profile);
+                            const mapped = {
+                              ...full,
+                              start_time: (full as { start_time?: string; created_at?: string }).start_time
+                                ?? (full as { created_at?: string }).created_at
+                                ?? new Date().toISOString(),
+                            };
+                            await generateDiagnosticPdf(mapped as never, profile);
                           } catch (e) {
                             console.error(e);
                             toast.error("שגיאה ביצירת PDF");
