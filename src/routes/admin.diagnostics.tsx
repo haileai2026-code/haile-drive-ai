@@ -4,11 +4,13 @@ import { AdminShell, AdminLoading } from "@/components/AdminShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Brain, Heart, Activity, ChevronLeft } from "lucide-react";
+import { Brain, Heart, Activity, ChevronLeft, Download } from "lucide-react";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend,
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
+import { generateDiagnosticPdf } from "@/lib/diagnostics/pdf-report";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/diagnostics")({
   head: () => ({ meta: [{ title: "דוחות אבחון — Owner" }] }),
