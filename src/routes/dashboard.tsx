@@ -313,14 +313,12 @@ function Dashboard() {
         ) : (
           <ul className="grid gap-2">
             {materials.map((m) => {
-              const href = m.external_link || m.file_url || "#";
               return (
                 <li key={m.id}>
-                  <a
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 rounded-2xl border border-border/60 bg-card/40 p-3 hover:border-gold/30"
+                  <button
+                    type="button"
+                    onClick={() => openMaterial(m)}
+                    className="flex w-full items-center gap-3 rounded-2xl border border-border/60 bg-card/40 p-3 text-start hover:border-gold/30"
                   >
                     <span className="grid h-10 w-10 place-items-center rounded-lg bg-gold/15 text-gold">
                       <PlayCircle className="h-5 w-5" />
@@ -331,7 +329,7 @@ function Dashboard() {
                         {m.category} · {m.type}
                       </div>
                     </div>
-                  </a>
+                  </button>
                 </li>
               );
             })}
