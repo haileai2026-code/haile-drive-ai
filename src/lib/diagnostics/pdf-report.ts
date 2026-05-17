@@ -157,7 +157,7 @@ function buildHtml(session: Session, profile: Profile): string {
   if (!strengths.length) strengths.push("ביצועים יציבים — אין דגלים אדומים.");
   if (!weaknesses.length) weaknesses.push("לא זוהו תחומים הדורשים חיזוק מיידי.");
 
-  const insights = meta.insights ?? [];
+  const insights = Array.isArray(meta.insights) ? meta.insights : [];
 
   // ---------- PAGE 1 — Cover ----------
   const p1 = `
