@@ -9,6 +9,7 @@ import { useAuth } from "@/lib/auth";
 import { Plus, Pencil, Trash2, Search, FolderOpen, Upload, FileText, X, Download, GraduationCap, UserCheck } from "lucide-react";
 import { toast } from "sonner";
 import { ImportStudentsModal } from "@/components/admin/ImportStudentsModal";
+import { supabase } from "@/integrations/supabase/client";
 
 const DOC_PRESETS = [
   "טופס ירוק",
