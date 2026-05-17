@@ -10,6 +10,7 @@ import {
   clearLessonProgress,
   formatTime,
 } from "@/lib/lesson-progress";
+import { openMaterial } from "@/lib/materials";
 
 export const Route = createFileRoute("/lessons/$lessonId")({
   head: () => ({ meta: [{ title: "Lesson — Haile Drive AI" }] }),
