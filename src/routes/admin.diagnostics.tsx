@@ -66,7 +66,7 @@ function AdminDiagnosticsPage() {
       const { data } = await supabase
         .from("beqa_diagnostic_sessions")
         .select("*")
-        .eq("assessment_type", "unified")
+        .in("assessment_type", ["unified", "psychological", "biometric"])
         .order("start_time", { ascending: false })
         .limit(300);
       const list = (data ?? []) as unknown as Session[];
