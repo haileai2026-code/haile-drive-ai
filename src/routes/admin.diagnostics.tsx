@@ -80,17 +80,15 @@ function AdminDiagnosticsPage() {
                 {rows.map((session) => (
                   <TableRow key={session?.id}>
                     <TableCell>
-                      {session?.created_at ? new Date(session.created_at).toLocaleDateString("he-IL") : "—"}
+                      {session?.created_at
+                        ? new Date(session.created_at).toLocaleDateString("he-IL")
+                        : "—"}
                     </TableCell>
                     <TableCell className="font-mono text-xs">
                       {session?.student_id ?? "—"}
                     </TableCell>
-                    <TableCell>
-                      {session?.final_beqa_score?.toFixed(1) ?? "—"}
-                    </TableCell>
-                    <TableCell>
-                      {session?.accuracy_score?.toFixed(1) ?? "—"}
-                    </TableCell>
+                    <TableCell>{session?.final_beqa_score?.toFixed(1) ?? "—"}</TableCell>
+                    <TableCell>{session?.accuracy_score?.toFixed(1) ?? "—"}</TableCell>
                     <TableCell>
                       <Button
                         type="button"
