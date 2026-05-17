@@ -105,18 +105,18 @@ function buildHtml(session: Session, profile: Profile): string {
   const date = fmtDate(session.start_time);
   const rec = recInfo(session.recommendation, session.final_beqa_score);
   const community = COMMUNITY_LABEL[session.community_type ?? ""] ?? session.community_type ?? "—";
-  const answers = session.answers ?? [];
+  const answers = Array.isArray(session.answers) ? session.answers : [];
   const beqa = Math.round(session.final_beqa_score ?? 0);
 
   // biometric
-  const bpmRaw = meta.bpm_series ?? [];
+  const bpmRaw = Array.isArray(meta.bpm_series) ? meta.bpm_series : [];
   const bpmChart = bpmRaw.map((p) => ({ t: Math.round(p.t / 1000), bpm: p.bpm }));
   const avgHrv = bpmRaw.length
     ? Math.round(bpmRaw.reduce((a, b) => a + b.hrv, 0) / bpmRaw.length)
     : 0;
 
   // emotion averages
-  const emos = meta.emotion_series ?? [];
+  const emos = Array.isArray(meta.emotion_series) ? meta.emotion_series : [];
   const avg = (k: "anxiety" | "focus" | "confidence" | "confusion") =>
     emos.length ? Math.round((emos.reduce((a, b) => a + b[k], 0) / emos.length) * 100) : 0;
 
@@ -157,7 +157,7 @@ function buildHtml(session: Session, profile: Profile): string {
   if (!strengths.length) strengths.push("ביצועים יציבים — אין דגלים אדומים.");
   if (!weaknesses.length) weaknesses.push("לא זוהו תחומים הדורשים חיזוק מיידי.");
 
-  const insights = meta.insights ?? [];
+  const insights = Array.isArray(meta.insights) ? meta.insights : [];
 
   // ---------- PAGE 1 — Cover ----------
   const p1 = `
