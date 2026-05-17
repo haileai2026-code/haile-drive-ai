@@ -4,9 +4,24 @@ import { AdminShell, AdminLoading } from "@/components/AdminShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
+
+type DiagnosticSession = {
+  id: string;
+  student_id: string | null;
+  created_at: string;
+  final_beqa_score: number | null;
+  accuracy_score: number | null;
+  baseline_hr: number | null;
+  stress_hr: number | null;
+};
 
 export const Route = createFileRoute("/admin/diagnostics")({
   head: () => ({ meta: [{ title: "דוחות אבחון — Owner" }] }),
@@ -14,7 +29,7 @@ export const Route = createFileRoute("/admin/diagnostics")({
 });
 
 function AdminDiagnosticsPage() {
-  const [rows, setRows] = useState<any[]>([]);
+  const [rows, setRows] = useState<DiagnosticSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
 
@@ -22,21 +37,27 @@ function AdminDiagnosticsPage() {
     let active = true;
     (async () => {
       const { data: sessions, error } = await supabase
-        .from('beqa_diagnostic_sessions')
-        .select('id, student_id, created_at, final_beqa_score, accuracy_score, baseline_hr, stress_hr')
+        .from("beqa_diagnostic_sessions")
+        .select(
+          "id, student_id, created_at, final_beqa_score, accuracy_score, baseline_hr, stress_hr",
+        )
         .order("created_at", { ascending: false });
       if (!active) return;
       if (error) setErr(error.message);
       else setRows(sessions ?? []);
       setLoading(false);
     })();
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, []);
 
   return (
     <AdminShell title="דוחות אבחון" roles={["owner", "staff"]}>
       <Card>
-        <CardHeader><CardTitle className="text-base">אבחוני BEQA</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="text-base">אבחוני BEQA</CardTitle>
+        </CardHeader>
         <CardContent>
           {loading ? (
             <AdminLoading />
