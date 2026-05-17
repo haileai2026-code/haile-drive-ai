@@ -123,27 +123,27 @@ function SessionList({
           const p = profiles[r.student_id];
           const rec = recBadge(r.recommendation, r.final_beqa_score);
           return (
-            <button
+            <div
               key={r.id}
-              onClick={() => onSelect(r.id)}
-              className="w-full text-right rounded-lg border border-border/60 p-3 hover:bg-muted/40 transition"
+              className="flex items-start justify-between gap-3 rounded-lg border border-border/60 p-3 hover:bg-muted/40 transition"
             >
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <div className="font-medium truncate">
-                    {p?.full_name || p?.email || r.student_id.slice(0, 8)}
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
-                    {new Date(r.start_time).toLocaleString("he-IL")} ·
-                    {" "}{r.community_type ?? "—"} ·
-                    {" "}<Heart className="inline h-3 w-3 text-red-500" /> {r.baseline_hr ?? "—"}→{r.stress_hr ?? "—"}
-                  </div>
+              <button onClick={() => onSelect(r.id)} className="text-right min-w-0 flex-1">
+                <div className="font-medium truncate">
+                  {p?.full_name || p?.email || r.student_id.slice(0, 8)}
                 </div>
+                <div className="text-xs text-muted-foreground mt-0.5">
+                  {new Date(r.start_time).toLocaleString("he-IL")} ·
+                  {" "}{r.community_type ?? "—"} ·
+                  {" "}<Heart className="inline h-3 w-3 text-red-500" /> {r.baseline_hr ?? "—"}→{r.stress_hr ?? "—"}
+                </div>
+              </button>
+              <div className="flex items-center gap-2 shrink-0">
                 <Badge variant="outline" className={`${rec.color} whitespace-nowrap`}>
                   {rec.emoji} {Math.round(r.final_beqa_score ?? 0)}
                 </Badge>
+                <PdfButton session={r} profile={p} size="sm" />
               </div>
-            </button>
+            </div>
           );
         })}
       </CardContent>
