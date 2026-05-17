@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Users, GraduationCap,
   Building2, ChevronRight, ClipboardCheck,
   UserCog, LogOut, FileText, Loader2,
-  CalendarClock, Bell, TrendingUp, Activity, Inbox, Bot, Wallet, Brain,
+  CalendarClock, Bell, TrendingUp, Activity, Inbox, Bot, Wallet, Brain, Phone,
   type LucideIcon,
 } from "lucide-react";
 import { useRole } from "@/lib/role";
