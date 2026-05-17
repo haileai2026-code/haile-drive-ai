@@ -347,8 +347,25 @@ function escapeHtml(s: string) {
 
 export async function generateDiagnosticPdf(session: Session, profile: Profile) {
   const container = document.createElement("div");
-  container.style.cssText = "position:fixed;left:-99999px;top:0;background:#fff";
-  container.innerHTML = buildHtml(session, profile);
+  container.style.cssText =
+    "position:fixed;left:-99999px;top:0;background:#fff;color:#0f172a;";
+  // Neutralize inherited oklch() tokens that html2canvas cannot parse.
+  const reset = document.createElement("style");
+  reset.textContent = `
+    .pdf-root, .pdf-root *, .pdf-root *::before, .pdf-root *::after {
+      color: inherit;
+      border-color: #e5e7eb;
+      outline-color: #e5e7eb;
+      text-decoration-color: currentColor;
+      caret-color: auto;
+    }
+    .pdf-root { color: #0f172a; background: #ffffff; }
+  `;
+  container.appendChild(reset);
+  const wrap = document.createElement("div");
+  wrap.className = "pdf-root";
+  wrap.innerHTML = buildHtml(session, profile);
+  container.appendChild(wrap);
   document.body.appendChild(container);
 
   try {
