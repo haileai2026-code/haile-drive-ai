@@ -12,6 +12,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
+import { generateDiagnosticPdf } from "@/lib/diagnostics/pdf-report";
+import { toast } from "sonner";
 
 type DiagnosticSession = {
   id: string;
