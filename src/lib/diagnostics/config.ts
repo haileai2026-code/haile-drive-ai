@@ -1,17 +1,15 @@
-import { TTSSimulator, FaceAnalysisSimulator, RPPGSimulator } from "./simulators";
+import { TTSSimulator, TTSElevenLabs, FaceAnalysisSimulator, RPPGSimulator } from "./simulators";
 import type { TTSProvider, FaceAnalysisProvider, RPPGProvider } from "./interfaces";
 
 // Flip to true once a real SDK is wired in. Single source of truth.
 export const USE_REAL_APIS = {
-  tts: false,          // true = Google TTS
+  tts: true,           // ElevenLabs (via server function)
   faceAnalysis: false, // true = Azure Face API
   rppg: false,         // true = Binah.ai
 } as const;
 
 export function createTTS(): TTSProvider {
-  if (USE_REAL_APIS.tts) {
-    // TODO: return new GoogleTTSProvider();
-  }
+  if (USE_REAL_APIS.tts) return new TTSElevenLabs();
   return new TTSSimulator();
 }
 
