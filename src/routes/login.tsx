@@ -1,10 +1,12 @@
 import { createFileRoute, useNavigate, Link, redirect } from "@tanstack/react-router";
 import { useState } from "react";
-import { Mail, Lock, ArrowRight, User as UserIcon, Crown, GraduationCap, BookOpen } from "lucide-react";
+import { Mail, Lock, ArrowRight, User as UserIcon, Crown, GraduationCap, BookOpen, Phone, KeyRound } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 import { useI18n } from "@/lib/i18n";
 import { LangSwitcher } from "@/components/LangSwitcher";
 import { getPrimaryRole, useAuth, roleHomePath } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { requestPhoneOtp, verifyPhoneOtp } from "@/lib/phone-login.functions";
 import type { Role } from "@/lib/ops-data";
 
 type PortalRole = Extract<Role, "owner" | "teacher" | "student">;
@@ -74,12 +76,56 @@ function LoginPage() {
   const { signIn, signUp, refresh } = useAuth();
   const [portal, setPortal] = useState<PortalRole>("owner");
   const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [authMethod, setAuthMethod] = useState<"email" | "phone">("email");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  // Phone login state
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const requestOtpFn = useServerFn(requestPhoneOtp);
+  const verifyOtpFn = useServerFn(verifyPhoneOtp);
+
+  const sendOtp = async () => {
+    setErr(null); setInfo(null);
+    if (!phone || phone.replace(/\D/g, "").length < 6) {
+      setErr("הזן/י מספר טלפון תקין");
+      return;
+    }
+    setBusy(true);
+    try {
+      await requestOtpFn({ data: { phone } });
+      setOtpSent(true);
+      setInfo("הקוד נשלח — המתן לאישור מנהל ואז הזן/י את הקוד");
+    } catch (e: any) {
+      setErr(e?.message ?? "שגיאה בשליחת הקוד");
+    } finally { setBusy(false); }
+  };
+
+  const submitPhone = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErr(null);
+    if (!/^\d{6}$/.test(otp)) { setErr("הזן/י קוד בן 6 ספרות"); return; }
+    setBusy(true);
+    try {
+      const res = await verifyOtpFn({ data: { phone, otp } });
+      const r = await signIn(res.email, res.password);
+      if (r.error) { setErr(r.error); return; }
+      await new Promise((rs) => setTimeout(rs, 300));
+      await refresh();
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) return;
+      const actualRole = await getPrimaryRole(data.user.id);
+      navigate({ to: roleHomePath(actualRole) });
+    } catch (err: any) {
+      setErr(err?.message ?? "קוד שגוי או בקשה ממתינה לאישור");
+    } finally { setBusy(false); }
+  };
 
   const sendReset = async () => {
     setErr(null); setInfo(null);
@@ -170,7 +216,23 @@ function LoginPage() {
             {portalCfg.labelHe} · {portalCfg.label}
           </div>
 
+          {/* Auth method tabs: email vs phone (phone hidden for owner portal) */}
           {!isOwnerPortal && (
+            <div className="mb-3 flex gap-2 rounded-xl bg-background/50 p-1">
+              <button
+                type="button"
+                onClick={() => { setAuthMethod("email"); setErr(null); setInfo(null); }}
+                className={`flex-1 rounded-lg py-2 text-xs font-semibold ${authMethod === "email" ? "bg-gold/15 text-gold" : "text-muted-foreground"}`}
+              >אימייל · Email</button>
+              <button
+                type="button"
+                onClick={() => { setAuthMethod("phone"); setErr(null); setInfo(null); }}
+                className={`flex-1 rounded-lg py-2 text-xs font-semibold ${authMethod === "phone" ? "bg-gold/15 text-gold" : "text-muted-foreground"}`}
+              >כניסה במספר טלפון · በስልክ ቁጥር ግባ</button>
+            </div>
+          )}
+
+          {!isOwnerPortal && authMethod === "email" && (
             <div className="flex gap-2 rounded-xl bg-background/50 p-1">
               <button
                 type="button"
@@ -186,74 +248,141 @@ function LoginPage() {
           )}
 
           <h1 className="mt-5 text-2xl font-black tracking-tight">
-            {effectiveMode === "signin" ? t("login") : "Create account"}
+            {authMethod === "phone" && !isOwnerPortal
+              ? "כניסה במספר טלפון"
+              : effectiveMode === "signin" ? t("login") : "Create account"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">{portalCfg.description}</p>
 
-          <form onSubmit={submit} className="mt-6 space-y-3">
-            {effectiveMode === "signup" && (
+          {(isOwnerPortal || authMethod === "email") ? (
+            <form onSubmit={submit} className="mt-6 space-y-3">
+              {effectiveMode === "signup" && (
+                <div className="flex items-center gap-2 rounded-2xl border border-border bg-input px-4 py-3">
+                  <UserIcon className="h-5 w-5 text-muted-foreground" />
+                  <input
+                    required
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Full name"
+                    className="flex-1 bg-transparent text-base outline-none"
+                  />
+                </div>
+              )}
               <div className="flex items-center gap-2 rounded-2xl border border-border bg-input px-4 py-3">
-                <UserIcon className="h-5 w-5 text-muted-foreground" />
+                <Mail className="h-5 w-5 text-muted-foreground" />
                 <input
+                  type="email"
                   required
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Full name"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
                   className="flex-1 bg-transparent text-base outline-none"
                 />
               </div>
-            )}
-            <div className="flex items-center gap-2 rounded-2xl border border-border bg-input px-4 py-3">
-              <Mail className="h-5 w-5 text-muted-foreground" />
-              <input
-                type="email"
-                required
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="flex-1 bg-transparent text-base outline-none"
-              />
-            </div>
-            <div className="flex items-center gap-2 rounded-2xl border border-border bg-input px-4 py-3">
-              <Lock className="h-5 w-5 text-muted-foreground" />
-              <input
-                type="password"
-                required
-                minLength={6}
-                autoComplete={effectiveMode === "signin" ? "current-password" : "new-password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-                className="flex-1 bg-transparent text-base outline-none"
-              />
-            </div>
+              <div className="flex items-center gap-2 rounded-2xl border border-border bg-input px-4 py-3">
+                <Lock className="h-5 w-5 text-muted-foreground" />
+                <input
+                  type="password"
+                  required
+                  minLength={6}
+                  autoComplete={effectiveMode === "signin" ? "current-password" : "new-password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password"
+                  className="flex-1 bg-transparent text-base outline-none"
+                />
+              </div>
 
-            {effectiveMode === "signin" && (
-              <div className="flex justify-end">
+              {effectiveMode === "signin" && (
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={sendReset}
+                    disabled={busy}
+                    className="text-xs font-semibold text-gold hover:underline disabled:opacity-50"
+                  >
+                    שכחת סיסמה? שלח/י קוד אימות
+                  </button>
+                </div>
+              )}
+
+              {err && <p className="text-sm text-rose-400">{err}</p>}
+              {info && <p className="text-sm text-emerald-400">{info}</p>}
+
+              <button
+                type="submit"
+                disabled={busy}
+                className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-br ${portalCfg.gradient} px-6 py-3.5 text-base font-semibold text-white shadow-lg disabled:opacity-50`}
+              >
+                {busy ? "..." : effectiveMode === "signin" ? `${t("login")} · ${portalCfg.labelHe}` : `Create ${portalCfg.label} account`}
+                <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={submitPhone} className="mt-6 space-y-3">
+              <div className="flex items-center gap-2 rounded-2xl border border-border bg-input px-4 py-3">
+                <Phone className="h-5 w-5 text-muted-foreground" />
+                <input
+                  type="tel"
+                  required
+                  autoComplete="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="0501234567"
+                  className="flex-1 bg-transparent text-base outline-none"
+                  disabled={otpSent}
+                />
+              </div>
+
+              {!otpSent ? (
                 <button
                   type="button"
-                  onClick={sendReset}
+                  onClick={sendOtp}
                   disabled={busy}
-                  className="text-xs font-semibold text-gold hover:underline disabled:opacity-50"
+                  className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-br ${portalCfg.gradient} px-6 py-3.5 text-base font-semibold text-white shadow-lg disabled:opacity-50`}
                 >
-                  שכחת סיסמה? שלח/י קוד אימות
+                  {busy ? "..." : "שלח קוד · ላክ ኮድ"}
                 </button>
-              </div>
-            )}
+              ) : (
+                <>
+                  <div className="flex items-center gap-2 rounded-2xl border border-border bg-input px-4 py-3">
+                    <KeyRound className="h-5 w-5 text-muted-foreground" />
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="\d{6}"
+                      maxLength={6}
+                      required
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                      placeholder="קוד בן 6 ספרות"
+                      className="flex-1 bg-transparent text-base tracking-widest outline-none"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { setOtpSent(false); setOtp(""); setInfo(null); setErr(null); }}
+                    className="text-xs text-muted-foreground hover:underline"
+                  >שנה מספר טלפון</button>
+                </>
+              )}
 
-            {err && <p className="text-sm text-rose-400">{err}</p>}
-            {info && <p className="text-sm text-emerald-400">{info}</p>}
+              {err && <p className="text-sm text-rose-400">{err}</p>}
+              {info && <p className="text-sm text-emerald-400">{info}</p>}
 
-            <button
-              type="submit"
-              disabled={busy}
-              className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-br ${portalCfg.gradient} px-6 py-3.5 text-base font-semibold text-white shadow-lg disabled:opacity-50`}
-            >
-              {busy ? "..." : effectiveMode === "signin" ? `${t("login")} · ${portalCfg.labelHe}` : `Create ${portalCfg.label} account`}
-              <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-            </button>
-          </form>
+              {otpSent && (
+                <button
+                  type="submit"
+                  disabled={busy}
+                  className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-br ${portalCfg.gradient} px-6 py-3.5 text-base font-semibold text-white shadow-lg disabled:opacity-50`}
+                >
+                  {busy ? "..." : "אמת והיכנס · አረጋግጥ"}
+                  <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                </button>
+              )}
+            </form>
+          )}
         </div>
 
         {isOwnerPortal && (

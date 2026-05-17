@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Users, GraduationCap,
   Building2, ChevronRight, ClipboardCheck,
   UserCog, LogOut, FileText, Loader2,
-  CalendarClock, Bell, TrendingUp, Activity, Inbox, Bot, Wallet, Brain,
+  CalendarClock, Bell, TrendingUp, Activity, Inbox, Bot, Wallet, Brain, Phone,
   type LucideIcon,
 } from "lucide-react";
 import { useRole } from "@/lib/role";
@@ -25,6 +25,7 @@ const NAV: NavItem[] = [
   { to: "/admin/makeup", icon: CalendarClock, label: "השלמות שיעורים", roles: ["owner"] },
   { to: "/admin/schedule", icon: CalendarClock, label: "לוז שיעורים ומבחנים", roles: ["owner"] },
   { to: "/admin/notifications", icon: Bell, label: "תזכורות SMS / WhatsApp", roles: ["owner"] },
+  { to: "/admin/phone-requests", icon: Phone, label: "📱 בקשות כניסה בטלפון", roles: ["owner", "staff"] },
   { to: "/admin/inbox", icon: Inbox, label: "תיבת פניות ומשובים", roles: ["owner", "staff"] },
   { to: "/admin/content", icon: FileText, label: "📚 תוכן לימודי", roles: ["owner", "staff", "teacher"] },
   { to: "/admin/progress", icon: TrendingUp, label: "התקדמות תלמידים", roles: ["owner", "teacher"] },
