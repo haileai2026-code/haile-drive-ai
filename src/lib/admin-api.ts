@@ -158,10 +158,16 @@ export const adminApi = {
   async uploadMaterialFile(file: File): Promise<string> {
     const ext = file.name.split(".").pop();
     const path = `${crypto.randomUUID()}.${ext}`;
-    const { error } = await sb.storage.from("materials").upload(path, file, { upsert: false });
+    const { error } = await sb.storage.from("materials").upload(path, file, { upsert: false, contentType: file.type });
     if (error) throw error;
-    const { data } = sb.storage.from("materials").getPublicUrl(path);
-    return data.publicUrl;
+    // Private bucket — store the storage path; resolve to a signed URL on open.
+    return path;
+  },
+  async getMaterialSignedUrl(pathOrUrl: string): Promise<string> {
+    if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
+    const { data, error } = await sb.storage.from("materials").createSignedUrl(pathOrUrl, 3600);
+    if (error) throw error;
+    return data.signedUrl as string;
   },
 
   // EXAMS
