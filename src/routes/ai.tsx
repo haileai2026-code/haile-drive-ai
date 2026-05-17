@@ -115,8 +115,9 @@ export function AiPage() {
         toast.error("שגיאה בקבלת תשובה מה-AI");
         return;
       }
+      const newIdx = msgs.length + 1; // assistant index after append
       setMsgs((m) => [...m, { role: "assistant", content: res.text }]);
-      speak(res.text);
+      if (ttsOn) speakWithEleven(res.text, newIdx);
     } catch (e) {
       console.error(e);
       toast.error("שגיאה בחיבור ל-AI");
@@ -182,7 +183,7 @@ export function AiPage() {
         <button
           onClick={() => {
             setTtsOn((v) => {
-              if (v && typeof window !== "undefined") window.speechSynthesis?.cancel();
+              if (v) stopAudio();
               return !v;
             });
           }}
@@ -212,8 +213,23 @@ export function AiPage() {
               }`}
             >
               {m.role === "assistant" ? (
-                <div className="prose prose-sm max-w-none prose-invert prose-p:my-1 prose-ul:my-1 prose-strong:text-gold">
-                  <ReactMarkdown>{m.content}</ReactMarkdown>
+                <div>
+                  <div className="prose prose-sm max-w-none prose-invert prose-p:my-1 prose-ul:my-1 prose-strong:text-gold">
+                    <ReactMarkdown>{m.content}</ReactMarkdown>
+                  </div>
+                  <button
+                    onClick={() =>
+                      speakingIdx === i ? stopAudio() : speakWithEleven(m.content, i)
+                    }
+                    className="mt-2 inline-flex items-center gap-1 rounded-full border border-border/60 bg-background/40 px-2 py-1 text-[11px] text-muted-foreground hover:border-gold/50 hover:text-gold"
+                    aria-label="שמע תשובה"
+                  >
+                    {speakingIdx === i ? (
+                      <><VolumeX className="h-3 w-3" /> עצור</>
+                    ) : (
+                      <><Volume2 className="h-3 w-3" /> שמע תשובה</>
+                    )}
+                  </button>
                 </div>
               ) : (
                 m.content
