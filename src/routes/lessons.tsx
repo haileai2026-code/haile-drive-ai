@@ -69,6 +69,14 @@ function LessonsPage() {
 }
 
 function MaterialGrid({ items }: { items: Material[] }) {
+  const open = async (m: Material, e: React.MouseEvent) => {
+    if (!m.file_url || m.external_link) return;
+    e.preventDefault();
+    try {
+      const signed = await adminApi.getMaterialSignedUrl(m.file_url);
+      window.open(signed, "_blank", "noopener");
+    } catch { /* noop */ }
+  };
   return (
     <ul className="grid gap-3 sm:grid-cols-2">
       {items.map((m) => {
@@ -76,7 +84,7 @@ function MaterialGrid({ items }: { items: Material[] }) {
         const url = m.file_url ?? m.external_link ?? "#";
         return (
           <li key={m.id}>
-            <a href={url} target="_blank" rel="noreferrer" className="group block rounded-2xl border border-border/70 bg-card/50 p-4 transition hover:border-gold/40">
+            <a href={url} onClick={(e) => open(m, e)} target="_blank" rel="noreferrer" className="group block rounded-2xl border border-border/70 bg-card/50 p-4 transition hover:border-gold/40">
               <div className="flex items-start gap-3">
                 <div className="grid h-10 w-10 place-items-center rounded-xl bg-gold/15 text-gold"><Icon className="h-5 w-5" /></div>
                 <div className="min-w-0">

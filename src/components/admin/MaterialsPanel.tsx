@@ -64,6 +64,14 @@ export function MaterialsPanel() {
         {list.map((m) => {
           const Icon = TYPE_ICON[m.type];
           const url = m.file_url ?? m.external_link ?? "#";
+          const openUrl = async (e: React.MouseEvent) => {
+            if (!m.file_url || m.external_link) return; // external link uses href directly
+            e.preventDefault();
+            try {
+              const signed = await adminApi.getMaterialSignedUrl(m.file_url);
+              window.open(signed, "_blank", "noopener");
+            } catch (err: any) { toast.error(err.message ?? "פתיחת הקובץ נכשלה"); }
+          };
           return (
             <article key={m.id} className="rounded-2xl border border-border/60 bg-card/40 p-4">
               <div className="flex items-start justify-between">
@@ -79,7 +87,7 @@ export function MaterialsPanel() {
                   <button onClick={() => { if (confirm("למחוק?")) delMut.mutate(m.id); }} className="rounded-md p-1.5 text-rose-400 hover:bg-rose-500/10"><Trash2 className="h-3.5 w-3.5" /></button>
                 </div>
               </div>
-              <a href={url} target="_blank" rel="noreferrer" className="mt-3 inline-block text-xs text-gold hover:underline">פתח →</a>
+              <a href={url} onClick={openUrl} target="_blank" rel="noreferrer" className="mt-3 inline-block text-xs text-gold hover:underline">פתח →</a>
             </article>
           );
         })}
