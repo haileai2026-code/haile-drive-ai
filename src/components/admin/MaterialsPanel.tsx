@@ -87,7 +87,7 @@ export function MaterialsPanel() {
                   <button onClick={() => { if (confirm("למחוק?")) delMut.mutate(m.id); }} className="rounded-md p-1.5 text-rose-400 hover:bg-rose-500/10"><Trash2 className="h-3.5 w-3.5" /></button>
                 </div>
               </div>
-              <a href={url} target="_blank" rel="noreferrer" className="mt-3 inline-block text-xs text-gold hover:underline">פתח →</a>
+              <a href={url} onClick={openUrl} target="_blank" rel="noreferrer" className="mt-3 inline-block text-xs text-gold hover:underline">פתח →</a>
             </article>
           );
         })}
