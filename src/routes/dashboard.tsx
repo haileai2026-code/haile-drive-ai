@@ -5,6 +5,7 @@ import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { scheduleApi, type ScheduleEvent } from "@/lib/admin-api";
+import { openMaterial } from "@/lib/materials";
 import {
   getLastLessonProgress,
   formatTime,
