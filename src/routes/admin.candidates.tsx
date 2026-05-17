@@ -332,7 +332,44 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function DriverFolderModal({ candidate, cityLabel, onClose }: { candidate: Candidate; cityLabel?: string | null; onClose: () => void }) {
+function OpenVoucherPrompt({ candidate, onClose, onOpened }: { candidate: Candidate; onClose: () => void; onOpened: () => void }) {
+  const [amount, setAmount] = useState<number>(25000);
+  const [saving, setSaving] = useState(false);
+
+  const open = async () => {
+    setSaving(true);
+    const { error } = await supabase.from("voucher_tracking").insert({
+      candidate_id: candidate.id,
+      class_id: candidate.class_id ?? null,
+      voucher_amount: amount,
+    });
+    setSaving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("תיק ויצ\"ר נפתח");
+    onOpened();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" onClick={onClose}>
+      <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md rounded-2xl border border-gold/40 bg-background p-5" dir="rtl">
+        <h3 className="mb-2 text-lg font-bold">💰 לפתוח תיק ויצ"ר עבור {candidate.full_name}?</h3>
+        <p className="mb-4 text-sm text-muted-foreground">ייפתח מעקב תשלומים אוטומטית. ניתן לשנות את סכום השובר.</p>
+        <label className="block">
+          <span className="mb-1 block text-xs font-semibold">סכום השובר (₪)</span>
+          <input type="number" value={amount} onChange={(e) => setAmount(Number(e.target.value))} className="inp" />
+        </label>
+        <div className="mt-4 flex justify-end gap-2">
+          <button onClick={onClose} className="rounded-lg border border-border/60 px-4 py-2 text-sm">לא עכשיו</button>
+          <button onClick={open} disabled={saving} className="rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-gold-foreground disabled:opacity-50">
+            {saving ? "פותח…" : "כן — פתח תיק"}
+          </button>
+        </div>
+        <style>{`.inp{display:block;width:100%;border-radius:.5rem;border:1px solid hsl(var(--input));background:hsl(var(--background));padding:.5rem .75rem;font-size:.875rem;outline:none}`}</style>
+      </div>
+    </div>
+  );
+}
+
   const qc = useQueryClient();
   const [label, setLabel] = useState<string>(DOC_PRESETS[0]);
   const [busy, setBusy] = useState(false);
