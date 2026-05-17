@@ -1,61 +1,100 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
-import {
-  Camera, Heart, Play, Square, Activity, Brain, Trophy, Wifi, Target,
-} from "lucide-react";
-import {
-  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend,
-} from "recharts";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, BarChart, Bar } from "recharts";
+import { Volume2, Heart, Camera, Activity, Brain, Trophy, Download, RotateCcw } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { RppgEngine, type SignalQuality } from "@/lib/rppg-engine";
-import {
-  STRESS_QUESTIONS, STRESS_TEST_CONFIG, calculateBeqaScore, type BeqaBreakdown,
-} from "@/lib/beqa-questions";
 import { toast } from "sonner";
+import { createTTS, createFaceAnalysis, createRPPG, USE_REAL_APIS } from "@/lib/diagnostics/config";
+import type { TTSProvider, FaceAnalysisProvider, RPPGProvider, FaceEmotion } from "@/lib/diagnostics/interfaces";
+import {
+  questionsFor, ttsTextFor, COMMUNITY_LABEL, COMMUNITY_TTS_LANG,
+  type Community, type DiagQuestion,
+} from "@/lib/diagnostics/questions";
 
 export const Route = createFileRoute("/diagnostics")({
+  head: () => ({ meta: [{ title: "אבחון מקצועי מאוחד — Haile Drive AI" }] }),
   component: DiagnosticsPage,
 });
 
-const CALIBRATION_SECONDS = 30;
-
-type Phase = "welcome" | "idle" | "calibrating" | "calibrated" | "running" | "done";
+type Phase = "welcome" | "community" | "calibration" | "questions" | "pressure" | "results";
 
 type AnswerRow = {
   qId: string;
-  correct: boolean;
-  rt: number;
-  bpmAtShow: number | null;
+  score: number;
+  rtMs: number;
   bpmAtAnswer: number | null;
-  attentionHit?: boolean;
-  attentionRt?: number;
+  emotionAtAnswer: FaceEmotion | null;
 };
 
-type BioDiagnostics = {
-  fps: number;
-  meanGreen: number | null;
-  brightness: number | null;
-  skinRatio: number;
-  motion: number | null;
-  samplesInWindow: number;
-};
+type BpmPoint = { t: number; bpm: number; hrv: number };
+type EmoPoint = { t: number; anxiety: number; focus: number; confidence: number; confusion: number };
 
-const QUALITY_LABEL: Record<SignalQuality, string> = {
-  none: "אין סיגנל", low: "נמוך", medium: "בינוני", high: "גבוה",
-};
-const QUALITY_COLOR: Record<SignalQuality, string> = {
-  none: "bg-gray-500", low: "bg-red-500", medium: "bg-amber-500", high: "bg-emerald-500",
-};
+const CALIBRATION_SECONDS = 30;
+const PRESSURE_SECONDS = 20;
 
 function DiagnosticsPage() {
   const { user } = useAuth();
   const [beqaAccess, setBeqaAccess] = useState<boolean | null>(null);
+
+  // Streams + providers
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const ttsRef = useRef<TTSProvider | null>(null);
+  const faceRef = useRef<FaceAnalysisProvider | null>(null);
+  const rppgRef = useRef<RPPGProvider | null>(null);
+
+  // Live state
+  const [phase, setPhase] = useState<Phase>("welcome");
+  const [community, setCommunity] = useState<Community | null>(null);
+  const [bpm, setBpm] = useState<number | null>(null);
+  const [hrv, setHrv] = useState<number | null>(null);
+  const [emotion, setEmotion] = useState<FaceEmotion | null>(null);
+
+  const bpmSeries = useRef<BpmPoint[]>([]);
+  const emoSeries = useRef<EmoPoint[]>([]);
+  const startTsRef = useRef<number>(0);
+
+  // Calibration
+  const [calibLeft, setCalibLeft] = useState(CALIBRATION_SECONDS);
+  const [baselineHr, setBaselineHr] = useState<number | null>(null);
+  const calibBpms = useRef<number[]>([]);
+
+  // Questions
+  const [qIdx, setQIdx] = useState(0);
+  const [answers, setAnswers] = useState<AnswerRow[]>([]);
+  const questionShownAt = useRef<number>(0);
+
+  // Pressure scenario
+  const [pressureLeft, setPressureLeft] = useState(PRESSURE_SECONDS);
+  const pressureBpms = useRef<number[]>([]);
+  const [stressHr, setStressHr] = useState<number | null>(null);
+
+  const questions = useMemo<DiagQuestion[]>(
+    () => (community ? questionsFor(community).filter((q) => q.id !== "qp") : []),
+    [community],
+  );
+  const pressureQ = useMemo<DiagQuestion | null>(
+    () => (community ? questionsFor(community).find((q) => q.id === "qp") ?? null : null),
+    [community],
+  );
+
+  // Final result
+  const [final, setFinal] = useState<null | {
+    psychological: number;
+    biometric: number;
+    faceScore: number;
+    beqa: number;
+    rec: { letter: "A" | "B" | "C"; label: string; color: string; emoji: string };
+    insights: string[];
+  }>(null);
+
+  // ---- BEQA gate ----
   useEffect(() => {
     if (!user) { setBeqaAccess(null); return; }
     (async () => {
@@ -67,634 +106,659 @@ function DiagnosticsPage() {
       setBeqaAccess(!!data?.beqa_access);
     })();
   }, [user]);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const engineRef = useRef<RppgEngine | null>(null);
-  const sessionIdRef = useRef<string | null>(null);
-  const calibBpms = useRef<number[]>([]);
-  const stressPulseUnsubRef = useRef<(() => void) | null>(null);
 
-  const [phase, setPhase] = useState<Phase>("welcome");
-  const [bpm, setBpm] = useState<number | null>(null);
-  const [hrv, setHrv] = useState<number | null>(null);
-  const [quality, setQuality] = useState<SignalQuality>("none");
-  const [faceDetected, setFaceDetected] = useState(false);
-  const [calibProgress, setCalibProgress] = useState(0);
-  const [calibSeconds, setCalibSeconds] = useState(CALIBRATION_SECONDS);
-  const [baselineHr, setBaselineHr] = useState<number | null>(null);
-  const [baselineHrv, setBaselineHrv] = useState<number | null>(null);
-  const [cameraReady, setCameraReady] = useState(false);
-  const [bioDiagnostics, setBioDiagnostics] = useState<BioDiagnostics>({
-    fps: 0, meanGreen: null, brightness: null, skinRatio: 0, motion: null, samplesInWindow: 0,
-  });
+  useEffect(() => () => cleanup(), []);
 
-  // Stress test state
-  const stressBpms = useRef<number[]>([]);
-  const questionShownAt = useRef<number>(0);
-  const questionShownBpm = useRef<number | null>(null);
-  const [qIndex, setQIndex] = useState(0);
-  const [qTimeLeft, setQTimeLeft] = useState(STRESS_TEST_CONFIG.timePerQuestionMs / 1000);
-  const [answers, setAnswers] = useState<AnswerRow[]>([]);
-  const [finalScore, setFinalScore] = useState<(BeqaBreakdown & { avgRt: number; stressHr: number }) | null>(null);
+  function cleanup() {
+    try { ttsRef.current?.stop(); } catch {}
+    try { faceRef.current?.stopAnalysis(); } catch {}
+    try { rppgRef.current?.stopMeasurement(); } catch {}
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+  }
 
-  // Attention probe (catch trial)
-  const [probeActive, setProbeActive] = useState(false);
-  const probeShownAt = useRef<number>(0);
-  const probeHandled = useRef<boolean>(false);
-  const probeStats = useRef<{ hits: number; misses: number; rts: number[] }>({
-    hits: 0, misses: 0, rts: [],
-  });
-
-  useEffect(() => () => { engineRef.current?.stop(); }, []);
-
-  const requestCamera = async () => {
-    if (!navigator.mediaDevices?.getUserMedia) {
-      toast.error("הדפדפן לא תומך במצלמה. נסה Chrome/Safari עדכני.");
-      return;
-    }
+  async function requestCameraAndStart() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: 640, height: 480, frameRate: { ideal: 30 } },
+        video: { facingMode: "user", width: 640, height: 480 },
         audio: false,
       });
-      // mount the <video> element first, then attach the stream
-      setPhase("idle");
-      await new Promise<void>((r) => requestAnimationFrame(() => r()));
-      // wait up to ~1s for ref to mount
-      for (let i = 0; i < 30 && !videoRef.current; i++) {
-        await new Promise<void>((r) => requestAnimationFrame(() => r()));
+      streamRef.current = stream;
+      setPhase("community");
+      // wait for video element
+      await new Promise((r) => requestAnimationFrame(() => r(null)));
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.muted = true;
+        videoRef.current.playsInline = true;
+        try { await videoRef.current.play(); } catch {}
       }
-      if (!videoRef.current) {
-        stream.getTracks().forEach((t) => t.stop());
-        toast.error("לא ניתן לאתחל את תצוגת הוידאו");
-        return;
-      }
-      videoRef.current.srcObject = stream;
-      videoRef.current.muted = true;
-      videoRef.current.playsInline = true;
-      try {
-        await videoRef.current.play();
-      } catch (playErr) {
-        console.warn("video.play() failed, will retry on user gesture", playErr);
-      }
-      const engine = new RppgEngine();
-      engineRef.current = engine;
-      engine.onSample((snap) => {
-        setBpm(snap.bpm);
-        setHrv(snap.hrv);
-        setQuality(snap.signalQuality);
-        setFaceDetected(snap.faceDetected);
-        setBioDiagnostics({
-          fps: snap.fps, meanGreen: snap.meanGreen, brightness: snap.brightness,
-          skinRatio: snap.skinRatio, motion: snap.motion, samplesInWindow: snap.samplesInWindow,
+
+      ttsRef.current = createTTS();
+      faceRef.current = createFaceAnalysis();
+      rppgRef.current = createRPPG();
+
+      faceRef.current.onEmotionDetected = (e) => {
+        setEmotion(e);
+        emoSeries.current.push({
+          t: Math.round((Date.now() - (startTsRef.current || Date.now())) / 1000),
+          anxiety: e.anxiety, focus: e.focus, confidence: e.confidence, confusion: e.confusion,
         });
-      });
-      await engine.start(stream, videoRef.current!);
-      setCameraReady(true);
-      setPhase("idle");
-      toast.success("המצלמה פעילה — מתחיל ניתוח rPPG");
+      };
+      rppgRef.current.onBPMSample = (b, h) => {
+        setBpm(b); setHrv(h);
+        bpmSeries.current.push({
+          t: Math.round((Date.now() - (startTsRef.current || Date.now())) / 1000),
+          bpm: b, hrv: h,
+        });
+      };
+      faceRef.current.startAnalysis(stream);
+      rppgRef.current.startMeasurement(stream);
     } catch (e: any) {
-      console.error("camera error:", e);
-      const name = e?.name || "";
-      if (name === "NotAllowedError" || name === "PermissionDeniedError") {
-        toast.error("גישה למצלמה נחסמה. אפשר אותה בהגדרות הדפדפן.");
-      } else if (name === "NotFoundError" || name === "DevicesNotFoundError") {
-        toast.error("לא נמצאה מצלמה במכשיר");
-      } else if (name === "NotReadableError") {
-        toast.error("המצלמה בשימוש על ידי אפליקציה אחרת");
-      } else {
-        toast.error(`שגיאת מצלמה: ${e?.message || name || "לא ידוע"}`);
-      }
-      setPhase("welcome");
+      console.error(e);
+      toast.error("גישה למצלמה נדחתה. אפשר אותה בהגדרות הדפדפן.");
     }
-  };
+  }
 
-  const startCalibration = async () => {
-    if (!user || !engineRef.current) return;
-    const { data, error } = await supabase
-      .from("beqa_diagnostic_sessions")
-      .insert({ student_id: user.id, metadata: { phase: "calibration", engine: "rppg-real-v1" } })
-      .select("id").single();
-    if (error || !data) { toast.error("שגיאה ביצירת סשן"); return; }
-    sessionIdRef.current = data.id;
-    calibBpms.current = [];
-    setPhase("calibrating");
+  function chooseCommunity(c: Community) {
+    setCommunity(c);
+    startTsRef.current = Date.now();
+    bpmSeries.current = []; emoSeries.current = []; calibBpms.current = [];
+    setPhase("calibration");
+    setCalibLeft(CALIBRATION_SECONDS);
+    ttsRef.current?.speak(
+      c === "russian" ? "Сядь удобно. Смотри в камеру. 30 секунд." :
+      c === "ethiopian" ? "በምቾት ቁጭ በል። ካሜራውን ተመልከት። 30 ሰከንዶች።" :
+      "שב בנוחות. הסתכל על המצלמה. 30 שניות.",
+      COMMUNITY_TTS_LANG[c],
+    );
+  }
 
-    const offPulse = engineRef.current.onPulse(async (pulse) => {
-      calibBpms.current.push(pulse.bpm);
-      await supabase.from("raw_biometric_log").insert({
-        session_id: sessionIdRef.current!, student_id: user.id,
-        event_type: "pulse_detected", bpm: pulse.bpm, hrv: pulse.hrv,
-        payload: { phase: "calibration", rr_ms: pulse.rrIntervalMs, signal_quality: pulse.signalQuality },
-      });
-    });
-
-    const startTs = Date.now();
-    const interval = setInterval(async () => {
-      const elapsed = (Date.now() - startTs) / 1000;
-      setCalibProgress(Math.min(100, (elapsed / CALIBRATION_SECONDS) * 100));
-      setCalibSeconds(Math.max(0, Math.ceil(CALIBRATION_SECONDS - elapsed)));
-      if (elapsed >= CALIBRATION_SECONDS) {
-        clearInterval(interval);
-        offPulse();
-        if (calibBpms.current.length < 5) {
-          toast.error("לא הצלחנו לזהות מספיק פעימות. נסה שוב בתאורה טובה יותר.");
-          setPhase("idle"); setCalibProgress(0); return;
-        }
-        const avg = calibBpms.current.reduce((a, b) => a + b, 0) / calibBpms.current.length;
-        const baseline = Math.round(avg);
-        const baselineHrvVal = engineRef.current?.getSnapshot().hrv ?? null;
-        setBaselineHr(baseline);
-        setBaselineHrv(baselineHrvVal);
-        await supabase.from("beqa_diagnostic_sessions").update({
-          baseline_hr: baseline,
-          metadata: {
-            phase: "calibrated", engine: "rppg-real-v1",
-            baseline_hrv: baselineHrvVal, pulses_captured: calibBpms.current.length,
-          },
-        }).eq("id", sessionIdRef.current!);
-        setPhase("calibrated");
-        toast.success(`כיול הסתיים — דופק מנוחה: ${baseline} BPM`);
-      }
-    }, 200);
-  };
-
-  const stopAll = () => {
-    stressPulseUnsubRef.current?.(); stressPulseUnsubRef.current = null;
-    engineRef.current?.stop(); engineRef.current = null;
-    sessionIdRef.current = null;
-    calibBpms.current = []; stressBpms.current = [];
-    probeStats.current = { hits: 0, misses: 0, rts: [] };
-    setCameraReady(false); setPhase("welcome");
-    setBpm(null); setHrv(null); setQuality("none"); setFaceDetected(false);
-    setCalibProgress(0); setCalibSeconds(CALIBRATION_SECONDS);
-    setBaselineHr(null); setBaselineHrv(null);
-    setAnswers([]); setFinalScore(null); setProbeActive(false);
-    setBioDiagnostics({ fps: 0, meanGreen: null, brightness: null, skinRatio: 0, motion: null, samplesInWindow: 0 });
-  };
-
-  // ---- Stress test ----
-  const startStressTest = () => {
-    if (!engineRef.current || !user || !sessionIdRef.current) return;
-    if (quality !== "high") { toast.error("איכות סיגנל לא מספקת. המתן לסיגנל גבוה."); return; }
-    stressBpms.current = [];
-    probeStats.current = { hits: 0, misses: 0, rts: [] };
-    setAnswers([]); setQIndex(0); setPhase("running");
-
-    const offStressPulse = engineRef.current.onPulse(async (pulse) => {
-      stressBpms.current.push(pulse.bpm);
-      await supabase.from("raw_biometric_log").insert({
-        session_id: sessionIdRef.current!, student_id: user.id,
-        event_type: "pulse_detected", bpm: pulse.bpm, hrv: pulse.hrv,
-        payload: { phase: "stress", rr_ms: pulse.rrIntervalMs, signal_quality: pulse.signalQuality },
-      });
-    });
-    stressPulseUnsubRef.current = offStressPulse;
-
-    showQuestion(0);
-  };
-
-  const showQuestion = async (idx: number) => {
-    if (!user || !sessionIdRef.current) return;
-    questionShownAt.current = Date.now();
-    questionShownBpm.current = bpm;
-    setQIndex(idx);
-    setQTimeLeft(STRESS_TEST_CONFIG.timePerQuestionMs / 1000);
-
-    await supabase.from("raw_biometric_log").insert({
-      session_id: sessionIdRef.current, student_id: user.id,
-      event_type: "question_shown", bpm, hrv,
-      payload: { question_id: STRESS_QUESTIONS[idx].id, index: idx },
-    });
-
-    // Schedule attention probe every N questions, mid-question
-    if ((idx + 1) % STRESS_TEST_CONFIG.attentionProbeEveryNQuestions === 0) {
-      const delay = 4000 + Math.random() * 6000;
-      setTimeout(() => {
-        if (sessionIdRef.current) triggerAttentionProbe();
-      }, delay);
-    }
-  };
-
-  const triggerAttentionProbe = async () => {
-    if (!user || !sessionIdRef.current) return;
-    setProbeActive(true);
-    probeShownAt.current = Date.now();
-    probeHandled.current = false;
-    await supabase.from("raw_biometric_log").insert({
-      session_id: sessionIdRef.current, student_id: user.id,
-      event_type: "attention_probe", bpm, hrv,
-      payload: { question_id: STRESS_QUESTIONS[qIndex].id },
-    });
-    setTimeout(async () => {
-      if (!probeHandled.current) {
-        probeHandled.current = true;
-        probeStats.current.misses++;
-        setProbeActive(false);
-        await supabase.from("raw_biometric_log").insert({
-          session_id: sessionIdRef.current!, student_id: user.id,
-          event_type: "attention_miss", bpm, hrv,
-          payload: { question_id: STRESS_QUESTIONS[qIndex].id },
-        });
-      }
-    }, STRESS_TEST_CONFIG.attentionProbeWindowMs);
-  };
-
-  const handleProbeClick = async () => {
-    if (!probeActive || probeHandled.current || !user || !sessionIdRef.current) return;
-    probeHandled.current = true;
-    const rt = Date.now() - probeShownAt.current;
-    probeStats.current.hits++;
-    probeStats.current.rts.push(rt);
-    setProbeActive(false);
-    await supabase.from("raw_biometric_log").insert({
-      session_id: sessionIdRef.current, student_id: user.id,
-      event_type: "attention_hit", bpm, hrv,
-      payload: { question_id: STRESS_QUESTIONS[qIndex].id, reaction_time_ms: rt },
-    });
-  };
-
+  // Calibration countdown
   useEffect(() => {
-    if (phase !== "running") return;
+    if (phase !== "calibration") return;
     const t = setInterval(() => {
-      setQTimeLeft((prev) => {
-        if (prev <= 1) {
-          submitAnswer(-1, true);
-          return STRESS_TEST_CONFIG.timePerQuestionMs / 1000;
+      if (bpm != null) calibBpms.current.push(bpm);
+      setCalibLeft((s) => {
+        if (s <= 1) {
+          clearInterval(t);
+          const avg = calibBpms.current.length
+            ? Math.round(calibBpms.current.reduce((a, b) => a + b, 0) / calibBpms.current.length)
+            : bpm ?? 72;
+          setBaselineHr(avg);
+          setPhase("questions");
+          setQIdx(0);
+          return 0;
         }
-        return prev - 1;
+        return s - 1;
       });
     }, 1000);
     return () => clearInterval(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, qIndex]);
+  }, [phase, bpm]);
 
-  const submitAnswer = async (selectedIdx: number, timeout = false) => {
-    if (!user || !sessionIdRef.current) return;
-    const q = STRESS_QUESTIONS[qIndex];
-    const rt = Date.now() - questionShownAt.current;
-    const correct = !timeout && selectedIdx === q.correctIndex;
+  // Speak each question when shown
+  useEffect(() => {
+    if (phase !== "questions" || !community || !questions[qIdx]) return;
+    questionShownAt.current = Date.now();
+    const q = questions[qIdx];
+    ttsRef.current?.speak(ttsTextFor(q, community), COMMUNITY_TTS_LANG[community]);
+  }, [phase, qIdx, community, questions]);
+
+  function repeatTTS() {
+    if (!community) return;
+    const q = phase === "pressure" ? pressureQ : questions[qIdx];
+    if (q) ttsRef.current?.speak(ttsTextFor(q, community), COMMUNITY_TTS_LANG[community]);
+  }
+
+  async function pickAnswer(opt: { score: number }) {
+    const q = phase === "pressure" ? pressureQ : questions[qIdx];
+    if (!q) return;
     const row: AnswerRow = {
-      qId: q.id, correct, rt, bpmAtShow: questionShownBpm.current, bpmAtAnswer: bpm,
+      qId: q.id,
+      score: opt.score,
+      rtMs: Date.now() - questionShownAt.current,
+      bpmAtAnswer: bpm,
+      emotionAtAnswer: emotion,
     };
     const next = [...answers, row];
     setAnswers(next);
 
-    await supabase.from("raw_biometric_log").insert({
-      session_id: sessionIdRef.current, student_id: user.id,
-      event_type: "answer_submitted", bpm, hrv,
-      payload: {
-        question_id: q.id, selected: selectedIdx, correct, timeout,
-        reaction_time_ms: rt, bpm_at_show: questionShownBpm.current, bpm_at_answer: bpm,
-      },
-    });
+    // log raw biometric (best-effort)
+    if (user) {
+      supabase.from("raw_biometric_log").insert({
+        student_id: user.id,
+        session_id: user.id, // session row inserted at finish; use student id as grouping fallback
+        event_type: "answer_submitted",
+        bpm, hrv,
+        payload: { q: q.id, score: opt.score, rt_ms: row.rtMs, emotion: emotion ?? null },
+      }).then(() => {}, () => {});
+    }
 
-    if (qIndex + 1 < STRESS_QUESTIONS.length) showQuestion(qIndex + 1);
-    else await finishTest(next);
-  };
+    if (phase === "questions") {
+      if (qIdx + 1 < questions.length) {
+        setQIdx(qIdx + 1);
+      } else {
+        // begin pressure scenario
+        setPhase("pressure");
+        setPressureLeft(PRESSURE_SECONDS);
+        pressureBpms.current = [];
+        questionShownAt.current = Date.now();
+        if (community && pressureQ) {
+          ttsRef.current?.speak(ttsTextFor(pressureQ, community), COMMUNITY_TTS_LANG[community]);
+        }
+      }
+    } else {
+      await finishAll(next);
+    }
+  }
 
-  const finishTest = async (allAnswers: AnswerRow[]) => {
-    if (!sessionIdRef.current || !baselineHr) return;
-    stressPulseUnsubRef.current?.(); stressPulseUnsubRef.current = null;
-    const correctAnswers = allAnswers.filter((a) => a.correct).length;
-    const stressHr = stressBpms.current.length
-      ? Math.round(stressBpms.current.reduce((a, b) => a + b, 0) / stressBpms.current.length)
-      : baselineHr;
-    const reactionTimesMs = allAnswers.map((a) => a.rt);
-    const avgRt = Math.round(reactionTimesMs.reduce((a, b) => a + b, 0) / Math.max(1, reactionTimesMs.length));
+  // pressure timer
+  useEffect(() => {
+    if (phase !== "pressure") return;
+    const t = setInterval(() => {
+      if (bpm != null) pressureBpms.current.push(bpm);
+      setPressureLeft((s) => {
+        if (s <= 1) {
+          clearInterval(t);
+          // timeout = lowest score
+          finishAll([...answers, {
+            qId: pressureQ?.id ?? "qp",
+            score: 1,
+            rtMs: Date.now() - questionShownAt.current,
+            bpmAtAnswer: bpm,
+            emotionAtAnswer: emotion,
+          }]);
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
+    return () => clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
-    const score = calculateBeqaScore({
-      correctAnswers, totalQuestions: STRESS_QUESTIONS.length,
-      baselineHr, stressHr, reactionTimesMs,
-    });
+  async function finishAll(allAnswers: AnswerRow[]) {
+    cleanup();
+    // psychological avg (1-4 → 0-100)
+    const psychAvg = allAnswers.reduce((a, b) => a + b.score, 0) / Math.max(1, allAnswers.length);
+    const psychological = (psychAvg / 4) * 100;
 
-    await supabase.from("beqa_diagnostic_sessions").update({
-      end_time: new Date().toISOString(), stress_hr: stressHr,
-      accuracy_score: score.accuracy, reaction_time_avg: avgRt,
-      final_beqa_score: score.beqa,
-      metadata: {
-        phase: "complete", engine: "rppg-real-v1",
-        correct: correctAnswers, total: STRESS_QUESTIONS.length,
-        baseline_hrv: baselineHrv, stress_pulses_captured: stressBpms.current.length,
-        stability: score.stability, reaction_consistency: score.reaction,
-        reaction_sd_ms: score.reactionSdMs, interpretation: score.interpretation,
-        attention_hits: probeStats.current.hits,
-        attention_misses: probeStats.current.misses,
-        attention_avg_rt: probeStats.current.rts.length
-          ? Math.round(probeStats.current.rts.reduce((a, b) => a + b, 0) / probeStats.current.rts.length)
-          : null,
-        per_question: allAnswers,
-      },
-    }).eq("id", sessionIdRef.current);
+    // biometric: accuracy (proxy: how many ≥3) + stability (baseline vs pressure)
+    const accuracy = (allAnswers.filter((a) => a.score >= 3).length / Math.max(1, allAnswers.length)) * 100;
+    const sHr = pressureBpms.current.length
+      ? Math.round(pressureBpms.current.reduce((a, b) => a + b, 0) / pressureBpms.current.length)
+      : bpm ?? baselineHr ?? 72;
+    setStressHr(sHr);
+    const drift = baselineHr ? Math.abs(sHr - baselineHr) / baselineHr : 0;
+    const stability = Math.max(0, 1 - drift) * 100;
+    const biometric = accuracy * 0.6 + stability * 0.4;
 
-    setFinalScore({ ...score, avgRt, stressHr });
-    setPhase("done");
-    toast.success(`ציון BEQA: ${score.beqa}% — ${score.interpretation}`);
-  };
+    // face score: focus - anxiety, normalized to 0-100
+    const emos = emoSeries.current;
+    const avg = (k: keyof EmoPoint) =>
+      emos.length ? emos.reduce((a, b) => a + (b[k] as number), 0) / emos.length : 0;
+    const focusAvg = avg("focus");
+    const anxietyAvg = avg("anxiety");
+    const faceScore = Math.max(0, Math.min(100, ((focusAvg - anxietyAvg) + 1) / 2 * 100));
 
-  // Timeline data for results chart
-  const timelineData = answers.map((a, i) => ({
-    name: `Q${i + 1}`,
-    BPM: a.bpmAtAnswer ?? a.bpmAtShow ?? 0,
-    "RT (ms)": a.rt,
-  }));
+    const beqa = psychological * 0.5 + biometric * 0.3 + faceScore * 0.2;
 
-  if (user && beqaAccess === false) {
+    const rec = beqa >= 75
+      ? { letter: "A" as const, label: "מומלץ מאוד להמשך תהליך", color: "text-emerald-500", emoji: "🟢" }
+      : beqa >= 55
+      ? { letter: "B" as const, label: "מומלץ ראיון נוסף", color: "text-amber-500", emoji: "🟡" }
+      : { letter: "C" as const, label: "לא מומלץ כרגע", color: "text-red-500", emoji: "🔴" };
+
+    // generate insights
+    const insights: string[] = [];
+    const hardestQ = allAnswers
+      .map((a, i) => ({ a, i, anxiety: a.emotionAtAnswer?.anxiety ?? 0 }))
+      .sort((x, y) => y.anxiety - x.anxiety)[0];
+    if (hardestQ && hardestQ.anxiety > 0.5) {
+      insights.push(`שאלה ${hardestQ.i + 1} גרמה לחרדה גבוהה — מומלץ לחזק את הנושא.`);
+    }
+    if (drift > 0.15) insights.push(`הדופק עלה משמעותית תחת לחץ (${baselineHr}→${sHr} BPM) — תרגול נשימה יסייע.`);
+    if (anxietyAvg > 0.5) insights.push("רמת חרדה כללית גבוהה — מומלץ ראיון רגוע נוסף.");
+    if (focusAvg > 0.7) insights.push("ריכוז גבוה לאורך הבדיקה — נכס לתפקיד נהג.");
+    if (insights.length === 0) insights.push("ביצועים יציבים — אין דגלים אדומים.");
+
+    const result = { psychological, biometric, faceScore, beqa, rec, insights };
+    setFinal(result);
+
+    // persist
+    if (user && community) {
+      const { error } = await supabase.from("beqa_diagnostic_sessions").insert({
+        student_id: user.id,
+        assessment_type: "unified",
+        community_type: community,
+        psychological_score: Math.round(psychological * 10) / 10,
+        recommendation: rec.letter,
+        baseline_hr: baselineHr,
+        stress_hr: sHr,
+        accuracy_score: Math.round(accuracy * 10) / 10,
+        final_beqa_score: Math.round(beqa * 10) / 10,
+        end_time: new Date().toISOString(),
+        answers: allAnswers as any,
+        metadata: {
+          version: "unified-v1",
+          providers: USE_REAL_APIS,
+          biometric_score: Math.round(biometric * 10) / 10,
+          face_score: Math.round(faceScore * 10) / 10,
+          stability: Math.round(stability * 10) / 10,
+          bpm_series: bpmSeries.current.slice(-200),
+          emotion_series: emoSeries.current.slice(-200),
+          insights,
+        } as any,
+      });
+      if (error) console.warn("save failed", error);
+      else toast.success("האבחון נשמר בהצלחה");
+    }
+
+    setPhase("results");
+  }
+
+  function reset() {
+    cleanup();
+    setPhase("welcome");
+    setCommunity(null);
+    setAnswers([]);
+    setQIdx(0);
+    setFinal(null);
+    setBpm(null); setHrv(null); setEmotion(null);
+    setBaselineHr(null); setStressHr(null);
+    bpmSeries.current = []; emoSeries.current = [];
+  }
+
+  function downloadJSON() {
+    if (!final) return;
+    const data = {
+      community, baselineHr, stressHr, answers, final,
+      bpm_series: bpmSeries.current, emotion_series: emoSeries.current,
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `diagnostic-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // ---- gating ----
+  if (!user) {
     return (
       <AppShell requireAuth={false}>
         <div dir="rtl" className="mx-auto max-w-md py-12 text-center space-y-4">
-          <div className="text-5xl">🧬</div>
-          <h1 className="text-2xl font-bold">אבחון BEQA נעול</h1>
-          <p className="text-base text-muted-foreground">
-            האבחון הביומטרי זמין בתשלום של 1,200 ₪. לרכישה — פנה להנהלה או שלח הודעה דרך פורטל הקהילה.
-          </p>
-          <p className="text-sm text-muted-foreground" lang="am">
-            የ BEQA ምርመራ ዋጋ 1,200 ₪ ነው። ለመግዛት — አስተዳደሩን ያነጋግሩ።
-          </p>
-          <div className="flex flex-col gap-2 pt-2">
-            <Link to="/community">
-              <Button className="w-full">📩 פנה להנהלה</Button>
-            </Link>
-            <Link to="/dashboard"><Button variant="outline" className="w-full">חזרה</Button></Link>
-          </div>
+          <div className="text-5xl">🧠</div>
+          <h1 className="text-2xl font-bold">אבחון מקצועי מאוחד</h1>
+          <p className="text-sm text-muted-foreground">יש להתחבר כדי לבצע ולשמור את האבחון.</p>
+          <Link to="/login"><Button>התחבר</Button></Link>
+        </div>
+      </AppShell>
+    );
+  }
+  if (beqaAccess === false) {
+    return (
+      <AppShell requireAuth={false}>
+        <div dir="rtl" className="mx-auto max-w-md py-12 text-center space-y-4">
+          <div className="text-5xl">🔒</div>
+          <h1 className="text-2xl font-bold">האבחון נעול</h1>
+          <p>האבחון המקצועי המאוחד זמין בתשלום של 1,200 ₪.</p>
+          <Link to="/community"><Button>📩 פנה להנהלה</Button></Link>
         </div>
       </AppShell>
     );
   }
 
-
+  // ---- render ----
   return (
     <AppShell requireAuth={false}>
-      <div className="space-y-4" dir="rtl">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">אבחון ביומטרי BEQA</h1>
-            <p className="text-sm text-muted-foreground">
-              מדידת דיוק, יציבות פיזיולוגית ועקביות תגובה תחת סטרס
-            </p>
-          </div>
-          <Link to="/beqa-history">
-            <Button size="sm" variant="outline">היסטוריה</Button>
-          </Link>
-        </div>
+      <div dir="rtl" className="mx-auto max-w-6xl py-6 space-y-4">
+        {phase === "welcome" && <Welcome onStart={requestCameraAndStart} />}
 
-        <Link to="/psych-diagnostic" className="block">
-          <Card className="border-primary/40 bg-gradient-to-br from-primary/10 to-transparent hover:border-primary transition">
-            <CardContent className="p-4 flex items-center justify-between gap-3">
-              <div>
-                <div className="flex items-center gap-2 font-bold">🧠 אבחון פסיכולוגי-תעסוקתי</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  14 שאלות · ~5 דקות · מתאים לכל הקהילות (אמהרית · רוסית · קוקי)
-                </p>
-              </div>
-              <Button size="sm">התחל →</Button>
-            </CardContent>
-          </Card>
-        </Link>
+        {phase === "community" && <CommunityChooser onPick={chooseCommunity} videoRef={videoRef} />}
 
-        {phase === "welcome" && (
-          <Card className="border-emerald-500/40">
-            <CardHeader>
-              <CardTitle className="text-base">ברוך הבא לסימולציית Haile AI</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <p>
-                הסימולציה מודדת ביצועים קוגניטיביים ודופק (rPPG מהמצלמה).
-                אנא הישאר ממוקד והבטח שפניך מוארים וברורים למצלמה.
-              </p>
-              <ul className="list-disc pr-5 text-xs text-muted-foreground space-y-1">
-                <li>מרחק 40–80 ס״מ מהמצלמה</li>
-                <li>תאורה אחידה מלפנים, לא מאחור</li>
-                <li>שב יציב ואל תזוז במהלך השאלות</li>
-                <li>10 שאלות · 20 שניות לכל שאלה · משימות קשב מפתיעות</li>
-              </ul>
-              <Button onClick={requestCamera} className="w-full">
-                <Camera className="ml-2 h-4 w-4" /> התחל סימולציה
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+        {(phase === "calibration" || phase === "questions" || phase === "pressure") && (
+          <div className="grid gap-4 md:grid-cols-[1fr,1.4fr]">
+            {/* LEFT: live monitor */}
+            <LiveMonitor videoRef={videoRef} bpm={bpm} hrv={hrv} emotion={emotion} />
 
-        {phase !== "welcome" && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Camera className="h-4 w-4" /> תצוגת מצלמה
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="relative mx-auto aspect-[4/3] w-full max-w-xs overflow-hidden rounded-xl bg-black">
-                <video ref={videoRef} playsInline muted className="h-full w-full object-cover" />
-                {cameraReady && (
-                  <div
-                    className="pointer-events-none absolute border-2 border-emerald-400/70 rounded"
-                    style={{ width: "25%", height: "25%", left: "37.5%", top: "17.5%" }}
+            {/* RIGHT: phase content */}
+            <Card className="border-amber-500/30">
+              <CardContent className="p-6 space-y-4">
+                {phase === "calibration" && (
+                  <CalibrationStep
+                    left={calibLeft}
+                    bpm={bpm}
+                    onSkip={() => {
+                      const avg = calibBpms.current.length
+                        ? Math.round(calibBpms.current.reduce((a, b) => a + b, 0) / calibBpms.current.length)
+                        : bpm ?? 72;
+                      setBaselineHr(avg);
+                      setPhase("questions");
+                    }}
                   />
                 )}
-                {cameraReady && (
-                  <div className="absolute top-2 right-2">
-                    <Badge className={`${faceDetected ? "bg-emerald-500" : "bg-red-500"} text-white text-[10px]`}>
-                      {faceDetected ? "● Face lock" : "○ אין נעילת פנים"}
-                    </Badge>
-                  </div>
+                {phase === "questions" && questions[qIdx] && community && (
+                  <QuestionCard
+                    q={questions[qIdx]}
+                    community={community}
+                    idx={qIdx}
+                    total={questions.length}
+                    onPick={pickAnswer}
+                    onRepeat={repeatTTS}
+                  />
                 )}
-                {cameraReady && !faceDetected && (
-                  <div className="absolute inset-x-0 bottom-0 bg-amber-500/90 text-white text-xs p-2 text-center">
-                    מחפש פנים… נא להישאר יציב מול המצלמה
-                  </div>
+                {phase === "pressure" && pressureQ && community && (
+                  <PressureCard
+                    q={pressureQ}
+                    community={community}
+                    left={pressureLeft}
+                    onPick={pickAnswer}
+                    onRepeat={repeatTTS}
+                  />
                 )}
-                {cameraReady && faceDetected && (bioDiagnostics.brightness ?? 100) < 60 && (
-                  <div className="absolute inset-x-0 bottom-0 bg-red-500/90 text-white text-xs p-2 text-center">
-                    תאורה חלשה — הוסף אור מלפנים
-                  </div>
-                )}
-              </div>
-
-              {cameraReady && (
-                <Button onClick={stopAll} variant="outline" className="w-full">
-                  <Square className="ml-2 h-4 w-4" /> סיים והתחל מחדש
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {cameraReady && (
-          <>
-            <div className="grid grid-cols-3 gap-2">
-              <Card><CardContent className="p-3">
-                <div className="flex items-center gap-1 text-[10px] text-muted-foreground"><Heart className="h-3 w-3 text-red-500" /> BPM</div>
-                <div className="mt-1 text-xl font-bold">{bpm ?? "—"}</div>
-              </CardContent></Card>
-              <Card><CardContent className="p-3">
-                <div className="flex items-center gap-1 text-[10px] text-muted-foreground"><Activity className="h-3 w-3 text-emerald-500" /> HRV</div>
-                <div className="mt-1 text-xl font-bold">{hrv ?? "—"}</div>
-              </CardContent></Card>
-              <Card><CardContent className="p-3">
-                <div className="flex items-center gap-1 text-[10px] text-muted-foreground"><Wifi className="h-3 w-3" /> איכות</div>
-                <Badge className={`mt-1 ${QUALITY_COLOR[quality]} text-white text-[10px]`}>
-                  {QUALITY_LABEL[quality]}
-                </Badge>
-              </CardContent></Card>
-            </div>
-            <Card>
-              <CardContent className="grid grid-cols-3 gap-2 p-3 text-[10px] text-muted-foreground">
-                <div><span className="block text-foreground">{bioDiagnostics.fps}</span> FPS</div>
-                <div><span className="block text-foreground">{bioDiagnostics.samplesInWindow}</span> דגימות</div>
-                <div><span className="block text-foreground">{Math.round(bioDiagnostics.skinRatio * 100)}%</span> ROI עור</div>
-                <div><span className="block text-foreground">{bioDiagnostics.meanGreen?.toFixed(1) ?? "—"}</span> Green</div>
-                <div><span className="block text-foreground">{bioDiagnostics.brightness?.toFixed(1) ?? "—"}</span> תאורה</div>
-                <div><span className="block text-foreground">{bioDiagnostics.motion?.toFixed(2) ?? "—"}</span> תנועה</div>
               </CardContent>
             </Card>
-          </>
+          </div>
         )}
 
-        {cameraReady && (phase === "idle" || phase === "calibrating" || phase === "calibrated") && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">כיול ביומטרי (30 שניות)</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {phase === "calibrating" && (
-                <>
-                  <Progress value={calibProgress} />
-                  <p className="text-xs text-muted-foreground">
-                    {faceDetected ? "נעילה הושלמה — אוסף Baseline" : "מחפש פנים…"} · נותרו {calibSeconds}s · פעימות: {calibBpms.current.length}
-                  </p>
-                </>
-              )}
-              {baselineHr !== null && (
-                <div className="rounded-lg bg-emerald-500/10 p-3 text-sm space-y-1">
-                  <div>✅ דופק מנוחה: <strong>{baselineHr} BPM</strong></div>
-                  {baselineHrv !== null && (
-                    <div className="text-xs text-muted-foreground">HRV (RMSSD): {baselineHrv} ms</div>
-                  )}
-                </div>
-              )}
-              {phase === "idle" && (
-                <Button onClick={startCalibration} className="w-full" disabled={!faceDetected}>
-                  <Play className="ml-2 h-4 w-4" />
-                  {faceDetected ? "התחל כיול ביומטרי" : "ממתין לזיהוי פנים…"}
-                </Button>
-              )}
-              {phase === "calibrated" && (
-                <Button onClick={startStressTest} className="w-full" disabled={quality !== "high"}>
-                  <Brain className="ml-2 h-4 w-4" />
-                  {quality === "high" ? "התחל מבחן תחת סטרס" : `ממתין לסיגנל גבוה (כעת: ${QUALITY_LABEL[quality]})`}
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {phase === "running" && (
-          <Card className="relative overflow-hidden">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between text-base">
-                <span className="flex items-center gap-2">
-                  <Brain className="h-4 w-4" /> שאלה {qIndex + 1}/{STRESS_QUESTIONS.length}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  ⏱ {qTimeLeft}s · ❤ {bpm ?? "—"}
-                </span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Progress value={(qTimeLeft / (STRESS_TEST_CONFIG.timePerQuestionMs / 1000)) * 100} />
-              <p className="font-medium text-sm leading-relaxed">{STRESS_QUESTIONS[qIndex].text}</p>
-              <div className="space-y-2">
-                {STRESS_QUESTIONS[qIndex].options.map((opt, i) => (
-                  <Button key={i} variant="outline" className="w-full justify-start text-right" onClick={() => submitAnswer(i)}>
-                    {opt}
-                  </Button>
-                ))}
-              </div>
-            </CardContent>
-            {probeActive && (
-              <button
-                onClick={handleProbeClick}
-                className="absolute top-2 left-2 grid h-14 w-14 place-items-center rounded-full bg-amber-400 text-amber-950 shadow-lg animate-pulse"
-                aria-label="לחץ מיד"
-              >
-                <Target className="h-7 w-7" />
-              </button>
-            )}
-          </Card>
-        )}
-
-        {phase === "done" && finalScore && (
-          <>
-            <Card className="border-2 border-emerald-500/40">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <Trophy className="h-4 w-4 text-emerald-500" /> תוצאות BEQA
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="rounded-xl bg-gradient-to-br from-emerald-500/20 to-blue-500/10 p-4 text-center">
-                  <div className="text-xs text-muted-foreground">ציון BEQA סופי</div>
-                  <div className="text-4xl font-bold">{finalScore.beqa}%</div>
-                  <div className="mt-1 text-sm font-medium">{finalScore.interpretation}</div>
-                  <div className="text-[10px] text-muted-foreground mt-1">
-                    (Acc × 0.4) + (Stress × 0.3) + (Reaction × 0.3)
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-2 text-sm">
-                  <div className="rounded-lg bg-muted/50 p-3">
-                    <div className="text-xs text-muted-foreground">דיוק</div>
-                    <div className="font-bold">{finalScore.accuracy}%</div>
-                  </div>
-                  <div className="rounded-lg bg-muted/50 p-3">
-                    <div className="text-xs text-muted-foreground">יציבות</div>
-                    <div className="font-bold">{finalScore.stability}%</div>
-                  </div>
-                  <div className="rounded-lg bg-muted/50 p-3">
-                    <div className="text-xs text-muted-foreground">עקביות</div>
-                    <div className="font-bold">{finalScore.reaction}%</div>
-                  </div>
-                  <div className="rounded-lg bg-muted/50 p-3">
-                    <div className="text-xs text-muted-foreground">דופק מנוחה</div>
-                    <div className="font-bold">{baselineHr} BPM</div>
-                  </div>
-                  <div className="rounded-lg bg-muted/50 p-3">
-                    <div className="text-xs text-muted-foreground">דופק סטרס</div>
-                    <div className="font-bold">{finalScore.stressHr} BPM</div>
-                  </div>
-                  <div className="rounded-lg bg-muted/50 p-3">
-                    <div className="text-xs text-muted-foreground">RT ממוצע</div>
-                    <div className="font-bold">{finalScore.avgRt} ms</div>
-                  </div>
-                  <div className="rounded-lg bg-muted/50 p-3 col-span-3">
-                    <div className="text-xs text-muted-foreground">
-                      קשב (Catch trials) — פגיעות: {probeStats.current.hits} · החמצות: {probeStats.current.misses}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">ציר זמן: BPM וזמן תגובה</CardTitle>
-              </CardHeader>
-              <CardContent className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={timelineData}>
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                    <XAxis dataKey="name" fontSize={10} />
-                    <YAxis yAxisId="left" fontSize={10} />
-                    <YAxis yAxisId="right" orientation="right" fontSize={10} />
-                    <Tooltip />
-                    <Legend />
-                    <Line yAxisId="left" type="monotone" dataKey="BPM" stroke="#ef4444" strokeWidth={2} />
-                    <Line yAxisId="right" type="monotone" dataKey="RT (ms)" stroke="#3b82f6" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </>
+        {phase === "results" && final && (
+          <Results
+            final={final}
+            baselineHr={baselineHr}
+            stressHr={stressHr}
+            bpmSeries={bpmSeries.current}
+            emoSeries={emoSeries.current}
+            onReset={reset}
+            onDownload={downloadJSON}
+          />
         )}
       </div>
     </AppShell>
+  );
+}
+
+// ---------------- sub-components ----------------
+
+function Welcome({ onStart }: { onStart: () => void }) {
+  return (
+    <div className="mx-auto max-w-xl text-center space-y-6 py-10">
+      <div className="text-6xl">🧠</div>
+      <h1 className="text-3xl font-bold">אבחון מקצועי מאוחד</h1>
+      <p className="text-muted-foreground">
+        מערכת אבחון משולבת: פסיכולוגי + ביומטרי + ניתוח פנים.
+        <br />משך: ~7 דקות. נדרשת מצלמה.
+      </p>
+      <div className="grid grid-cols-3 gap-3 text-xs">
+        <div className="rounded-xl border p-3"><Brain className="mx-auto mb-1 h-5 w-5 text-amber-500"/>פסיכולוגי</div>
+        <div className="rounded-xl border p-3"><Heart className="mx-auto mb-1 h-5 w-5 text-rose-500"/>דופק (rPPG)</div>
+        <div className="rounded-xl border p-3"><Camera className="mx-auto mb-1 h-5 w-5 text-emerald-500"/>פנים</div>
+      </div>
+      <Button size="lg" onClick={onStart} className="w-full bg-amber-500 hover:bg-amber-600 text-black">
+        <Camera className="me-2 h-4 w-4" /> אפשר מצלמה והתחל
+      </Button>
+    </div>
+  );
+}
+
+function CommunityChooser({
+  onPick, videoRef,
+}: { onPick: (c: Community) => void; videoRef: React.RefObject<HTMLVideoElement> }) {
+  return (
+    <div className="grid gap-4 md:grid-cols-2">
+      <div className="rounded-2xl border bg-black/60 p-3">
+        <video ref={videoRef} className="w-full rounded-xl aspect-video object-cover" />
+        <p className="mt-2 text-xs text-center text-muted-foreground">תצוגה מקדימה — המצלמה פעילה</p>
+      </div>
+      <div className="space-y-3">
+        <h2 className="text-xl font-bold">בחר את הקהילה שלך</h2>
+        {(["ethiopian", "russian", "manashe"] as Community[]).map((c) => (
+          <Button key={c} onClick={() => onPick(c)} size="lg" variant="outline"
+                  className="h-20 w-full text-xl font-bold hover:bg-amber-500/10 hover:border-amber-500">
+            {COMMUNITY_LABEL[c]}
+          </Button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function LiveMonitor({
+  videoRef, bpm, hrv, emotion,
+}: {
+  videoRef: React.RefObject<HTMLVideoElement>;
+  bpm: number | null; hrv: number | null; emotion: FaceEmotion | null;
+}) {
+  return (
+    <div className="space-y-3">
+      <div className="rounded-2xl border border-amber-500/30 bg-black/80 p-2">
+        <video ref={videoRef} className="w-full rounded-xl aspect-video object-cover" />
+      </div>
+      <Card className="border-amber-500/30">
+        <CardContent className="p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm flex items-center gap-1"><Heart className="h-4 w-4 text-rose-500"/>דופק</span>
+            <span className="text-2xl font-mono font-bold text-rose-500">{bpm ?? "--"} <span className="text-xs">BPM</span></span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="flex items-center gap-1"><Activity className="h-4 w-4 text-blue-400"/>HRV</span>
+            <span className="font-mono">{hrv ?? "--"} ms</span>
+          </div>
+          <div className="pt-2 border-t space-y-2">
+            <Meter label="פוקוס" value={emotion?.focus ?? 0} color="bg-emerald-500" />
+            <Meter label="חרדה" value={emotion?.anxiety ?? 0} color="bg-rose-500" />
+            <Meter label="ביטחון" value={emotion?.confidence ?? 0} color="bg-amber-500" />
+            <Meter label="בלבול" value={emotion?.confusion ?? 0} color="bg-purple-500" />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function Meter({ label, value, color }: { label: string; value: number; color: string }) {
+  return (
+    <div>
+      <div className="flex justify-between text-xs mb-1"><span>{label}</span><span className="font-mono">{Math.round(value * 100)}%</span></div>
+      <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+        <div className={`h-full ${color} transition-all`} style={{ width: `${Math.round(value * 100)}%` }} />
+      </div>
+    </div>
+  );
+}
+
+function CalibrationStep({ left, bpm, onSkip }: { left: number; bpm: number | null; onSkip: () => void }) {
+  const pct = ((CALIBRATION_SECONDS - left) / CALIBRATION_SECONDS) * 100;
+  return (
+    <div className="text-center space-y-4 py-6">
+      <Badge className="bg-amber-500 text-black">שלב 1 — כיול</Badge>
+      <h2 className="text-2xl font-bold">שב בנוחות. הסתכל על המצלמה.</h2>
+      <p className="text-muted-foreground">מודד דופק בסיס למשך 30 שניות</p>
+      <div className="text-6xl font-mono font-bold text-amber-500">{left}s</div>
+      <Progress value={pct} className="h-3" />
+      <p className="text-xs text-muted-foreground">דופק נוכחי: {bpm ?? "--"} BPM</p>
+      {bpm != null && (
+        <Button variant="outline" size="sm" onClick={onSkip}>דלג — יש לי דופק יציב</Button>
+      )}
+    </div>
+  );
+}
+
+function QuestionCard({
+  q, community, idx, total, onPick, onRepeat,
+}: {
+  q: DiagQuestion; community: Community; idx: number; total: number;
+  onPick: (opt: { score: number }) => void; onRepeat: () => void;
+}) {
+  const tts = ttsTextFor(q, community);
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between text-xs">
+        <span className="text-muted-foreground">שאלה {idx + 1} מתוך {total}</span>
+        <span>{COMMUNITY_LABEL[community]}</span>
+      </div>
+      <Progress value={(idx / total) * 100} className="h-2" />
+      <div className="space-y-2">
+        <div className="flex items-start gap-2">
+          <Button variant="ghost" size="icon" onClick={onRepeat} className="shrink-0">
+            <Volume2 className="h-5 w-5 text-amber-500" />
+          </Button>
+          <div className="space-y-1">
+            <div className="text-xl font-bold leading-snug">{q.text.he}</div>
+            {tts !== q.text.he && (
+              <div className="text-sm text-muted-foreground" lang={community === "ethiopian" ? "am" : "ru"}>
+                {tts}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="grid gap-2">
+        {q.options.map((opt, i) => (
+          <Button key={i} onClick={() => onPick(opt)} variant="outline" size="lg"
+                  className="h-auto min-h-14 whitespace-normal text-start justify-start text-base font-medium py-3 px-4 hover:bg-amber-500/10 hover:border-amber-500">
+            <span className="me-2 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-bold">
+              {String.fromCharCode(1488 + i)}
+            </span>
+            <span>{opt.he}</span>
+          </Button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PressureCard({
+  q, community, left, onPick, onRepeat,
+}: {
+  q: DiagQuestion; community: Community; left: number;
+  onPick: (opt: { score: number }) => void; onRepeat: () => void;
+}) {
+  const tts = ttsTextFor(q, community);
+  const pct = (left / PRESSURE_SECONDS) * 100;
+  return (
+    <div className="space-y-4">
+      <Badge variant="destructive">⚡ תרחיש לחץ — {left}s</Badge>
+      <Progress value={pct} className="h-2" />
+      <div className="flex items-start gap-2">
+        <Button variant="ghost" size="icon" onClick={onRepeat} className="shrink-0">
+          <Volume2 className="h-5 w-5 text-rose-500" />
+        </Button>
+        <div className="space-y-1">
+          <div className="text-xl font-bold leading-snug">{q.text.he}</div>
+          {tts !== q.text.he && (
+            <div className="text-sm text-muted-foreground" lang={community === "ethiopian" ? "am" : "ru"}>{tts}</div>
+          )}
+        </div>
+      </div>
+      <div className="grid gap-2">
+        {q.options.map((opt, i) => (
+          <Button key={i} onClick={() => onPick(opt)} variant="outline" size="lg"
+                  className="h-auto min-h-14 whitespace-normal text-start justify-start text-base font-medium py-3 px-4 hover:bg-rose-500/10 hover:border-rose-500">
+            <span className="me-2 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-bold">
+              {String.fromCharCode(1488 + i)}
+            </span>
+            <span>{opt.he}</span>
+          </Button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Results({
+  final, baselineHr, stressHr, bpmSeries, emoSeries, onReset, onDownload,
+}: {
+  final: NonNullable<ReturnType<typeof useState<any>>[0]>;
+  baselineHr: number | null; stressHr: number | null;
+  bpmSeries: BpmPoint[]; emoSeries: EmoPoint[];
+  onReset: () => void; onDownload: () => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <Card className="border-amber-500/40">
+        <CardContent className="p-6 text-center space-y-3">
+          <div className="text-6xl">{final.rec.emoji}</div>
+          <div className="text-xs uppercase tracking-widest text-muted-foreground">ציון BEQA סופי</div>
+          <div className={`text-7xl font-black ${final.rec.color}`}>{final.beqa.toFixed(1)}</div>
+          <div className="text-2xl font-bold">מועמד {final.rec.letter}</div>
+          <p className="text-muted-foreground">{final.rec.label}</p>
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <ScoreCard label="פסיכולוגי (50%)" score={final.psychological} icon={<Brain className="h-5 w-5"/>} />
+        <ScoreCard label="ביומטרי (30%)" score={final.biometric} icon={<Heart className="h-5 w-5"/>} />
+        <ScoreCard label="ניתוח פנים (20%)" score={final.faceScore} icon={<Camera className="h-5 w-5"/>} />
+      </div>
+
+      <Card>
+        <CardContent className="p-4 space-y-3">
+          <h3 className="font-bold flex items-center gap-2"><Heart className="h-4 w-4 text-rose-500"/>דופק לאורך המבחן (בסיס: {baselineHr} → לחץ: {stressHr})</h3>
+          <div className="h-48">
+            <ResponsiveContainer>
+              <LineChart data={bpmSeries}>
+                <CartesianGrid strokeDasharray="3 3" opacity={0.2}/>
+                <XAxis dataKey="t" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="bpm" stroke="#f43f5e" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="p-4 space-y-3">
+          <h3 className="font-bold flex items-center gap-2"><Camera className="h-4 w-4 text-emerald-500"/>מצב רגשי לאורך המבחן</h3>
+          <div className="h-48">
+            <ResponsiveContainer>
+              <LineChart data={emoSeries}>
+                <CartesianGrid strokeDasharray="3 3" opacity={0.2}/>
+                <XAxis dataKey="t" />
+                <YAxis domain={[0, 1]} />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="anxiety" stroke="#f43f5e" dot={false} />
+                <Line type="monotone" dataKey="focus" stroke="#10b981" dot={false} />
+                <Line type="monotone" dataKey="confidence" stroke="#f59e0b" dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="p-4 space-y-2">
+          <h3 className="font-bold flex items-center gap-2"><Trophy className="h-4 w-4 text-amber-500"/>תובנות והמלצות</h3>
+          <ul className="list-disc ps-5 space-y-1 text-sm">
+            {final.insights.map((s: string, i: number) => <li key={i}>{s}</li>)}
+          </ul>
+        </CardContent>
+      </Card>
+
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <Button onClick={onDownload} variant="outline" className="flex-1"><Download className="me-2 h-4 w-4"/>הורד דוח (JSON)</Button>
+        <Button onClick={onReset} className="flex-1 bg-amber-500 text-black hover:bg-amber-600"><RotateCcw className="me-2 h-4 w-4"/>אבחון חדש</Button>
+        <Link to="/dashboard" className="flex-1"><Button variant="outline" className="w-full">חזרה לדשבורד</Button></Link>
+      </div>
+      <p className="text-center text-xs text-muted-foreground">
+        מבוסס סימולטור מקומי. החלפה ל-Google TTS / Azure Face / Binah.ai = שינוי שורה אחת ב-src/lib/diagnostics/config.ts
+      </p>
+    </div>
+  );
+}
+
+function ScoreCard({ label, score, icon }: { label: string; score: number; icon: React.ReactNode }) {
+  return (
+    <Card>
+      <CardContent className="p-4 text-center space-y-1">
+        <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">{icon}{label}</div>
+        <div className="text-3xl font-bold">{score.toFixed(1)}</div>
+        <Progress value={score} className="h-2" />
+      </CardContent>
+    </Card>
   );
 }
