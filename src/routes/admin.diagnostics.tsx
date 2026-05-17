@@ -139,7 +139,7 @@ function SessionList({
             >
               <button onClick={() => onSelect(r.id)} className="text-right min-w-0 flex-1">
                 <div className="font-medium truncate">
-                  {p?.full_name || p?.email || r.student_id.slice(0, 8)}
+                  {p?.full_name || p?.email || (r.student_id ?? "—").slice(0, 8)}
                 </div>
                 <div className="text-xs text-muted-foreground mt-0.5">
                   {new Date(r.start_time).toLocaleString("he-IL")} ·
@@ -213,7 +213,7 @@ function SessionDetail({
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
-            {profile?.full_name || profile?.email || session.student_id.slice(0, 8)}
+            {profile?.full_name || profile?.email || (session.student_id ?? "—").slice(0, 8)}
           </CardTitle>
           <div className="text-xs text-muted-foreground">
             {new Date(session.start_time).toLocaleString("he-IL")} · קהילה: {session.community_type ?? "—"}
