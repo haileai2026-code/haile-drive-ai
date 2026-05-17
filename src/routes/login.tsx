@@ -216,7 +216,23 @@ function LoginPage() {
             {portalCfg.labelHe} · {portalCfg.label}
           </div>
 
+          {/* Auth method tabs: email vs phone (phone hidden for owner portal) */}
           {!isOwnerPortal && (
+            <div className="mb-3 flex gap-2 rounded-xl bg-background/50 p-1">
+              <button
+                type="button"
+                onClick={() => { setAuthMethod("email"); setErr(null); setInfo(null); }}
+                className={`flex-1 rounded-lg py-2 text-xs font-semibold ${authMethod === "email" ? "bg-gold/15 text-gold" : "text-muted-foreground"}`}
+              >אימייל · Email</button>
+              <button
+                type="button"
+                onClick={() => { setAuthMethod("phone"); setErr(null); setInfo(null); }}
+                className={`flex-1 rounded-lg py-2 text-xs font-semibold ${authMethod === "phone" ? "bg-gold/15 text-gold" : "text-muted-foreground"}`}
+              >כניסה במספר טלפון · በስልክ ቁጥር ግባ</button>
+            </div>
+          )}
+
+          {!isOwnerPortal && authMethod === "email" && (
             <div className="flex gap-2 rounded-xl bg-background/50 p-1">
               <button
                 type="button"
@@ -232,74 +248,141 @@ function LoginPage() {
           )}
 
           <h1 className="mt-5 text-2xl font-black tracking-tight">
-            {effectiveMode === "signin" ? t("login") : "Create account"}
+            {authMethod === "phone" && !isOwnerPortal
+              ? "כניסה במספר טלפון"
+              : effectiveMode === "signin" ? t("login") : "Create account"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">{portalCfg.description}</p>
 
-          <form onSubmit={submit} className="mt-6 space-y-3">
-            {effectiveMode === "signup" && (
+          {(isOwnerPortal || authMethod === "email") ? (
+            <form onSubmit={submit} className="mt-6 space-y-3">
+              {effectiveMode === "signup" && (
+                <div className="flex items-center gap-2 rounded-2xl border border-border bg-input px-4 py-3">
+                  <UserIcon className="h-5 w-5 text-muted-foreground" />
+                  <input
+                    required
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Full name"
+                    className="flex-1 bg-transparent text-base outline-none"
+                  />
+                </div>
+              )}
               <div className="flex items-center gap-2 rounded-2xl border border-border bg-input px-4 py-3">
-                <UserIcon className="h-5 w-5 text-muted-foreground" />
+                <Mail className="h-5 w-5 text-muted-foreground" />
                 <input
+                  type="email"
                   required
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Full name"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
                   className="flex-1 bg-transparent text-base outline-none"
                 />
               </div>
-            )}
-            <div className="flex items-center gap-2 rounded-2xl border border-border bg-input px-4 py-3">
-              <Mail className="h-5 w-5 text-muted-foreground" />
-              <input
-                type="email"
-                required
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="flex-1 bg-transparent text-base outline-none"
-              />
-            </div>
-            <div className="flex items-center gap-2 rounded-2xl border border-border bg-input px-4 py-3">
-              <Lock className="h-5 w-5 text-muted-foreground" />
-              <input
-                type="password"
-                required
-                minLength={6}
-                autoComplete={effectiveMode === "signin" ? "current-password" : "new-password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-                className="flex-1 bg-transparent text-base outline-none"
-              />
-            </div>
+              <div className="flex items-center gap-2 rounded-2xl border border-border bg-input px-4 py-3">
+                <Lock className="h-5 w-5 text-muted-foreground" />
+                <input
+                  type="password"
+                  required
+                  minLength={6}
+                  autoComplete={effectiveMode === "signin" ? "current-password" : "new-password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password"
+                  className="flex-1 bg-transparent text-base outline-none"
+                />
+              </div>
 
-            {effectiveMode === "signin" && (
-              <div className="flex justify-end">
+              {effectiveMode === "signin" && (
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={sendReset}
+                    disabled={busy}
+                    className="text-xs font-semibold text-gold hover:underline disabled:opacity-50"
+                  >
+                    שכחת סיסמה? שלח/י קוד אימות
+                  </button>
+                </div>
+              )}
+
+              {err && <p className="text-sm text-rose-400">{err}</p>}
+              {info && <p className="text-sm text-emerald-400">{info}</p>}
+
+              <button
+                type="submit"
+                disabled={busy}
+                className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-br ${portalCfg.gradient} px-6 py-3.5 text-base font-semibold text-white shadow-lg disabled:opacity-50`}
+              >
+                {busy ? "..." : effectiveMode === "signin" ? `${t("login")} · ${portalCfg.labelHe}` : `Create ${portalCfg.label} account`}
+                <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={submitPhone} className="mt-6 space-y-3">
+              <div className="flex items-center gap-2 rounded-2xl border border-border bg-input px-4 py-3">
+                <Phone className="h-5 w-5 text-muted-foreground" />
+                <input
+                  type="tel"
+                  required
+                  autoComplete="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="0501234567"
+                  className="flex-1 bg-transparent text-base outline-none"
+                  disabled={otpSent}
+                />
+              </div>
+
+              {!otpSent ? (
                 <button
                   type="button"
-                  onClick={sendReset}
+                  onClick={sendOtp}
                   disabled={busy}
-                  className="text-xs font-semibold text-gold hover:underline disabled:opacity-50"
+                  className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-br ${portalCfg.gradient} px-6 py-3.5 text-base font-semibold text-white shadow-lg disabled:opacity-50`}
                 >
-                  שכחת סיסמה? שלח/י קוד אימות
+                  {busy ? "..." : "שלח קוד · ላክ ኮድ"}
                 </button>
-              </div>
-            )}
+              ) : (
+                <>
+                  <div className="flex items-center gap-2 rounded-2xl border border-border bg-input px-4 py-3">
+                    <KeyRound className="h-5 w-5 text-muted-foreground" />
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="\d{6}"
+                      maxLength={6}
+                      required
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                      placeholder="קוד בן 6 ספרות"
+                      className="flex-1 bg-transparent text-base tracking-widest outline-none"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { setOtpSent(false); setOtp(""); setInfo(null); setErr(null); }}
+                    className="text-xs text-muted-foreground hover:underline"
+                  >שנה מספר טלפון</button>
+                </>
+              )}
 
-            {err && <p className="text-sm text-rose-400">{err}</p>}
-            {info && <p className="text-sm text-emerald-400">{info}</p>}
+              {err && <p className="text-sm text-rose-400">{err}</p>}
+              {info && <p className="text-sm text-emerald-400">{info}</p>}
 
-            <button
-              type="submit"
-              disabled={busy}
-              className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-br ${portalCfg.gradient} px-6 py-3.5 text-base font-semibold text-white shadow-lg disabled:opacity-50`}
-            >
-              {busy ? "..." : effectiveMode === "signin" ? `${t("login")} · ${portalCfg.labelHe}` : `Create ${portalCfg.label} account`}
-              <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-            </button>
-          </form>
+              {otpSent && (
+                <button
+                  type="submit"
+                  disabled={busy}
+                  className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-br ${portalCfg.gradient} px-6 py-3.5 text-base font-semibold text-white shadow-lg disabled:opacity-50`}
+                >
+                  {busy ? "..." : "אמת והיכנס · አረጋግጥ"}
+                  <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                </button>
+              )}
+            </form>
+          )}
         </div>
 
         {isOwnerPortal && (
