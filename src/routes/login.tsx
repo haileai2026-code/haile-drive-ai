@@ -76,12 +76,56 @@ function LoginPage() {
   const { signIn, signUp, refresh } = useAuth();
   const [portal, setPortal] = useState<PortalRole>("owner");
   const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [authMethod, setAuthMethod] = useState<"email" | "phone">("email");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  // Phone login state
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const requestOtpFn = useServerFn(requestPhoneOtp);
+  const verifyOtpFn = useServerFn(verifyPhoneOtp);
+
+  const sendOtp = async () => {
+    setErr(null); setInfo(null);
+    if (!phone || phone.replace(/\D/g, "").length < 6) {
+      setErr("הזן/י מספר טלפון תקין");
+      return;
+    }
+    setBusy(true);
+    try {
+      await requestOtpFn({ data: { phone } });
+      setOtpSent(true);
+      setInfo("הקוד נשלח — המתן לאישור מנהל ואז הזן/י את הקוד");
+    } catch (e: any) {
+      setErr(e?.message ?? "שגיאה בשליחת הקוד");
+    } finally { setBusy(false); }
+  };
+
+  const submitPhone = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErr(null);
+    if (!/^\d{6}$/.test(otp)) { setErr("הזן/י קוד בן 6 ספרות"); return; }
+    setBusy(true);
+    try {
+      const res = await verifyOtpFn({ data: { phone, otp } });
+      const r = await signIn(res.email, res.password);
+      if (r.error) { setErr(r.error); return; }
+      await new Promise((rs) => setTimeout(rs, 300));
+      await refresh();
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) return;
+      const actualRole = await getPrimaryRole(data.user.id);
+      navigate({ to: roleHomePath(actualRole) });
+    } catch (err: any) {
+      setErr(err?.message ?? "קוד שגוי או בקשה ממתינה לאישור");
+    } finally { setBusy(false); }
+  };
 
   const sendReset = async () => {
     setErr(null); setInfo(null);
