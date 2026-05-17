@@ -207,14 +207,13 @@ function LessonDetail() {
       </div>
 
       {externalHref && (
-        <a
-          href={externalHref}
-          target="_blank"
-          rel="noopener noreferrer"
+        <button
+          type="button"
+          onClick={() => openMaterial(material)}
           className="mt-4 inline-flex items-center gap-2 rounded-xl border border-border/60 bg-card/60 px-3 py-2 text-xs text-muted-foreground hover:border-gold/40"
         >
           <ExternalLink className="h-3.5 w-3.5" /> פתח את החומר המלא
-        </a>
+        </button>
       )}
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2">
