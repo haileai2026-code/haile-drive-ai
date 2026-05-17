@@ -1,10 +1,12 @@
 import { createFileRoute, useNavigate, Link, redirect } from "@tanstack/react-router";
 import { useState } from "react";
-import { Mail, Lock, ArrowRight, User as UserIcon, Crown, GraduationCap, BookOpen } from "lucide-react";
+import { Mail, Lock, ArrowRight, User as UserIcon, Crown, GraduationCap, BookOpen, Phone, KeyRound } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 import { useI18n } from "@/lib/i18n";
 import { LangSwitcher } from "@/components/LangSwitcher";
 import { getPrimaryRole, useAuth, roleHomePath } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { requestPhoneOtp, verifyPhoneOtp } from "@/lib/phone-login.functions";
 import type { Role } from "@/lib/ops-data";
 
 type PortalRole = Extract<Role, "owner" | "teacher" | "student">;
