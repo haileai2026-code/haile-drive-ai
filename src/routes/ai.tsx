@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import { AppShell } from "@/components/AppShell";
 import { useI18n } from "@/lib/i18n";
 import { aiChat } from "@/lib/ai-chat.functions";
+import { ttsElevenLabs } from "@/lib/tts.functions";
 import { Bot, Mic, MicOff, Send, User, Volume2, VolumeX, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -40,27 +41,57 @@ function detectLang(text: string): "am" | "he" | "en" {
 export function AiPage() {
   const { t } = useI18n();
   const callAi = useServerFn(aiChat);
+  const callTts = useServerFn(ttsElevenLabs);
   const [msgs, setMsgs] = useState<Msg[]>(seed);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [listening, setListening] = useState(false);
   const [ttsOn, setTtsOn] = useState(false);
+  const [speakingIdx, setSpeakingIdx] = useState<number | null>(null);
   const recogRef = useRef<any>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [msgs, loading]);
 
-  // Speak assistant text using Web Speech API
-  const speak = (text: string) => {
-    if (!ttsOn || typeof window === "undefined" || !window.speechSynthesis) return;
+  const stopAudio = () => {
+    if (audioRef.current) {
+      try { audioRef.current.pause(); } catch {}
+      audioRef.current = null;
+    }
+    if (typeof window !== "undefined") window.speechSynthesis?.cancel();
+    setSpeakingIdx(null);
+  };
+
+  // Speak assistant text via ElevenLabs (with Web Speech fallback)
+  const speakWithEleven = async (text: string, idx: number) => {
+    stopAudio();
     const lang = detectLang(text);
-    const utter = new SpeechSynthesisUtterance(text.replace(/[*_#`>[\]()]/g, ""));
-    utter.lang = lang === "am" ? "am-ET" : lang === "he" ? "he-IL" : "en-US";
-    utter.rate = 0.95;
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utter);
+    const elLang = lang === "en" ? "he" : lang;
+    setSpeakingIdx(idx);
+    try {
+      const res = await callTts({
+        data: { text: text.replace(/[*_#`>[\]()]/g, ""), language: elLang as "he" | "am" | "ru" },
+      });
+      if (res.error || !res.audio) throw new Error(res.error || "no audio");
+      const audio = new Audio(`data:audio/mpeg;base64,${res.audio}`);
+      audioRef.current = audio;
+      audio.onended = () => setSpeakingIdx((i) => (i === idx ? null : i));
+      await audio.play();
+    } catch (e) {
+      console.warn("ElevenLabs failed, fallback Web Speech", e);
+      if (typeof window !== "undefined" && window.speechSynthesis) {
+        const u = new SpeechSynthesisUtterance(text.replace(/[*_#`>[\]()]/g, ""));
+        u.lang = lang === "am" ? "am-ET" : lang === "he" ? "he-IL" : "en-US";
+        u.onend = () => setSpeakingIdx((i) => (i === idx ? null : i));
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(u);
+      } else {
+        setSpeakingIdx(null);
+      }
+    }
   };
 
   const send = async (text: string) => {
