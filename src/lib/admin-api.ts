@@ -27,6 +27,7 @@ export type Candidate = {
   tags: string[] | null;
   payment_status?: "unpaid" | "paid" | "partial" | null;
   beqa_access?: boolean | null;
+  national_id?: string | null;
   created_at: string;
 };
 export type Material = {

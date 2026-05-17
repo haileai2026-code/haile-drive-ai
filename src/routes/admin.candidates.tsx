@@ -281,6 +281,17 @@ function CandidatesPage() {
                   </select>
                 </Field>
               </div>
+              <Field label="תעודת זהות">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={9}
+                  placeholder="000000000"
+                  value={(editing as any).national_id ?? ""}
+                  onChange={(e) => setEditing({ ...editing, national_id: e.target.value.replace(/\D/g, "") } as any)}
+                  className="inp"
+                />
+              </Field>
               <div className="grid grid-cols-2 gap-3">
                 <Field label="שפה">
                   <select value={editing.language ?? "he"} onChange={(e) => setEditing({ ...editing, language: e.target.value })} className="inp">

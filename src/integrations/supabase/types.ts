@@ -162,6 +162,7 @@ export type Database = {
           full_name: string
           id: string
           language: string | null
+          national_id: string | null
           notes: string | null
           payment_status: string
           phone: string | null
@@ -179,6 +180,7 @@ export type Database = {
           full_name: string
           id?: string
           language?: string | null
+          national_id?: string | null
           notes?: string | null
           payment_status?: string
           phone?: string | null
@@ -196,6 +198,7 @@ export type Database = {
           full_name?: string
           id?: string
           language?: string | null
+          national_id?: string | null
           notes?: string | null
           payment_status?: string
           phone?: string | null
