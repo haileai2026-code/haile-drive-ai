@@ -145,6 +145,7 @@ function VouchersPage() {
               <th className="p-3 text-right">תשלום 3</th>
               <th className="p-3 text-right">סה"כ התקבל</th>
               <th className="p-3 text-right">סכום שובר</th>
+              <th className="p-3 text-right"></th>
             </tr>
           </thead>
           <tbody>
@@ -177,18 +178,36 @@ function VouchersPage() {
                     <PaymentCell row={row} payment={3} onClick={() => setEditing({ row, payment: 3 })} />
                   </td>
                   <td className="p-3 font-bold text-emerald-500">₪{Number(row.total_received).toLocaleString()}</td>
-                  <td className="p-3 text-muted-foreground">₪{Number(row.voucher_amount).toLocaleString()}</td>
+                  <td className="p-3">
+                    <EditableAmount row={row} onSaved={refresh} />
+                  </td>
+                  <td className="p-3">
+                    <button
+                      title="הסר מויצ״ר"
+                      onClick={async () => {
+                        if (!confirm(`האם להסיר את ${cand?.full_name ?? "המועמד"} מהמעקב?`)) return;
+                        const { error } = await supabase.from("voucher_tracking").delete().eq("id", row.id);
+                        if (error) { toast.error(error.message); return; }
+                        toast.success("הוסר מהמעקב");
+                        refresh();
+                      }}
+                      className="rounded-md p-1.5 text-rose-400 hover:bg-rose-500/10"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </td>
                 </tr>
               );
             })}
             {filtered.length === 0 && !vouchersQ.isLoading && (
               <tr>
-                <td colSpan={8} className="p-8 text-center text-muted-foreground">אין רשומות להצגה</td>
+                <td colSpan={9} className="p-8 text-center text-muted-foreground">אין רשומות להצגה</td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
+
 
       {editing && (
         <EditPaymentModal
