@@ -7,7 +7,7 @@ import { adminApi } from "@/lib/admin-api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Wallet, Plus, X, Upload, AlertTriangle, Clock, CheckCircle2, FileText } from "lucide-react";
+import { Wallet, Plus, X, Upload, AlertTriangle, Clock, CheckCircle2, FileText, Trash2, Check, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/vouchers")({
@@ -145,6 +145,7 @@ function VouchersPage() {
               <th className="p-3 text-right">תשלום 3</th>
               <th className="p-3 text-right">סה"כ התקבל</th>
               <th className="p-3 text-right">סכום שובר</th>
+              <th className="p-3 text-right"></th>
             </tr>
           </thead>
           <tbody>
@@ -177,18 +178,36 @@ function VouchersPage() {
                     <PaymentCell row={row} payment={3} onClick={() => setEditing({ row, payment: 3 })} />
                   </td>
                   <td className="p-3 font-bold text-emerald-500">₪{Number(row.total_received).toLocaleString()}</td>
-                  <td className="p-3 text-muted-foreground">₪{Number(row.voucher_amount).toLocaleString()}</td>
+                  <td className="p-3">
+                    <EditableAmount row={row} onSaved={refresh} />
+                  </td>
+                  <td className="p-3">
+                    <button
+                      title="הסר מויצ״ר"
+                      onClick={async () => {
+                        if (!confirm(`האם להסיר את ${cand?.full_name ?? "המועמד"} מהמעקב?`)) return;
+                        const { error } = await supabase.from("voucher_tracking").delete().eq("id", row.id);
+                        if (error) { toast.error(error.message); return; }
+                        toast.success("הוסר מהמעקב");
+                        refresh();
+                      }}
+                      className="rounded-md p-1.5 text-rose-400 hover:bg-rose-500/10"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </td>
                 </tr>
               );
             })}
             {filtered.length === 0 && !vouchersQ.isLoading && (
               <tr>
-                <td colSpan={8} className="p-8 text-center text-muted-foreground">אין רשומות להצגה</td>
+                <td colSpan={9} className="p-8 text-center text-muted-foreground">אין רשומות להצגה</td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
+
 
       {editing && (
         <EditPaymentModal
@@ -222,6 +241,38 @@ function PaymentCell({ row, payment, onClick, extraBadge }: { row: VoucherRow; p
       </div>
       {date && <div className="text-[10px] text-muted-foreground">{new Date(date).toLocaleDateString("he-IL")}</div>}
     </button>
+  );
+}
+
+function EditableAmount({ row, onSaved }: { row: VoucherRow; onSaved: () => void }) {
+  const [editing, setEditing] = useState(false);
+  const [val, setVal] = useState<number>(Number(row.voucher_amount || 0));
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    setSaving(true);
+    const { error } = await supabase.from("voucher_tracking").update({ voucher_amount: val }).eq("id", row.id);
+    setSaving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("סכום השובר עודכן");
+    setEditing(false);
+    onSaved();
+  };
+
+  if (!editing) {
+    return (
+      <button onClick={() => setEditing(true)} className="inline-flex items-center gap-1 text-muted-foreground hover:text-gold" title="ערוך סכום">
+        ₪{Number(row.voucher_amount).toLocaleString()}
+        <Pencil className="h-3 w-3 opacity-60" />
+      </button>
+    );
+  }
+  return (
+    <div className="flex items-center gap-1">
+      <Input type="number" value={val} onChange={(e) => setVal(Number(e.target.value))} className="h-8 w-28" autoFocus />
+      <button onClick={save} disabled={saving} className="rounded-md p-1 text-emerald-500 hover:bg-emerald-500/10" title="שמור"><Check className="h-3.5 w-3.5" /></button>
+      <button onClick={() => { setEditing(false); setVal(Number(row.voucher_amount || 0)); }} className="rounded-md p-1 text-muted-foreground hover:bg-accent" title="ביטול"><X className="h-3.5 w-3.5" /></button>
+    </div>
   );
 }
 

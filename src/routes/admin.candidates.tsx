@@ -9,6 +9,7 @@ import { useAuth } from "@/lib/auth";
 import { Plus, Pencil, Trash2, Search, FolderOpen, Upload, FileText, X, Download, GraduationCap, UserCheck } from "lucide-react";
 import { toast } from "sonner";
 import { ImportStudentsModal } from "@/components/admin/ImportStudentsModal";
+import { supabase } from "@/integrations/supabase/client";
 
 const DOC_PRESETS = [
   "טופס ירוק",
@@ -53,6 +54,7 @@ function CandidatesPage() {
   const [editing, setEditing] = useState<FormState | null>(null);
   const [folderFor, setFolderFor] = useState<Candidate | null>(null);
   const [importing, setImporting] = useState(false);
+  const [voucherPrompt, setVoucherPrompt] = useState<Candidate | null>(null);
   const setPaymentFn = useServerFn(setCandidatePayment);
   const setBeqaFn = useServerFn(setCandidateBeqaAccess);
 
@@ -212,7 +214,13 @@ function CandidatesPage() {
                     </span>
                   ) : (
                     <button
-                      onClick={() => { if (confirm(`לאשר תשלום של ${c.full_name} ולהפוך לסטודנט?`)) paymentMut.mutate({ candidate_id: c.id, payment_status: "paid" }); }}
+                      onClick={() => {
+                        if (!confirm(`לאשר תשלום של ${c.full_name} ולהפוך לסטודנט?`)) return;
+                        paymentMut.mutate(
+                          { candidate_id: c.id, payment_status: "paid" },
+                          { onSuccess: () => setVoucherPrompt(c) },
+                        );
+                      }}
                       className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[10px] text-amber-300 hover:bg-amber-500/20"
                       title="אשר תשלום והפוך לסטודנט"
                     >
@@ -302,6 +310,14 @@ function CandidatesPage() {
 
       {folderFor && <DriverFolderModal candidate={folderFor} cityLabel={cityName(folderFor.city_id)} onClose={() => setFolderFor(null)} />}
 
+      {voucherPrompt && (
+        <OpenVoucherPrompt
+          candidate={voucherPrompt}
+          onClose={() => setVoucherPrompt(null)}
+          onOpened={() => { setVoucherPrompt(null); qc.invalidateQueries({ queryKey: ["vouchers"] }); }}
+        />
+      )}
+
       <style>{`.inp{display:block;width:100%;border-radius:.5rem;border:1px solid hsl(var(--input));background:hsl(var(--background));padding:.5rem .75rem;font-size:.875rem;outline:none}.inp:focus{box-shadow:0 0 0 1px hsl(var(--ring))}`}</style>
     </AdminShell>
   );
@@ -313,6 +329,44 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <span className="mb-1 block text-xs font-semibold text-muted-foreground">{label}</span>
       {children}
     </label>
+  );
+}
+
+function OpenVoucherPrompt({ candidate, onClose, onOpened }: { candidate: Candidate; onClose: () => void; onOpened: () => void }) {
+  const [amount, setAmount] = useState<number>(25000);
+  const [saving, setSaving] = useState(false);
+
+  const open = async () => {
+    setSaving(true);
+    const { error } = await supabase.from("voucher_tracking").insert({
+      candidate_id: candidate.id,
+      class_id: candidate.class_id ?? null,
+      voucher_amount: amount,
+    });
+    setSaving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("תיק ויצ\"ר נפתח");
+    onOpened();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" onClick={onClose}>
+      <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md rounded-2xl border border-gold/40 bg-background p-5" dir="rtl">
+        <h3 className="mb-2 text-lg font-bold">💰 לפתוח תיק ויצ"ר עבור {candidate.full_name}?</h3>
+        <p className="mb-4 text-sm text-muted-foreground">ייפתח מעקב תשלומים אוטומטית. ניתן לשנות את סכום השובר.</p>
+        <label className="block">
+          <span className="mb-1 block text-xs font-semibold">סכום השובר (₪)</span>
+          <input type="number" value={amount} onChange={(e) => setAmount(Number(e.target.value))} className="inp" />
+        </label>
+        <div className="mt-4 flex justify-end gap-2">
+          <button onClick={onClose} className="rounded-lg border border-border/60 px-4 py-2 text-sm">לא עכשיו</button>
+          <button onClick={open} disabled={saving} className="rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-gold-foreground disabled:opacity-50">
+            {saving ? "פותח…" : "כן — פתח תיק"}
+          </button>
+        </div>
+        <style>{`.inp{display:block;width:100%;border-radius:.5rem;border:1px solid hsl(var(--input));background:hsl(var(--background));padding:.5rem .75rem;font-size:.875rem;outline:none}`}</style>
+      </div>
+    </div>
   );
 }
 
