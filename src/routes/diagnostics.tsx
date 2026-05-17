@@ -230,7 +230,7 @@ function DiagnosticsPage() {
         session_id: user.id, // session row inserted at finish; use student id as grouping fallback
         event_type: "answer_submitted",
         bpm, hrv,
-        payload: { q: q.id, score: opt.score, rt_ms: row.rtMs, emotion: emotion as any },
+        payload: { q: q.id, score: opt.score, rt_ms: row.rtMs, emotion: emotion ? { ...emotion } : null } as any,
       }).then(() => {}, () => {});
     }
 
