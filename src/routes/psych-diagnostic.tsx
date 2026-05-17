@@ -199,17 +199,27 @@ function PsychDiagnosticPage() {
       return;
     }
     setSaving(true);
-    const score = calcScore(final);
+    const score = calcScore(final); // 1-4 scale
     const rec = recommendationFor(score);
+    // Normalize to 0-100 scale for unified scoring/reporting
+    const psychological100 = Math.round((score / 4) * 1000) / 10;
+    const vals = Object.values(final);
+    const accuracy100 = vals.length
+      ? Math.round((vals.filter((v) => v >= 3).length / vals.length) * 1000) / 10
+      : 0;
+    // Without biometric data, final BEQA = psychological * 0.7 + accuracy * 0.3
+    const finalBeqa = Math.round((psychological100 * 0.7 + accuracy100 * 0.3) * 10) / 10;
     const { error } = await supabase.from("beqa_diagnostic_sessions").insert({
       student_id: user.id,
       assessment_type: "psychological",
       community_type: community,
-      psychological_score: score,
+      psychological_score: psychological100,
+      accuracy_score: accuracy100,
+      final_beqa_score: finalBeqa,
       recommendation: rec.letter,
       answers: final as any,
       end_time: new Date().toISOString(),
-      metadata: { recommendation_label: rec.label, version: "psych-v1" } as any,
+      metadata: { recommendation_label: rec.label, version: "psych-v2", raw_score_1_4: score } as any,
     });
     setSaving(false);
     if (error) {
