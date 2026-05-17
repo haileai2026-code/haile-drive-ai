@@ -10,13 +10,14 @@ import type { TTSProvider, FaceAnalysisProvider, RPPGProvider } from "./interfac
 
 // Single source of truth for the active TTS provider.
 // Options: 'browser' | 'elevenlabs' | 'azure' | 'google'
-export const TTS_PROVIDER: "browser" | "elevenlabs" | "azure" | "google" = "elevenlabs";
+export type TTSProviderName = "browser" | "elevenlabs" | "azure" | "google";
+export const TTS_PROVIDER: TTSProviderName = "elevenlabs";
 
 // Kept for backwards compatibility with older call sites.
 export const USE_REAL_APIS = {
-  tts: TTS_PROVIDER !== "browser",
-  faceAnalysis: false, // true = Azure Face API
-  rppg: false,         // true = Binah.ai
+  tts: (TTS_PROVIDER as TTSProviderName) !== "browser",
+  faceAnalysis: false,
+  rppg: false,
 } as const;
 
 export const AZURE_TTS_CONFIG = {
