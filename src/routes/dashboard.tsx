@@ -294,6 +294,16 @@ function Dashboard() {
           <div className="mt-3 text-sm font-semibold">BEQA חי</div>
           <div className="text-xs text-muted-foreground">מצלמה · BPM · HRV</div>
         </Link>
+        <Link to="/marvad-simulator" className="group col-span-2 rounded-2xl border border-gold/50 bg-gradient-to-br from-amber-900/40 via-card to-card p-4 transition hover:border-gold shadow-[var(--shadow-gold)]">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">🧠</span>
+            <div className="flex-1">
+              <div className="text-sm font-bold">סימולטור מרב"ד</div>
+              <div className="text-xs text-muted-foreground">MMPI · CPT · ATAVT · ראיון פסיכולוגי</div>
+            </div>
+            <ChevronRight className="h-5 w-5 text-gold rtl:rotate-180" />
+          </div>
+        </Link>
       </section>
 
       <section className="mt-8">
