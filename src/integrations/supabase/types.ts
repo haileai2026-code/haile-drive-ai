@@ -1079,6 +1079,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_haile_readiness_score: {
+        Args: { user_id_param: string }
+        Returns: number
+      }
       current_user_class_id: { Args: never; Returns: string }
       current_user_has_beqa_access: { Args: never; Returns: boolean }
       get_exam_options: {

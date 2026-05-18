@@ -15,6 +15,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as PsychDiagnosticRouteImport } from './routes/psych-diagnostic'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as MarvadSimulatorRouteImport } from './routes/marvad-simulator'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LessonsRouteImport } from './routes/lessons'
 import { Route as LanguageRouteImport } from './routes/language'
@@ -86,6 +87,11 @@ const PsychDiagnosticRoute = PsychDiagnosticRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarvadSimulatorRoute = MarvadSimulatorRouteImport.update({
+  id: '/marvad-simulator',
+  path: '/marvad-simulator',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -312,6 +318,7 @@ export interface FileRoutesByFullPath {
   '/language': typeof LanguageRoute
   '/lessons': typeof LessonsRouteWithChildren
   '/login': typeof LoginRoute
+  '/marvad-simulator': typeof MarvadSimulatorRoute
   '/profile': typeof ProfileRoute
   '/psych-diagnostic': typeof PsychDiagnosticRoute
   '/quiz': typeof QuizRoute
@@ -362,6 +369,7 @@ export interface FileRoutesByTo {
   '/language': typeof LanguageRoute
   '/lessons': typeof LessonsRouteWithChildren
   '/login': typeof LoginRoute
+  '/marvad-simulator': typeof MarvadSimulatorRoute
   '/profile': typeof ProfileRoute
   '/psych-diagnostic': typeof PsychDiagnosticRoute
   '/quiz': typeof QuizRoute
@@ -413,6 +421,7 @@ export interface FileRoutesById {
   '/language': typeof LanguageRoute
   '/lessons': typeof LessonsRouteWithChildren
   '/login': typeof LoginRoute
+  '/marvad-simulator': typeof MarvadSimulatorRoute
   '/profile': typeof ProfileRoute
   '/psych-diagnostic': typeof PsychDiagnosticRoute
   '/quiz': typeof QuizRoute
@@ -465,6 +474,7 @@ export interface FileRouteTypes {
     | '/language'
     | '/lessons'
     | '/login'
+    | '/marvad-simulator'
     | '/profile'
     | '/psych-diagnostic'
     | '/quiz'
@@ -515,6 +525,7 @@ export interface FileRouteTypes {
     | '/language'
     | '/lessons'
     | '/login'
+    | '/marvad-simulator'
     | '/profile'
     | '/psych-diagnostic'
     | '/quiz'
@@ -565,6 +576,7 @@ export interface FileRouteTypes {
     | '/language'
     | '/lessons'
     | '/login'
+    | '/marvad-simulator'
     | '/profile'
     | '/psych-diagnostic'
     | '/quiz'
@@ -616,6 +628,7 @@ export interface RootRouteChildren {
   LanguageRoute: typeof LanguageRoute
   LessonsRoute: typeof LessonsRouteWithChildren
   LoginRoute: typeof LoginRoute
+  MarvadSimulatorRoute: typeof MarvadSimulatorRoute
   ProfileRoute: typeof ProfileRoute
   PsychDiagnosticRoute: typeof PsychDiagnosticRoute
   QuizRoute: typeof QuizRoute
@@ -668,6 +681,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marvad-simulator': {
+      id: '/marvad-simulator'
+      path: '/marvad-simulator'
+      fullPath: '/marvad-simulator'
+      preLoaderRoute: typeof MarvadSimulatorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -1084,6 +1104,7 @@ const rootRouteChildren: RootRouteChildren = {
   LanguageRoute: LanguageRoute,
   LessonsRoute: LessonsRouteWithChildren,
   LoginRoute: LoginRoute,
+  MarvadSimulatorRoute: MarvadSimulatorRoute,
   ProfileRoute: ProfileRoute,
   PsychDiagnosticRoute: PsychDiagnosticRoute,
   QuizRoute: QuizRoute,
@@ -1096,13 +1117,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
