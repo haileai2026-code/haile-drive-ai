@@ -104,12 +104,33 @@ function AdminDiagnosticsPage() {
       const { data: sessions, error } = await supabase
         .from("beqa_diagnostic_sessions")
         .select(
-          `id, student_id, created_at, final_beqa_score, accuracy_score, recommendation, profiles!student_id (full_name, email)`,
+          "id, student_id, created_at, final_beqa_score, accuracy_score, recommendation",
         )
         .order("created_at", { ascending: false });
       if (!active) return;
-      if (error) setErr(error.message);
-      else setRows(sessions ?? []);
+      if (error) {
+        setErr(error.message);
+        setLoading(false);
+        return;
+      }
+
+      const merged: DiagnosticSession[] = (sessions ?? []).map((s) => ({ ...s, profiles: null }));
+      const studentIds = merged.map((s) => s.student_id).filter(Boolean) as string[];
+      if (studentIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, full_name, email")
+          .in("id", studentIds);
+        const profileMap = new Map((profiles ?? []).map((p) => [p.id, p]));
+        for (const row of merged) {
+          if (row.student_id) {
+            row.profiles = profileMap.get(row.student_id) ?? null;
+          }
+        }
+      }
+
+      if (!active) return;
+      setRows(merged);
       setLoading(false);
     })();
     return () => {
