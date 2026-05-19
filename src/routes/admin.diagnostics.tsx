@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
-import { generateDiagnosticPdf } from "@/lib/diagnostics/pdf-report";
+import { generateBeqaReport } from "@/lib/beqa-report.functions";
 import { toast } from "sonner";
 
 type DiagnosticSession = {
@@ -98,30 +98,17 @@ function AdminDiagnosticsPage() {
                         size="sm"
                         onClick={async () => {
                           try {
-                            const { data: full, error: fErr } = await supabase
-                              .from("beqa_diagnostic_sessions")
-                              .select("*")
-                              .eq("id", session.id)
-                              .maybeSingle();
-                            if (fErr || !full) throw fErr ?? new Error("not found");
-                            let profile = undefined as
-                              | { id: string; full_name: string | null; email: string | null }
-                              | undefined;
-                            if (full.student_id) {
-                              const { data: p } = await supabase
-                                .from("profiles")
-                                .select("id, full_name, email")
-                                .eq("id", full.student_id)
-                                .maybeSingle();
-                              profile = p ?? undefined;
+                            const { html } = await generateBeqaReport({
+                              data: { sessionId: session.id },
+                            });
+                            const win = window.open("", "_blank");
+                            if (!win) {
+                              toast.error("הדפדפן חסם את החלון");
+                              return;
                             }
-                            const mapped = {
-                              ...full,
-                              start_time: (full as { start_time?: string; created_at?: string }).start_time
-                                ?? (full as { created_at?: string }).created_at
-                                ?? new Date().toISOString(),
-                            };
-                            await generateDiagnosticPdf(mapped as never, profile);
+                            win.document.open();
+                            win.document.write(html);
+                            win.document.close();
                           } catch (e) {
                             console.error(e);
                             toast.error("שגיאה ביצירת PDF");
