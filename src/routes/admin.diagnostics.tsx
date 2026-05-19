@@ -180,16 +180,9 @@ function AdminDiagnosticsPage() {
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={async () => {
-                          try {
-                            await generateBeqaDocx(session.id);
-                          } catch (e) {
-                            console.error(e);
-                            toast.error("שגיאה ביצירת הדוח");
-                          }
-                        }}
+                        onClick={() => generateReport(session)}
                       >
-                        הורד Word
+                        📄 הפק דוח
                       </Button>
                     </TableCell>
                   </TableRow>
