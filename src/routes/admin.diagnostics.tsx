@@ -98,24 +98,14 @@ function AdminDiagnosticsPage() {
                         size="sm"
                         onClick={async () => {
                           try {
-                            const { html } = await generateBeqaReport({
-                              data: { sessionId: session.id },
-                            });
-                            const win = window.open("", "_blank");
-                            if (!win) {
-                              toast.error("הדפדפן חסם את החלון");
-                              return;
-                            }
-                            win.document.open();
-                            win.document.write(html);
-                            win.document.close();
+                            await generateBeqaDocx(session.id);
                           } catch (e) {
                             console.error(e);
-                            toast.error("שגיאה ביצירת PDF");
+                            toast.error("שגיאה ביצירת הדוח");
                           }
                         }}
                       >
-                        הורד PDF
+                        הורד Word
                       </Button>
                     </TableCell>
                   </TableRow>
