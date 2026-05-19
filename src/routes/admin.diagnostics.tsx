@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
-import { generateBeqaDocx } from "@/lib/beqa-docx";
+
 import { toast } from "sonner";
 
 type DiagnosticSession = {
