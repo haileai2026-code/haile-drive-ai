@@ -104,7 +104,7 @@ function AdminDiagnosticsPage() {
       const { data: sessions, error } = await supabase
         .from("beqa_diagnostic_sessions")
         .select(
-          "id, student_id, created_at, final_beqa_score, accuracy_score, baseline_hr, stress_hr",
+          `id, student_id, created_at, final_beqa_score, accuracy_score, recommendation, profiles!student_id (full_name, email)`,
         )
         .order("created_at", { ascending: false });
       if (!active) return;
@@ -135,7 +135,7 @@ function AdminDiagnosticsPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="text-right">תאריך</TableHead>
-                  <TableHead className="text-right">student_id</TableHead>
+                  <TableHead className="text-right">שם מועמד</TableHead>
                   <TableHead className="text-right">ציון BEQA</TableHead>
                   <TableHead className="text-right">דיוק</TableHead>
                   <TableHead className="text-right">כפתור</TableHead>
@@ -149,8 +149,8 @@ function AdminDiagnosticsPage() {
                         ? new Date(session.created_at).toLocaleDateString("he-IL")
                         : "—"}
                     </TableCell>
-                    <TableCell className="font-mono text-xs">
-                      {session?.student_id ?? "—"}
+                    <TableCell>
+                      {session?.profiles?.full_name || session?.student_id?.substring(0, 8) || "—"}
                     </TableCell>
                     <TableCell>{session?.final_beqa_score?.toFixed(1) ?? "—"}</TableCell>
                     <TableCell>{session?.accuracy_score?.toFixed(1) ?? "—"}</TableCell>
