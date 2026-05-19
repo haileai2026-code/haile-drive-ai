@@ -34,7 +34,7 @@ export async function generateBeqaDocx(sessionId: string) {
   const reportId = String(session.id).substring(0, 8).toUpperCase();
   const dateStr = new Date(session.created_at).toLocaleDateString("he-IL");
 
-  const rtlPara = (text: string, opts: Partial<{ bold: boolean; size: number; color: string; align: AlignmentType; heading: typeof HeadingLevel.HEADING_2 }> = {}) =>
+  const rtlPara = (text: string, opts: Partial<{ bold: boolean; size: number; color: string; align: (typeof AlignmentType)[keyof typeof AlignmentType]; heading: (typeof HeadingLevel)[keyof typeof HeadingLevel] }> = {}) =>
     new Paragraph({
       bidirectional: true,
       alignment: opts.align,
