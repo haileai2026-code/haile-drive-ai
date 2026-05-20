@@ -265,7 +265,11 @@ function AdminDiagnosticsPage() {
         return;
       }
 
-      const merged: DiagnosticSession[] = (sessions ?? []).map((s) => ({ ...s, profiles: null }));
+      const merged: DiagnosticSession[] = (sessions ?? []).map((s) => ({
+        ...s,
+        answers: (s.answers as Record<string, number> | null) ?? null,
+        profiles: null,
+      }));
       const studentIds = merged.map((s) => s.student_id).filter(Boolean) as string[];
       if (studentIds.length > 0) {
         const { data: profiles } = await supabase
