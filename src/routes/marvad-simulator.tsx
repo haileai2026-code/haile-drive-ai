@@ -513,23 +513,71 @@ function AtavtModule({ onDone }: { onDone: (r: { score: number; trials: number[]
   const [phase, setPhase] = useState<"ready" | "moving" | "guess" | "feedback">("ready");
   const [trial, setTrial] = useState(0);
   const [ballX, setBallX] = useState(0);
-  const [hiddenAt, setHiddenAt] = useState(0);
   const [guessX, setGuessX] = useState(50);
   const [actualX, setActualX] = useState(0);
   const scoresRef = useRef<number[]>([]);
+  const trialRef = useRef(0);
+  const guessXRef = useRef(50);
+  const phaseRef = useRef<"ready" | "moving" | "guess" | "feedback">("ready");
+  const doneRef = useRef(false);
   const TOTAL = 5;
   const trackRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number>(0);
   const startTimeRef = useRef<number>(0);
   const speedRef = useRef<number>(0);
   const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const guardTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const advanceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const setPhaseSafe = (p: "ready" | "moving" | "guess" | "feedback") => {
+    phaseRef.current = p;
+    setPhase(p);
+  };
+
+  const clearAllTimers = () => {
+    cancelAnimationFrame(rafRef.current);
+    if (hideTimeoutRef.current) { clearTimeout(hideTimeoutRef.current); hideTimeoutRef.current = null; }
+    if (guardTimeoutRef.current) { clearTimeout(guardTimeoutRef.current); guardTimeoutRef.current = null; }
+    if (advanceTimeoutRef.current) { clearTimeout(advanceTimeoutRef.current); advanceTimeoutRef.current = null; }
+  };
+
+  const finishTrial = (actual: number, guess: number) => {
+    if (phaseRef.current === "feedback") return;
+    clearAllTimers();
+    const error = Math.abs(actual - guess);
+    const score = Math.max(0, 100 - error * 2);
+    scoresRef.current.push(score);
+    setActualX(actual);
+    setPhaseSafe("feedback");
+    // auto-advance after 1.5s as safety net
+    advanceTimeoutRef.current = setTimeout(() => next(), 1500);
+  };
+
+  const next = () => {
+    if (doneRef.current) return;
+    clearAllTimers();
+    const nextTrial = trialRef.current + 1;
+    if (nextTrial >= TOTAL) {
+      doneRef.current = true;
+      const arr = scoresRef.current.length ? scoresRef.current : [0];
+      const avg = arr.reduce((a, b) => a + b, 0) / arr.length;
+      onDone({ score: Math.round(avg), trials: arr.map((s) => Math.round(s)) });
+      return;
+    }
+    trialRef.current = nextTrial;
+    guessXRef.current = 50;
+    setTrial(nextTrial);
+    setGuessX(50);
+    startTrial();
+  };
 
   const startTrial = () => {
-    const speed = 40 + Math.random() * 60; // % per second
+    clearAllTimers();
+    const speed = 40 + Math.random() * 60;
     speedRef.current = speed;
     startTimeRef.current = performance.now();
     setBallX(0);
-    setPhase("moving");
+    setPhaseSafe("moving");
 
     const tick = () => {
       const elapsed = (performance.now() - startTimeRef.current) / 1000;
@@ -542,46 +590,37 @@ function AtavtModule({ onDone }: { onDone: (r: { score: number; trials: number[]
     const hideAfter = 600 + Math.random() * 800;
     hideTimeoutRef.current = setTimeout(() => {
       cancelAnimationFrame(rafRef.current);
-      const elapsed = (performance.now() - startTimeRef.current) / 1000;
-      const currentX = Math.min(100, elapsed * speed);
-      setHiddenAt(currentX);
-      // continue invisible motion projection — show after SPACE
-      setPhase("guess");
+      setPhaseSafe("guess");
+      // safety guard: if no SPACE within 6s, auto-finish using projected position
+      guardTimeoutRef.current = setTimeout(() => {
+        if (phaseRef.current !== "guess") return;
+        const elapsed = (performance.now() - startTimeRef.current) / 1000;
+        const actual = Math.min(100, elapsed * speedRef.current);
+        finishTrial(actual, guessXRef.current);
+      }, 6000);
     }, hideAfter);
   };
 
-  useEffect(() => () => {
-    cancelAnimationFrame(rafRef.current);
-    if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
-  }, []);
+  useEffect(() => { guessXRef.current = guessX; }, [guessX]);
+
+  useEffect(() => () => { clearAllTimers(); }, []);
 
   useEffect(() => {
-    if (phase !== "guess") return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.code !== "Space") return;
-      e.preventDefault();
-      const elapsed = (performance.now() - startTimeRef.current) / 1000;
-      const actual = Math.min(100, elapsed * speedRef.current);
-      setActualX(actual);
-      const error = Math.abs(actual - guessX);
-      const score = Math.max(0, 100 - error * 2);
-      scoresRef.current.push(score);
-      setPhase("feedback");
+      if (e.code !== "Space" && e.key !== " ") return;
+      if (phaseRef.current === "guess") {
+        e.preventDefault();
+        const elapsed = (performance.now() - startTimeRef.current) / 1000;
+        const actual = Math.min(100, elapsed * speedRef.current);
+        finishTrial(actual, guessXRef.current);
+      } else if (phaseRef.current === "feedback") {
+        e.preventDefault();
+        next();
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [phase, guessX]);
-
-  const next = () => {
-    if (trial + 1 >= TOTAL) {
-      const avg = scoresRef.current.reduce((a, b) => a + b, 0) / scoresRef.current.length;
-      onDone({ score: Math.round(avg), trials: scoresRef.current.map((s) => Math.round(s)) });
-      return;
-    }
-    setTrial(trial + 1);
-    setGuessX(50);
-    startTrial();
-  };
+  }, []);
 
   if (phase === "ready") {
     return (
@@ -592,7 +631,7 @@ function AtavtModule({ onDone }: { onDone: (r: { score: number; trials: number[]
           <p className="text-sm text-muted-foreground leading-relaxed">
             כדור ינוע על מסלול וייעלם. נחש את מיקומו בזמן הלחיצה. הזז את הסמן ולחץ <kbd className="rounded bg-muted px-2 py-1 text-xs">SPACE</kbd>.
           </p>
-          <Button className="bg-gold text-gold-foreground" onClick={() => { startTrial(); }}>התחל</Button>
+          <Button className="bg-gold text-gold-foreground" onClick={() => { trialRef.current = 0; doneRef.current = false; scoresRef.current = []; startTrial(); }}>התחל</Button>
         </CardContent>
       </Card>
     );
@@ -633,7 +672,7 @@ function AtavtModule({ onDone }: { onDone: (r: { score: number; trials: number[]
         {phase === "feedback" && (
           <div className="text-center space-y-3">
             <p className="text-sm">
-              שגיאה: <span className="font-bold text-gold">{Math.abs(actualX - guessX).toFixed(1)}%</span> · ניקוד: <span className="font-bold text-emerald-400">{Math.round(scoresRef.current[scoresRef.current.length - 1])}</span>
+              שגיאה: <span className="font-bold text-gold">{Math.abs(actualX - guessX).toFixed(1)}%</span> · ניקוד: <span className="font-bold text-emerald-400">{Math.round(scoresRef.current[scoresRef.current.length - 1] ?? 0)}</span>
             </p>
             <Button onClick={next} className="bg-gold text-gold-foreground">
               {trial + 1 >= TOTAL ? "סיים" : "המשך"} <ChevronRight className="mr-2 h-4 w-4 rtl:rotate-180" />
