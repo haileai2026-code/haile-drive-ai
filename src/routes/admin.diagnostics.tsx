@@ -331,7 +331,7 @@ function AdminDiagnosticsPage() {
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => generateReport(session)}
+                        onClick={() => generateBeqaReport(session)}
                       >
                         📄 הפק דוח
                       </Button>
