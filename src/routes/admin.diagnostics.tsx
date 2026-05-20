@@ -255,7 +255,7 @@ function AdminDiagnosticsPage() {
       const { data: sessions, error } = await supabase
         .from("beqa_diagnostic_sessions")
         .select(
-          "id, student_id, created_at, final_beqa_score, accuracy_score, recommendation",
+          "id, student_id, created_at, final_beqa_score, accuracy_score, recommendation, psychological_score, community_type, answers",
         )
         .order("created_at", { ascending: false });
       if (!active) return;
