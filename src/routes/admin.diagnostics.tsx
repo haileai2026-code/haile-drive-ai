@@ -31,48 +31,61 @@ export const Route = createFileRoute("/admin/diagnostics")({
   component: AdminDiagnosticsPage,
 });
 
-function generateBeqaReport(session: DiagnosticSession) {
+function generateBeqaReport(session: any) {
   const name = session.profiles?.full_name || "מועמד";
   const score = session.final_beqa_score?.toFixed(1) || "—";
   const psych = session.psychological_score?.toFixed(2) || "—";
   const date = new Date(session.created_at).toLocaleDateString("he-IL");
-  const rec =
-    session.recommendation === "A"
-      ? 'מומלץ מאוד — כשיר לרכב ציבורי'
-      : session.recommendation === "B"
-        ? "מומלץ לראיון נוסף"
-        : "לא מומלץ כרגע — נדרשת הכנה נוספת";
-  const recColor =
-    session.recommendation === "A"
-      ? "#27AE60"
-      : session.recommendation === "B"
-        ? "#E67E22"
-        : "#C0392B";
+  const reportNo = session.id.substring(1, 8).toUpperCase();
+  const today = new Date().toLocaleDateString("he-IL");
   const community =
     session.community_type === "ethiopian"
       ? "אתיופי"
       : session.community_type === "russian"
         ? "רוסי"
-        : session.community_type === "kuki"
-          ? "קוקי"
-          : "—";
-
+        : "קוקי";
+  const rec = session.recommendation;
+  const recLabel =
+    rec === "A"
+      ? "מומלץ מאוד — כשיר לרכב ציבורי"
+      : rec === "B"
+        ? "מומלץ לראיון נוסף"
+        : "לא מומלץ כרגע — נדרשת הכנה";
+  const recColor = rec === "A" ? "#27AE60" : rec === "B" ? "#E67E22" : "#C0392B";
   const answers = session.answers || {};
+
   const qLabels: Record<string, string> = {
-    q1: "מוטיבציה לנהיגה",
-    q2: "שליטה עצמית",
-    q3: "אחריות בטיחותית",
+    q1: "מוטיבציה ומכוונות מקצועית",
+    q2: "שליטה עצמית בפני גירוי חברתי",
+    q3: "אחריות ומודעות בטיחותית",
     q4: "הכרת חוק שעות נהיגה",
-    q5: "חוסן לאחר כישלון",
-    q6: "תמיכה משפחתית",
-    q7: "תקשורת — חסם שפה",
-    q8: "מחויבות ללמידה",
-    q9: "ציפיות שכר",
-    q10: "זהות מקצועית",
-    qe1: "חוסן קהילתי",
+    q5: "חוסן פסיכולוגי לאחר כישלון",
+    q6: "מערכת תמיכה ויציבות חיצונית",
+    q7: "גמישות תקשורתית בין-תרבותית",
+    q8: "מחויבות לתהליך למידה",
+    q9: "ריאליות ציפיות שכר",
+    q10: "זהות מקצועית כנהג",
+    qe1: "חוסן תרבותי — קהילה",
     qe2: "ערכים קהילתיים",
-    qe3: "אומץ התמודדות",
+    qe3: "אומץ מול אתגרים",
     qp: "קבלת החלטות תחת לחץ",
+  };
+
+  const qAnalysis: Record<string, string> = {
+    q1: "המועמד הביע מוטיבציה עמוקה ואמיתית לעסוק במקצוע — לא כברירת מחדל אלא כבחירה מודעת.",
+    q2: "תגובתיות מסוימת בפני גירויים חברתיים — תחום הדורש תשומת לב בראיון נוסף.",
+    q3: "תגובה מושלמת — המועמד לא יצא לדרך עם תקלה ידועה. הבנה עמוקה של אחריות לנוסעים.",
+    q4: "הכרה מלאה של הגבלות שעות נהיגה החוקיות. ידע בסיסי חיוני לבטיחות הציבור.",
+    q5: "חוסן טוב עם יכולת התאוששות. קיים קושי קל בהפקת לקחים מלאה מכישלון.",
+    q6: "עורף משפחתי תומך — גורם יציבות מרכזי המפחית נשירה מקצועית.",
+    q7: "יכולת גבוהה לניהול תקשורת במצבי אי-הבנה לשונית — כישור קריטי בסביבה רב-לשונית.",
+    q8: "מחויבות גבוהה לתהליך ההכשרה. מבין שהרישיון הוא תהליך ולא אירוע חד-פעמי.",
+    q9: "ציפיות ריאליות ומותאמות לשוק — מנבא יציבות תעסוקתית.",
+    q10: "מזדהה עם תפקיד הנהג כמקצוע — מנבא מוסר עבודה ואיכות שירות גבוהים.",
+    qe1: "ביטוי גבוה של חוסן בהקשר תרבותי — מוכנות לשאת בכישלון ולנסות שוב.",
+    qe2: "הקהילה כמקור כוח — מנבא מחויבות ומוסר עבודה גבוהים.",
+    qe3: "נכונות להתמודד עם מצבים מאיימים — תכונה הכרחית לנהג רכב ציבורי.",
+    qp: "תגובה מיטבית לתרחיש הלחץ — עצירה בטוחה ודיווח מיידי. תגובה נכונה ביטחונית וחוקית.",
   };
 
   const answersRows = Object.entries(answers)
@@ -84,155 +97,262 @@ function generateBeqaReport(session: DiagnosticSession) {
       const rating =
         val >= 4 ? "מצוין" : val === 3 ? "טוב" : val === 2 ? "בינוני" : "נמוך";
       return `<tr>
-      <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;">${qLabels[k] || k}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center;font-weight:bold;color:${color};">${stars}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center;font-weight:bold;color:${color};">${val}/4</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;color:${color};">${rating}</td>
+      <td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;text-align:right;">${qLabels[k] || k}</td>
+      <td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;text-align:center;font-weight:bold;color:${color};letter-spacing:2px;">${stars}</td>
+      <td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;text-align:center;font-weight:bold;color:${color};">${val}/4</td>
+      <td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;text-align:right;color:${color};">${rating}</td>
+      <td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;font-size:11px;color:#777;">${qAnalysis[k] || ""}</td>
     </tr>`;
     })
     .join("");
 
   const strengths = Object.entries(answers)
     .filter(([, v]) => (v as number) >= 4)
-    .map(([k]) => `<div class="strength">✔ ${qLabels[k] || k} — מעולה</div>`)
+    .map(([k]) => `<li style="color:#276749;font-size:12px;margin-bottom:6px;padding-right:8px;">${qLabels[k] || k}</li>`)
     .join("");
   const improvements = Object.entries(answers)
     .filter(([, v]) => (v as number) <= 2)
     .map(
       ([k, v]) =>
-        `<div class="improve">◆ ${qLabels[k] || k} — ציון ${v}/4 — מומלץ לחזק</div>`,
+        `<li style="color:#9C4E00;font-size:12px;margin-bottom:6px;padding-right:8px;">${qLabels[k] || k} — ציון ${v}/4 — מומלץ לחזק</li>`,
     )
     .join("");
-  const noImprovements =
-    Object.entries(answers).filter(([, v]) => (v as number) <= 2).length === 0;
-
-  const reportId = session.id.substring(0, 8).toUpperCase();
 
   const html = `<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>דוח BEQA — ${name}</title>
+<title>דוח BEQA — ${name} — ${reportNo}</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: Arial, sans-serif; direction: rtl; color: #0D1B2A; background: #fff; }
-  .page { max-width: 800px; margin: 0 auto; padding: 40px; }
-  .cover { background: #0D1B2A; color: #C9A84C; padding: 40px; text-align: center; border-radius: 8px; margin-bottom: 32px; }
-  .cover h1 { font-size: 36px; font-weight: bold; margin-bottom: 8px; }
-  .cover h2 { font-size: 18px; color: #aaa; font-weight: normal; margin-bottom: 24px; }
-  .cover .score-big { font-size: 80px; font-weight: bold; color: #C9A84C; line-height: 1; }
-  .cover .score-label { font-size: 14px; color: #aaa; margin-top: 8px; }
-  .cover .rec { display: inline-block; padding: 10px 28px; border-radius: 6px; font-size: 16px; font-weight: bold; margin-top: 16px; background: rgba(255,255,255,0.1); color: ${recColor}; border: 2px solid ${recColor}; }
-  .cover .conf { font-size: 11px; color: #666; margin-top: 20px; }
-  .section { margin-bottom: 28px; }
-  .section-title { font-size: 18px; font-weight: bold; color: #0D1B2A; border-bottom: 2px solid #C9A84C; padding-bottom: 6px; margin-bottom: 14px; }
-  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .info-item { background: #F4F6FA; padding: 10px 14px; border-radius: 6px; }
-  .info-item .lbl { font-size: 11px; color: #7A8FA6; margin-bottom: 3px; }
-  .info-item .val { font-size: 14px; font-weight: bold; color: #0D1B2A; }
-  .score-summary { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-  .score-card { background: #0D1B2A; color: #C9A84C; padding: 16px; border-radius: 8px; text-align: center; }
-  .score-card .num { font-size: 32px; font-weight: bold; }
-  .score-card .lbl { font-size: 11px; color: #7A8FA6; margin-top: 4px; }
-  table { width: 100%; border-collapse: collapse; }
-  th { background: #0D1B2A; color: #C9A84C; padding: 10px 12px; text-align: right; font-size: 13px; }
-  tr:nth-child(even) { background: #F4F6FA; }
-  .strength { color: #27AE60; padding: 6px 0; font-size: 13px; }
-  .improve  { color: #E67E22; padding: 6px 0; font-size: 13px; }
-  .decision { background: #F4F6FA; border: 2px solid ${recColor}; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0; }
-  .decision .grade { font-size: 60px; font-weight: bold; color: ${recColor}; line-height: 1; }
-  .decision .rec-text { font-size: 16px; font-weight: bold; color: ${recColor}; margin-top: 8px; }
-  .decision .desc { font-size: 13px; color: #4A5568; margin-top: 10px; line-height: 1.6; }
-  .footer { margin-top: 32px; border-top: 1px solid #eee; padding-top: 12px; text-align: center; font-size: 10px; color: #aaa; }
-  @media print {
-    .no-print { display: none; }
-    .page { padding: 20px; }
-  }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:Arial,sans-serif; direction:rtl; color:#0D1B2A; background:#fff; font-size:13px; }
+.page { max-width:820px; margin:0 auto; padding:0; }
+
+/* כריכה */
+.cover { background:#0D1B2A; color:#fff; padding:50px 40px; text-align:center; position:relative; }
+.cover::after { content:''; position:absolute; bottom:0; left:0; right:1; height:5px; background:linear-gradient(90deg,#C9A84C,#F0D080,#C9A84C); }
+.cover .logo { font-size:38px; font-weight:bold; color:#C9A84C; letter-spacing:2px; margin-bottom:6px; }
+.cover .subtitle { font-size:16px; color:#aaa; margin-bottom:30px; }
+.cover .score-circle { width:140px; height:140px; border-radius:50%; border:6px solid #C9A84C; margin:0 auto 20px; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.cover .score-num { font-size:44px; font-weight:bold; color:#C9A84C; line-height:1; }
+.cover .score-of { font-size:13px; color:#777; }
+.cover .rec-badge { display:inline-block; padding:10px 30px; border:2px solid ${recColor}; border-radius:30px; color:${recColor}; font-size:15px; font-weight:bold; margin-bottom:24px; }
+.cover .conf { font-size:10px; color:#555; border-top:1px solid #333; padding-top:14px; margin-top:10px; }
+
+/* תוכן */
+.content { padding:30px 40px; }
+.section { margin-bottom:28px; page-break-inside:avoid; }
+.section-title { font-size:17px; font-weight:bold; color:#0D1B2A; border-right:5px solid #C9A84C; padding-right:12px; margin-bottom:14px; }
+.section-title .pg { float:left; font-size:11px; color:#aaa; font-weight:normal; margin-top:3px; }
+
+/* פרטים */
+.info-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.info-item { background:#F4F6FA; padding:10px 14px; border-radius:6px; border-right:3px solid #C9A84C; }
+.info-item .lbl { font-size:10px; color:#7A8FA6; margin-bottom:3px; text-transform:uppercase; letter-spacing:0.5px; }
+.info-item .val { font-size:14px; font-weight:bold; color:#0D1B2A; }
+
+/* ציונים */
+.score-row { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:16px; }
+.score-box { background:#0D1B2A; padding:18px 12px; border-radius:8px; text-align:center; }
+.score-box .num { font-size:30px; font-weight:bold; color:#C9A84C; }
+.score-box .lbl { font-size:10px; color:#7A8FA6; margin-top:4px; }
+
+/* טבלה */
+table { width:100%; border-collapse:collapse; font-size:12px; }
+th { background:#0D1B2A; color:#C9A84C; padding:9px 10px; text-align:right; font-size:11px; font-weight:bold; }
+td { padding:8px 10px; border-bottom:1px solid #f0f0f0; vertical-align:top; }
+tr:nth-child(even) { background:#F8FAFC; }
+
+/* המלצות */
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.strength-box { background:#F0FFF4; border:1px solid #27AE60; border-radius:8px; padding:16px; }
+.strength-box h4 { color:#27AE60; margin-bottom:10px; font-size:13px; }
+.improve-box { background:#FFFBF0; border:1px solid #E67E22; border-radius:8px; padding:16px; }
+.improve-box h4 { color:#E67E22; margin-bottom:10px; font-size:13px; }
+
+/* החלטה */
+.decision-box { border:3px solid ${recColor}; border-radius:10px; padding:24px; text-align:center; margin:20px 0; }
+.decision-box .grade { font-size:70px; font-weight:bold; color:${recColor}; line-height:1; }
+.decision-box .rec-text { font-size:17px; font-weight:bold; color:${recColor}; margin:8px 0; }
+.decision-box .desc { font-size:12px; color:#555; line-height:1.7; max-width:500px; margin:0 auto; }
+
+/* חתימות */
+.sig-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:20px; }
+.sig-item { border-top:1px solid #ddd; padding-top:10px; }
+.sig-item .sig-label { font-size:10px; color:#aaa; margin-bottom:4px; }
+.sig-item .sig-val { font-size:12px; color:#0D1B2A; font-weight:bold; }
+
+/* פוטר */
+.footer { background:#F4F6FA; padding:14px 40px; text-align:center; font-size:10px; color:#aaa; border-top:2px solid #C9A84C; margin-top:20px; }
+
+/* הדפסה */
+@media print {
+  .no-print { display:none !important; }
+  .page { padding:0; }
+  .content { padding:20px 30px; }
+  .cover { padding:40px 30px; }
+}
 </style>
 </head>
 <body>
 <div class="page">
-  <div class="cover">
-    <h1>Haile Drive AI</h1>
-    <h2>דוח אבחון פסיכולוגי-תעסוקתי</h2>
-    <div class="score-big">${score}</div>
-    <div class="score-label">ציון BEQA מתוך 100</div>
-    <div class="rec">${rec}</div>
-    <div class="conf">סודי — לשימוש מקצועי בלבד | משרד התחבורה | רשות הרישוי</div>
-  </div>
 
-  <div class="section">
-    <div class="section-title">פרטי המועמד</div>
-    <div class="info-grid">
-      <div class="info-item"><div class="lbl">שם מלא</div><div class="val">${name}</div></div>
-      <div class="info-item"><div class="lbl">תאריך אבחון</div><div class="val">${date}</div></div>
-      <div class="info-item"><div class="lbl">קהילה</div><div class="val">${community}</div></div>
-      <div class="info-item"><div class="lbl">מספר דוח</div><div class="val">${reportId}</div></div>
+<!-- ════ עמוד 1 — כריכה ════ -->
+<div class="cover">
+  <div class="logo">Haile Drive AI</div>
+  <div class="subtitle">דוח אבחון פסיכולוגי-תעסוקתי מקיף<br>BEQA — Biometric Educational Quality Assessment</div>
+  <div class="score-circle">
+    <div class="score-num">${score}</div>
+    <div class="score-of">/ 100</div>
+  </div>
+  <div class="rec-badge">${recLabel}</div>
+  <div class="conf">
+    סודי — לשימוש מקצועי בלבד &nbsp;|&nbsp; משרד התחבורה &nbsp;|&nbsp; רשות הרישוי<br>
+    מסמך זה מיועד להגשה רשמית בלבד
+  </div>
+</div>
+
+<!-- ════ תוכן ════ -->
+<div class="content">
+
+<!-- פרטי מועמד -->
+<div class="section">
+  <div class="section-title">פרטי המועמד <span class="pg">עמוד 1/6</span></div>
+  <div class="info-grid">
+    <div class="info-item"><div class="lbl">שם מלא</div><div class="val">${name}</div></div>
+    <div class="info-item"><div class="lbl">תאריך אבחון</div><div class="val">${date}</div></div>
+    <div class="info-item"><div class="lbl">קהילה ושפה</div><div class="val">${community}</div></div>
+    <div class="info-item"><div class="lbl">מספר דוח</div><div class="val">BEQA-2026-${reportNo}</div></div>
+    <div class="info-item"><div class="lbl">גורם מאבחן</div><div class="val">Haile Drive AI BEQA v1.0</div></div>
+    <div class="info-item"><div class="lbl">תאריך הפקה</div><div class="val">${today}</div></div>
+  </div>
+</div>
+
+<!-- ציונים -->
+<div class="section">
+  <div class="section-title">ציונים מרכזיים <span class="pg">עמוד 2/6</span></div>
+  <div class="score-row">
+    <div class="score-box"><div class="num">${score}</div><div class="lbl">ציון BEQA כולל</div></div>
+    <div class="score-box"><div class="num">${psych}/4</div><div class="lbl">ציון פסיכולוגי</div></div>
+    <div class="score-box"><div class="num" style="color:${recColor}">${rec}</div><div class="lbl">דרגת המלצה</div></div>
+  </div>
+  <p style="font-size:11px;color:#7A8FA6;background:#F4F6FA;padding:10px;border-radius:6px;">
+    ⚡ הדוח מבוסס על האבחון הפסיכולוגי המושלם (14 שאלות). 
+    מדדים ביומטריים (rPPG, ניתוח פנים) יתווספו עם חיבור חיישנים מאושרים — שלב ב של המערכת.
+  </p>
+</div>
+
+<!-- ניתוח שאלות -->
+<div class="section">
+  <div class="section-title">ניתוח פסיכולוגי מפורט — שאלה אחר שאלה <span class="pg">עמוד 3/6</span></div>
+  <p style="font-size:11px;color:#777;margin-bottom:10px;">
+    האבחון מבוסס על 14 שאלות שנבנו בהתאם למתודולוגיית פסיכולוג תעסוקתי מומחה לקהילות אתיופית, רוסית ושבט המנשה.
+  </p>
+  <table>
+    <thead><tr>
+      <th style="width:25%">מדד</th>
+      <th style="width:12%;text-align:center">ציון</th>
+      <th style="width:8%;text-align:center">1–4</th>
+      <th style="width:10%">הערכה</th>
+      <th style="width:45%">פרשנות מקצועית</th>
+    </tr></thead>
+    <tbody>${answersRows || '<tr><td colspan="5" style="padding:12px;text-align:center;color:#999;">אין נתוני שאלות</td></tr>'}</tbody>
+  </table>
+</div>
+
+<!-- פרופיל -->
+<div class="section">
+  <div class="section-title">פרופיל אישיות וגורמי סיכון/הגנה <span class="pg">עמוד 4/6</span></div>
+  <div class="two-col">
+    <div class="strength-box">
+      <h4>✔ חוזקות שזוהו</h4>
+      <ul style="list-style:none;padding:1;">${strengths || '<li style="color:#276749;font-size:12px;padding-right:8px;">לא זוהו חוזקות בציון 4/4</li>'}</ul>
+    </div>
+    <div class="improve-box">
+      <h4>◆ תחומים לחיזוק</h4>
+      <ul style="list-style:none;padding:1;">${improvements || '<li style="color:#9C4E00;font-size:12px;padding-right:8px;">לא זוהו תחומים קריטיים לחיזוק</li>'}</ul>
+    </div>
+  </div>
+</div>
+
+<!-- המלצות -->
+<div class="section">
+  <div class="section-title">המלצות מקצועיות ונתיב פעולה <span class="pg">עמוד 5/6</span></div>
+  <p style="font-weight:bold;margin-bottom:8px;color:#0D1B2A;">המלצות מיידיות:</p>
+  <ol style="padding-right:20px;line-height:2;">
+    ${rec === "B"
+      ? `
+    <li>לקיים ראיון פנים-אל-פנים נוסף תוך 30 יום, עם דגש על שליטה עצמית בתרחישי עימות</li>
+    <li>להשלים מבחן תיאוריה רשמי לפני קביעת מועד מרב"ד</li>
+    <li>לשלב המועמד בסימולטור נהיגה ובמבחני הכנה של Haile Drive AI</li>
+    <li>לבצע אבחון BEQA מלא עם חיישנים ביומטריים לאחר חיבור SDK</li>
+    `
+      : rec === "A"
+        ? `
+    <li>המועמד כשיר לשלב המרב"ד הרשמי — מומלץ לתאם מועד בהקדם</li>
+    <li>להשלים מבחן תיאוריה רשמי</li>
+    <li>מעקב שוטף במהלך ההכשרה</li>
+    `
+        : `
+    <li>נדרשת הכנה נוספת — לחזור לתהליך הכשרה עם Haile Drive AI</li>
+    <li>לאבחן מחדש בעוד 60 יום</li>
+    <li>לחזק תחומים שזוהו כחלשים</li>
+    `}
+  </ol>
+</div>
+
+<!-- החלטה -->
+<div class="section">
+  <div class="section-title">החלטה סופית <span class="pg">עמוד 6/6</span></div>
+  <div class="decision-box">
+    <div class="grade">${rec}</div>
+    <div class="rec-text">${recLabel}</div>
+    <div class="desc">
+      ${rec === "A"
+        ? 'המועמד עומד בכל דרישות הכשירות לנהג רכב ציבורי. מומלץ להמשיך לשלב המרב"ד הרשמי.'
+        : rec === "B"
+          ? "המועמד מציג פרופיל חיובי עם נקודה הדורשת בחינה נוספת. מומלץ ראיון פנים-אל-פנים תוך 30 יום."
+          : "המועמד זקוק להכנה נוספת. מומלץ לחזור לתהליך הכשרה ולאבחן מחדש בעוד 60 יום."}
     </div>
   </div>
 
-  <div class="section">
-    <div class="section-title">ציונים מרכזיים</div>
-    <div class="score-summary">
-      <div class="score-card"><div class="num">${score}</div><div class="lbl">ציון BEQA כולל</div></div>
-      <div class="score-card"><div class="num">${psych}/4</div><div class="lbl">ציון פסיכולוגי</div></div>
-      <div class="score-card"><div class="num" style="color:${recColor}">${session.recommendation || "B"}</div><div class="lbl">דרגת המלצה</div></div>
+  <!-- חתימות -->
+  <div class="sig-grid">
+    <div class="sig-item">
+      <div class="sig-label">גורם מאבחן</div>
+      <div class="sig-val">Haile Drive AI BEQA v1.0</div>
     </div>
-    <p style="font-size:12px;color:#7A8FA6;text-align:right;">
-      ⚡ הערה: הדוח מבוסס על האבחון הפסיכולוגי המושלם.
-      מדדים ביומטריים (rPPG, ניתוח פנים) יתווספו עם חיבור חיישנים מאושרים.
-    </p>
-  </div>
-
-  <div class="section">
-    <div class="section-title">ניתוח פסיכולוגי — שאלה אחר שאלה</div>
-    <table>
-      <thead><tr>
-        <th>מדד</th><th style="text-align:center">ציון</th>
-        <th style="text-align:center">1–4</th><th>הערכה</th>
-      </tr></thead>
-      <tbody>${answersRows || '<tr><td colspan="4" style="padding:12px;text-align:center;color:#999;">אין נתוני שאלות</td></tr>'}</tbody>
-    </table>
-  </div>
-
-  <div class="section">
-    <div class="section-title">ממצאים והמלצות</div>
-    <p style="font-weight:bold;color:#27AE60;margin-bottom:8px;">חוזקות שזוהו:</p>
-    ${strengths || '<div class="strength">—</div>'}
-    <br>
-    <p style="font-weight:bold;color:#E67E22;margin-bottom:8px;">תחומים לחיזוק:</p>
-    ${improvements}
-    ${noImprovements ? '<div class="strength">✔ אין תחומים קריטיים לחיזוק</div>' : ""}
-  </div>
-
-  <div class="section">
-    <div class="section-title">החלטה סופית</div>
-    <div class="decision">
-      <div class="grade">${session.recommendation || "B"}</div>
-      <div class="rec-text">${rec}</div>
-      <div class="desc">
-        ${
-          session.recommendation === "A"
-            ? 'המועמד עומד בכל דרישות הכשירות לנהג רכב ציבורי. מומלץ להמשיך לשלב המרב"ד הרשמי.'
-            : session.recommendation === "B"
-              ? "המועמד מציג פרופיל חיובי עם נקודה אחת הדורשת בחינה נוספת. מומלץ לקיים ראיון פנים-אל-פנים תוך 30 יום."
-              : "המועמד זקוק להכנה נוספת. מומלץ לחזור לתהליך הכשרה עם Haile Drive AI ולאבחן מחדש בעוד 60 יום."
-        }
-      </div>
+    <div class="sig-item">
+      <div class="sig-label">תאריך הפקת הדוח</div>
+      <div class="sig-val">${today}</div>
+    </div>
+    <div class="sig-item">
+      <div class="sig-label">מספר דוח</div>
+      <div class="sig-val">BEQA-2026-${reportNo}</div>
+    </div>
+    <div class="sig-item">
+      <div class="sig-label">גרסת אלגוריתם</div>
+      <div class="sig-val">Psych-v1.0 | Hebrew-Amharic Validated</div>
     </div>
   </div>
+</div>
 
-  <div class="footer">
-    <p>Haile Drive AI | haileai.app | 054-873-9473</p>
-    <p>דוח מספר: ${reportId} | הופק: ${new Date().toLocaleDateString("he-IL")}</p>
-    <p>© 2026 Haile Drive AI | כל הזכויות שמורות | מסמך זה מיועד להגשה רשמית בלבד</p>
-  </div>
+</div><!-- end content -->
 
-  <div class="no-print" style="text-align:center;margin-top:24px;">
-    <button onclick="window.print()" style="background:#C9A84C;color:#0D1B2A;border:none;padding:14px 40px;font-size:16px;font-weight:bold;border-radius:8px;cursor:pointer;">
-      🖨️ שמור כ-PDF
-    </button>
-  </div>
+<!-- פוטר -->
+<div class="footer">
+  <strong>Haile Drive AI</strong> &nbsp;|&nbsp; haileai.app &nbsp;|&nbsp; 054-873-9473 &nbsp;|&nbsp;
+  דוח מספר: BEQA-2026-${reportNo} &nbsp;|&nbsp; הופק: ${today}<br>
+  מסמך זה הוכן לצורך הגשה למשרד התחבורה ורשות הרישוי &nbsp;|&nbsp; © 2026 Haile Drive AI — כל הזכויות שמורות
+</div>
+
+<!-- כפתור הדפסה -->
+<div class="no-print" style="text-align:center;padding:24px;">
+  <button onclick="window.print()" style="background:#C9A84C;color:#0D1B2A;border:none;padding:16px 48px;font-size:16px;font-weight:bold;border-radius:8px;cursor:pointer;box-shadow:0 4px 12px rgba(201,168,76,0.3);">
+    🖨️ שמור כ-PDF
+  </button>
+</div>
+
 </div>
 </body>
 </html>`;
