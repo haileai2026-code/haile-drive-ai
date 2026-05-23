@@ -337,32 +337,46 @@ function DiagnosticsPage() {
 
     // persist
     if (user && community) {
+      // Simple, robust scoring per spec — guarantees a saved score even if biometric streams are absent.
+      const answersMap: Record<string, number> = {};
+      for (const a of allAnswers) answersMap[a.qId] = a.score;
+      const values = Object.values(answersMap);
+      const avgScore = values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0;
+      const finalScore = Math.round((avgScore / 4.0) * 100 * 10) / 10;
+      const recommendation = finalScore >= 80 ? "A" : finalScore >= 60 ? "B" : "C";
+
       const { error } = await supabase.from("beqa_diagnostic_sessions").insert({
         student_id: user.id,
         assessment_type: "unified",
         community_type: community,
-        psychological_score: Math.round(psychological * 10) / 10,
-        recommendation: rec.letter,
+        answers: answersMap as any,
+        psychological_score: Math.round(avgScore * 100) / 100,
+        accuracy_score: finalScore,
+        final_beqa_score: finalScore,
+        recommendation,
         baseline_hr: baselineHr,
         stress_hr: sHr,
-        accuracy_score: Math.round(accuracy * 10) / 10,
-        final_beqa_score: Math.round(beqa * 10) / 10,
         end_time: new Date().toISOString(),
-        answers: allAnswers as any,
         metadata: {
-          version: "unified-v1",
+          version: "unified-v2",
           providers: USE_REAL_APIS,
           biometric_score: Math.round(biometric * 10) / 10,
           face_score: Math.round(faceScore * 10) / 10,
           stability: Math.round(stability * 10) / 10,
+          computed_beqa: Math.round(beqa * 10) / 10,
           bpm_series: bpmSeries.current.slice(-200),
           emotion_series: emoSeries.current.slice(-200),
           insights,
         } as any,
       });
-      if (error) console.warn("save failed", error);
-      else toast.success("האבחון נשמר בהצלחה");
+      if (error) {
+        console.error("save failed", error);
+        toast.error("שמירת האבחון נכשלה: " + error.message);
+      } else {
+        toast.success("האבחון נשמר בהצלחה");
+      }
     }
+
 
     setPhase("results");
   }
