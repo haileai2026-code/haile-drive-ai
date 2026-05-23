@@ -109,6 +109,16 @@ function DiagnosticsPage() {
 
   useEffect(() => () => cleanup(), []);
 
+  useEffect(() => {
+    if (!streamRef.current || !videoRef.current) return;
+    if (videoRef.current.srcObject !== streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+      videoRef.current.muted = true;
+      videoRef.current.playsInline = true;
+      videoRef.current.play().catch(() => {});
+    }
+  }, [phase]);
+
   function cleanup() {
     try { ttsRef.current?.stop(); } catch {}
     try { faceRef.current?.stopAnalysis(); } catch {}
