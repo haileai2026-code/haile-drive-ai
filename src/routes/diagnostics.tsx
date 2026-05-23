@@ -463,20 +463,16 @@ function DiagnosticsPage() {
           </div>
         )}
 
-        {phase === "results" && (
-          <div className="mx-auto max-w-xl text-center space-y-6 py-16">
-            <div className="text-7xl">🙏</div>
-            <h1 className="text-3xl font-bold">תודה! סיימת את האבחון בהצלחה.</h1>
-            <p className="text-lg text-muted-foreground" dir="ltr">
-              አመሰግናለሁ! ምርመራው ተጠናቋል።
-            </p>
-            <p className="text-sm text-muted-foreground">
-              התוצאות נשלחו להנהלה לבדיקה. ניצור איתך קשר בהקדם.
-            </p>
-            <Link to="/dashboard">
-              <Button size="lg">חזור לדף הבית</Button>
-            </Link>
-          </div>
+        {phase === "results" && final && (
+          <Results
+            final={final}
+            baselineHr={baselineHr}
+            stressHr={stressHr}
+            bpmSeries={bpmSeries.current}
+            emoSeries={emoSeries.current}
+            onReset={reset}
+            onDownload={downloadJSON}
+          />
         )}
       </div>
     </AppShell>
