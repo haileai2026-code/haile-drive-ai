@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AdminShell } from "@/components/AdminShell";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { ExternalLink, FileText, Plus } from "lucide-react";
 
 export const Route = createFileRoute("/admin/lessons")({
