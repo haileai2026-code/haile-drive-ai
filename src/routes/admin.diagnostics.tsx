@@ -434,6 +434,7 @@ function AdminDiagnosticsPage() {
                   <TableHead className="text-right">שם מועמד</TableHead>
                   <TableHead className="text-right">ציון BEQA</TableHead>
                   <TableHead className="text-right">דיוק</TableHead>
+                  <TableHead className="text-right">המלצה</TableHead>
                   <TableHead className="text-right">כפתור</TableHead>
                 </TableRow>
               </TableHeader>
@@ -450,6 +451,15 @@ function AdminDiagnosticsPage() {
                     </TableCell>
                     <TableCell>{session?.final_beqa_score?.toFixed(1) ?? "—"}</TableCell>
                     <TableCell>{session?.accuracy_score?.toFixed(1) ?? "—"}</TableCell>
+                    <TableCell>
+                      <span className={
+                        session?.recommendation === "A" ? "font-bold text-emerald-500" :
+                        session?.recommendation === "B" ? "font-bold text-amber-500" :
+                        session?.recommendation === "C" ? "font-bold text-rose-500" : ""
+                      }>
+                        {session?.recommendation ?? "—"}
+                      </span>
+                    </TableCell>
                     <TableCell>
                       <Button
                         type="button"

@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AdminShell } from "@/components/AdminShell";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { ExternalLink, FileText, Plus } from "lucide-react";
 
 export const Route = createFileRoute("/admin/lessons")({
@@ -79,8 +80,9 @@ function LessonsAdmin() {
                 const onOpen = async (e: React.MouseEvent) => {
                   if (isExternal || !l.file_url) return;
                   e.preventDefault();
-                  const { data } = await supabase.storage.from("materials").createSignedUrl(l.file_url, 3600);
-                  if (data?.signedUrl) window.open(data.signedUrl, "_blank", "noopener");
+                  const { data, error } = await supabase.storage.from("materials").createSignedUrl(l.file_url, 3600);
+                  if (error || !data?.signedUrl) { toast.error("לא ניתן לפתוח קובץ"); return; }
+                  window.open(data.signedUrl.replace(/^http:\/\//i, "https://"), "_blank", "noopener,noreferrer");
                 };
                 return (
                   <tr key={l.id} className="hover:bg-accent/30">
