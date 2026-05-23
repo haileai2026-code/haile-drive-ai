@@ -195,3 +195,105 @@ export const aiAgentChat = createServerFn({ method: "POST" })
     const text: string = json?.choices?.[0]?.message?.content ?? "";
     return { error: null as null, text };
   });
+
+const TranslatorInputSchema = z.object({
+  message: z.string().trim().min(1).max(20000),
+  history: z
+    .array(
+      z.object({
+        role: z.enum(["user", "assistant"]),
+        content: z.string().min(1).max(20000),
+      }),
+    )
+    .max(30)
+    .default([]),
+});
+
+const TRANSLATOR_SYSTEM = `אתה המרצה הראשי ומנהל הלוקליזציה של Haile Drive AI.
+תפקידך: לקבל חומרי לימוד בעברית ולהפוך אותם לחומר מקצועי באמהרית עבור נהגי אוטובוס ומשאיות.
+
+כשבני מעלה חומר — בצע בסדר קשיח:
+
+שלב 1 — תרגום לאמהרית:
+- תרגם לאמהרית רשמית, ברורה ופדגוגית
+- מונחים טכניים: כתוב באמהרית + (מונח עברי/אנגלי) בסוגריים
+- דוגמה: የማቆሚያ ርቀት (מרחק עצירה) | የምላሽ ጊዜ (זמן תגובה)
+
+מונחים קבועים — תמיד כך:
+- בלם פליטה = ብሬክ ማጥፊያ
+- מרחק עצירה = የማቆሚያ ርቀት
+- זמן תגובה = የምላሽ ጊዜ
+- מערכת היגוי = የአቅጣጫ ቁጥጥር ሥርዓት
+- עומס ציר = የዘንግ ጭነት
+- רישיון מקצועי = ሙያዊ ፈቃድ
+- נהיגה בטוחה = ደህንነቱ የተጠበቀ ሹፌርነት
+- אוטובוס = አውቶቡስ
+- תמרור עצור = ቁም ምልክት
+- מרב"ד = የሙያ ብቃት ምዘና (מרב"ד)
+
+שלב 2 — סיווג JSON:
+{
+  "title_he": "כותרת בעברית",
+  "title_am": "ርዕስ באמהרית",
+  "subject": "חוקי_תנועה | הכנה_למרב\\"ד | מכונאות_רכב_כבד | בטיחות_והסעה",
+  "tier": "מתחיל | מתקדם | מקצועי",
+  "target_class": "שם הכיתה שבני יציין",
+  "language": "am",
+  "content_he": "תוכן עברי מלא",
+  "content_am": "ይዘት አማርኛ"
+}
+
+שלב 3 — פלט מוכן לשמירה:
+הצג את התוכן המתורגם מוכן להכנסה ל-Supabase materials.
+
+כללים:
+- טון מקצועי, חינוכי, ישיר — בלי הקדמות
+- אל תמציא נתונים
+- אם חסר מידע לסיווג — שאל את בני לפני הביצוע
+- אם חסר שם כיתה — שאל: "לאיזו כיתה לשייך?"`;
+
+export const aiTranslatorChat = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => TranslatorInputSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: roles } = await context.supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId);
+    if (!roles?.some((r) => r.role === "owner")) {
+      return { error: "forbidden", text: "" };
+    }
+
+    const apiKey = process.env.LOVABLE_API_KEY;
+    if (!apiKey) return { error: "no_key", text: "חסר LOVABLE_API_KEY בהגדרות." };
+
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-pro",
+        max_tokens: 4096,
+        messages: [
+          { role: "system", content: TRANSLATOR_SYSTEM },
+          ...data.history,
+          { role: "user", content: data.message },
+        ],
+      }),
+    });
+
+    if (res.status === 401) return { error: "unauthorized", text: "" };
+    if (res.status === 402) return { error: "no_credits", text: "אין יתרת קרדיטים ב-Lovable AI. הוסף קרדיטים בהגדרות." };
+    if (res.status === 429) return { error: "rate_limited", text: "" };
+    if (!res.ok) {
+      const t = await res.text();
+      console.error("AI Translator error", res.status, t);
+      return { error: "ai_error", text: "" };
+    }
+
+    const json = await res.json();
+    const text: string = json?.choices?.[0]?.message?.content ?? "";
+    return { error: null as null, text };
+  });
