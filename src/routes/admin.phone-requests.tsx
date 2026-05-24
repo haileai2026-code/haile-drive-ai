@@ -95,6 +95,7 @@ function AdminPhoneRequestsPage() {
                 <TableRow>
                   <TableHead>טלפון</TableHead>
                   <TableHead>קוד</TableHead>
+
                   <TableHead>סטטוס</TableHead>
                   <TableHead>נשלח</TableHead>
                   <TableHead>פעולות</TableHead>
