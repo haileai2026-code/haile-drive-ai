@@ -28,7 +28,6 @@ export const Route = createFileRoute("/admin/phone-requests")({
 type Row = {
   id: string;
   phone: string;
-  otp_code: string;
   status: string;
   created_at: string;
   expires_at: string;
@@ -96,6 +95,7 @@ function AdminPhoneRequestsPage() {
                 <TableRow>
                   <TableHead>טלפון</TableHead>
                   <TableHead>קוד</TableHead>
+
                   <TableHead>סטטוס</TableHead>
                   <TableHead>נשלח</TableHead>
                   <TableHead>פעולות</TableHead>
@@ -107,7 +107,7 @@ function AdminPhoneRequestsPage() {
                   return (
                     <TableRow key={r.id}>
                       <TableCell className="font-mono">{r.phone}</TableCell>
-                      <TableCell className="font-mono text-lg font-bold tracking-widest">{r.otp_code}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground">נשלח בהודעת הכרזה לבעלים</TableCell>
                       <TableCell>
                         <Badge variant={
                           r.status === "approved" ? "default" :
