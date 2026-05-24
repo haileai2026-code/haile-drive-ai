@@ -85,9 +85,9 @@ export const verifyPhoneOtp = createServerFn({ method: "POST" })
 
     const { data: req, error } = await supabaseAdmin
       .from("phone_login_requests")
-      .select("id, status, otp_code, expires_at")
+      .select("id, status, otp_hash, expires_at")
       .eq("phone", phone)
-      .eq("otp_code", data.otp)
+      .eq("otp_hash", hashOtp(data.otp))
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
