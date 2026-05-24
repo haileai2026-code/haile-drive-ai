@@ -107,7 +107,7 @@ function AdminPhoneRequestsPage() {
                   return (
                     <TableRow key={r.id}>
                       <TableCell className="font-mono">{r.phone}</TableCell>
-                      <TableCell className="font-mono text-lg font-bold tracking-widest">{r.otp_code}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground">נשלח בהודעת הכרזה לבעלים</TableCell>
                       <TableCell>
                         <Badge variant={
                           r.status === "approved" ? "default" :
