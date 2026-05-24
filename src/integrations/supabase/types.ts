@@ -758,7 +758,7 @@ export type Database = {
           created_at: string
           expires_at: string
           id: string
-          otp_code: string
+          otp_hash: string | null
           phone: string
           status: string
           updated_at: string
@@ -768,7 +768,7 @@ export type Database = {
           created_at?: string
           expires_at?: string
           id?: string
-          otp_code: string
+          otp_hash?: string | null
           phone: string
           status?: string
           updated_at?: string
@@ -778,7 +778,7 @@ export type Database = {
           created_at?: string
           expires_at?: string
           id?: string
-          otp_code?: string
+          otp_hash?: string | null
           phone?: string
           status?: string
           updated_at?: string
