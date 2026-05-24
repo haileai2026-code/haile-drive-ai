@@ -46,7 +46,7 @@ export const requestPhoneOtp = createServerFn({ method: "POST" })
 
     const { data: inserted, error } = await supabaseAdmin
       .from("phone_login_requests")
-      .insert({ phone, otp_hash: hashOtp(otp), status: "pending" })
+      .insert({ phone, otp_hash: await hashOtp(otp), status: "pending" })
       .select("id")
       .single();
     if (error) throw new Error(error.message);
