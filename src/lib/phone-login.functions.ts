@@ -89,7 +89,7 @@ export const verifyPhoneOtp = createServerFn({ method: "POST" })
       .from("phone_login_requests")
       .select("id, status, otp_hash, expires_at")
       .eq("phone", phone)
-      .eq("otp_hash", hashOtp(data.otp))
+      .eq("otp_hash", await hashOtp(data.otp))
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
