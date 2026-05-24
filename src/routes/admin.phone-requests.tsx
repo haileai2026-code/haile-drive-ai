@@ -28,7 +28,6 @@ export const Route = createFileRoute("/admin/phone-requests")({
 type Row = {
   id: string;
   phone: string;
-  otp_code: string;
   status: string;
   created_at: string;
   expires_at: string;
