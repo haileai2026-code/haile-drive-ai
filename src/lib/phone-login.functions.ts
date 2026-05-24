@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { createHash } from "crypto";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { phoneToEmail, normalizePhone } from "./sms/config";
@@ -9,8 +8,11 @@ function generateOtp(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-function hashOtp(otp: string): string {
-  return createHash("sha256").update(otp).digest("hex");
+async function hashOtp(otp: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(otp));
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 function generateTempPassword(): string {
@@ -44,7 +46,7 @@ export const requestPhoneOtp = createServerFn({ method: "POST" })
 
     const { data: inserted, error } = await supabaseAdmin
       .from("phone_login_requests")
-      .insert({ phone, otp_hash: hashOtp(otp), status: "pending" })
+      .insert({ phone, otp_hash: await hashOtp(otp), status: "pending" })
       .select("id")
       .single();
     if (error) throw new Error(error.message);
@@ -87,7 +89,7 @@ export const verifyPhoneOtp = createServerFn({ method: "POST" })
       .from("phone_login_requests")
       .select("id, status, otp_hash, expires_at")
       .eq("phone", phone)
-      .eq("otp_hash", hashOtp(data.otp))
+      .eq("otp_hash", await hashOtp(data.otp))
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
