@@ -28,6 +28,27 @@ function AdminOverviewContent() {
   const teachersQ = useQuery({ queryKey: ["teachers"], queryFn: adminApi.listTeachers, enabled: canQuery });
   const materialsQ = useQuery({ queryKey: ["materials"], queryFn: () => adminApi.listMaterials(), enabled: canQuery });
   const examsQ = useQuery({ queryKey: ["exams"], queryFn: adminApi.listExams, enabled: canQuery });
+  const beqaQ = useQuery({
+    queryKey: ["beqa-stats"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("beqa_diagnostic_sessions")
+        .select("recommendation, final_beqa_score")
+        .not("final_beqa_score", "is", null);
+      if (error) throw error;
+      return data ?? [];
+    },
+    enabled: canQuery,
+  });
+
+  const beqaStats = beqaQ.data ?? [];
+  const beqaTotal = beqaStats.length;
+  const gradeA = beqaStats.filter((s) => s.recommendation === "A").length;
+  const gradeB = beqaStats.filter((s) => s.recommendation === "B").length;
+  const gradeC = beqaStats.filter((s) => s.recommendation === "C").length;
+  const avgScore = beqaTotal > 0
+    ? (beqaStats.reduce((sum, s) => sum + Number(s.final_beqa_score ?? 0), 0) / beqaTotal).toFixed(1)
+    : "0";
 
   const candidates = candidatesQ.data ?? [];
   const active = candidates.filter((c) => c.status === "active").length;
