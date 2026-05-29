@@ -28,6 +28,27 @@ function AdminOverviewContent() {
   const teachersQ = useQuery({ queryKey: ["teachers"], queryFn: adminApi.listTeachers, enabled: canQuery });
   const materialsQ = useQuery({ queryKey: ["materials"], queryFn: () => adminApi.listMaterials(), enabled: canQuery });
   const examsQ = useQuery({ queryKey: ["exams"], queryFn: adminApi.listExams, enabled: canQuery });
+  const beqaQ = useQuery({
+    queryKey: ["beqa-stats"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("beqa_diagnostic_sessions")
+        .select("recommendation, final_beqa_score")
+        .not("final_beqa_score", "is", null);
+      if (error) throw error;
+      return data ?? [];
+    },
+    enabled: canQuery,
+  });
+
+  const beqaStats = beqaQ.data ?? [];
+  const beqaTotal = beqaStats.length;
+  const gradeA = beqaStats.filter((s) => s.recommendation === "A").length;
+  const gradeB = beqaStats.filter((s) => s.recommendation === "B").length;
+  const gradeC = beqaStats.filter((s) => s.recommendation === "C").length;
+  const avgScore = beqaTotal > 0
+    ? (beqaStats.reduce((sum, s) => sum + Number(s.final_beqa_score ?? 0), 0) / beqaTotal).toFixed(1)
+    : "0";
 
   const candidates = candidatesQ.data ?? [];
   const active = candidates.filter((c) => c.status === "active").length;
@@ -81,6 +102,16 @@ function AdminOverviewContent() {
         <StatCard label="מרצים" value={teachersQ.data?.length ?? 0} icon={UserCog} />
         <StatCard label="חומרים" value={materialsQ.data?.length ?? 0} icon={FileText} />
         <StatCard label="מבחנים" value={examsQ.data?.length ?? 0} icon={FileText} />
+      </div>
+
+      <div className="mt-8">
+        <h3 className="mb-3 text-lg font-bold tracking-tight">📊 מדדי אבחון BEQA</h3>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard label="סה״כ אבחונים" value={beqaTotal} tone="gold" icon={FileText} />
+          <StatCard label="ממוצע ציון" value={`${avgScore}/100`} icon={FileText} />
+          <StatCard label="מומלצים (A+B)" value={gradeA + gradeB} tone="success" icon={FileText} />
+          <StatCard label="לא מומלצים (C)" value={gradeC} tone="danger" icon={FileText} />
+        </div>
       </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
