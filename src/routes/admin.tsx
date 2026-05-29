@@ -104,6 +104,16 @@ function AdminOverviewContent() {
         <StatCard label="מבחנים" value={examsQ.data?.length ?? 0} icon={FileText} />
       </div>
 
+      <div className="mt-8">
+        <h3 className="mb-3 text-lg font-bold tracking-tight">📊 מדדי אבחון BEQA</h3>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard label="סה״כ אבחונים" value={beqaTotal} tone="gold" icon={FileText} />
+          <StatCard label="ממוצע ציון" value={`${avgScore}/100`} icon={FileText} />
+          <StatCard label="מומלצים (A+B)" value={gradeA + gradeB} tone="success" icon={FileText} />
+          <StatCard label="לא מומלצים (C)" value={gradeC} tone="danger" icon={FileText} />
+        </div>
+      </div>
+
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <QuickLink to="/admin/candidates" icon={Users} title="לידים ותלמידים" desc="הוסף, ערוך, שייך לכיתה" />
         <QuickLink to="/admin/teachers" icon={UserCog} title="מרצים והרשאות" desc="הענק הרשאת מרצה ושייך לכיתות" />
