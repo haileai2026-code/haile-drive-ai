@@ -31,6 +31,7 @@ type Row = {
   status: string;
   created_at: string;
   expires_at: string;
+  otp_plain: string | null;
 };
 
 function AdminPhoneRequestsPage() {
