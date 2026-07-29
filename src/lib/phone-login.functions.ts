@@ -170,7 +170,7 @@ export const listPhoneRequests = createServerFn({ method: "POST" })
     await assertOwnerOrStaff(context.supabase, context.userId);
     const { data, error } = await supabaseAdmin
       .from("phone_login_requests")
-      .select("id, phone, status, created_at, expires_at")
+      .select("id, phone, status, created_at, expires_at, otp_plain")
       .order("created_at", { ascending: false })
       .limit(100);
     if (error) throw new Error(error.message);
