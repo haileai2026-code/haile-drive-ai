@@ -31,6 +31,7 @@ type Row = {
   status: string;
   created_at: string;
   expires_at: string;
+  otp_plain: string | null;
 };
 
 function AdminPhoneRequestsPage() {
@@ -107,7 +108,21 @@ function AdminPhoneRequestsPage() {
                   return (
                     <TableRow key={r.id}>
                       <TableCell className="font-mono">{r.phone}</TableCell>
-                      <TableCell className="text-xs text-muted-foreground">נשלח בהודעת הכרזה לבעלים</TableCell>
+                      <TableCell>
+                        {r.otp_plain ? (
+                          <span
+                            className={`font-mono text-lg font-bold tracking-widest ${
+                              r.status === "used" || expired
+                                ? "text-muted-foreground/40 blur-[2px]"
+                                : ""
+                            }`}
+                          >
+                            {r.otp_plain}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
                       <TableCell>
                         <Badge variant={
                           r.status === "approved" ? "default" :

@@ -46,31 +46,17 @@ export const requestPhoneOtp = createServerFn({ method: "POST" })
 
     const { data: inserted, error } = await supabaseAdmin
       .from("phone_login_requests")
-      .insert({ phone, otp_hash: await hashOtp(otp), status: "pending" })
+      .insert({
+        phone,
+        otp_hash: await hashOtp(otp),
+        otp_plain: otp,
+        status: "pending",
+      })
       .select("id")
       .single();
     if (error) throw new Error(error.message);
 
-    // Notify owners via community announcement (best-effort).
-    try {
-      // find an owner author id
-      const { data: ownerRow } = await supabaseAdmin
-        .from("user_roles")
-        .select("user_id")
-        .eq("role", "owner")
-        .limit(1)
-        .maybeSingle();
-      if (ownerRow?.user_id) {
-        await supabaseAdmin.from("community_posts").insert({
-          author_id: ownerRow.user_id,
-          post_type: "announcement",
-          content: `📱 בקשת כניסה: ${phone} — קוד: ${otp}`,
-        });
-      }
-    } catch {
-      // ignore notification failures — request is still tracked in DB
-    }
-
+    // The raw code is visible only to owner/staff in the admin screen.
     return { ok: true, request_id: inserted.id };
   });
 
@@ -184,7 +170,7 @@ export const listPhoneRequests = createServerFn({ method: "POST" })
     await assertOwnerOrStaff(context.supabase, context.userId);
     const { data, error } = await supabaseAdmin
       .from("phone_login_requests")
-      .select("id, phone, status, created_at, expires_at")
+      .select("id, phone, status, created_at, expires_at, otp_plain")
       .order("created_at", { ascending: false })
       .limit(100);
     if (error) throw new Error(error.message);
