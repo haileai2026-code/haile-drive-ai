@@ -110,6 +110,36 @@ export type Database = {
         }
         Relationships: []
       }
+      biometric_consents: {
+        Row: {
+          consent_text_version: string
+          consented_at: string
+          created_at: string
+          granted: boolean
+          id: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          consent_text_version: string
+          consented_at?: string
+          created_at?: string
+          granted?: boolean
+          id?: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          consent_text_version?: string
+          consented_at?: string
+          created_at?: string
+          granted?: boolean
+          id?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       candidate_documents: {
         Row: {
           candidate_id: string
