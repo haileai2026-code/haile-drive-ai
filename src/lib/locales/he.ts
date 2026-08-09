@@ -44,6 +44,18 @@ const dict: Partial<Record<StringKey, string>> = {
   cardLangsDesc: "החלף בכל רגע — תמיכה מלאה בעברית ואמהרית.",
   cardExam: "מוכן למבחן",
   cardExamDesc: "מבחני תרגול וסימולציית מבחן מלאה.",
+  consentTitle: "הסכמה למדידה באמצעות מצלמה",
+  consentIntro: "האבחון הזה ישתמש במצלמה שלך כדי למדוד את קצב הלב ולנתח הבעות פנים במהלך המבחן.",
+  consentWhyLabel: "למה",
+  consentWhy: "כדי להעריך את המוכנות והכשירות שלך למבחן הנהיגה המקצועי.",
+  consentRetentionLabel: "שמירת מידע",
+  consentRetention: "המידע מעובד עבור האבחון הזה בלבד, ונשמר למשך הזמן הנדרש לתהליך ההסמכה שלך.",
+  consentCheckbox: "אני מבין/ה ומסכים/ה למדידת קצב לב והבעות פנים באמצעות מצלמה לצורך האבחון הזה.",
+  consentContinue: "המשך",
+  consentDecline: "אני לא מסכים/ה",
+  consentDeclinedTitle: "האבחון לא התחיל",
+  consentDeclinedMsg: "אין בעיה — ללא הסכמתך לא נוכל לבצע אבחון באמצעות מצלמה. לא בוצעה שום מדידה והמצלמה לא נפתחה. אפשר לחזור בכל עת או לפנות למוסד לקבלת חלופה.",
+  consentBackHome: "חזרה לדף הבית",
 };
 
 export default dict;

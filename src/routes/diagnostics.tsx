@@ -12,6 +12,7 @@ import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { createTTS, createFaceAnalysis, createRPPG, USE_REAL_APIS } from "@/lib/diagnostics/config";
 import type { TTSProvider, FaceAnalysisProvider, RPPGProvider, FaceEmotion } from "@/lib/diagnostics/interfaces";
+import { BiometricConsentScreen, hasGrantedBiometricConsent } from "@/components/diagnostics/BiometricConsentScreen";
 import {
   questionsFor, ttsTextFor, COMMUNITY_LABEL, COMMUNITY_TTS_LANG,
   type Community, type DiagQuestion,
@@ -22,7 +23,7 @@ export const Route = createFileRoute("/diagnostics")({
   component: DiagnosticsPage,
 });
 
-type Phase = "welcome" | "community" | "calibration" | "questions" | "pressure" | "results";
+type Phase = "welcome" | "consent" | "community" | "calibration" | "questions" | "pressure" | "results";
 
 type AnswerRow = {
   qId: string;
@@ -128,6 +129,10 @@ function DiagnosticsPage() {
   }
 
   async function requestCameraAndStart() {
+    // Hard gate: never touch the camera without a stored granted consent.
+    if (!user) { toast.error("צריך להיות מחובר"); return; }
+    const consented = await hasGrantedBiometricConsent(user.id);
+    if (!consented) { setPhase("consent"); return; }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user", width: 640, height: 480 },
@@ -438,7 +443,11 @@ function DiagnosticsPage() {
   return (
     <AppShell requireAuth={false}>
       <div dir="rtl" className="mx-auto max-w-6xl py-6 space-y-4">
-        {phase === "welcome" && <Welcome onStart={requestCameraAndStart} />}
+        {phase === "welcome" && <Welcome onStart={() => setPhase("consent")} />}
+
+        {phase === "consent" && user && (
+          <BiometricConsentScreen studentId={user.id} onGranted={requestCameraAndStart} />
+        )}
 
         {phase === "community" && <CommunityChooser onPick={chooseCommunity} videoRef={videoRef} />}
 
