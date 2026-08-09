@@ -43,6 +43,18 @@ const dict = {
   cardLangsDesc: "Switch anytime — full RTL for Hebrew & Amharic.",
   cardExam: "Exam Ready",
   cardExamDesc: "Practice quizzes and full exam simulation.",
+  consentTitle: "Camera-based measurement consent",
+  consentIntro: "This assessment will use your camera to measure your heart rate and analyze facial expressions during the test.",
+  consentWhyLabel: "Why",
+  consentWhy: "To assess your readiness and fitness for the professional driving exam.",
+  consentRetentionLabel: "Data retention",
+  consentRetention: "This data is processed for this assessment only, and kept for the duration required for your certification process.",
+  consentCheckbox: "I understand and consent to camera-based heart rate and facial expression measurement for this assessment.",
+  consentContinue: "Continue",
+  consentDecline: "I do not consent",
+  consentDeclinedTitle: "Assessment not started",
+  consentDeclinedMsg: "No problem — without your consent we cannot run the camera-based assessment. Nothing was measured and no camera was opened. You can come back at any time, or contact the school for an alternative.",
+  consentBackHome: "Back to home",
 };
 
 export type StringKey = keyof typeof dict;

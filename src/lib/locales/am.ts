@@ -44,6 +44,18 @@ const dict: Partial<Record<StringKey, string>> = {
   cardLangsDesc: "በማንኛውም ጊዜ ይቀይሩ — ለዕብራይስጥና አማርኛ ሙሉ RTL።",
   cardExam: "ለፈተና ዝግጁ",
   cardExamDesc: "የልምምድ ፈተናዎችና ሙሉ የፈተና ማስመሰል።",
+  consentTitle: "በካሜራ ለሚደረግ ልኬት ፈቃድ",
+  consentIntro: "ይህ ምርመራ በፈተናው ወቅት የልብ ምትዎን ለመለካትና የፊት አገላለጽዎን ለመተንተን ካሜራዎን ይጠቀማል።",
+  consentWhyLabel: "ለምን",
+  consentWhy: "ለሙያዊ የመንዳት ፈተና ዝግጁነትዎን ለመገምገም።",
+  consentRetentionLabel: "የመረጃ አያያዝ",
+  consentRetention: "ይህ መረጃ ለዚህ ምርመራ ብቻ ይሰራል፣ እና ለምስክር ወረቀት ሂደትዎ ለሚያስፈልገው ጊዜ ይቀመጣል።",
+  consentCheckbox: "በካሜራ የልብ ምትና የፊት አገላለጽ ልኬት ለዚህ ምርመራ እንዲደረግ ተረድቻለሁ እና ተስማምቻለሁ።",
+  consentContinue: "ቀጥል",
+  consentDecline: "አልስማማም",
+  consentDeclinedTitle: "ምርመራው አልተጀመረም",
+  consentDeclinedMsg: "ችግር የለም — ያለ ፈቃድዎ በካሜራ የሚደረግ ምርመራ ማካሄድ አንችልም። ምንም ልኬት አልተደረገም እና ካሜራው አልተከፈተም። በማንኛውም ጊዜ መመለስ ወይም ሌላ አማራጭ ለማግኘት ትምህርት ቤቱን ማነጋገር ይችላሉ።",
+  consentBackHome: "ወደ መነሻ ተመለስ",
 };
 
 export default dict;
