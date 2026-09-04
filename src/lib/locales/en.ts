@@ -55,6 +55,8 @@ const dict = {
   consentDeclinedTitle: "Assessment not started",
   consentDeclinedMsg: "No problem — without your consent we cannot run the camera-based assessment. Nothing was measured and no camera was opened. You can come back at any time, or contact the school for an alternative.",
   consentBackHome: "Back to home",
+  otpSentSms: "Your login code was sent by SMS — enter it below.",
+  otpSentManual: "Code requested — wait for admin approval, then enter the code.",
 };
 
 export type StringKey = keyof typeof dict;

@@ -22,6 +22,8 @@ const dict: Partial<Record<StringKey, string>> = {
   consentDeclinedTitle: "Endikna kipatdoh hihe",
   consentDeclinedMsg: "Boina aumpoi — naphalna louvin camera hmanga endikna kabol theilou ding ahi. Imacha tetoh aum poi chule camera kihonpoi. Itih hijongle nahung kile thei, ahilouleh school komah adang naholthei.",
   consentBackHome: "Inlam kile",
+  otpSentSms: "Na lutna code SMS in kihanlha tan — hialah ngel in.",
+  otpSentManual: "Code kihol tan — admin phalna ngoj un, chun code ngel in.",
 };
 
 export default dict;

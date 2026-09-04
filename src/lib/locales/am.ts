@@ -56,6 +56,8 @@ const dict: Partial<Record<StringKey, string>> = {
   consentDeclinedTitle: "ምርመራው አልተጀመረም",
   consentDeclinedMsg: "ችግር የለም — ያለ ፈቃድዎ በካሜራ የሚደረግ ምርመራ ማካሄድ አንችልም። ምንም ልኬት አልተደረገም እና ካሜራው አልተከፈተም። በማንኛውም ጊዜ መመለስ ወይም ሌላ አማራጭ ለማግኘት ትምህርት ቤቱን ማነጋገር ይችላሉ።",
   consentBackHome: "ወደ መነሻ ተመለስ",
+  otpSentSms: "የመግቢያ ኮድዎ በ SMS ተልኳል — ከታች ያስገቡት።",
+  otpSentManual: "ኮዱ ተጠይቋል — የአስተዳዳሪ ፈቃድ ይጠብቁ እና ኮዱን ያስገቡ።",
 };
 
 export default dict;
