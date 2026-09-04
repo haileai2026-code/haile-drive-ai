@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { phoneToEmail, normalizePhone } from "./sms/config";
+import { sendViaTwilio, normalizePhone as toE164 } from "./notifications.functions";
 
 function generateOtp(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -56,8 +57,35 @@ export const requestPhoneOtp = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
 
-    // The raw code is visible only to owner/staff in the admin screen.
-    return { ok: true, request_id: inserted.id };
+    const request_id = inserted.id;
+
+    // Twilio path: send the OTP via SMS. The SMS itself is the verification,
+    // so on success the request is auto-approved and the plain code wiped.
+    const provider = (process.env.SMS_PROVIDER ?? "manual") as "manual" | "twilio";
+    if (
+      provider === "twilio" &&
+      process.env.TWILIO_ACCOUNT_SID &&
+      process.env.TWILIO_AUTH_TOKEN
+    ) {
+      const r = await sendViaTwilio({
+        channel: "sms",
+        to: toE164(data.phone) ?? `+${phone}`,
+        body: `קוד הכניסה שלך ל-Haile AI: ${otp}`,
+      });
+      if (r.ok) {
+        await supabaseAdmin
+          .from("phone_login_requests")
+          .update({ status: "approved", otp_plain: null })
+          .eq("id", request_id);
+        return { ok: true, request_id, delivery: "sms" as const };
+      }
+      // Twilio failed — keep the manual admin flow as fallback. Never throw:
+      // an SMS outage must not block a student from logging in manually.
+      return { ok: true, request_id, delivery: "manual" as const, warning: r.error };
+    }
+
+    // Manual mode: the raw code is visible only to owner/staff in the admin screen.
+    return { ok: true, request_id, delivery: "manual" as const };
   });
 
 // Step 2 — student submits OTP. If approved → create / sign in user.
