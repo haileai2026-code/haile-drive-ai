@@ -24,7 +24,7 @@ function normalizePhone(raw: string): string | null {
   return "+" + t;
 }
 
-async function sendViaTwilio(opts: {
+export async function sendViaTwilio(opts: {
   channel: Channel;
   to: string;
   body: string;
