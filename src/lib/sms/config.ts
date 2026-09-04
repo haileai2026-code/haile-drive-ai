@@ -1,27 +1,21 @@
 // SMS provider configuration.
-// Switch SMS_PROVIDER to enable a real SMS gateway.
-// Options: 'manual' | 'twilio'
 //
-// Manual mode (current): OTP requests are stored in `phone_login_requests` and
-// surfaced to the owner via a community announcement + the admin panel
-// (/admin/phone-requests). The owner approves the request and the student
-// can then complete sign-in with the same OTP.
+// Provider selection: set the SERVER-SIDE env var SMS_PROVIDER to
+// "manual" (default) or "twilio".
 //
-// Twilio mode (future): set TWILIO_CONFIG values via Lovable Secrets:
-//   VITE_TWILIO_ACCOUNT_SID
-//   VITE_TWILIO_AUTH_TOKEN
-//   VITE_TWILIO_PHONE_NUMBER
-// Then send the OTP via SMS from a server function instead of the manual flow.
+// SECURITY: Twilio credentials must ONLY exist as server-side env vars:
+//   TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_SMS_FROM, TWILIO_WHATSAPP_FROM
+// Never use VITE_-prefixed names for them — anything VITE_ is bundled into
+// the browser JavaScript and would expose the auth token to every visitor.
+// The actual send logic lives in src/lib/notifications.functions.ts (server-side).
 
 export type SmsProviderName = "manual" | "twilio";
 
-export const SMS_PROVIDER: SmsProviderName = "manual";
-
-export const TWILIO_CONFIG = {
-  accountSid: import.meta.env.VITE_TWILIO_ACCOUNT_SID ?? "",
-  authToken: import.meta.env.VITE_TWILIO_AUTH_TOKEN ?? "",
-  fromNumber: import.meta.env.VITE_TWILIO_PHONE_NUMBER ?? "",
-};
+// Imported by client code too — only touch process.env when it exists.
+export const SMS_PROVIDER: SmsProviderName =
+  (typeof process !== "undefined"
+    ? (process.env.SMS_PROVIDER as SmsProviderName | undefined)
+    : undefined) ?? "manual";
 
 // Domain used to synthesize a Supabase auth email from a phone number.
 // Format: <digits>@haileai.app

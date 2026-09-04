@@ -26,6 +26,8 @@ const dict: Partial<Record<StringKey, string>> = {
   consentDeclinedTitle: "Évaluation non commencée",
   consentDeclinedMsg: "Pas de problème — sans votre consentement, nous ne pouvons pas réaliser l'évaluation par caméra. Aucune mesure n'a été effectuée et la caméra n'a pas été ouverte. Vous pouvez revenir à tout moment ou contacter l'école pour une alternative.",
   consentBackHome: "Retour à l'accueil",
+  otpSentSms: "Votre code de connexion a été envoyé par SMS — saisissez-le ci-dessous.",
+  otpSentManual: "Code demandé — attendez l'approbation de l'administrateur, puis saisissez le code.",
 };
 
 export default dict;

@@ -99,9 +99,9 @@ function LoginPage() {
     }
     setBusy(true);
     try {
-      await requestOtpFn({ data: { phone } });
+      const res = await requestOtpFn({ data: { phone } });
       setOtpSent(true);
-      setInfo("הקוד נשלח — המתן לאישור מנהל ואז הזן/י את הקוד");
+      setInfo(res.delivery === "sms" ? t("otpSentSms") : t("otpSentManual"));
     } catch (e: any) {
       setErr(e?.message ?? "שגיאה בשליחת הקוד");
     } finally { setBusy(false); }

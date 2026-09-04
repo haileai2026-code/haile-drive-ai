@@ -56,6 +56,8 @@ const dict: Partial<Record<StringKey, string>> = {
   consentDeclinedTitle: "האבחון לא התחיל",
   consentDeclinedMsg: "אין בעיה — ללא הסכמתך לא נוכל לבצע אבחון באמצעות מצלמה. לא בוצעה שום מדידה והמצלמה לא נפתחה. אפשר לחזור בכל עת או לפנות למוסד לקבלת חלופה.",
   consentBackHome: "חזרה לדף הבית",
+  otpSentSms: "הקוד נשלח אליך ב-SMS — הזן/י אותו למטה.",
+  otpSentManual: "הקוד נשלח — המתן לאישור מנהל ואז הזן/י את הקוד",
 };
 
 export default dict;
