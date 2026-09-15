@@ -26,6 +26,7 @@ import { Route as BeqaHistoryRouteImport } from './routes/beqa-history'
 import { Route as AiRouteImport } from './routes/ai'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as TeacherAttendanceRouteImport } from './routes/teacher.attendance'
 import { Route as LessonsLessonIdRouteImport } from './routes/lessons.$lessonId'
 import { Route as ClassroomSessionIdRouteImport } from './routes/classroom.$sessionId'
@@ -55,6 +56,7 @@ import { Route as AdminBranchesRouteImport } from './routes/admin.branches'
 import { Route as AdminBeqaRouteImport } from './routes/admin.beqa'
 import { Route as AdminAttendanceRouteImport } from './routes/admin.attendance'
 import { Route as AdminAiAgentRouteImport } from './routes/admin.ai-agent'
+import { Route as CoursesCourseIdIndexRouteImport } from './routes/courses.$courseId.index'
 import { Route as AdminExamsExamIdRouteImport } from './routes/admin.exams.$examId'
 import { Route as AdminAttendanceDrilldownRouteImport } from './routes/admin.attendance.drilldown'
 import { Route as ApiPublicHooksNotificationsTickRouteImport } from './routes/api/public/hooks/notifications-tick'
@@ -142,6 +144,11 @@ const AdminRoute = AdminRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoursesIndexRoute = CoursesIndexRouteImport.update({
+  id: '/courses/',
+  path: '/courses/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TeacherAttendanceRoute = TeacherAttendanceRouteImport.update({
@@ -289,6 +296,11 @@ const AdminAiAgentRoute = AdminAiAgentRouteImport.update({
   path: '/ai-agent',
   getParentRoute: () => AdminRoute,
 } as any)
+const CoursesCourseIdIndexRoute = CoursesCourseIdIndexRouteImport.update({
+  id: '/courses/$courseId/',
+  path: '/courses/$courseId/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminExamsExamIdRoute = AdminExamsExamIdRouteImport.update({
   id: '/$examId',
   path: '/$examId',
@@ -354,8 +366,10 @@ export interface FileRoutesByFullPath {
   '/classroom/$sessionId': typeof ClassroomSessionIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/teacher/attendance': typeof TeacherAttendanceRoute
+  '/courses/': typeof CoursesIndexRoute
   '/admin/attendance/drilldown': typeof AdminAttendanceDrilldownRoute
   '/admin/exams/$examId': typeof AdminExamsExamIdRoute
+  '/courses/$courseId/': typeof CoursesCourseIdIndexRoute
   '/api/public/hooks/notifications-tick': typeof ApiPublicHooksNotificationsTickRoute
 }
 export interface FileRoutesByTo {
@@ -405,8 +419,10 @@ export interface FileRoutesByTo {
   '/classroom/$sessionId': typeof ClassroomSessionIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/teacher/attendance': typeof TeacherAttendanceRoute
+  '/courses': typeof CoursesIndexRoute
   '/admin/attendance/drilldown': typeof AdminAttendanceDrilldownRoute
   '/admin/exams/$examId': typeof AdminExamsExamIdRoute
+  '/courses/$courseId': typeof CoursesCourseIdIndexRoute
   '/api/public/hooks/notifications-tick': typeof ApiPublicHooksNotificationsTickRoute
 }
 export interface FileRoutesById {
@@ -457,8 +473,10 @@ export interface FileRoutesById {
   '/classroom/$sessionId': typeof ClassroomSessionIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
   '/teacher/attendance': typeof TeacherAttendanceRoute
+  '/courses/': typeof CoursesIndexRoute
   '/admin/attendance/drilldown': typeof AdminAttendanceDrilldownRoute
   '/admin/exams/$examId': typeof AdminExamsExamIdRoute
+  '/courses/$courseId/': typeof CoursesCourseIdIndexRoute
   '/api/public/hooks/notifications-tick': typeof ApiPublicHooksNotificationsTickRoute
 }
 export interface FileRouteTypes {
@@ -510,8 +528,10 @@ export interface FileRouteTypes {
     | '/classroom/$sessionId'
     | '/lessons/$lessonId'
     | '/teacher/attendance'
+    | '/courses/'
     | '/admin/attendance/drilldown'
     | '/admin/exams/$examId'
+    | '/courses/$courseId/'
     | '/api/public/hooks/notifications-tick'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -561,8 +581,10 @@ export interface FileRouteTypes {
     | '/classroom/$sessionId'
     | '/lessons/$lessonId'
     | '/teacher/attendance'
+    | '/courses'
     | '/admin/attendance/drilldown'
     | '/admin/exams/$examId'
+    | '/courses/$courseId'
     | '/api/public/hooks/notifications-tick'
   id:
     | '__root__'
@@ -612,8 +634,10 @@ export interface FileRouteTypes {
     | '/classroom/$sessionId'
     | '/lessons/$lessonId'
     | '/teacher/attendance'
+    | '/courses/'
     | '/admin/attendance/drilldown'
     | '/admin/exams/$examId'
+    | '/courses/$courseId/'
     | '/api/public/hooks/notifications-tick'
   fileRoutesById: FileRoutesById
 }
@@ -636,6 +660,8 @@ export interface RootRouteChildren {
   ScheduleRoute: typeof ScheduleRoute
   TeacherRoute: typeof TeacherRouteWithChildren
   ClassroomSessionIdRoute: typeof ClassroomSessionIdRoute
+  CoursesIndexRoute: typeof CoursesIndexRoute
+  CoursesCourseIdIndexRoute: typeof CoursesCourseIdIndexRoute
   ApiPublicHooksNotificationsTickRoute: typeof ApiPublicHooksNotificationsTickRoute
 }
 
@@ -758,6 +784,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/courses/': {
+      id: '/courses/'
+      path: '/courses'
+      fullPath: '/courses/'
+      preLoaderRoute: typeof CoursesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/teacher/attendance': {
@@ -963,6 +996,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAiAgentRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/courses/$courseId/': {
+      id: '/courses/$courseId/'
+      path: '/courses/$courseId'
+      fullPath: '/courses/$courseId/'
+      preLoaderRoute: typeof CoursesCourseIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/exams/$examId': {
       id: '/admin/exams/$examId'
       path: '/$examId'
@@ -1112,6 +1152,8 @@ const rootRouteChildren: RootRouteChildren = {
   ScheduleRoute: ScheduleRoute,
   TeacherRoute: TeacherRouteWithChildren,
   ClassroomSessionIdRoute: ClassroomSessionIdRoute,
+  CoursesIndexRoute: CoursesIndexRoute,
+  CoursesCourseIdIndexRoute: CoursesCourseIdIndexRoute,
   ApiPublicHooksNotificationsTickRoute: ApiPublicHooksNotificationsTickRoute,
 }
 export const routeTree = rootRouteImport
