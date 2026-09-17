@@ -28,6 +28,7 @@ const NAV: NavItem[] = [
   { to: "/admin/phone-requests", icon: Phone, label: "📱 בקשות כניסה בטלפון", roles: ["owner", "staff"] },
   { to: "/admin/inbox", icon: Inbox, label: "תיבת פניות ומשובים", roles: ["owner", "staff"] },
   { to: "/admin/content", icon: FileText, label: "📚 תוכן לימודי", roles: ["owner", "staff", "teacher"] },
+  { to: "/admin/courses", icon: GraduationCap, label: "🎓 קורסים מקוונים", roles: ["owner", "staff"] },
   { to: "/admin/progress", icon: TrendingUp, label: "התקדמות תלמידים", roles: ["owner", "teacher"] },
   { to: "/admin/beqa", icon: Activity, label: "BEQA — אבחון ביומטרי", roles: ["owner"] },
   { to: "/admin/diagnostics", icon: Brain, label: "🧠 דוחות אבחון", roles: ["owner", "staff"] },
