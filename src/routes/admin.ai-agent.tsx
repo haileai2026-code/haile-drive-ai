@@ -64,9 +64,9 @@ function ChatPanel({
       const res = await chatFn({ data: { message: trimmed, history: messages.slice(-20) } });
       const reply =
         res.error === "no_key"
-          ? "⚠️ חסר LOVABLE_API_KEY בהגדרות המערכת."
+          ? "⚠️ חסר מפתח AI בהגדרות המערכת (XAI_API_KEY)."
           : res.error === "no_credits"
-            ? "💳 אין יתרת קרדיטים ב-Lovable AI. הוסף קרדיטים בהגדרות הענן."
+            ? "💳 אין יתרת קרדיטים או הרשאה ל-API. בדוק את חשבון ה-AI."
             : res.error === "forbidden"
               ? "⛔ פעולה זו זמינה לבעלים בלבד."
               : res.error === "rate_limited"

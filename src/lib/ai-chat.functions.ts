@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { chatCompletion } from "@/lib/ai-gateway";
 
 const SYSTEM_PROMPT = `You are an expert driving theory teacher for Haile Drive AI.
 You specialize in teaching bus and heavy vehicle theory to students from Ethiopian, Russian, and Tribe of Manasseh communities in Israel.
@@ -53,34 +54,12 @@ export const aiChat = createServerFn({ method: "POST" })
     }).parse(input),
   )
   .handler(async ({ data }) => {
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
-
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
-        max_tokens: 1024,
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          ...data.messages,
-        ],
-      }),
+    return chatCompletion({
+      role: "tutor",
+      maxTokens: 1024,
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        ...data.messages,
+      ],
     });
-
-    if (res.status === 429) return { error: "rate_limited", text: "" };
-    if (res.status === 402) return { error: "unauthorized", text: "" };
-    if (!res.ok) {
-      const t = await res.text();
-      console.error("AI gateway error:", res.status, t);
-      return { error: "ai_error", text: "" };
-    }
-
-    const json = await res.json();
-    const text: string = json?.choices?.[0]?.message?.content ?? "";
-    return { error: null as null, text };
   });
