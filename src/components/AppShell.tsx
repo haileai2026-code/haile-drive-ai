@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { LayoutDashboard, BookOpen, Bot, Trophy, Users, LogOut, Activity, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, BookOpen, Bot, Trophy, Users, LogOut, Activity, GraduationCap, type LucideIcon } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { LangSwitcher } from "./LangSwitcher";
 import { RequireAuth } from "./RequireAuth";
@@ -13,11 +13,15 @@ type NavItem = { to: string; icon: LucideIcon; key?: "dashboard" | "lessons" | "
 const items: NavItem[] = [
   { to: "/dashboard", icon: LayoutDashboard, key: "dashboard" },
   { to: "/lessons", icon: BookOpen, key: "lessons" },
+  { to: "/courses", icon: GraduationCap, label: "קורסים" },
   { to: "/ai", icon: Bot, key: "aiTeacher" },
   { to: "/quiz", icon: Trophy, key: "quiz" },
   { to: "/diagnostics", icon: Activity, label: "BEQA" },
   { to: "/community", icon: Users, key: "community" },
 ];
+
+// ליד רואה רק את קטלוג הקורסים (עם שיעורי הדגמה) ואת הפרופיל
+const leadItems: NavItem[] = [{ to: "/courses", icon: GraduationCap, label: "קורסים" }];
 
 export function AppShell({
   children,
@@ -35,7 +39,7 @@ export function AppShell({
   const homePath = roleHomePath(role);
 
   const isLead = role === "lead";
-  const allowedForLead = loc.pathname.startsWith("/profile");
+  const allowedForLead = loc.pathname.startsWith("/profile") || loc.pathname.startsWith("/courses");
   const lockContent = isLead && !allowedForLead;
 
   const shell = (
@@ -57,10 +61,10 @@ export function AppShell({
 
       <main className="mx-auto max-w-screen-md px-4 py-6">{lockContent ? <LeadLockScreen /> : children}</main>
 
-      {!isLead && (
+      {(
         <nav className="fixed bottom-4 left-1/2 z-40 w-[calc(100%-2rem)] max-w-screen-md -translate-x-1/2 rounded-2xl border border-border/70 bg-card/90 p-2 shadow-[var(--shadow-elev)] backdrop-blur-xl">
-          <ul className="grid grid-cols-6 gap-1">
-            {items.map(({ to, icon: Icon, key, label }) => {
+          <ul className={`grid gap-1 ${isLead ? "grid-cols-1" : "grid-cols-7"}`}>
+            {(isLead ? leadItems : items).map(({ to, icon: Icon, key, label }) => {
               const active = loc.pathname.startsWith(to);
               return (
                 <li key={to}>
