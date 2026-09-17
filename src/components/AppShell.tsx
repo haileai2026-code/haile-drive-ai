@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { LayoutDashboard, BookOpen, Bot, Trophy, Users, LogOut, Activity, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, BookOpen, Bot, Trophy, Users, LogOut, Activity, GraduationCap, type LucideIcon } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { LangSwitcher } from "./LangSwitcher";
 import { RequireAuth } from "./RequireAuth";
@@ -13,11 +13,15 @@ type NavItem = { to: string; icon: LucideIcon; key?: "dashboard" | "lessons" | "
 const items: NavItem[] = [
   { to: "/dashboard", icon: LayoutDashboard, key: "dashboard" },
   { to: "/lessons", icon: BookOpen, key: "lessons" },
+  { to: "/courses", icon: GraduationCap, label: "קורסים" },
   { to: "/ai", icon: Bot, key: "aiTeacher" },
   { to: "/quiz", icon: Trophy, key: "quiz" },
   { to: "/diagnostics", icon: Activity, label: "BEQA" },
   { to: "/community", icon: Users, key: "community" },
 ];
+
+// ליד רואה רק את קטלוג הקורסים (עם שיעורי הדגמה) ואת הפרופיל
+const leadItems: NavItem[] = [{ to: "/courses", icon: GraduationCap, label: "קורסים" }];
 
 export function AppShell({
   children,
@@ -35,7 +39,7 @@ export function AppShell({
   const homePath = roleHomePath(role);
 
   const isLead = role === "lead";
-  const allowedForLead = loc.pathname.startsWith("/profile");
+  const allowedForLead = loc.pathname.startsWith("/profile") || loc.pathname.startsWith("/courses");
   const lockContent = isLead && !allowedForLead;
 
   const shell = (
