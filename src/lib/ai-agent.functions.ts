@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { chatCompletion } from "@/lib/ai-gateway";
 
 const InputSchema = z.object({
   message: z.string().trim().min(1).max(4000),
@@ -152,9 +153,6 @@ export const aiAgentChat = createServerFn({ method: "POST" })
       return { error: "forbidden", text: "" };
     }
 
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) return { error: "no_key", text: "חסר LOVABLE_API_KEY בהגדרות." };
-
     let snapshot: unknown;
     try {
       snapshot = await buildSnapshot();
@@ -165,35 +163,15 @@ export const aiAgentChat = createServerFn({ method: "POST" })
 
     const system = `${SYSTEM}\n\nSNAPSHOT (נתונים חיים מהמערכת, JSON):\n${JSON.stringify(snapshot)}`;
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        max_tokens: 1024,
-        messages: [
-          { role: "system", content: system },
-          ...data.history,
-          { role: "user", content: data.message },
-        ],
-      }),
+    return chatCompletion({
+      role: "admin",
+      maxTokens: 1024,
+      messages: [
+        { role: "system", content: system },
+        ...data.history,
+        { role: "user", content: data.message },
+      ],
     });
-
-    if (res.status === 401) return { error: "unauthorized", text: "" };
-    if (res.status === 402) return { error: "no_credits", text: "אין יתרת קרדיטים ב-Lovable AI. הוסף קרדיטים בהגדרות." };
-    if (res.status === 429) return { error: "rate_limited", text: "" };
-    if (!res.ok) {
-      const t = await res.text();
-      console.error("AI Gateway error", res.status, t);
-      return { error: "ai_error", text: "" };
-    }
-
-    const json = await res.json();
-    const text: string = json?.choices?.[0]?.message?.content ?? "";
-    return { error: null as null, text };
   });
 
 const TranslatorInputSchema = z.object({
@@ -264,36 +242,13 @@ export const aiTranslatorChat = createServerFn({ method: "POST" })
       return { error: "forbidden", text: "" };
     }
 
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) return { error: "no_key", text: "חסר LOVABLE_API_KEY בהגדרות." };
-
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
-        max_tokens: 4096,
-        messages: [
-          { role: "system", content: TRANSLATOR_SYSTEM },
-          ...data.history,
-          { role: "user", content: data.message },
-        ],
-      }),
+    return chatCompletion({
+      role: "translator",
+      maxTokens: 4096,
+      messages: [
+        { role: "system", content: TRANSLATOR_SYSTEM },
+        ...data.history,
+        { role: "user", content: data.message },
+      ],
     });
-
-    if (res.status === 401) return { error: "unauthorized", text: "" };
-    if (res.status === 402) return { error: "no_credits", text: "אין יתרת קרדיטים ב-Lovable AI. הוסף קרדיטים בהגדרות." };
-    if (res.status === 429) return { error: "rate_limited", text: "" };
-    if (!res.ok) {
-      const t = await res.text();
-      console.error("AI Translator error", res.status, t);
-      return { error: "ai_error", text: "" };
-    }
-
-    const json = await res.json();
-    const text: string = json?.choices?.[0]?.message?.content ?? "";
-    return { error: null as null, text };
   });
