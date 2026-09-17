@@ -61,10 +61,10 @@ export function AppShell({
 
       <main className="mx-auto max-w-screen-md px-4 py-6">{lockContent ? <LeadLockScreen /> : children}</main>
 
-      {!isLead && (
+      {(
         <nav className="fixed bottom-4 left-1/2 z-40 w-[calc(100%-2rem)] max-w-screen-md -translate-x-1/2 rounded-2xl border border-border/70 bg-card/90 p-2 shadow-[var(--shadow-elev)] backdrop-blur-xl">
-          <ul className="grid grid-cols-6 gap-1">
-            {items.map(({ to, icon: Icon, key, label }) => {
+          <ul className={`grid gap-1 ${isLead ? "grid-cols-1" : "grid-cols-7"}`}>
+            {(isLead ? leadItems : items).map(({ to, icon: Icon, key, label }) => {
               const active = loc.pathname.startsWith(to);
               return (
                 <li key={to}>
