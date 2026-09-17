@@ -242,9 +242,17 @@ function CourseContent({ courseId }: { courseId: string }) {
               <div className="text-sm font-bold">{mi + 1}. {m.title_he}</div>
               <div className="flex gap-1">
                 <button className={btnGhost} disabled={mi === 0}
-                  onClick={() => run(() => coursesApi.moveModule(m.id, mi - 1), "סודר מחדש")}><ChevronUp className="h-4 w-4" /></button>
+                  onClick={() => run(async () => {
+                    const prev = modules[mi - 1];
+                    await coursesApi.moveModule(prev.id, mi);
+                    await coursesApi.moveModule(m.id, mi - 1);
+                  }, "סודר מחדש")}><ChevronUp className="h-4 w-4" /></button>
                 <button className={btnGhost} disabled={mi === modules.length - 1}
-                  onClick={() => run(() => coursesApi.moveModule(m.id, mi + 1), "סודר מחדש")}><ChevronDown className="h-4 w-4" /></button>
+                  onClick={() => run(async () => {
+                    const next = modules[mi + 1];
+                    await coursesApi.moveModule(next.id, mi);
+                    await coursesApi.moveModule(m.id, mi + 1);
+                  }, "סודר מחדש")}><ChevronDown className="h-4 w-4" /></button>
                 <button className="min-h-11 rounded-xl border border-rose-500/40 px-3 text-rose-300"
                   onClick={() => { if (confirm(`למחוק את המודול «${m.title_he}»?`)) run(() => coursesApi.deleteModule(m.id), "המודול נמחק"); }}>
                   <Trash2 className="h-4 w-4" />
@@ -262,9 +270,15 @@ function CourseContent({ courseId }: { courseId: string }) {
                   </span>
                   <span className="flex gap-1">
                     <button className={btnGhost} disabled={li === 0}
-                      onClick={() => run(() => coursesApi.moveLesson(l.id, li - 1), "סודר מחדש")}><ChevronUp className="h-4 w-4" /></button>
+                      onClick={() => run(async () => {
+                        await coursesApi.moveLesson(m.lessons[li - 1].id, li);
+                        await coursesApi.moveLesson(l.id, li - 1);
+                      }, "סודר מחדש")}><ChevronUp className="h-4 w-4" /></button>
                     <button className={btnGhost} disabled={li === m.lessons.length - 1}
-                      onClick={() => run(() => coursesApi.moveLesson(l.id, li + 1), "סודר מחדש")}><ChevronDown className="h-4 w-4" /></button>
+                      onClick={() => run(async () => {
+                        await coursesApi.moveLesson(m.lessons[li + 1].id, li);
+                        await coursesApi.moveLesson(l.id, li + 1);
+                      }, "סודר מחדש")}><ChevronDown className="h-4 w-4" /></button>
                     <button className="min-h-11 rounded-xl border border-rose-500/40 px-3 text-rose-300"
                       onClick={() => { if (confirm(`למחוק את השיעור «${l.title_he}»?`)) run(() => coursesApi.deleteLesson(l.id), "השיעור נמחק"); }}>
                       <Trash2 className="h-4 w-4" />
