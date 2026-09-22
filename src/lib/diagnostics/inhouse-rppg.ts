@@ -9,11 +9,17 @@ export class InHouseRppgProvider implements RPPGProvider {
 
   startMeasurement(videoStream: MediaStream): void {
     this.stopMeasurement();
-    const video = document.createElement("video");
-    video.muted = true;
-    video.playsInline = true;
-    video.srcObject = videoStream;
-    video.play().catch(() => {});
+    let video: HTMLVideoElement | null = null;
+    document.querySelectorAll("video").forEach((el) => {
+      if (el.srcObject === videoStream) video = el;
+    });
+    if (!video) {
+      video = document.createElement("video");
+      video.muted = true;
+      video.playsInline = true;
+      video.srcObject = videoStream;
+      video.play().catch(() => {});
+    }
     this.video = video;
     this.engine.onPulse((p) => this.onBPMSample(p.bpm, p.hrv));
     void this.engine.start(videoStream, video);

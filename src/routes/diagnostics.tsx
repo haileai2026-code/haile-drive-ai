@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, BarChart, Bar } from "recharts";
-import { Volume2, Heart, Camera, Activity, Brain, Trophy, Download, RotateCcw } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { Volume2, Heart, Camera, Brain, RotateCcw } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,9 +10,10 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
-import { createTTS, createFaceAnalysis, createRPPG, USE_REAL_APIS } from "@/lib/diagnostics/config";
+import { createTTS, createFaceAnalysis, createRPPG } from "@/lib/diagnostics/config";
 import type { TTSProvider, FaceAnalysisProvider, RPPGProvider, FaceEmotion } from "@/lib/diagnostics/interfaces";
 import { BiometricConsentScreen, hasGrantedBiometricConsent } from "@/components/diagnostics/BiometricConsentScreen";
+import { finishDiagnostic } from "@/lib/diagnostics/finish-diagnostic.functions";
 import {
   questionsFor, ttsTextFor, COMMUNITY_LABEL, COMMUNITY_TTS_LANG,
   type Community, type DiagQuestion,
@@ -27,10 +28,10 @@ type Phase = "welcome" | "consent" | "community" | "calibration" | "questions" |
 
 type AnswerRow = {
   qId: string;
-  score: number;
+  optionIndex: number;
   rtMs: number;
   bpmAtAnswer: number | null;
-  emotionAtAnswer: FaceEmotion | null;
+  hrvAtAnswer: number | null;
 };
 
 type BpmPoint = { t: number; bpm: number; hrv: number };
@@ -85,15 +86,9 @@ function DiagnosticsPage() {
     [community],
   );
 
-  // Final result
-  const [final, setFinal] = useState<null | {
-    psychological: number;
-    biometric: number;
-    faceScore: number;
-    beqa: number;
-    rec: { letter: "A" | "B" | "C"; label: string; color: string; emoji: string };
-    insights: string[];
-  }>(null);
+  const [done, setDone] = useState(false);
+  const sessionId = useRef(crypto.randomUUID());
+  const finishFn = useServerFn(finishDiagnostic);
 
   // ---- BEQA gate ----
   useEffect(() => {
@@ -225,27 +220,26 @@ function DiagnosticsPage() {
     if (q) ttsRef.current?.speak(ttsTextFor(q, community), COMMUNITY_TTS_LANG[community]);
   }
 
-  async function pickAnswer(opt: { score: number }) {
+  async function pickAnswer(optionIndex: number) {
     const q = phase === "pressure" ? pressureQ : questions[qIdx];
     if (!q) return;
     const row: AnswerRow = {
       qId: q.id,
-      score: opt.score,
+      optionIndex,
       rtMs: Date.now() - questionShownAt.current,
       bpmAtAnswer: bpm,
-      emotionAtAnswer: emotion,
+      hrvAtAnswer: hrv,
     };
     const next = [...answers, row];
     setAnswers(next);
 
-    // log raw biometric (best-effort)
     if (user) {
       supabase.from("raw_biometric_log").insert({
         student_id: user.id,
-        session_id: user.id, // session row inserted at finish; use student id as grouping fallback
+        session_id: sessionId.current,
         event_type: "answer_submitted",
         bpm, hrv,
-        payload: { q: q.id, score: opt.score, rt_ms: row.rtMs, emotion: emotion ? { ...emotion } : null } as any,
+        payload: { q: q.id, option_index: optionIndex, rt_ms: row.rtMs },
       }).then(() => {}, () => {});
     }
 
@@ -278,10 +272,10 @@ function DiagnosticsPage() {
           // timeout = lowest score
           finishAll([...answers, {
             qId: pressureQ?.id ?? "qp",
-            score: 1,
+            optionIndex: 0,
             rtMs: Date.now() - questionShownAt.current,
             bpmAtAnswer: bpm,
-            emotionAtAnswer: emotion,
+            hrvAtAnswer: hrv,
           }]);
           return 0;
         }
@@ -294,95 +288,34 @@ function DiagnosticsPage() {
 
   async function finishAll(allAnswers: AnswerRow[]) {
     cleanup();
-    // psychological avg (1-4 → 0-100)
-    const psychAvg = allAnswers.reduce((a, b) => a + b.score, 0) / Math.max(1, allAnswers.length);
-    const psychological = (psychAvg / 4) * 100;
-
-    // biometric: accuracy (proxy: how many ≥3) + stability (baseline vs pressure)
-    const accuracy = (allAnswers.filter((a) => a.score >= 3).length / Math.max(1, allAnswers.length)) * 100;
     const sHr = pressureBpms.current.length
       ? Math.round(pressureBpms.current.reduce((a, b) => a + b, 0) / pressureBpms.current.length)
-      : bpm ?? baselineHr ?? 72;
+      : bpm ?? baselineHr;
     setStressHr(sHr);
-    const drift = baselineHr ? Math.abs(sHr - baselineHr) / baselineHr : 0;
-    const stability = Math.max(0, 1 - drift) * 100;
-    const biometric = accuracy * 0.6 + stability * 0.4;
 
-    // face score: focus - anxiety, normalized to 0-100
-    const emos = emoSeries.current;
-    const avg = (k: keyof EmoPoint) =>
-      emos.length ? emos.reduce((a, b) => a + (b[k] as number), 0) / emos.length : 0;
-    const focusAvg = avg("focus");
-    const anxietyAvg = avg("anxiety");
-    const faceScore = Math.max(0, Math.min(100, ((focusAvg - anxietyAvg) + 1) / 2 * 100));
-
-    const beqa = psychological * 0.5 + biometric * 0.3 + faceScore * 0.2;
-
-    const rec = beqa >= 75
-      ? { letter: "A" as const, label: "מומלץ מאוד להמשך תהליך", color: "text-emerald-500", emoji: "🟢" }
-      : beqa >= 55
-      ? { letter: "B" as const, label: "מומלץ ראיון נוסף", color: "text-amber-500", emoji: "🟡" }
-      : { letter: "C" as const, label: "לא מומלץ כרגע", color: "text-red-500", emoji: "🔴" };
-
-    // generate insights
-    const insights: string[] = [];
-    const hardestQ = allAnswers
-      .map((a, i) => ({ a, i, anxiety: a.emotionAtAnswer?.anxiety ?? 0 }))
-      .sort((x, y) => y.anxiety - x.anxiety)[0];
-    if (hardestQ && hardestQ.anxiety > 0.5) {
-      insights.push(`שאלה ${hardestQ.i + 1} גרמה לחרדה גבוהה — מומלץ לחזק את הנושא.`);
-    }
-    if (drift > 0.15) insights.push(`הדופק עלה משמעותית תחת לחץ (${baselineHr}→${sHr} BPM) — תרגול נשימה יסייע.`);
-    if (anxietyAvg > 0.5) insights.push("רמת חרדה כללית גבוהה — מומלץ ראיון רגוע נוסף.");
-    if (focusAvg > 0.7) insights.push("ריכוז גבוה לאורך הבדיקה — נכס לתפקיד נהג.");
-    if (insights.length === 0) insights.push("ביצועים יציבים — אין דגלים אדומים.");
-
-    const result = { psychological, biometric, faceScore, beqa, rec, insights };
-    setFinal(result);
-
-    // persist
     if (user && community) {
-      // Simple, robust scoring per spec — guarantees a saved score even if biometric streams are absent.
-      const answersMap: Record<string, number> = {};
-      for (const a of allAnswers) answersMap[a.qId] = a.score;
-      const values = Object.values(answersMap);
-      const avgScore = values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0;
-      const finalScore = Math.round((avgScore / 4.0) * 100 * 10) / 10;
-      const recommendation = finalScore >= 80 ? "A" : finalScore >= 60 ? "B" : "C";
-
-      const { error } = await supabase.from("beqa_diagnostic_sessions").insert({
-        student_id: user.id,
-        assessment_type: "unified",
-        community_type: community,
-        answers: answersMap as any,
-        psychological_score: Math.round(avgScore * 100) / 100,
-        accuracy_score: finalScore,
-        final_beqa_score: finalScore,
-        recommendation,
-        baseline_hr: baselineHr,
-        stress_hr: sHr,
-        end_time: new Date().toISOString(),
-        metadata: {
-          version: "unified-v2",
-          providers: USE_REAL_APIS,
-          biometric_score: Math.round(biometric * 10) / 10,
-          face_score: Math.round(faceScore * 10) / 10,
-          stability: Math.round(stability * 10) / 10,
-          computed_beqa: Math.round(beqa * 10) / 10,
-          bpm_series: bpmSeries.current.slice(-200),
-          emotion_series: emoSeries.current.slice(-200),
-          insights,
-        } as any,
-      });
-      if (error) {
-        console.error("save failed", error);
-        toast.error("שמירת האבחון נכשלה: " + error.message);
-      } else {
-        toast.success("האבחון נשמר בהצלחה");
+      try {
+        await finishFn({
+          data: {
+            community,
+            sessionId: sessionId.current,
+            baselineHr,
+            stressHr: sHr,
+            answers: allAnswers.map((a) => ({
+              qId: a.qId,
+              optionIndex: a.optionIndex,
+              rtMs: a.rtMs,
+              bpm: a.bpmAtAnswer,
+              hrv: a.hrvAtAnswer,
+            })),
+          },
+        });
+      } catch (e: unknown) {
+        toast.error(e instanceof Error ? e.message : "שמירת האבחון נכשלה");
       }
     }
 
-
+    setDone(true);
     setPhase("results");
   }
 
@@ -392,25 +325,11 @@ function DiagnosticsPage() {
     setCommunity(null);
     setAnswers([]);
     setQIdx(0);
-    setFinal(null);
+    setDone(false);
+    sessionId.current = crypto.randomUUID();
     setBpm(null); setHrv(null); setEmotion(null);
     setBaselineHr(null); setStressHr(null);
     bpmSeries.current = []; emoSeries.current = [];
-  }
-
-  function downloadJSON() {
-    if (!final) return;
-    const data = {
-      community, baselineHr, stressHr, answers, final,
-      bpm_series: bpmSeries.current, emotion_series: emoSeries.current,
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `diagnostic-${Date.now()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
   }
 
   // ---- gating ----
@@ -496,17 +415,7 @@ function DiagnosticsPage() {
           </div>
         )}
 
-        {phase === "results" && final && (
-          <Results
-            final={final}
-            baselineHr={baselineHr}
-            stressHr={stressHr}
-            bpmSeries={bpmSeries.current}
-            emoSeries={emoSeries.current}
-            onReset={reset}
-            onDownload={downloadJSON}
-          />
-        )}
+        {phase === "results" && done && <Results onReset={reset} />}
       </div>
     </AppShell>
   );
@@ -622,7 +531,7 @@ function QuestionCard({
   q, community, idx, total, onPick, onRepeat,
 }: {
   q: DiagQuestion; community: Community; idx: number; total: number;
-  onPick: (opt: { score: number }) => void; onRepeat: () => void;
+  onPick: (optionIndex: number) => void; onRepeat: () => void;
 }) {
   const tts = ttsTextFor(q, community);
   return (
@@ -649,7 +558,7 @@ function QuestionCard({
       </div>
       <div className="grid gap-2">
         {q.options.map((opt, i) => (
-          <Button key={i} onClick={() => onPick(opt)} variant="outline" size="lg"
+          <Button key={i} onClick={() => onPick(i)} variant="outline" size="lg"
                   className="h-auto min-h-14 whitespace-normal text-start justify-start text-base font-medium py-3 px-4 hover:bg-amber-500/10 hover:border-amber-500">
             <span className="me-2 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-bold">
               {String.fromCharCode(1488 + i)}
@@ -666,7 +575,7 @@ function PressureCard({
   q, community, left, onPick, onRepeat,
 }: {
   q: DiagQuestion; community: Community; left: number;
-  onPick: (opt: { score: number }) => void; onRepeat: () => void;
+  onPick: (optionIndex: number) => void; onRepeat: () => void;
 }) {
   const tts = ttsTextFor(q, community);
   const pct = (left / PRESSURE_SECONDS) * 100;
@@ -687,7 +596,7 @@ function PressureCard({
       </div>
       <div className="grid gap-2">
         {q.options.map((opt, i) => (
-          <Button key={i} onClick={() => onPick(opt)} variant="outline" size="lg"
+          <Button key={i} onClick={() => onPick(i)} variant="outline" size="lg"
                   className="h-auto min-h-14 whitespace-normal text-start justify-start text-base font-medium py-3 px-4 hover:bg-rose-500/10 hover:border-rose-500">
             <span className="me-2 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-bold">
               {String.fromCharCode(1488 + i)}
@@ -700,98 +609,24 @@ function PressureCard({
   );
 }
 
-function Results({
-  final, baselineHr, stressHr, bpmSeries, emoSeries, onReset, onDownload,
-}: {
-  final: NonNullable<ReturnType<typeof useState<any>>[0]>;
-  baselineHr: number | null; stressHr: number | null;
-  bpmSeries: BpmPoint[]; emoSeries: EmoPoint[];
-  onReset: () => void; onDownload: () => void;
-}) {
+function Results({ onReset }: { onReset: () => void }) {
   return (
-    <div className="space-y-4">
-      <Card className="border-amber-500/40">
-        <CardContent className="p-6 text-center space-y-3">
-          <div className="text-6xl">{final.rec.emoji}</div>
-          <div className="text-xs uppercase tracking-widest text-muted-foreground">ציון BEQA סופי</div>
-          <div className={`text-7xl font-black ${final.rec.color}`}>{final.beqa.toFixed(1)}</div>
-          <div className="text-2xl font-bold">מועמד {final.rec.letter}</div>
-          <p className="text-muted-foreground">{final.rec.label}</p>
+    <div className="mx-auto max-w-md space-y-4 py-10 text-center">
+      <Card className="border-gold/40">
+        <CardContent className="space-y-3 p-8">
+          <div className="text-5xl">✓</div>
+          <h2 className="text-2xl font-bold">האבחון הושלם</h2>
+          <p className="text-sm text-muted-foreground">
+            תודה. התוצאה נשמרה לבעלים בלבד. אין ציון במסך זה.
+          </p>
         </CardContent>
       </Card>
-
-      <div className="grid gap-4 md:grid-cols-3">
-        <ScoreCard label="פסיכולוגי (50%)" score={final.psychological} icon={<Brain className="h-5 w-5"/>} />
-        <ScoreCard label="ביומטרי (30%)" score={final.biometric} icon={<Heart className="h-5 w-5"/>} />
-        <ScoreCard label="ניתוח פנים (20%)" score={final.faceScore} icon={<Camera className="h-5 w-5"/>} />
+      <div className="flex flex-col gap-2">
+        <Button onClick={onReset} className="bg-amber-500 text-black hover:bg-amber-600">
+          <RotateCcw className="me-2 h-4 w-4" />אבחון חדש
+        </Button>
+        <Link to="/dashboard"><Button variant="outline" className="w-full">חזרה לדשבורד</Button></Link>
       </div>
-
-      <Card>
-        <CardContent className="p-4 space-y-3">
-          <h3 className="font-bold flex items-center gap-2"><Heart className="h-4 w-4 text-rose-500"/>דופק לאורך המבחן (בסיס: {baselineHr} → לחץ: {stressHr})</h3>
-          <div className="h-48">
-            <ResponsiveContainer>
-              <LineChart data={bpmSeries}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2}/>
-                <XAxis dataKey="t" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="bpm" stroke="#f43f5e" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="p-4 space-y-3">
-          <h3 className="font-bold flex items-center gap-2"><Camera className="h-4 w-4 text-emerald-500"/>מצב רגשי לאורך המבחן</h3>
-          <div className="h-48">
-            <ResponsiveContainer>
-              <LineChart data={emoSeries}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2}/>
-                <XAxis dataKey="t" />
-                <YAxis domain={[0, 1]} />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="anxiety" stroke="#f43f5e" dot={false} />
-                <Line type="monotone" dataKey="focus" stroke="#10b981" dot={false} />
-                <Line type="monotone" dataKey="confidence" stroke="#f59e0b" dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="p-4 space-y-2">
-          <h3 className="font-bold flex items-center gap-2"><Trophy className="h-4 w-4 text-amber-500"/>תובנות והמלצות</h3>
-          <ul className="list-disc ps-5 space-y-1 text-sm">
-            {final.insights.map((s: string, i: number) => <li key={i}>{s}</li>)}
-          </ul>
-        </CardContent>
-      </Card>
-
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <Button onClick={onDownload} variant="outline" className="flex-1"><Download className="me-2 h-4 w-4"/>הורד דוח (JSON)</Button>
-        <Button onClick={onReset} className="flex-1 bg-amber-500 text-black hover:bg-amber-600"><RotateCcw className="me-2 h-4 w-4"/>אבחון חדש</Button>
-        <Link to="/dashboard" className="flex-1"><Button variant="outline" className="w-full">חזרה לדשבורד</Button></Link>
-      </div>
-      <p className="text-center text-xs text-muted-foreground">
-        מבוסס סימולטור מקומי. החלפה ל-Google TTS / Azure Face / Binah.ai = שינוי שורה אחת ב-src/lib/diagnostics/config.ts
-      </p>
     </div>
-  );
-}
-
-function ScoreCard({ label, score, icon }: { label: string; score: number; icon: React.ReactNode }) {
-  return (
-    <Card>
-      <CardContent className="p-4 text-center space-y-1">
-        <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">{icon}{label}</div>
-        <div className="text-3xl font-bold">{score.toFixed(1)}</div>
-        <Progress value={score} className="h-2" />
-      </CardContent>
-    </Card>
   );
 }

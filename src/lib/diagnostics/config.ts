@@ -6,7 +6,6 @@ import {
   FaceAnalysisSimulator,
 } from "./simulators";
 import { InHouseRppgProvider } from "./inhouse-rppg";
-import { BinahRppgProvider } from "./binah-rppg";
 import type { TTSProvider, FaceAnalysisProvider, RPPGProvider } from "./interfaces";
 
 export type TTSProviderName = "browser" | "elevenlabs" | "azure" | "google";
@@ -59,10 +58,7 @@ export function createFaceAnalysis(): FaceAnalysisProvider {
   return new FaceAnalysisSimulator();
 }
 
-/** Binah when BINAH_LICENSE_KEY is set; otherwise on-device in-house rPPG. */
+/** POC: always in-house on-device rPPG. Binah stub stays unused. */
 export function createRPPG(): RPPGProvider {
-  if (typeof process !== "undefined" && process.env.BINAH_LICENSE_KEY) {
-    return new BinahRppgProvider();
-  }
   return new InHouseRppgProvider();
 }
