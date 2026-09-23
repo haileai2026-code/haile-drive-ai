@@ -1,11 +1,11 @@
-import { defineConfig } from "vite";
-import { tanstackStart } from "@tanstack/react-start/plugin/vite";
-import { nitro } from "nitro/vite";
-import viteReact from "@vitejs/plugin-react";
-import tailwindcss from "@tailwindcss/vite";
-import tsconfigPaths from "vite-tsconfig-paths";
+// @lovable.dev/vite-tanstack-config already includes tanstackStart, viteReact, tailwindcss,
+// tsConfigPaths, cloudflare (build-only), componentTagger, env injection and aliases.
+// Do NOT add them manually. Lovable deploys the dist/ output this produces.
+import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-/** Vercel + Nitro. Cloudflare Workers (wrangler.jsonc) is frozen until Assets token exists. */
+// Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
 export default defineConfig({
-  plugins: [tanstackStart(), nitro(), viteReact(), tailwindcss(), tsconfigPaths()],
+  tanstackStart: {
+    server: { entry: "server" },
+  },
 });
