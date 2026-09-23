@@ -22,8 +22,8 @@ import { Route as LanguageRouteImport } from './routes/language'
 import { Route as DiagnosticsRouteImport } from './routes/diagnostics'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CommunityRouteImport } from './routes/community'
-import { Route as BeqaHistoryRouteImport } from './routes/beqa-history'
 import { Route as BeqaSpikeRouteImport } from './routes/beqa-spike'
+import { Route as BeqaHistoryRouteImport } from './routes/beqa-history'
 import { Route as AiRouteImport } from './routes/ai'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -129,14 +129,14 @@ const CommunityRoute = CommunityRouteImport.update({
   path: '/community',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BeqaHistoryRoute = BeqaHistoryRouteImport.update({
-  id: '/beqa-history',
-  path: '/beqa-history',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const BeqaSpikeRoute = BeqaSpikeRouteImport.update({
   id: '/beqa-spike',
   path: '/beqa-spike',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BeqaHistoryRoute = BeqaHistoryRouteImport.update({
+  id: '/beqa-history',
+  path: '/beqa-history',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AiRoute = AiRouteImport.update({
@@ -796,18 +796,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CommunityRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/beqa-history': {
-      id: '/beqa-history'
-      path: '/beqa-history'
-      fullPath: '/beqa-history'
-      preLoaderRoute: typeof BeqaHistoryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/beqa-spike': {
       id: '/beqa-spike'
       path: '/beqa-spike'
       fullPath: '/beqa-spike'
       preLoaderRoute: typeof BeqaSpikeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/beqa-history': {
+      id: '/beqa-history'
+      path: '/beqa-history'
+      fullPath: '/beqa-history'
+      preLoaderRoute: typeof BeqaHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ai': {
