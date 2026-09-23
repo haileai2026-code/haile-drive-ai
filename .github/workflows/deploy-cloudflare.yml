@@ -1,8 +1,7 @@
-name: Deploy to Cloudflare Workers
+name: Deploy to Cloudflare Workers (frozen)
 
+# P0: Workers Assets token is a dead path. Do not auto-run on push.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -15,27 +14,17 @@ jobs:
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     steps:
       - uses: actions/checkout@v4
-
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-
       - name: Check Cloudflare secrets exist
         run: |
-          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
-            echo "חסר GitHub Secret בשם CLOUDFLARE_API_TOKEN"
-            echo "Repo → Settings → Secrets and variables → Actions"
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "Cloudflare deploy is frozen. Use Vercel (see Transfers/cto_alt_deploy.md)."
             exit 1
           fi
-          if [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
-            echo "חסר GitHub Secret בשם CLOUDFLARE_ACCOUNT_ID"
-            exit 1
-          fi
-          echo "Cloudflare secrets present"
-
       - name: Install
         run: bun install --frozen-lockfile
-
       - name: Build
         run: bun run build
         env:
@@ -45,7 +34,6 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
           SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
-
       - name: Deploy Worker
         uses: cloudflare/wrangler-action@v3
         with:

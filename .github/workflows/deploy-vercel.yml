@@ -1,0 +1,44 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Skip if Vercel GitHub App is the deployer
+        run: |
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+            echo "No VERCEL_TOKEN in GitHub Secrets."
+            echo "Primary path: https://vercel.com/new → Import haileai2026-code/haile-drive-ai"
+            echo "See cto_alt_deploy.md for env names and click-path."
+            echo "This job exits 0 so the repo stays green until Beni imports the project."
+            exit 0
+          fi
+
+      - uses: oven-sh/setup-bun@v2
+        if: ${{ env.VERCEL_TOKEN != '' }}
+        with:
+          bun-version: latest
+
+      - name: Install Vercel CLI
+        if: ${{ env.VERCEL_TOKEN != '' }}
+        run: bun add -g vercel
+
+      - name: Pull Vercel env and deploy production
+        if: ${{ env.VERCEL_TOKEN != '' }}
+        run: |
+          vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
+          vercel build --prod --token "$VERCEL_TOKEN"
+          vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN"
