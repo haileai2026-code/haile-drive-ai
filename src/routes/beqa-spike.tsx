@@ -70,7 +70,7 @@ function BeqaSpikePage() {
     };
     setClicks((c) => [...c, row]);
     if (user) {
-      await supabase.from("beqa_pulse_clicks").insert({
+      await (supabase as any).from("beqa_pulse_clicks").insert({
         session_id: sessionId.current,
         student_id: user.id,
         bpm,

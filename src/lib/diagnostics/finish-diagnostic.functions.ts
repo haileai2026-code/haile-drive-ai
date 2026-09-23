@@ -71,7 +71,7 @@ export const finishDiagnostic = createServerFn({ method: "POST" })
       reaction_ms: a.rtMs,
       provider: "inhouse",
     }));
-    const { error: clickErr } = await context.supabase.from("beqa_pulse_clicks").insert(clicks);
+    const { error: clickErr } = await (context.supabase as any).from("beqa_pulse_clicks").insert(clicks);
     if (clickErr) console.error("beqa_pulse_clicks", clickErr.message);
 
     return { ok: true as const };
