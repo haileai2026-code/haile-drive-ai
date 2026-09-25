@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { InHouseRppgProvider } from "@/lib/diagnostics/inhouse-rppg";
@@ -6,6 +6,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/beqa-spike")({
+  // Dev-only spike page (plan C4): 404 in production builds.
+  beforeLoad: () => {
+    if (!import.meta.env.DEV) throw notFound();
+  },
   head: () => ({ meta: [{ title: "BEQA spike — דופק + לחיצה" }] }),
   component: BeqaSpikePage,
 });

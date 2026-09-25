@@ -6,6 +6,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { submitMarvadSession } from "@/lib/diagnostics/beqa-submit.functions";
+import {
+  INTERVIEW,
+  MMPI_QUESTIONS,
+  MMPI_MAX,
+  computeMarvad,
+  cptScore,
+  type AtavtResult,
+  type CptResult,
+} from "@/lib/diagnostics/marvad-scoring";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { Brain, Lock, Trophy, Activity, Target, MessageCircle, ChevronRight, RotateCcw } from "lucide-react";
@@ -17,111 +28,6 @@ export const Route = createFileRoute("/marvad-simulator")({
 
 type Stage = "intro" | "mmpi" | "cpt" | "atavt" | "interview" | "results";
 
-// ===== MMPI Questions (HE + AM) =====
-const MMPI_QUESTIONS: Array<{
-  id: string;
-  he: string;
-  am: string;
-  options: Array<{ he: string; am: string; score: number }>;
-  isLieDetector?: boolean;
-}> = [
-  {
-    id: "q1",
-    he: "אני מרגיש שאנשים מבינים אותי היטב.",
-    am: "ሰዎች በሚገባ እንደሚረዱኝ ይሰማኛል።",
-    options: [
-      { he: "תמיד", am: "ሁልጊዜ", score: 4 },
-      { he: "לעיתים קרובות", am: "ብዙ ጊዜ", score: 3 },
-      { he: "לפעמים", am: "አንዳንዴ", score: 2 },
-      { he: "לעולם לא", am: "በፍፁም", score: 1 },
-    ],
-  },
-  {
-    id: "q2",
-    he: "מעולם לא שיקרתי, אפילו לא במשהו קטן.",
-    am: "በትንሽ ነገር እንኳ ዋሽቼ አላውቅም።",
-    isLieDetector: true,
-    options: [
-      { he: "נכון לחלוטין", am: "ሙሉ በሙሉ እውነት", score: 0 },
-      { he: "נכון בדרך כלל", am: "በአብዛኛው እውነት", score: 2 },
-      { he: "לא נכון", am: "እውነት አይደለም", score: 4 },
-    ],
-  },
-  {
-    id: "q3",
-    he: "אני מסוגל להתמודד עם לחץ ביום-יום.",
-    am: "የእለት ተእለት ጫናን መቋቋም እችላለሁ።",
-    options: [
-      { he: "תמיד", am: "ሁልጊዜ", score: 4 },
-      { he: "לרוב", am: "በአብዛኛው", score: 3 },
-      { he: "מדי פעם", am: "አልፎ አልፎ", score: 2 },
-      { he: "כמעט אף פעם", am: "በፍፁም ማለት ይቻላል", score: 1 },
-    ],
-  },
-  {
-    id: "q4",
-    he: "אני ישן טוב בלילה.",
-    am: "ሌሊት በደንብ እተኛለሁ።",
-    options: [
-      { he: "תמיד", am: "ሁልጊዜ", score: 4 },
-      { he: "לרוב", am: "በአብዛኛው", score: 3 },
-      { he: "לפעמים", am: "አንዳንዴ", score: 2 },
-      { he: "כמעט אף פעם", am: "በፍፁም ማለት ይቻላል", score: 1 },
-    ],
-  },
-  {
-    id: "q5",
-    he: "אני אף פעם לא כועס על אף אחד.",
-    am: "በማንም ላይ ተናድጄ አላውቅም።",
-    isLieDetector: true,
-    options: [
-      { he: "נכון לחלוטין", am: "ሙሉ በሙሉ እውነት", score: 0 },
-      { he: "נכון לרוב", am: "በአብዛኛው እውነት", score: 2 },
-      { he: "לא נכון", am: "እውነት አይደለም", score: 4 },
-    ],
-  },
-];
-
-// ===== Interview =====
-const INTERVIEW = [
-  {
-    id: "i1",
-    q: "ספר לי על מצב לחץ שחווית לאחרונה. איך התמודדת?",
-    opts: [
-      { text: "פעלתי באימפולסיביות וניסיתי לסיים מהר", trait: "impulsivity", w: -10 },
-      { text: "עצרתי, נשמתי עמוק וחשבתי לפני שפעלתי", trait: "selfControl", w: +15 },
-      { text: "פניתי לעזרה ושיתפתי מישהו קרוב", trait: "social", w: +10 },
-    ],
-  },
-  {
-    id: "i2",
-    q: "מה אתה מרגיש כשנהג אחר חותך אותך בכביש?",
-    opts: [
-      { text: "כועס מאוד ורוצה להגיב", trait: "aggression", w: -15 },
-      { text: "מתעצבן רגע אבל ממשיך הלאה", trait: "balanced", w: +10 },
-      { text: "לא אכפת לי, אני נשאר רגוע", trait: "calm", w: +15 },
-    ],
-  },
-  {
-    id: "i3",
-    q: "מה הסיבה האמיתית שלך לרצות להיות נהג?",
-    opts: [
-      { text: "כסף ופרנסה בלבד", trait: "extrinsic", w: 0 },
-      { text: "אהבה לכביש ועצמאות", trait: "intrinsic", w: +15 },
-      { text: "אין לי ברירה אחרת", trait: "noChoice", w: -10 },
-    ],
-  },
-  {
-    id: "i4",
-    q: "איך אתה מגיב לביקורת מהמנהל שלך?",
-    opts: [
-      { text: "מתגונן ומסביר את עצמי", trait: "defensive", w: -5 },
-      { text: "מקשיב ומנסה להשתפר", trait: "growth", w: +15 },
-      { text: "מקבל אבל בפנים נפגע", trait: "internalize", w: +5 },
-    ],
-  },
-];
-
 function MarvadSimulatorPage() {
   const { user } = useAuth();
   const [hasAccess, setHasAccess] = useState<boolean | null>(null);
@@ -131,10 +37,11 @@ function MarvadSimulatorPage() {
   // Scores
   const [mmpiScore, setMmpiScore] = useState(0);
   const [mmpiLieFlag, setMmpiLieFlag] = useState(false);
-  const [cptResults, setCptResults] = useState<{ rtMean: number; rtSd: number; omissions: number; commissions: number; score: number } | null>(null);
-  const [atavtResults, setAtavtResults] = useState<{ score: number; trials: number[] } | null>(null);
+  const [mmpiPicks, setMmpiPicks] = useState<number[]>([]);
+  const [cptResults, setCptResults] = useState<CptResult | null>(null);
+  const [atavtResults, setAtavtResults] = useState<AtavtResult | null>(null);
   const [interviewScore, setInterviewScore] = useState(0);
-  const [interviewNotes, setInterviewNotes] = useState<string[]>([]);
+  const submitFn = useServerFn(submitMarvadSession);
 
   const [finalScore, setFinalScore] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
@@ -155,43 +62,38 @@ function MarvadSimulatorPage() {
     })();
   }, [user]);
 
-  const compute = (cpt: typeof cptResults, atavt: typeof atavtResults, interview: number, mmpi: number, lieFlag: boolean) => {
-    const mmpiPct = Math.min(100, (mmpi / (MMPI_QUESTIONS.length * 4)) * 100);
-    const interviewPct = Math.min(100, Math.max(0, 50 + interview));
-    const cptPct = cpt?.score ?? 0;
-    const atavtPct = atavt?.score ?? 0;
-    const errors = (cpt?.omissions ?? 0) + (cpt?.commissions ?? 0);
-    let total = mmpiPct * 0.2 + interviewPct * 0.4 + cptPct * 0.2 + atavtPct * 0.1 - errors * 2;
-    if (lieFlag) total -= 10;
-    return Math.max(0, Math.min(100, Math.round(total)));
-  };
-
-  const handleFinish = async (cpt: typeof cptResults, atavt: typeof atavtResults, intScore: number, mmpi: number, lieFlag: boolean) => {
-    const score = compute(cpt, atavt, intScore, mmpi, lieFlag);
+  const handleFinish = async (
+    cpt: CptResult | null,
+    atavt: AtavtResult | null,
+    intScore: number,
+    mmpi: number,
+    lieFlag: boolean,
+    interviewPicks: number[],
+  ) => {
+    // Local score is for the practice results screen only; the stored score is
+    // recomputed on the server from the raw picks/measurements below.
+    const score = computeMarvad(cpt, atavt, intScore, mmpi, lieFlag);
     setFinalScore(score);
     setStage("results");
     if (!user) return;
     setSaving(true);
-    const { error } = await supabase.from("beqa_diagnostic_sessions").insert({
-      student_id: user.id,
-      assessment_type: "marvad_simulator",
-      psychological_score: Math.min(100, Math.max(0, 50 + intScore)),
-      accuracy_score: Math.min(100, (mmpi / (MMPI_QUESTIONS.length * 4)) * 100),
-      final_beqa_score: score,
-      end_time: new Date().toISOString(),
-      metadata: {
-        rt_mean: cpt?.rtMean ?? null,
-        rt_sd: cpt?.rtSd ?? null,
-        omissions: cpt?.omissions ?? 0,
-        commissions: cpt?.commissions ?? 0,
-        atavt_scores: atavt?.trials ?? [],
-        mmpi_lie_flag: lieFlag,
-        interview_notes: interviewNotes,
-      },
-    });
-    setSaving(false);
-    if (error) toast.error("שגיאה בשמירת התוצאות: " + error.message);
-    else toast.success("התוצאות נשמרו בהצלחה");
+    try {
+      await submitFn({
+        data: {
+          mmpiPicks,
+          interviewPicks,
+          cpt: cpt
+            ? { rtMean: cpt.rtMean, rtSd: cpt.rtSd, omissions: cpt.omissions, commissions: cpt.commissions }
+            : null,
+          atavtTrials: atavt?.trials ?? [],
+        },
+      });
+      toast.success("התוצאות נשמרו בהצלחה");
+    } catch (e) {
+      toast.error("שגיאה בשמירת התוצאות: " + (e instanceof Error ? e.message : String(e)));
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (hasAccess === null) {
@@ -244,9 +146,10 @@ function MarvadSimulatorPage() {
         {stage === "mmpi" && (
           <MmpiModule
             lang={lang}
-            onDone={(score, lie) => {
+            onDone={(score, lie, picks) => {
               setMmpiScore(score);
               setMmpiLieFlag(lie);
+              setMmpiPicks(picks);
               setStage("cpt");
             }}
           />
@@ -272,10 +175,9 @@ function MarvadSimulatorPage() {
 
         {stage === "interview" && (
           <InterviewModule
-            onDone={(score, notes) => {
+            onDone={(score, picks) => {
               setInterviewScore(score);
-              setInterviewNotes(notes);
-              handleFinish(cptResults, atavtResults, score, mmpiScore, mmpiLieFlag);
+              handleFinish(cptResults, atavtResults, score, mmpiScore, mmpiLieFlag, picks);
             }}
           />
         )}
@@ -330,19 +232,22 @@ function IntroScreen({ lang, setLang, onStart }: { lang: "he" | "am"; setLang: (
 // ============================================================
 // MMPI
 // ============================================================
-function MmpiModule({ lang, onDone }: { lang: "he" | "am"; onDone: (score: number, lieFlag: boolean) => void }) {
+function MmpiModule({ lang, onDone }: { lang: "he" | "am"; onDone: (score: number, lieFlag: boolean, picks: number[]) => void }) {
   const [idx, setIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [lieScore, setLieScore] = useState(0);
+  const [picks, setPicks] = useState<number[]>([]);
   const q = MMPI_QUESTIONS[idx];
 
-  const pick = (s: number) => {
+  const pick = (s: number, optionIndex: number) => {
     const newScore = score + s;
     const newLie = lieScore + (q.isLieDetector && s === 0 ? 1 : 0);
+    const newPicks = [...picks, optionIndex];
     setScore(newScore);
     setLieScore(newLie);
+    setPicks(newPicks);
     if (idx + 1 >= MMPI_QUESTIONS.length) {
-      onDone(newScore, newLie >= 2);
+      onDone(newScore, newLie >= 2, newPicks);
     } else {
       setIdx(idx + 1);
     }
@@ -360,7 +265,7 @@ function MmpiModule({ lang, onDone }: { lang: "he" | "am"; onDone: (score: numbe
           {q.options.map((o, i) => (
             <button
               key={i}
-              onClick={() => pick(o.score)}
+              onClick={() => pick(o.score, i)}
               className="w-full rounded-xl border border-border/60 bg-card/40 p-3 text-start text-sm hover:border-gold/60 transition"
             >
               {o[lang]}
@@ -408,11 +313,7 @@ function CptModule({ onDone }: { onDone: (r: { rtMean: number; rtSd: number; omi
       const rtSd = Math.sqrt(variance);
       const om = omissionsRef.current;
       const cm = commissionsRef.current;
-      let score = 100;
-      score -= om * 10;
-      score -= cm * 8;
-      if (rtMean > 600) score -= 10;
-      score = Math.max(0, Math.min(100, score));
+      const score = cptScore({ rtMean, omissions: om, commissions: cm });
       onDone({ rtMean: Math.round(rtMean), rtSd: Math.round(rtSd), omissions: om, commissions: cm, score });
       return;
     }
@@ -687,18 +588,18 @@ function AtavtModule({ onDone }: { onDone: (r: { score: number; trials: number[]
 // ============================================================
 // INTERVIEW — Dr. Solomon
 // ============================================================
-function InterviewModule({ onDone }: { onDone: (score: number, notes: string[]) => void }) {
+function InterviewModule({ onDone }: { onDone: (score: number, picks: number[]) => void }) {
   const [idx, setIdx] = useState(0);
   const [total, setTotal] = useState(0);
-  const [notes, setNotes] = useState<string[]>([]);
+  const [picks, setPicks] = useState<number[]>([]);
   const q = INTERVIEW[idx];
 
-  const pick = (w: number, trait: string, text: string) => {
+  const pick = (w: number, optionIndex: number) => {
     const newTotal = total + w;
-    const newNotes = [...notes, `${q.id}: ${trait} (${text})`];
+    const newPicks = [...picks, optionIndex];
     setTotal(newTotal);
-    setNotes(newNotes);
-    if (idx + 1 >= INTERVIEW.length) onDone(newTotal, newNotes);
+    setPicks(newPicks);
+    if (idx + 1 >= INTERVIEW.length) onDone(newTotal, newPicks);
     else setIdx(idx + 1);
   };
 
@@ -720,7 +621,7 @@ function InterviewModule({ onDone }: { onDone: (score: number, notes: string[]) 
           {q.opts.map((o, i) => (
             <button
               key={i}
-              onClick={() => pick(o.w, o.trait, o.text)}
+              onClick={() => pick(o.w, i)}
               className="w-full rounded-xl border border-border/60 bg-card/40 p-3 text-start text-sm hover:border-gold/60 transition"
             >
               {o.text}
@@ -764,7 +665,7 @@ function ResultsScreen({
       <Card>
         <CardContent className="p-5 space-y-3">
           <h3 className="font-bold">פירוט תוצאות</h3>
-          <Row label="MMPI אישיות" value={`${Math.round((mmpi / (MMPI_QUESTIONS.length * 4)) * 100)}%`} />
+          <Row label="MMPI אישיות" value={`${Math.round((mmpi / MMPI_MAX) * 100)}%`} />
           {mmpiLie && <p className="text-xs text-red-400">⚠️ זוהו תשובות לא עקביות במדד אמינות</p>}
           <Row label="CPT — קשב" value={`${cpt?.score ?? 0}% · RT ${cpt?.rtMean ?? 0}ms`} />
           <Row label="CPT — שגיאות" value={`${(cpt?.omissions ?? 0) + (cpt?.commissions ?? 0)}`} />
