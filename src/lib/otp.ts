@@ -17,4 +17,45 @@ export function generateOtp(
   }
 }
 
-export const OTP_MAX_FAILED_ATTEMPTS = 5; // per phone per 15 min (enforced in SQL)
+// Limits below are enforced in SQL (phone_otp_verify / phone_login_requests_guard);
+// the constants document them for the app and the unit tests.
+export const OTP_TTL_MINUTES = 10; // code lifetime from issue
+export const OTP_MAX_ATTEMPTS_PER_CODE = 5; // 5th wrong guess invalidates the code
+export const OTP_MAX_FAILED_ATTEMPTS = 5; // per phone per 15 min (lockout)
+export const OTP_MAX_REQUESTS_PER_WINDOW = 3; // per phone per 15 min
+
+export async function hashOtp(otp: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(otp));
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+export type OtpVerifyOutcome =
+  | "locked"
+  | "invalid"
+  | "failed"
+  | "expired"
+  | "pending"
+  | "rejected"
+  | "ok";
+
+// Hebrew user-facing message for each non-ok verify outcome.
+export function otpOutcomeMessage(outcome: string | null | undefined): string | null {
+  switch (outcome) {
+    case "ok":
+      return null;
+    case "locked":
+      return "יותר מדי ניסיונות שגויים. נסה שוב בעוד 15 דקות";
+    case "failed":
+      return "הקוד נחסם אחרי 5 ניסיונות שגויים. יש לבקש קוד חדש";
+    case "expired":
+      return "הקוד פג תוקף. יש לבקש קוד חדש";
+    case "pending":
+      return "ממתין לאישור מנהל";
+    case "rejected":
+      return "הבקשה נדחתה";
+    default:
+      return "קוד שגוי";
+  }
+}
