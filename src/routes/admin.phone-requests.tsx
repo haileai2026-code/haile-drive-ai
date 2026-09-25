@@ -31,13 +31,15 @@ type Row = {
   status: string;
   created_at: string;
   expires_at: string;
-  otp_plain: string | null;
+  attempts: number;
 };
 
 function AdminPhoneRequestsPage() {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
+  // Code issued on approval: shown once to the approving staff member, never stored.
+  const [issued, setIssued] = useState<{ id: string; otp: string; expires_at: string } | null>(null);
 
   const listFn = useServerFn(listPhoneRequests);
   const approveFn = useServerFn(approvePhoneRequest);
@@ -61,8 +63,9 @@ function AdminPhoneRequestsPage() {
   const approve = async (id: string) => {
     setBusy(id);
     try {
-      await approveFn({ data: { id } });
-      toast.success("אושר — הסטודנט יכול להיכנס עם הקוד");
+      const res = await approveFn({ data: { id } });
+      setIssued({ id, otp: res.otp, expires_at: res.expires_at });
+      toast.success("אושר — מסור לסטודנט את הקוד (תקף 10 דקות)");
       await load();
     } catch (e: any) {
       toast.error(e?.message ?? "שגיאה");
@@ -88,6 +91,12 @@ function AdminPhoneRequestsPage() {
           <CardTitle>בקשות פעילות ואחרונות</CardTitle>
         </CardHeader>
         <CardContent>
+          {issued && (
+            <p className="mb-3 text-xs text-muted-foreground">
+              הקוד מוצג פעם אחת בלבד ואינו נשמר במערכת (נשמר רק גיבוב). תקף עד{" "}
+              {new Date(issued.expires_at).toLocaleTimeString("he-IL")}, עד 5 ניסיונות.
+            </p>
+          )}
           {rows.length === 0 ? (
             <p className="text-sm text-muted-foreground">אין בקשות כרגע</p>
           ) : (
@@ -109,18 +118,14 @@ function AdminPhoneRequestsPage() {
                     <TableRow key={r.id}>
                       <TableCell className="font-mono">{r.phone}</TableCell>
                       <TableCell>
-                        {r.otp_plain ? (
-                          <span
-                            className={`font-mono text-lg font-bold tracking-widest ${
-                              r.status === "used" || expired
-                                ? "text-muted-foreground/40 blur-[2px]"
-                                : ""
-                            }`}
-                          >
-                            {r.otp_plain}
+                        {issued?.id === r.id && !expired ? (
+                          <span className="font-mono text-lg font-bold tracking-widest">
+                            {issued.otp}
                           </span>
                         ) : (
-                          <span className="text-xs text-muted-foreground">—</span>
+                          <span className="text-xs text-muted-foreground">
+                            {r.attempts > 0 ? `${r.attempts}/5 ניסיונות` : "—"}
+                          </span>
                         )}
                       </TableCell>
                       <TableCell>
