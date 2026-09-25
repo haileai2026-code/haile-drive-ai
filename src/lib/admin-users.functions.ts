@@ -73,15 +73,9 @@ export const importStudents = createServerFn({ method: "POST" })
 
     for (const s of data.students) {
       try {
-        // check existing candidate by email
-        const { data: existCand } = await supabaseAdmin
-          .from("candidates").select("id").ilike("email", s.email).maybeSingle();
-        if (existCand) {
-          results.push({ email: s.email, full_name: s.full_name, ok: false, error: "אימייל כבר קיים" });
-          continue;
-        }
-
-        // invite via auth (creates user + sends email)
+        // Resolve the auth user first; the candidate row is linked and
+        // de-duplicated on candidates.user_id (never on the email column).
+        // Invite via auth (creates user + sends email).
         let userId: string | null = null;
         const { data: invited, error: invErr } = await supabaseAdmin.auth.admin.inviteUserByEmail(
           s.email,
@@ -101,20 +95,32 @@ export const importStudents = createServerFn({ method: "POST" })
           userId = invited.user?.id ?? null;
         }
 
-        if (userId) {
-          await supabaseAdmin.from("profiles").upsert({
-            id: userId, email: s.email, full_name: s.full_name, is_active: true,
-          });
-          const { data: hasRole } = await supabaseAdmin
-            .from("user_roles").select("id")
-            .eq("user_id", userId).eq("role", "lead").maybeSingle();
-          if (!hasRole) {
-            await supabaseAdmin.from("user_roles").insert({ user_id: userId, role: "lead" });
-          }
+        if (!userId) {
+          results.push({ email: s.email, full_name: s.full_name, ok: false, error: "no auth user id" });
+          continue;
+        }
+
+        // check existing candidate linked to this auth user
+        const { data: existCand } = await supabaseAdmin
+          .from("candidates").select("id").eq("user_id", userId).maybeSingle();
+        if (existCand) {
+          results.push({ email: s.email, full_name: s.full_name, ok: false, error: "תלמיד כבר קיים" });
+          continue;
+        }
+
+        await supabaseAdmin.from("profiles").upsert({
+          id: userId, email: s.email, full_name: s.full_name, is_active: true,
+        });
+        const { data: hasRole } = await supabaseAdmin
+          .from("user_roles").select("id")
+          .eq("user_id", userId).eq("role", "lead").maybeSingle();
+        if (!hasRole) {
+          await supabaseAdmin.from("user_roles").insert({ user_id: userId, role: "lead" });
         }
 
         const { error: candErr } = await supabaseAdmin.from("candidates").insert({
-          full_name: s.full_name, email: s.email, class_id: data.class_id, status: "new_lead", payment_status: "unpaid",
+          full_name: s.full_name, email: s.email, user_id: userId,
+          class_id: data.class_id, status: "new_lead", payment_status: "unpaid",
         });
         if (candErr) {
           results.push({ email: s.email, full_name: s.full_name, ok: false, error: candErr.message });
@@ -146,7 +152,7 @@ export const setCandidatePayment = createServerFn({ method: "POST" })
     if (!roleRow) throw new Error("Only owners can change payment status");
 
     const { data: cand, error: candErr } = await supabaseAdmin
-      .from("candidates").select("id,email")
+      .from("candidates").select("id,user_id")
       .eq("id", data.candidate_id).maybeSingle();
     if (candErr || !cand) throw new Error(candErr?.message ?? "Candidate not found");
 
@@ -154,21 +160,20 @@ export const setCandidatePayment = createServerFn({ method: "POST" })
       .update({ payment_status: data.payment_status })
       .eq("id", data.candidate_id);
 
-    // Sync user role: paid -> student, unpaid -> lead
-    if (cand.email) {
-      const { data: profile } = await supabaseAdmin
-        .from("profiles").select("id").ilike("email", cand.email).maybeSingle();
-      if (profile) {
-        const newRole = data.payment_status === "paid" ? "student" : "lead";
-        const dropRole = data.payment_status === "paid" ? "lead" : "student";
-        await supabaseAdmin.from("user_roles")
-          .delete().eq("user_id", profile.id).eq("role", dropRole);
-        const { data: existing } = await supabaseAdmin
-          .from("user_roles").select("id")
-          .eq("user_id", profile.id).eq("role", newRole).maybeSingle();
-        if (!existing) {
-          await supabaseAdmin.from("user_roles").insert({ user_id: profile.id, role: newRole });
-        }
+    // Sync user role: paid -> student, unpaid -> lead.
+    // Matched ONLY on the stable link candidates.user_id -> auth.users.id
+    // (never on email, which used to be user-editable in profiles).
+    if (cand.user_id) {
+      const linkedUserId = cand.user_id;
+      const newRole = data.payment_status === "paid" ? "student" : "lead";
+      const dropRole = data.payment_status === "paid" ? "lead" : "student";
+      await supabaseAdmin.from("user_roles")
+        .delete().eq("user_id", linkedUserId).eq("role", dropRole);
+      const { data: existing } = await supabaseAdmin
+        .from("user_roles").select("id")
+        .eq("user_id", linkedUserId).eq("role", newRole).maybeSingle();
+      if (!existing) {
+        await supabaseAdmin.from("user_roles").insert({ user_id: linkedUserId, role: newRole });
       }
     }
 

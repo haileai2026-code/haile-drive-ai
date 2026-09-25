@@ -28,18 +28,18 @@ function ProfilePage() {
         .maybeSingle();
       if (!cancelled) setProfile(p ?? null);
 
-      // Find candidate row for this user (by email) and JOIN class name
-      const email = p?.email ?? user.email ?? null;
-      if (email) {
-        const { data: cand } = await supabase
-          .from("candidates")
-          .select("class_id, classes:class_id(name)")
-          .ilike("email", email)
+      // Class via SECURITY DEFINER helper keyed on candidates.user_id
+      // (students have no table access to public.candidates).
+      const { data: classId } = await supabase.rpc("current_user_class_id");
+      if (classId) {
+        const { data: cls } = await supabase
+          .from("classes")
+          .select("name")
+          .eq("id", classId)
           .maybeSingle();
-        if (!cancelled) {
-          const name = (cand as any)?.classes?.name ?? null;
-          setClassName(name);
-        }
+        if (!cancelled) setClassName(cls?.name ?? null);
+      } else if (!cancelled) {
+        setClassName(null);
       }
     })();
     return () => {
