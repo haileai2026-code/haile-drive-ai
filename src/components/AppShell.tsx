@@ -4,6 +4,7 @@ import { useI18n } from "@/lib/i18n";
 import { LangSwitcher } from "./LangSwitcher";
 import { RequireAuth } from "./RequireAuth";
 import { LeadLockScreen } from "./LeadLockScreen";
+import { ConsentGate } from "./ConsentGate";
 import { useAuth, roleHomePath } from "@/lib/auth";
 import type { ReactNode } from "react";
 import type { Role } from "@/lib/ops-data";
@@ -59,7 +60,9 @@ export function AppShell({
         </div>
       </header>
 
-      <main className="mx-auto max-w-screen-md px-4 py-6">{lockContent ? <LeadLockScreen /> : children}</main>
+      <main className="mx-auto max-w-screen-md px-4 py-6">
+        <ConsentGate>{lockContent ? <LeadLockScreen /> : children}</ConsentGate>
+      </main>
 
       {(
         <nav className="fixed bottom-4 left-1/2 z-40 w-[calc(100%-2rem)] max-w-screen-md -translate-x-1/2 rounded-2xl border border-border/70 bg-card/90 p-2 shadow-[var(--shadow-elev)] backdrop-blur-xl">

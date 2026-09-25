@@ -386,6 +386,42 @@ export type Database = {
         }
         Relationships: []
       }
+      consents: {
+        Row: {
+          checkbox_version: string
+          consent_type: string
+          created_at: string
+          granted: boolean
+          id: string
+          language: string
+          notice_version: string
+          terms_version: string | null
+          user_id: string
+        }
+        Insert: {
+          checkbox_version: string
+          consent_type: string
+          created_at?: string
+          granted: boolean
+          id?: string
+          language: string
+          notice_version: string
+          terms_version?: string | null
+          user_id?: string
+        }
+        Update: {
+          checkbox_version?: string
+          consent_type?: string
+          created_at?: string
+          granted?: boolean
+          id?: string
+          language?: string
+          notice_version?: string
+          terms_version?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           content: string
