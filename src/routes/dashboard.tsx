@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { scheduleApi, type ScheduleEvent } from "@/lib/admin-api";
 import { openMaterial } from "@/lib/materials";
+import { BETA_FEATURES } from "@/lib/beta-flags";
 import {
   getLastLessonProgress,
   formatTime,
@@ -107,7 +108,8 @@ function Dashboard() {
         scheduleApi.list({ from: today, to: today }).catch(() => [] as ScheduleEvent[]),
       ]);
       if (cancelled) return;
-      const beqaRows = beqaRes.data ?? [];
+      // Closed beta: the BEQA/psych score is not shown to students (hidden only).
+      const beqaRows = BETA_FEATURES.studentPsychScore ? (beqaRes.data ?? []) : [];
       setBeqaCount(beqaRows.length);
       setBeqaScore(beqaRows[0]?.final_beqa_score != null ? Math.round(Number(beqaRows[0].final_beqa_score)) : null);
       const exams = examRes.data ?? [];
@@ -289,11 +291,13 @@ function Dashboard() {
             {lastExamTitle ? `אחרון: ${lastExamTitle}` : "התחל מבחן"}
           </div>
         </Link>
-        <Link to="/diagnostics" className="group rounded-2xl border border-success/40 bg-card/60 p-4 transition hover:border-success">
-          <Activity className="h-6 w-6 text-success" />
-          <div className="mt-3 text-sm font-semibold">BEQA חי</div>
-          <div className="text-xs text-muted-foreground">מצלמה · BPM · HRV</div>
-        </Link>
+        {BETA_FEATURES.heartRateCamera && (
+          <Link to="/diagnostics" className="group rounded-2xl border border-success/40 bg-card/60 p-4 transition hover:border-success">
+            <Activity className="h-6 w-6 text-success" />
+            <div className="mt-3 text-sm font-semibold">BEQA חי</div>
+            <div className="text-xs text-muted-foreground">מצלמה · BPM · HRV</div>
+          </Link>
+        )}
         <Link to="/marvad-simulator" className="group col-span-2 rounded-2xl border border-gold/50 bg-gradient-to-br from-amber-900/40 via-card to-card p-4 transition hover:border-gold shadow-[var(--shadow-gold)]">
           <div className="flex items-center gap-3">
             <span className="text-2xl">🧠</span>

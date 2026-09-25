@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { BETA_FEATURES, PHONE_LOGIN_DISABLED } from "./beta-flags";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { phoneToEmail, normalizePhone } from "./sms/config";
@@ -40,6 +41,7 @@ export const requestPhoneOtp = createServerFn({ method: "POST" })
     z.object({ phone: z.string().min(6).max(40) }).parse(input),
   )
   .handler(async ({ data }) => {
+    if (!BETA_FEATURES.phoneOtpLogin) throw new Error(PHONE_LOGIN_DISABLED);
     const phone = normalizePhone(data.phone);
     if (phone.length < 6) throw new Error("מספר טלפון לא תקין");
 
@@ -97,6 +99,7 @@ export const verifyPhoneOtp = createServerFn({ method: "POST" })
     }).parse(input),
   )
   .handler(async ({ data }) => {
+    if (!BETA_FEATURES.phoneOtpLogin) throw new Error(PHONE_LOGIN_DISABLED);
     const phone = normalizePhone(data.phone);
 
     const { data: req, error } = await supabaseAdmin

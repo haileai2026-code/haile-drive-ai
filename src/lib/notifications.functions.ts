@@ -2,6 +2,9 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { BETA_FEATURES } from "@/lib/beta-flags";
+
+const OUTBOUND_DISABLED = "Outbound SMS/WhatsApp is disabled in the closed beta";
 
 async function requireOwnerOrStaff(ctx: { supabase: any; userId: string }) {
   const { data, error } = await ctx.supabase
@@ -29,6 +32,8 @@ export async function sendViaTwilio(opts: {
   to: string;
   body: string;
 }): Promise<{ ok: true; sid: string } | { ok: false; error: string }> {
+  // Closed beta: no outbound SMS/WhatsApp at all.
+  if (!BETA_FEATURES.outboundMessaging) return { ok: false, error: OUTBOUND_DISABLED };
   const sid = process.env.TWILIO_ACCOUNT_SID;
   const token = process.env.TWILIO_AUTH_TOKEN;
   const smsFrom = process.env.TWILIO_SMS_FROM;
@@ -69,6 +74,10 @@ function adminSb() {
 
 /** Internal worker — runs the queue with admin privileges. Caller must enforce auth. */
 export async function runPendingNotifications() {
+  // Closed beta: leave the queue untouched (rows stay 'pending', nothing sent).
+  if (!BETA_FEATURES.outboundMessaging) {
+    return { processed: 0, sent: 0, failed: 0, disabled: true as const };
+  }
   const sb = adminSb();
   const nowIso = new Date().toISOString();
   const { data: rows, error } = await sb
@@ -124,6 +133,7 @@ export const sendNotificationNow = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await requireOwnerOrStaff(context);
+    if (!BETA_FEATURES.outboundMessaging) throw new Error(OUTBOUND_DISABLED);
     const sb = adminSb();
     const { data: row, error } = await sb
       .from("notifications")
