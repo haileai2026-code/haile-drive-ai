@@ -4,6 +4,9 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { phoneToEmail, normalizePhone } from "./sms/config";
 import { sendViaTwilio, normalizePhone as toE164 } from "./notifications.functions";
+import { BETA_FEATURES } from "./beta-flags";
+
+const PHONE_LOGIN_DISABLED = "כניסה בטלפון אינה זמינה בגרסת הבטא — יש להיכנס עם אימייל";
 
 function generateOtp(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -40,6 +43,7 @@ export const requestPhoneOtp = createServerFn({ method: "POST" })
     z.object({ phone: z.string().min(6).max(40) }).parse(input),
   )
   .handler(async ({ data }) => {
+    if (!BETA_FEATURES.phoneOtpLogin) throw new Error(PHONE_LOGIN_DISABLED);
     const phone = normalizePhone(data.phone);
     if (phone.length < 6) throw new Error("מספר טלפון לא תקין");
 
@@ -97,6 +101,7 @@ export const verifyPhoneOtp = createServerFn({ method: "POST" })
     }).parse(input),
   )
   .handler(async ({ data }) => {
+    if (!BETA_FEATURES.phoneOtpLogin) throw new Error(PHONE_LOGIN_DISABLED);
     const phone = normalizePhone(data.phone);
 
     const { data: req, error } = await supabaseAdmin

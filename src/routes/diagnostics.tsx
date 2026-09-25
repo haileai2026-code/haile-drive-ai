@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { createTTS, createFaceAnalysis, createRPPG } from "@/lib/diagnostics/config";
+import { BETA_FEATURES, BETA_DISABLED_MESSAGE } from "@/lib/beta-flags";
 import type { TTSProvider, FaceAnalysisProvider, RPPGProvider, FaceEmotion } from "@/lib/diagnostics/interfaces";
 import { BiometricConsentScreen, hasGrantedBiometricConsent } from "@/components/diagnostics/BiometricConsentScreen";
 import { finishDiagnostic } from "@/lib/diagnostics/finish-diagnostic.functions";
@@ -21,7 +22,7 @@ import {
 
 export const Route = createFileRoute("/diagnostics")({
   head: () => ({ meta: [{ title: "אבחון מקצועי מאוחד — Haile Drive AI" }] }),
-  component: DiagnosticsPage,
+  component: DiagnosticsGate,
 });
 
 type Phase = "welcome" | "consent" | "community" | "calibration" | "questions" | "pressure" | "results";
@@ -39,6 +40,20 @@ type EmoPoint = { t: number; anxiety: number; focus: number; confidence: number;
 
 const CALIBRATION_SECONDS = 30;
 const PRESSURE_SECONDS = 20;
+
+// Closed beta: the heart-rate (rPPG) camera diagnostic is hidden (not removed).
+function DiagnosticsGate() {
+  if (!BETA_FEATURES.heartRateCamera) {
+    return (
+      <AppShell>
+        <div dir="rtl" className="mx-auto max-w-md py-16 text-center text-sm text-muted-foreground">
+          {BETA_DISABLED_MESSAGE}
+        </div>
+      </AppShell>
+    );
+  }
+  return <DiagnosticsPage />;
+}
 
 function DiagnosticsPage() {
   const { user } = useAuth();

@@ -38,6 +38,8 @@ export const createDailyRoom = createServerFn({ method: "POST" })
           max_participants: 30,
           enable_chat: true,
           enable_screenshare: true,
+          // Recording stays OFF: enable_recording is intentionally not set
+          // (Daily default for REST-created rooms = recording disabled).
           exp,
         },
       }),
