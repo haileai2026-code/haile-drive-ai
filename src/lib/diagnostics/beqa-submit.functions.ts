@@ -94,6 +94,9 @@ export const submitMarvadSession = createServerFn({ method: "POST" })
     // score. We store only the raw measurements (no score columns), so every
     // consumer that filters on final_beqa_score IS NOT NULL (readiness score,
     // dashboard, admin, history) ignores these rows.
+    // TODO(post-go-live): storing raw practice (Marvad) measurements without a
+    // score is accepted for the closed beta (CTO decision). Revisit after
+    // go-live: keep, minimise or stop storing these raw practice measurements.
     const { error } = await supabaseAdmin.from("beqa_diagnostic_sessions").insert({
       student_id: context.userId,
       assessment_type: "marvad_simulator",
