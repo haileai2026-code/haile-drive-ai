@@ -229,3 +229,62 @@ $$;
 revoke all on function public.get_teacher_roster() from public, anon;
 grant execute on function public.get_teacher_roster() to authenticated;
 
+
+-- ---------------------------------------------------------------------
+-- 9. CTO decision (2026-09-25): the remaining email-matching policies are
+--    in scope. Students match on the stable link only (current_candidate_id()
+--    for candidate-keyed tables, auth.uid() for user-keyed ones).
+--    TODO(phone-otp): students who log in by phone OTP are NOT linked to
+--    candidates.user_id by any flow yet; linking must be done by staff via
+--    the import/admin flow. Do NOT add phone-based matching (phone login is
+--    off for the closed beta).
+-- ---------------------------------------------------------------------
+
+-- Helper for teacher-addressed contact messages: does the caller teach the
+-- class of the candidate linked to _student_user_id? SECURITY DEFINER because
+-- teachers have no table access to public.candidates.
+create or replace function public.teaches_student_user(_student_user_id uuid)
+returns boolean
+language sql stable security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1
+    from public.candidates c
+    join public.classes cl on cl.id = c.class_id
+    where c.user_id = _student_user_id
+      and cl.teacher_id = (select auth.uid())
+  );
+$$;
+revoke all on function public.teaches_student_user(uuid) from public, anon;
+grant execute on function public.teaches_student_user(uuid) to authenticated, service_role;
+
+drop policy if exists "Students view own attendance" on public.attendance_records;
+create policy attendance_student_select_own on public.attendance_records for select to authenticated
+  using (candidate_id = (select public.current_candidate_id()));
+
+drop policy if exists "Students view own makeup" on public.makeup_assignments;
+create policy makeup_student_select_own on public.makeup_assignments for select to authenticated
+  using (candidate_id = (select public.current_candidate_id()));
+
+drop policy if exists "Sender or admin reads contact" on public.contact_messages;
+create policy contact_select on public.contact_messages for select to authenticated
+  using (
+    sender_id = (select auth.uid())
+    or (select public.is_staff())
+    or (recipient_role = 'teacher'::public.contact_recipient
+        and public.teaches_student_user(sender_id))
+  );
+
+drop policy if exists "Admin or recipient updates contact" on public.contact_messages;
+create policy contact_update on public.contact_messages for update to authenticated
+  using (
+    (select public.is_staff())
+    or (recipient_role = 'teacher'::public.contact_recipient
+        and public.teaches_student_user(sender_id))
+  )
+  with check (
+    (select public.is_staff())
+    or (recipient_role = 'teacher'::public.contact_recipient
+        and public.teaches_student_user(sender_id))
+  );

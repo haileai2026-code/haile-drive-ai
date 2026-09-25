@@ -178,16 +178,50 @@ begin
                  'public.notifications'::regclass,'public.schedule_events'::regclass)
      and relrowsecurity and relforcerowsecurity and not has_table_privilege('anon', oid, 'SELECT');
   if n <> 4 then raise exception 'FAIL F1: RLS/FORCE/anon-revoke missing on % of 4 tables', 4 - n; end if;
+  -- CTO decision: no policy on ANY table may match on email.
   select count(*) into n from pg_policies
-   where schemaname = 'public'
-     and tablename in ('candidates','candidate_documents','notifications','schedule_events','profiles')
+   where schemaname in ('public','storage')
      and (qual ilike '%email%' or with_check ilike '%email%');
-  if n <> 0 then raise exception 'FAIL F2: % in-scope policies still reference email', n; end if;
+  if n <> 0 then raise exception 'FAIL F2: % policies still reference email', n; end if;
   select count(*) into n from pg_policies
    where schemaname = 'public' and tablename = 'schedule_events'
      and policyname in ('Teachers insert their schedule','Teachers view their schedule','Teachers update their schedule');
   if n <> 3 then raise exception 'FAIL F3: teacher schedule policies not kept (%/3)', n; end if;
   raise notice 'PASS F catalog';
+end $$;
+
+-- ---------- G) attendance / makeup / contact_messages via stable link ----------
+insert into public.attendance_records(class_id, candidate_id, lesson_date, mark) values
+  ('20000000-0000-0000-0000-000000000001','10000000-0000-0000-0000-000000000001', current_date, 'present'::public.attendance_mark),
+  ('20000000-0000-0000-0000-000000000002','10000000-0000-0000-0000-000000000002', current_date, 'late'::public.attendance_mark);
+insert into public.makeup_assignments(candidate_id, source_class_id, source_date) values
+  ('10000000-0000-0000-0000-000000000001','20000000-0000-0000-0000-000000000001', current_date),
+  ('10000000-0000-0000-0000-000000000002','20000000-0000-0000-0000-000000000002', current_date);
+insert into public.contact_messages(sender_id, recipient_role, subject, content) values
+  ('00000000-0000-0000-0000-00000000000c','teacher'::public.contact_recipient,'s1','t'),
+  ('00000000-0000-0000-0000-00000000000d','teacher'::public.contact_recipient,'s2','t');
+do $$
+declare n int;
+begin
+  set local role authenticated;
+  perform set_config('request.jwt.claims','{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}', true);
+  select count(*) into n from public.attendance_records;
+  if n <> 1 then raise exception 'FAIL G1: student1 should see 1 own attendance row, got %', n; end if;
+  select count(*) into n from public.makeup_assignments;
+  if n <> 1 then raise exception 'FAIL G2: student1 should see 1 own makeup row, got %', n; end if;
+  select count(*) into n from public.contact_messages;
+  if n <> 1 then raise exception 'FAIL G3: student1 should see only own message, got %', n; end if;
+  reset role;
+  -- teacher of class A (student1) sees student1's teacher message only
+  set local role authenticated;
+  perform set_config('request.jwt.claims','{"sub":"00000000-0000-0000-0000-00000000000e","role":"authenticated"}', true);
+  select count(*) into n from public.contact_messages;
+  if n <> 1 then raise exception 'FAIL G4: teacher should see 1 message, got %', n; end if;
+  update public.contact_messages set is_read = true where subject = 's2';
+  get diagnostics n = row_count;
+  if n <> 0 then raise exception 'FAIL G5: teacher updated a message from another class'; end if;
+  reset role;
+  raise notice 'PASS G attendance/makeup/contact';
 end $$;
 
 rollback;

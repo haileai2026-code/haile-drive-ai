@@ -73,6 +73,9 @@ export const importStudents = createServerFn({ method: "POST" })
 
     for (const s of data.students) {
       try {
+        // TODO(phone-otp): students who log in via phone OTP are not linked to
+        // candidates.user_id by any flow yet; link them through this staff
+        // flow. Never add phone-based matching (phone login is off in beta).
         // Resolve the auth user first; the candidate row is linked and
         // de-duplicated on candidates.user_id (never on the email column).
         // Invite via auth (creates user + sends email).
