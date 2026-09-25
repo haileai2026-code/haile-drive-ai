@@ -1026,6 +1026,7 @@ export type Database = {
       }
       phone_login_requests: {
         Row: {
+          attempts: number
           created_at: string
           expires_at: string
           id: string
@@ -1037,6 +1038,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          attempts?: number
           created_at?: string
           expires_at?: string
           id?: string
@@ -1048,6 +1050,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          attempts?: number
           created_at?: string
           expires_at?: string
           id?: string
@@ -1388,6 +1391,17 @@ export type Database = {
         }
         Returns: boolean
       }
+      phone_otp_request_allowed: { Args: { p_phone: string }; Returns: boolean }
+      phone_otp_verify: {
+        Args: { p_otp_hash: string; p_phone: string }
+        Returns: {
+          expires_at: string | null
+          outcome: string
+          request_id: string | null
+          status: string | null
+        }[]
+      }
+      purge_phone_otps: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "owner" | "staff" | "teacher" | "student" | "lead"

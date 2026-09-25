@@ -4,10 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { phoneToEmail, normalizePhone } from "./sms/config";
 import { sendViaTwilio, normalizePhone as toE164 } from "./notifications.functions";
-
-function generateOtp(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
+import { generateOtp } from "./otp";
 
 async function hashOtp(otp: string): Promise<string> {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(otp));
@@ -43,7 +40,15 @@ export const requestPhoneOtp = createServerFn({ method: "POST" })
     const phone = normalizePhone(data.phone);
     if (phone.length < 6) throw new Error("מספר טלפון לא תקין");
 
-    const otp = generateOtp();
+    // Per-phone throttle + lockout (SQL, service role only).
+    const { data: allowed, error: throttleErr } = await supabaseAdmin.rpc(
+      "phone_otp_request_allowed",
+      { p_phone: phone },
+    );
+    if (throttleErr) throw new Error("שגיאה, נסה שוב מאוחר יותר");
+    if (allowed !== true) throw new Error("יותר מדי ניסיונות. נסה שוב בעוד 15 דקות");
+
+    const otp = generateOtp(); // CSPRNG, uniform 6 digits
 
     const { data: inserted, error } = await supabaseAdmin
       .from("phone_login_requests")
@@ -99,16 +104,21 @@ export const verifyPhoneOtp = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const phone = normalizePhone(data.phone);
 
-    const { data: req, error } = await supabaseAdmin
-      .from("phone_login_requests")
-      .select("id, status, otp_hash, expires_at")
-      .eq("phone", phone)
-      .eq("otp_hash", await hashOtp(data.otp))
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if (error) throw new Error(error.message);
-    if (!req) throw new Error("קוד שגוי");
+    // Atomic lockout check + match + failure counting in SQL: after 5 failed
+    // attempts per phone within 15 min even the correct code is rejected.
+    const { data: rows, error } = await supabaseAdmin.rpc("phone_otp_verify", {
+      p_phone: phone,
+      p_otp_hash: await hashOtp(data.otp),
+    });
+    if (error) throw new Error("שגיאה, נסה שוב מאוחר יותר");
+    const result = rows?.[0];
+    if (!result || result.outcome === "locked") {
+      throw new Error("יותר מדי ניסיונות שגויים. נסה שוב בעוד 15 דקות");
+    }
+    if (result.outcome !== "ok" || !result.request_id || !result.expires_at) {
+      throw new Error("קוד שגוי");
+    }
+    const req = { id: result.request_id, status: result.status, expires_at: result.expires_at };
     if (new Date(req.expires_at).getTime() < Date.now()) {
       throw new Error("הקוד פג תוקף");
     }
