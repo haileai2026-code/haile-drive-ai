@@ -36,3 +36,5 @@ export const BETA_FEATURES = {
 } as const;
 
 export const BETA_DISABLED_MESSAGE = "לא זמין בגרסת הבטא · Not available in the beta";
+
+export const PHONE_LOGIN_DISABLED = "כניסה בטלפון אינה זמינה בגרסת הבטא — יש להיכנס עם אימייל";

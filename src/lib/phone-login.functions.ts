@@ -1,12 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { BETA_FEATURES, PHONE_LOGIN_DISABLED } from "./beta-flags";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { phoneToEmail, normalizePhone } from "./sms/config";
 import { sendViaTwilio, normalizePhone as toE164 } from "./notifications.functions";
-import { BETA_FEATURES } from "./beta-flags";
-
-const PHONE_LOGIN_DISABLED = "כניסה בטלפון אינה זמינה בגרסת הבטא — יש להיכנס עם אימייל";
 
 function generateOtp(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
