@@ -7,9 +7,6 @@ import {
   INTERVIEW,
   MMPI_MAX,
   MMPI_QUESTIONS,
-  atavtScore,
-  computeMarvad,
-  cptScore,
   interviewFromPicks,
   mmpiFromPicks,
 } from "./marvad-scoring";
@@ -17,7 +14,9 @@ import {
 // Server-side grading + storage for BEQA sessions (plan C2).
 // Students have no INSERT/UPDATE grant on beqa_diagnostic_sessions; these
 // handlers authenticate the caller, check BEQA access with the caller's own
-// client, recompute every score on the server and insert with the service role.
+// client, recompute every official score on the server and insert with the
+// service role. Exception: the Marvad simulator is practice-only; its score is
+// never sent to or stored on the server (raw measurements only, no score).
 // Nothing score-related is returned to the client.
 
 export const submitPsychDiagnostic = createServerFn({ method: "POST" })
@@ -87,29 +86,32 @@ export const submitMarvadSession = createServerFn({ method: "POST" })
 
     const mmpi = mmpiFromPicks(data.mmpiPicks);
     const interview = interviewFromPicks(data.interviewPicks);
-    const cpt = data.cpt ? { ...data.cpt, score: cptScore(data.cpt) } : null;
+    const cpt = data.cpt;
     const atavtTrials = data.atavtTrials.map((s) => Math.round(s));
-    const atavt = atavtTrials.length
-      ? { trials: atavtTrials, score: atavtScore(atavtTrials) }
-      : null;
-    const finalScore = computeMarvad(cpt, atavt, interview.score, mmpi.score, mmpi.lieFlag);
-
+    // CTO decision: the Marvad simulator score is a PRACTICE score only. It is
+    // computed client-side for the practice results screen and is never sent
+    // to or stored on the server, and it never counts toward the official BEQA
+    // score. We store only the raw measurements (no score columns), so every
+    // consumer that filters on final_beqa_score IS NOT NULL (readiness score,
+    // dashboard, admin, history) ignores these rows.
     const { error } = await supabaseAdmin.from("beqa_diagnostic_sessions").insert({
       student_id: context.userId,
       assessment_type: "marvad_simulator",
-      psychological_score: Math.min(100, Math.max(0, 50 + interview.score)),
-      accuracy_score: Math.min(100, (mmpi.score / MMPI_MAX) * 100),
-      final_beqa_score: finalScore,
+      psychological_score: null,
+      accuracy_score: null,
+      final_beqa_score: null,
       end_time: new Date().toISOString(),
       metadata: {
+        practice: true,
+        counts_toward_official_score: false,
         rt_mean: cpt?.rtMean ?? null,
         rt_sd: cpt?.rtSd ?? null,
         omissions: cpt?.omissions ?? 0,
         commissions: cpt?.commissions ?? 0,
-        atavt_scores: atavtTrials,
+        atavt_trials: atavtTrials,
         mmpi_lie_flag: mmpi.lieFlag,
         interview_notes: interview.notes,
-        graded: "server",
+        graded: "none (practice)",
       },
     });
     if (error) throw new Error("Could not save the session");

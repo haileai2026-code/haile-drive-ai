@@ -70,8 +70,9 @@ function MarvadSimulatorPage() {
     lieFlag: boolean,
     interviewPicks: number[],
   ) => {
-    // Local score is for the practice results screen only; the stored score is
-    // recomputed on the server from the raw picks/measurements below.
+    // PRACTICE score only (CTO decision): shown on the results screen, never
+    // included in the payload below, never stored, and never part of the
+    // official BEQA score. The server stores raw measurements only.
     const score = computeMarvad(cpt, atavt, intScore, mmpi, lieFlag);
     setFinalScore(score);
     setStage("results");
@@ -88,7 +89,7 @@ function MarvadSimulatorPage() {
           atavtTrials: atavt?.trials ?? [],
         },
       });
-      toast.success("התוצאות נשמרו בהצלחה");
+      toast.success("נתוני התרגול נשמרו (ללא ציון)");
     } catch (e) {
       toast.error("שגיאה בשמירת התוצאות: " + (e instanceof Error ? e.message : String(e)));
     } finally {
@@ -655,10 +656,16 @@ function ResultsScreen({
       <Card className="border-gold/40 bg-gradient-to-br from-amber-900/30 to-card shadow-[var(--shadow-gold)]">
         <CardContent className="p-6 text-center space-y-3">
           <Trophy className="mx-auto h-10 w-10 text-gold" />
-          <div className="text-xs uppercase tracking-wider text-gold/80">Haile Score</div>
+          <div className="inline-block rounded-full border border-amber-400/60 bg-amber-400/10 px-3 py-0.5 text-xs font-bold text-amber-300">
+            תרגול
+          </div>
+          <div className="text-xs uppercase tracking-wider text-gold/80">ציון תרגול (Practice score)</div>
           <div className="text-6xl font-black text-gradient-gold">{finalScore}</div>
           <div className={`text-sm font-bold ${verdictClr}`}>{verdict}</div>
-          {saving && <p className="text-xs text-muted-foreground">שומר תוצאות…</p>}
+          <p className="text-xs text-muted-foreground" data-testid="marvad-practice-disclaimer">
+            ציון תרגול בלבד — מחושב במכשיר שלך, לא נשמר בשרת ואינו נחשב לציון הרשמי.
+          </p>
+          {saving && <p className="text-xs text-muted-foreground">שומר נתוני תרגול…</p>}
         </CardContent>
       </Card>
 
