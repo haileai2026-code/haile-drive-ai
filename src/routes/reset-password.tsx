@@ -26,11 +26,13 @@ function ResetPasswordPage() {
   useEffect(() => {
     // Supabase fires PASSWORD_RECOVERY when the user lands from the email link
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "PASSWORD_RECOVERY" || session) setHasSession(!!session);
+      if (session) { setHasSession(true); setReady(true); }
     });
+    const hasToken = /access_token|code=|type=recovery/.test(window.location.hash + window.location.search);
     supabase.auth.getSession().then(({ data }) => {
-      setHasSession(!!data.session);
-      setReady(true);
+      if (data.session) { setHasSession(true); setReady(true); return; }
+      // give the client time to exchange the token from the email link
+      setTimeout(() => setReady(true), hasToken ? 4000 : 0);
     });
     return () => sub.subscription.unsubscribe();
   }, []);

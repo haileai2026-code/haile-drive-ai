@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.location.hash) {
+    if (typeof window !== 'undefined' && window.location.hash && !window.location.pathname.startsWith('/reset-password')) {
       const hash = window.location.hash;
       if (hash.includes('access_token') || hash.includes('refresh_token') || hash.includes('error_description')) {
         window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
