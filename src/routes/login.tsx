@@ -135,7 +135,13 @@ function LoginPage() {
       redirectTo: `${window.location.origin}/reset-password`,
     });
     setBusy(false);
-    if (error) { setErr(error.message); return; }
+    if (error) {
+      const limited = error.status === 429 || /rate limit|too many/i.test(error.message);
+      setErr(limited
+        ? "נשלחו יותר מדי בקשות לאיפוס סיסמה. ניתן לבקש קישור חדש בעוד כשעה. אם כבר קיבלת מייל — השתמש/י בקישור האחרון שהגיע."
+        : "לא הצלחנו לשלוח קישור כרגע. נסה/י שוב בעוד כמה דקות.");
+      return;
+    }
     setInfo("שלחנו קישור לאיפוס סיסמה למייל שלך. בדוק/י גם בתיקיית הספאם.");
   };
 

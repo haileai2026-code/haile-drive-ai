@@ -69,6 +69,14 @@ function ResetPasswordPage() {
               <p className="text-sm text-rose-400">
                 הקישור פג תוקף או אינו תקין. בקש/י קישור חדש מדף ההתחברות.
               </p>
+              <div className="rounded-2xl border border-gold/30 bg-gold/10 p-3 text-xs leading-relaxed text-foreground/90">
+                <p className="font-semibold text-gold">חשוב לדעת</p>
+                <ul className="mt-1 list-disc space-y-1 pr-4">
+                  <li>כל קישור עובד פעם אחת בלבד ותקף לזמן מוגבל.</li>
+                  <li>יש מגבלה על מספר הקישורים שאפשר לבקש. אם הגעת למגבלה — אפשר לבקש קישור חדש בעוד כשעה.</li>
+                  <li>אם ביקשת כמה קישורים, השתמש/י רק במייל האחרון שהגיע.</li>
+                </ul>
+              </div>
               <Link to="/login" className="inline-flex text-sm font-semibold text-gold hover:underline">
                 חזרה להתחברות
               </Link>
