@@ -143,15 +143,9 @@ function MarvadSimulatorPage() {
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const { data: profile } = await supabase.from("profiles").select("email").eq("id", user.id).maybeSingle();
-      const email = profile?.email?.toLowerCase();
-      if (!email) { setHasAccess(false); return; }
-      const { data: candidate } = await supabase
-        .from("candidates")
-        .select("beqa_access")
-        .ilike("email", email)
-        .maybeSingle();
-      setHasAccess(!!candidate?.beqa_access);
+      // SECURITY DEFINER helper keyed on candidates.user_id (no direct table read).
+      const { data } = await supabase.rpc("current_user_has_beqa_access");
+      setHasAccess(data === true);
     })();
   }, [user]);
 

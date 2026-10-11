@@ -199,6 +199,7 @@ export type Database = {
           status: Database["public"]["Enums"]["candidate_status"]
           tags: string[] | null
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           assigned_teacher_id?: string | null
@@ -217,6 +218,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["candidate_status"]
           tags?: string[] | null
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           assigned_teacher_id?: string | null
@@ -235,6 +237,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["candidate_status"]
           tags?: string[] | null
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -380,6 +383,42 @@ export type Database = {
           media_url?: string | null
           post_type?: Database["public"]["Enums"]["community_post_type"]
           updated_at?: string
+        }
+        Relationships: []
+      }
+      consents: {
+        Row: {
+          checkbox_version: string
+          consent_type: string
+          created_at: string
+          granted: boolean
+          id: string
+          language: string
+          notice_version: string
+          terms_version: string | null
+          user_id: string
+        }
+        Insert: {
+          checkbox_version: string
+          consent_type: string
+          created_at?: string
+          granted: boolean
+          id?: string
+          language: string
+          notice_version: string
+          terms_version?: string | null
+          user_id?: string
+        }
+        Update: {
+          checkbox_version?: string
+          consent_type?: string
+          created_at?: string
+          granted?: boolean
+          id?: string
+          language?: string
+          notice_version?: string
+          terms_version?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -1357,6 +1396,7 @@ export type Database = {
         Args: { user_id_param: string }
         Returns: number
       }
+      current_candidate_id: { Args: never; Returns: string }
       current_user_class_id: { Args: never; Returns: string }
       current_user_has_beqa_access: { Args: never; Returns: boolean }
       get_exam_options: {
@@ -1371,6 +1411,15 @@ export type Database = {
       get_primary_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
+      }
+      get_teacher_roster: {
+        Args: never
+        Returns: {
+          class_id: string
+          full_name: string
+          id: string
+          status: Database["public"]["Enums"]["candidate_status"]
+        }[]
       }
       grade_exam_attempt: {
         Args: { p_answers: Json; p_exam_id: string }
@@ -1388,6 +1437,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_staff: { Args: { _owner_only?: boolean }; Returns: boolean }
     }
     Enums: {
       app_role: "owner" | "staff" | "teacher" | "student" | "lead"
