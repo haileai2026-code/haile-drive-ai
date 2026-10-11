@@ -16,10 +16,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { RequireAuth } from "@/components/RequireAuth";
 
 export const Route = createFileRoute("/beqa-history")({
-  component: BeqaHistoryPage,
+  component: BeqaHistoryGuarded,
 });
+
+// Plan C3: BEQA scores are staff-only. Students/leads/teachers never render
+// this page (RequireAuth redirects; the explicit role check also covers a
+// missing role, which RequireAuth lets through).
+function BeqaHistoryGuarded() {
+  const { role } = useAuth();
+  return (
+    <RequireAuth roles={["owner", "staff"]}>
+      {role === "owner" || role === "staff" ? <BeqaHistoryPage /> : null}
+    </RequireAuth>
+  );
+}
 
 type Session = {
   id: string;

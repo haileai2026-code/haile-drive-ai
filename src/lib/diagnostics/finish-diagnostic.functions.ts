@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { calculateBeqaScore } from "@/lib/beqa-questions";
 import { scoreFor } from "./scoring";
 
@@ -26,6 +27,12 @@ export const finishDiagnostic = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
+    // Gate with the caller's own client (auth.uid() = caller), then write with
+    // the service role: students have no INSERT grant on beqa_diagnostic_sessions.
+    const { data: access, error: accessErr } = await context.supabase.rpc("current_user_has_beqa_access");
+    if (accessErr) throw new Error("BEQA access check failed");
+    if (access !== true) throw new Error("No BEQA access");
+
     const scored = data.answers.map((a) => ({
       ...a,
       score: scoreFor(a.qId, a.optionIndex),
@@ -42,7 +49,7 @@ export const finishDiagnostic = createServerFn({ method: "POST" })
     const answersMap: Record<string, number> = {};
     for (const a of scored) answersMap[a.qId] = a.optionIndex;
 
-    const { error } = await context.supabase.from("beqa_diagnostic_sessions").insert({
+    const { error } = await supabaseAdmin.from("beqa_diagnostic_sessions").insert({
       student_id: context.userId,
       assessment_type: "unified",
       community_type: data.community,
