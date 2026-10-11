@@ -28,6 +28,11 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import {
+  COMMUNITY_MEDIA_BUCKET,
+  COMMUNITY_MEDIA_SIGNED_URL_TTL,
+  communityMediaPath,
+} from "@/lib/community-media";
+import {
   listFeedPosts,
   createPost,
   listComments,
@@ -205,7 +210,9 @@ function NewPostCard({ userId }: { userId?: string }) {
   const qc = useQueryClient();
   const create = useServerFn(createPost);
   const [content, setContent] = useState("");
-  const [mediaUrl, setMediaUrl] = useState<string | null>(null);
+  // object path in the private bucket (stored on the post) + local preview URL
+  const [mediaPath, setMediaPath] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -216,13 +223,18 @@ function NewPostCard({ userId }: { userId?: string }) {
     try {
       const ext = file.name.split(".").pop() || "jpg";
       const path = `${userId}/${crypto.randomUUID()}.${ext}`;
-      const { error } = await supabase.storage.from("community-media").upload(path, file, {
+      const { error } = await supabase.storage.from(COMMUNITY_MEDIA_BUCKET).upload(path, file, {
         cacheControl: "3600",
         upsert: false,
       });
       if (error) throw error;
-      const { data } = supabase.storage.from("community-media").getPublicUrl(path);
-      setMediaUrl(data.publicUrl);
+      // Private bucket: keep the path; preview with a short-lived signed URL.
+      const { data, error: signErr } = await supabase.storage
+        .from(COMMUNITY_MEDIA_BUCKET)
+        .createSignedUrl(path, COMMUNITY_MEDIA_SIGNED_URL_TTL);
+      if (signErr) throw signErr;
+      setMediaPath(path);
+      setPreviewUrl(data.signedUrl);
     } catch (err: any) {
       toast.error(err.message ?? "Upload failed");
     } finally {
@@ -235,9 +247,10 @@ function NewPostCard({ userId }: { userId?: string }) {
     if (!content.trim()) return;
     setSubmitting(true);
     try {
-      await create({ data: { content: content.trim(), post_type: "post", media_url: mediaUrl } });
+      await create({ data: { content: content.trim(), post_type: "post", media_url: mediaPath } });
       setContent("");
-      setMediaUrl(null);
+      setMediaPath(null);
+      setPreviewUrl(null);
       qc.invalidateQueries({ queryKey: ["community-posts"] });
     } catch (err: any) {
       toast.error(err.message ?? "שגיאה בפרסום");
@@ -260,11 +273,14 @@ function NewPostCard({ userId }: { userId?: string }) {
         className="resize-none bg-background/60"
         maxLength={2000}
       />
-      {mediaUrl && (
+      {mediaPath && previewUrl && (
         <div className="relative mt-3 inline-block">
-          <img src={mediaUrl} alt="" className="max-h-40 rounded-lg border border-border/60" />
+          <img src={previewUrl} alt="" className="max-h-40 rounded-lg border border-border/60" />
           <button
-            onClick={() => setMediaUrl(null)}
+            onClick={() => {
+              setMediaPath(null);
+              setPreviewUrl(null);
+            }}
             className="absolute -end-2 -top-2 grid h-6 w-6 place-items-center rounded-full bg-rose-500 text-white shadow"
           >
             <X className="h-3 w-3" />
@@ -290,6 +306,26 @@ function NewPostCard({ userId }: { userId?: string }) {
   );
 }
 
+// Resolves a stored media value (object path, or legacy public URL of the
+// community-media bucket) to a 1 h signed URL. Nothing renders until signed.
+function CommunityMedia({ value, className }: { value: string; className?: string }) {
+  const path = communityMediaPath(value);
+  const { data: src } = useQuery({
+    queryKey: ["community-media-url", path],
+    enabled: !!path,
+    staleTime: 50 * 60 * 1000,
+    queryFn: async () => {
+      const { data, error } = await supabase.storage
+        .from(COMMUNITY_MEDIA_BUCKET)
+        .createSignedUrl(path!, COMMUNITY_MEDIA_SIGNED_URL_TTL);
+      if (error) return null;
+      return data.signedUrl;
+    },
+  });
+  if (!src) return null;
+  return <img src={src} alt="" className={className} />;
+}
+
 function PostCard({ post }: { post: any }) {
   const [open, setOpen] = useState(false);
   return (
@@ -308,7 +344,7 @@ function PostCard({ post }: { post: any }) {
           </div>
           <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">{post.content}</p>
           {post.media_url && (
-            <img src={post.media_url} alt="" className="mt-3 max-h-72 rounded-xl border border-border/60" />
+            <CommunityMedia value={post.media_url} className="mt-3 max-h-72 rounded-xl border border-border/60" />
           )}
           <button
             onClick={() => setOpen((o) => !o)}
@@ -412,7 +448,7 @@ function BoardTab() {
             <span className="text-muted-foreground font-normal">· {timeAgo(p.created_at)}</span>
           </div>
           <p className="whitespace-pre-wrap text-sm leading-relaxed">{p.content}</p>
-          {p.media_url && <img src={p.media_url} alt="" className="mt-3 max-h-72 rounded-xl" />}
+          {p.media_url && <CommunityMedia value={p.media_url} className="mt-3 max-h-72 rounded-xl" />}
           <div className="mt-2 text-[11px] text-muted-foreground">
             — {p.author?.full_name || p.author?.email || "הנהלה"}
           </div>

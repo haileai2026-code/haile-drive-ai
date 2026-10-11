@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { communityMediaPath, isOwnCommunityMediaPath } from "./community-media";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -47,13 +48,22 @@ export const createPost = createServerFn({ method: "POST" })
       .object({
         content: z.string().trim().min(1).max(2000),
         post_type: PostType.default("post"),
-        media_url: z.string().url().max(800).optional().nullable(),
+        // object path in the private community-media bucket (legacy public URLs
+        // of the same bucket are accepted and normalised to their path)
+        media_url: z.string().max(800).optional().nullable(),
         class_id: z.string().uuid().optional().nullable(),
       })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    let mediaPath: string | null = null;
+    if (data.media_url) {
+      mediaPath = communityMediaPath(data.media_url);
+      if (!mediaPath || !isOwnCommunityMediaPath(mediaPath, userId)) {
+        throw new Error("Invalid media");
+      }
+    }
     let classId = data.class_id ?? null;
     if (!classId && data.post_type !== "announcement") {
       const { data: r } = await supabase.rpc("current_user_class_id");
@@ -65,7 +75,7 @@ export const createPost = createServerFn({ method: "POST" })
         author_id: userId,
         class_id: classId,
         content: data.content,
-        media_url: data.media_url ?? null,
+        media_url: mediaPath,
         post_type: data.post_type,
       })
       .select()
