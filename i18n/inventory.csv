@@ -1,0 +1,1953 @@
+id,screen/route,file:line,kind,core_path,hebrew_source
+he-0001,component:AdminShell,src/components/AdminShell.tsx:19,string,no,סקירת בעלים
+he-0002,component:AdminShell,src/components/AdminShell.tsx:20,string,no,🤖 סוכן AI
+he-0003,component:AdminShell,src/components/AdminShell.tsx:21,string,no,תלמידים ומועמדים
+he-0004,component:AdminShell,src/components/AdminShell.tsx:22,string,no,מרצים והרשאות
+he-0005,component:AdminShell,src/components/AdminShell.tsx:23,string,no,🏫 ארגון
+he-0006,component:AdminShell,src/components/AdminShell.tsx:24,string,no,ניתוח נוכחות
+he-0007,component:AdminShell,src/components/AdminShell.tsx:25,string,no,השלמות שיעורים
+he-0008,component:AdminShell,src/components/AdminShell.tsx:26,string,no,לוז שיעורים ומבחנים
+he-0009,component:AdminShell,src/components/AdminShell.tsx:27,string,no,תזכורות SMS / WhatsApp
+he-0010,component:AdminShell,src/components/AdminShell.tsx:28,string,no,📱 בקשות כניסה בטלפון
+he-0011,component:AdminShell,src/components/AdminShell.tsx:29,string,no,תיבת פניות ומשובים
+he-0012,component:AdminShell,src/components/AdminShell.tsx:30,string,no,📚 תוכן לימודי
+he-0013,component:AdminShell,src/components/AdminShell.tsx:31,string,no,🎓 קורסים מקוונים
+he-0014,component:AdminShell,src/components/AdminShell.tsx:32,string,no,התקדמות תלמידים
+he-0015,component:AdminShell,src/components/AdminShell.tsx:33,string,no,BEQA — אבחון ביומטרי
+he-0016,component:AdminShell,src/components/AdminShell.tsx:34,string,no,🧠 דוחות אבחון
+he-0017,component:AdminShell,src/components/AdminShell.tsx:35,string,no,"💰 ויצ""ר"
+he-0018,component:AdminShell,src/components/AdminShell.tsx:36,string,no,מסך מרצה
+he-0019,component:AdminShell,src/components/AdminShell.tsx:37,string,no,סימון נוכחות
+he-0020,component:AdminShell,src/components/AdminShell.tsx:41,string,no,בעלים
+he-0021,component:AdminShell,src/components/AdminShell.tsx:42,string,no,צוות
+he-0022,component:AdminShell,src/components/AdminShell.tsx:43,string,no,מרצה
+he-0023,component:AdminShell,src/components/AdminShell.tsx:44,string,no,תלמיד
+he-0024,component:AdminShell,src/components/AdminShell.tsx:45,string,no,ליד
+he-0025,component:AdminShell,src/components/AdminShell.tsx:95,jsx_text,no,מחובר בתור
+he-0026,component:AdminShell,src/components/AdminShell.tsx:179,string,no,טוען נתונים חיים…
+he-0027,component:AppShell,src/components/AppShell.tsx:16,string,yes,קורסים
+he-0028,component:AppShell,src/components/AppShell.tsx:24,string,yes,קורסים
+he-0029,component:LeadLockScreen,src/components/LeadLockScreen.tsx:12,jsx_text,yes,ברוך הבא ל־Haile Drive AI
+he-0030,component:LeadLockScreen,src/components/LeadLockScreen.tsx:14,jsx_text,yes,ההרשמה שלך נקלטה בהצלחה.
+he-0031,component:LeadLockScreen,src/components/LeadLockScreen.tsx:16,jsx_text,yes,כדי להתחיל ללמוד — יש להסדיר את תשלום שכר הלימוד.
+he-0032,component:LeadLockScreen,src/components/LeadLockScreen.tsx:18,jsx_text,yes,"לאחר אישור התשלום, תיפתח הגישה לשיעורים, מבחנים, קהילה וסוכן ה־AI שלך."
+he-0033,component:LeadLockScreen,src/components/LeadLockScreen.tsx:31,jsx_text,yes,לפניה למשרד:
+he-0034,component:LeadLockScreen,src/components/LeadLockScreen.tsx:41,jsx_text,yes,פרופיל ויציאה
+he-0035,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:6,string,no,תל אביב
+he-0036,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:6,string,no,ירושלים
+he-0037,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:6,string,no,חיפה
+he-0038,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:6,string,no,באר שבע
+he-0039,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:6,string,no,אשדוד
+he-0040,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:6,string,no,אשקלון
+he-0041,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:6,string,no,נתניה
+he-0042,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:7,string,no,רחובות
+he-0043,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:7,string,no,רמלה
+he-0044,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:7,string,no,לוד
+he-0045,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:7,string,no,פתח תקווה
+he-0046,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:7,string,no,ראשון לציון
+he-0047,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:7,string,no,הרצליה
+he-0048,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:7,string,no,כפר סבא
+he-0049,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:8,string,no,רעננה
+he-0050,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:8,string,no,מודיעין
+he-0051,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:8,string,no,בית שמש
+he-0052,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:8,string,no,קריית גת
+he-0053,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:8,string,no,דימונה
+he-0054,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:8,string,no,אופקים
+he-0055,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:9,string,no,קריית מלאכי
+he-0056,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:9,string,no,יבנה
+he-0057,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:9,string,no,גדרה
+he-0058,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:9,string,no,נס ציונה
+he-0059,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:9,string,no,חולון
+he-0060,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:9,string,no,בת ים
+he-0061,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:10,string,no,גבעתיים
+he-0062,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:10,string,no,רמת גן
+he-0063,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:10,string,no,בני ברק
+he-0064,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:10,string,no,קריית שמונה
+he-0065,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:23,string,no,יש להזין שם סניף
+he-0066,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:28,string,no,יש להזין שם עיר חדשה
+he-0067,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:35,string,no,יש לבחור עיר
+he-0068,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:56,jsx_text,no,כל הסניפים (
+he-0069,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:70,template,no,למחוק את ${b.name}?
+he-0070,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:79,jsx_text,no,עדיין אין סניפים.
+he-0071,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:85,jsx_text,no,הוסף סניף
+he-0072,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:87,string,no,שם הסניף
+he-0073,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:91,string,no,לדוגמה: סניף אשדוד
+he-0074,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:95,string,no,עיר
+he-0075,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:101,jsx_text,no,— בחר/י עיר —
+he-0076,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:103,string,no,ערים שכבר נוספו
+he-0077,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:110,string,no,ערים בישראל
+he-0078,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:116,jsx_text,no,➕ הוסף עיר חדשה...
+he-0079,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:123,string,no,שם העיר החדשה
+he-0080,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:127,string,no,כתובת (לא חובה)
+he-0081,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:131,string,no,רחוב ומספר
+he-0082,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:139,jsx_text,no,צור סניף
+he-0083,component:admin/BranchesPanel,src/components/admin/BranchesPanel.tsx:142,jsx_text,no,המערכת תומכת בפריסה ארצית ללא הגבלת סניפים וערים
+he-0084,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:9,string,no,ליד חדש
+he-0085,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:9,string,no,נוצר קשר
+he-0086,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:9,string,no,חסרים מסמכים
+he-0087,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:10,string,no,ממתין
+he-0088,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:10,string,no,שובץ
+he-0089,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:10,string,no,פעיל
+he-0090,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:11,string,no,סיים
+he-0091,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:11,string,no,לא פעיל
+he-0092,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:11,string,no,נכשל
+he-0093,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:29,string,no,נשמר
+he-0094,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:34,string,no,נמחק
+he-0095,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:39,string,no,ללא מרצה
+he-0096,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:45,jsx_text,no,עיר חדשה
+he-0097,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:50,jsx_text,no,אין ערים — הוסף עיר ראשונה
+he-0098,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:65,jsx_text,no,כיתות ·
+he-0099,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:65,jsx_text,no,תלמידים
+he-0100,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:71,string,no,למחוק עיר?
+he-0101,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:79,jsx_text,no,אין כיתות בעיר זו
+he-0102,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:80,jsx_text,no,פתח כיתה חדשה
+he-0103,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:99,jsx_text,no,מרצה:
+he-0104,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:99,string,no,ללא מערכת
+he-0105,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:110,jsx_text,no,אין תלמידים בכיתה. שייך תלמידים מהמסך
+he-0106,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:110,jsx_text,no,תלמידים
+he-0107,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:142,string,no,עריכת עיר
+he-0108,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:142,string,no,עיר חדשה
+he-0109,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:143,string,no,שם חובה
+he-0110,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:145,jsx_text,no,שם באנגלית *
+he-0111,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:149,jsx_text,no,שם בעברית
+he-0112,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:153,jsx_text,no,ביטול
+he-0113,component:admin/CitiesPanel,src/components/admin/CitiesPanel.tsx:154,jsx_text,no,שמור
+he-0114,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:22,string,no,נשמר
+he-0115,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:27,string,no,נמחק
+he-0116,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:33,string,no,עודכן
+he-0117,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:50,jsx_text,no,כיתה חדשה
+he-0118,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:54,string,no,"טוען כיתות, ערים, מרצים ותלמידים…"
+he-0119,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:55,jsx_text,no,טעינת הנתונים נכשלה:
+he-0120,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:69,string,no,למחוק כיתה?
+he-0121,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:73,jsx_text,no,מרצה:
+he-0122,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:74,jsx_text,no,שעות:
+he-0123,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:75,jsx_text,no,קיבולת:
+he-0124,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:81,jsx_text,no,תלמידים משויכים (
+he-0125,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:87,jsx_text,no,הוסף תלמיד
+he-0126,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:91,jsx_text,no,אין תלמידים משויכים
+he-0127,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:98,template,no,להסיר את ${s.full_name} מהכיתה?
+he-0128,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:100,string,no,הסר מהכיתה
+he-0129,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:112,jsx_text,no,אין כיתות
+he-0130,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:118,string,no,עריכת כיתה
+he-0131,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:118,string,no,כיתה חדשה
+he-0132,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:119,string,no,שם חובה
+he-0133,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:121,jsx_text,no,שם הכיתה *
+he-0134,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:125,jsx_text,no,עיר
+he-0135,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:132,jsx_text,no,מרצה משויך
+he-0136,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:140,jsx_text,no,שעות / מערכת
+he-0137,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:144,jsx_text,no,קיבולת
+he-0138,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:149,jsx_text,no,ביטול
+he-0139,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:150,jsx_text,no,שמור
+he-0140,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:160,jsx_text,no,הוספת תלמיד לכיתה
+he-0141,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:164,jsx_text,no,כל התלמידים כבר משויכים לכיתה
+he-0142,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:177,jsx_text,no,שייך
+he-0143,component:admin/ClassesPanel,src/components/admin/ClassesPanel.tsx:185,jsx_text,no,סגור
+he-0144,component:admin/ExamsListPanel,src/components/admin/ExamsListPanel.tsx:20,string,no,נשמר
+he-0145,component:admin/ExamsListPanel,src/components/admin/ExamsListPanel.tsx:25,string,no,נמחק
+he-0146,component:admin/ExamsListPanel,src/components/admin/ExamsListPanel.tsx:29,string,no,כל הכיתות
+he-0147,component:admin/ExamsListPanel,src/components/admin/ExamsListPanel.tsx:37,jsx_text,no,מבחן חדש
+he-0148,component:admin/ExamsListPanel,src/components/admin/ExamsListPanel.tsx:41,string,no,טוען מבחנים וכיתות מהמסד…
+he-0149,component:admin/ExamsListPanel,src/components/admin/ExamsListPanel.tsx:42,jsx_text,no,טעינת הנתונים נכשלה:
+he-0150,component:admin/ExamsListPanel,src/components/admin/ExamsListPanel.tsx:45,jsx_text,no,אין מבחנים. צור מבחן ראשון.
+he-0151,component:admin/ExamsListPanel,src/components/admin/ExamsListPanel.tsx:58,string,no,פורסם
+he-0152,component:admin/ExamsListPanel,src/components/admin/ExamsListPanel.tsx:58,string,no,טיוטה
+he-0153,component:admin/ExamsListPanel,src/components/admin/ExamsListPanel.tsx:63,jsx_text,no,ערוך שאלות
+he-0154,component:admin/ExamsListPanel,src/components/admin/ExamsListPanel.tsx:64,jsx_text,no,פרטים
+he-0155,component:admin/ExamsListPanel,src/components/admin/ExamsListPanel.tsx:65,string,no,למחוק?
+he-0156,component:admin/ExamsListPanel,src/components/admin/ExamsListPanel.tsx:74,string,no,עריכת מבחן
+he-0157,component:admin/ExamsListPanel,src/components/admin/ExamsListPanel.tsx:74,string,no,מבחן חדש
+he-0158,component:admin/ExamsListPanel,src/components/admin/ExamsListPanel.tsx:75,string,no,כותרת חובה
+he-0159,component:admin/ExamsListPanel,src/components/admin/ExamsListPanel.tsx:77,jsx_text,no,כותרת *
+he-0160,component:admin/ExamsListPanel,src/components/admin/ExamsListPanel.tsx:81,jsx_text,no,תיאור
+he-0161,component:admin/ExamsListPanel,src/components/admin/ExamsListPanel.tsx:85,jsx_text,no,משויך לכיתה
+he-0162,component:admin/ExamsListPanel,src/components/admin/ExamsListPanel.tsx:87,jsx_text,no,— לכל הכיתות —
+he-0163,component:admin/ExamsListPanel,src/components/admin/ExamsListPanel.tsx:93,jsx_text,no,פרסם לתלמידים
+he-0164,component:admin/ExamsListPanel,src/components/admin/ExamsListPanel.tsx:96,jsx_text,no,ביטול
+he-0165,component:admin/ExamsListPanel,src/components/admin/ExamsListPanel.tsx:97,jsx_text,no,שמור
+he-0166,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:16,string,no,שם
+he-0167,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:22,string,no,חסר שם
+he-0168,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:23,string,no,אימייל לא תקין
+he-0169,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:44,string,no,"full_name,email\nחיים כהן,haim@example.com\nשרה לוי,sara@example.com\n"
+he-0170,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:59,string,no,בחר כיתה
+he-0171,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:60,string,no,אין שורות תקינות
+he-0172,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:65,template,no,"נוספו ${(res as any).success}, נכשלו ${(res as any).failed}"
+he-0173,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:68,string,no,ייבוא נכשל
+he-0174,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:78,jsx_text,no,ייבוא תלמידים מ-CSV
+he-0175,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:84,jsx_text,no,בחר כיתה (כל התלמידים יוקצו אליה) *
+he-0176,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:86,jsx_text,no,— בחר כיתה —
+he-0177,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:93,jsx_text,no,בחר קובץ CSV
+he-0178,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:97,jsx_text,no,הורד תבנית CSV
+he-0179,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:99,jsx_text,no,"פורמט: full_name,email"
+he-0180,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:105,jsx_text,no,סך הכל:
+he-0181,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:105,jsx_text,no,· תקינים:
+he-0182,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:105,jsx_text,no,· שגויים:
+he-0183,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:110,jsx_text,no,שם
+he-0184,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:110,jsx_text,no,אימייל
+he-0185,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:110,jsx_text,no,סטטוס
+he-0186,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:120,jsx_text,no,תקין
+he-0187,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:133,jsx_text,no,הצלחה:
+he-0188,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:133,jsx_text,no,· כישלונות:
+he-0189,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:138,jsx_text,no,שם
+he-0190,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:138,jsx_text,no,אימייל
+he-0191,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:138,jsx_text,no,תוצאה
+he-0192,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:147,jsx_text,no,נוסף
+he-0193,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:159,jsx_text,no,סגור
+he-0194,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:162,string,no,מייבא…
+he-0195,component:admin/ImportStudentsModal,src/components/admin/ImportStudentsModal.tsx:162,template,no,ייבא ${valid.length} תלמידים
+he-0196,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:22,string,no,נשמר
+he-0197,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:27,string,no,נמחק
+he-0198,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:36,string,no,קובץ הועלה
+he-0199,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:37,string,no,העלאה נכשלה
+he-0200,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:51,jsx_text,no,חומרי לימוד
+he-0201,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:52,jsx_text,no,חומרי העשרה
+he-0202,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:55,jsx_text,no,חומר חדש
+he-0203,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:59,string,no,טוען חומרי לימוד וכיתות מהמסד…
+he-0204,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:60,jsx_text,no,טעינת הנתונים נכשלה:
+he-0205,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:63,jsx_text,no,אין חומרים. הוסף חומר ראשון.
+he-0206,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:73,string,no,פתיחת הקובץ נכשלה
+he-0207,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:87,string,no,למחוק?
+he-0208,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:90,jsx_text,no,פתח →
+he-0209,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:99,string,no,עריכת חומר
+he-0210,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:99,string,no,חומר חדש
+he-0211,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:100,string,no,כותרת חובה
+he-0212,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:102,jsx_text,no,כותרת *
+he-0213,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:106,jsx_text,no,תיאור
+he-0214,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:111,jsx_text,no,קטגוריה
+he-0215,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:113,jsx_text,no,חומרי לימוד
+he-0216,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:114,jsx_text,no,חומרי העשרה
+he-0217,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:118,jsx_text,no,סוג
+he-0218,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:121,jsx_text,no,תמונה
+he-0219,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:122,jsx_text,no,קישור
+he-0220,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:123,jsx_text,no,וידאו
+he-0221,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:129,jsx_text,no,קובץ
+he-0222,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:129,string,no,(קיים)
+he-0223,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:131,jsx_text,no,מעלה…
+he-0224,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:137,jsx_text,no,קישור חיצוני
+he-0225,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:142,jsx_text,no,משויך לכיתה (אופציונלי)
+he-0226,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:144,jsx_text,no,— לכל הכיתות —
+he-0227,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:149,jsx_text,no,ביטול
+he-0228,component:admin/MaterialsPanel,src/components/admin/MaterialsPanel.tsx:150,jsx_text,no,שמור
+he-0229,component:diagnostics/BiometricConsentScreen,src/components/diagnostics/BiometricConsentScreen.tsx:66,string,yes,שמירת ההסכמה נכשלה
+he-0230,lib:admin-users.functions,src/lib/admin-users.functions.ts:80,string,no,אימייל כבר קיים
+he-0231,lib:admin-users.functions,src/lib/admin-users.functions.ts:126,string,no,שגיאה
+he-0232,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:134,template,no,אתה סוכן AI של Haile Drive AI — מערכת הכשרת נהגים מהקהילה האתיופית.
+he-0233,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:135,template,no,"אתה עוזר לבני אספה, המייסד והמנכ""ל, לנהל את המערכת."
+he-0234,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:136,template,no,"ענה תמיד בעברית. היה ישיר, מקצועי, ממוקד נתונים."
+he-0235,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:137,template,no,"כשיש נתונים — הצג אותם בצורה ברורה (רשימות, מספרים, אחוזים)."
+he-0236,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:138,template,no,"המספרים חשובים — תמיד ציין כמה מועמדים, כמה השלימו, כמה נשרו."
+he-0237,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:139,template,no,"אם המשתמש מבקש לבצע פעולת כתיבה (עדכון/מחיקה/יצירה) — הסבר בקצרה איך לעשות זאת בפאנל המתאים, אך אל תבצע בעצמך."
+he-0238,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:140,template,no,אל תמציא מספרים — השתמש רק בנתוני ה-SNAPSHOT שמסופקים לך.
+he-0239,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:141,template,no,"חשוב להבחין: ""כיתה"" (class_name) הוא שם הקבוצה (למשל ""אוטובוס מתחילים""), ו""נושא שיעור"" (lesson_topic) הוא הכותרת של אירוע יחיד (למשל ""מבוא לתאוריה""). אל תבלבל ביניהם — תמיד הצג שניהם בפורמט: ""[שם הכיתה] — [נושא השיעור] | [תאריך] | [שעה]""."
+he-0240,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:164,template,no,"${SYSTEM}\n\nSNAPSHOT (נתונים חיים מהמערכת, JSON):\n${JSON.stringify(snapshot)}"
+he-0241,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:190,template,no,אתה המרצה הראשי ומנהל הלוקליזציה של Haile Drive AI.
+he-0242,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:191,template,no,תפקידך: לקבל חומרי לימוד בעברית ולהפוך אותם לחומר מקצועי באמהרית עבור נהגי אוטובוס ומשאיות.
+he-0243,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:193,template,no,כשבני מעלה חומר — בצע בסדר קשיח:
+he-0244,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:195,template,no,שלב 1 — תרגום לאמהרית:
+he-0245,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:196,template,no,"- תרגם לאמהרית רשמית, ברורה ופדגוגית"
+he-0246,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:197,template,no,- מונחים טכניים: כתוב באמהרית + (מונח עברי/אנגלי) בסוגריים
+he-0247,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:198,template,no,- דוגמה: የማቆሚያ ርቀት (מרחק עצירה) | የምላሽ ጊዜ (זמן תגובה)
+he-0248,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:200,template,no,מונחים קבועים — תמיד כך:
+he-0249,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:201,template,no,- בלם פליטה = ብሬክ ማጥፊያ
+he-0250,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:202,template,no,- מרחק עצירה = የማቆሚያ ርቀት
+he-0251,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:203,template,no,- זמן תגובה = የምላሽ ጊዜ
+he-0252,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:204,template,no,- מערכת היגוי = የአቅጣጫ ቁጥጥር ሥርዓት
+he-0253,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:205,template,no,- עומס ציר = የዘንግ ጭነት
+he-0254,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:206,template,no,- רישיון מקצועי = ሙያዊ ፈቃድ
+he-0255,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:207,template,no,- נהיגה בטוחה = ደህንነቱ የተጠበቀ ሹፌርነት
+he-0256,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:208,template,no,- אוטובוס = አውቶቡስ
+he-0257,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:209,template,no,- תמרור עצור = ቁም ምልክት
+he-0258,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:210,template,no,"- מרב""ד = የሙያ ብቃት ምዘና (מרב""ד)"
+he-0259,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:212,template,no,שלב 2 — סיווג JSON:
+he-0260,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:214,template,no,"""title_he"": ""כותרת בעברית"","
+he-0261,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:215,template,no,"""title_am"": ""ርዕስ באמהרית"","
+he-0262,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:216,template,no,"""subject"": ""חוקי_תנועה | הכנה_למרב\\""ד | מכונאות_רכב_כבד | בטיחות_והסעה"","
+he-0263,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:217,template,no,"""tier"": ""מתחיל | מתקדם | מקצועי"","
+he-0264,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:218,template,no,"""target_class"": ""שם הכיתה שבני יציין"","
+he-0265,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:220,template,no,"""content_he"": ""תוכן עברי מלא"","
+he-0266,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:224,template,no,שלב 3 — פלט מוכן לשמירה:
+he-0267,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:225,template,no,הצג את התוכן המתורגם מוכן להכנסה ל-Supabase materials.
+he-0268,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:227,template,no,כללים:
+he-0269,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:228,template,no,"- טון מקצועי, חינוכי, ישיר — בלי הקדמות"
+he-0270,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:229,template,no,- אל תמציא נתונים
+he-0271,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:230,template,no,- אם חסר מידע לסיווג — שאל את בני לפני הביצוע
+he-0272,lib:ai-agent.functions,src/lib/ai-agent.functions.ts:231,template,no,"- אם חסר שם כיתה — שאל: ""לאיזו כיתה לשייך?"""
+he-0273,lib:ai-chat.functions,src/lib/ai-chat.functions.ts:11,template,yes,- If the student writes in Hebrew (עברית): respond ONLY in proper modern Hebrew. Simple sentences. Never mix with English or Amharic.
+he-0274,lib:ai-chat.functions,src/lib/ai-chat.functions.ts:33,template,yes,"""כן, הסימן הזה אומר... בואו נסביר בפשטות..."""
+he-0275,lib:beqa-docx,src/lib/beqa-docx.ts:19,string,no,לא ידוע
+he-0276,lib:beqa-docx,src/lib/beqa-docx.ts:31,string,no,✓ מומלץ מאוד
+he-0277,lib:beqa-docx,src/lib/beqa-docx.ts:31,string,no,✗ לא מומלץ כרגע
+he-0278,lib:beqa-docx,src/lib/beqa-docx.ts:31,string,no,⚠ ראיון נוסף מומלץ
+he-0279,lib:beqa-docx,src/lib/beqa-docx.ts:59,string,no,תיק אבחון פסיכולוגי-תעסוקתי
+he-0280,lib:beqa-docx,src/lib/beqa-docx.ts:60,string,no,סודי — לשימוש מקצועי בלבד
+he-0281,lib:beqa-docx,src/lib/beqa-docx.ts:63,string,no,פרטי מועמד
+he-0282,lib:beqa-docx,src/lib/beqa-docx.ts:64,template,no,שם: ${fullName}
+he-0283,lib:beqa-docx,src/lib/beqa-docx.ts:65,template,no,תאריך: ${dateStr}
+he-0284,lib:beqa-docx,src/lib/beqa-docx.ts:66,template,no,מספר דוח: ${reportId}
+he-0285,lib:beqa-docx,src/lib/beqa-docx.ts:69,string,no,ציון BEQA הסופי
+he-0286,lib:beqa-docx,src/lib/beqa-docx.ts:74,string,no,המלצות מקצועיות
+he-0287,lib:beqa-docx,src/lib/beqa-docx.ts:75,string,no,✔ מוטיבציה גבוהה ואמיתית למקצוע הנהיגה
+he-0288,lib:beqa-docx,src/lib/beqa-docx.ts:76,string,no,✔ שליטה עצמית מוכחת תחת לחץ
+he-0289,lib:beqa-docx,src/lib/beqa-docx.ts:77,string,no,✔ אחריות בטיחותית גבוהה
+he-0290,lib:beqa-docx,src/lib/beqa-docx.ts:78,string,no,◆ מומלץ ראיון נוסף לאחר 30 יום
+he-0291,lib:beqa-docx,src/lib/beqa-docx.ts:79,string,no,"◆ השלמת מבחן תיאוריה לפני המרב""ד"
+he-0292,lib:beqa-questions,src/lib/beqa-questions.ts:15,string,yes,"מהו מרחק העצירה הכולל של רכב הנוסע במהירות 90 קמ\""ש בכביש יבש?"
+he-0293,lib:beqa-questions,src/lib/beqa-questions.ts:16,string,yes,כ-40 מטר
+he-0294,lib:beqa-questions,src/lib/beqa-questions.ts:16,string,yes,כ-70 מטר
+he-0295,lib:beqa-questions,src/lib/beqa-questions.ts:16,string,yes,כ-100 מטר
+he-0296,lib:beqa-questions,src/lib/beqa-questions.ts:16,string,yes,כ-130 מטר
+he-0297,lib:beqa-questions,src/lib/beqa-questions.ts:21,string,yes,באיזה מצב מותר לעקוף מימין?
+he-0298,lib:beqa-questions,src/lib/beqa-questions.ts:23,string,yes,תמיד כשיש מקום
+he-0299,lib:beqa-questions,src/lib/beqa-questions.ts:24,string,yes,כשהרכב שלפניך מאותת שמאלה ופונה שמאלה
+he-0300,lib:beqa-questions,src/lib/beqa-questions.ts:25,string,yes,בכביש חד-סטרי בלבד
+he-0301,lib:beqa-questions,src/lib/beqa-questions.ts:26,string,yes,אסור לעקוף מימין בשום מצב
+he-0302,lib:beqa-questions,src/lib/beqa-questions.ts:32,string,yes,"מה מרחק הבטיחות המינימלי מאחורי אוטובוס במהירות 80 קמ\""ש?"
+he-0303,lib:beqa-questions,src/lib/beqa-questions.ts:33,string,yes,1 שניה
+he-0304,lib:beqa-questions,src/lib/beqa-questions.ts:33,string,yes,2 שניות
+he-0305,lib:beqa-questions,src/lib/beqa-questions.ts:33,string,yes,3 שניות
+he-0306,lib:beqa-questions,src/lib/beqa-questions.ts:33,string,yes,5 שניות
+he-0307,lib:beqa-questions,src/lib/beqa-questions.ts:38,string,yes,תמרור 'תן זכות קדימה' (משולש הפוך) מחייב את הנהג:
+he-0308,lib:beqa-questions,src/lib/beqa-questions.ts:40,string,yes,לעצור עצירה מוחלטת תמיד
+he-0309,lib:beqa-questions,src/lib/beqa-questions.ts:41,string,yes,להאט ולתת זכות לרכב בדרך החוצה
+he-0310,lib:beqa-questions,src/lib/beqa-questions.ts:42,string,yes,להמשיך בנסיעה רגילה
+he-0311,lib:beqa-questions,src/lib/beqa-questions.ts:43,string,yes,להאיץ כדי להשתלב מהר
+he-0312,lib:beqa-questions,src/lib/beqa-questions.ts:49,string,yes,מהי הסנקציה על נהיגה תחת השפעת אלכוהול ברמה של פי 3 מהמותר?
+he-0313,lib:beqa-questions,src/lib/beqa-questions.ts:51,string,yes,קנס בלבד
+he-0314,lib:beqa-questions,src/lib/beqa-questions.ts:52,string,yes,פסילת רישיון ל-3 חודשים
+he-0315,lib:beqa-questions,src/lib/beqa-questions.ts:53,string,yes,פסילה מינהלית ל-30 יום + הגשת כתב אישום
+he-0316,lib:beqa-questions,src/lib/beqa-questions.ts:54,string,yes,אזהרה בכתב
+he-0317,lib:beqa-questions,src/lib/beqa-questions.ts:60,string,yes,"באיזו מהירות מקסימלית מותר לנסוע בדרך עירונית, אלא אם תמרור קובע אחרת?"
+he-0318,lib:beqa-questions,src/lib/beqa-questions.ts:61,string,yes,"40 קמ\""ש"
+he-0319,lib:beqa-questions,src/lib/beqa-questions.ts:61,string,yes,"50 קמ\""ש"
+he-0320,lib:beqa-questions,src/lib/beqa-questions.ts:61,string,yes,"60 קמ\""ש"
+he-0321,lib:beqa-questions,src/lib/beqa-questions.ts:61,string,yes,"70 קמ\""ש"
+he-0322,lib:beqa-questions,src/lib/beqa-questions.ts:66,string,yes,מתי חובה להדליק אורות נמוכים ברכב?
+he-0323,lib:beqa-questions,src/lib/beqa-questions.ts:68,string,yes,רק בלילה
+he-0324,lib:beqa-questions,src/lib/beqa-questions.ts:69,string,yes,רק בערפל
+he-0325,lib:beqa-questions,src/lib/beqa-questions.ts:70,string,yes,"תמיד בנסיעה בכביש בין-עירוני, גם ביום"
+he-0326,lib:beqa-questions,src/lib/beqa-questions.ts:71,string,yes,רק כשיורד גשם
+he-0327,lib:beqa-questions,src/lib/beqa-questions.ts:77,string,yes,"ברמזור צהוב מהבהב, מה על הנהג לעשות?"
+he-0328,lib:beqa-questions,src/lib/beqa-questions.ts:79,string,yes,לעצור עצירה מוחלטת
+he-0329,lib:beqa-questions,src/lib/beqa-questions.ts:80,string,yes,להמשיך במהירות רגילה
+he-0330,lib:beqa-questions,src/lib/beqa-questions.ts:81,string,yes,להאט ולהיכנס לצומת בזהירות
+he-0331,lib:beqa-questions,src/lib/beqa-questions.ts:82,string,yes,לעצור רק אם יש הולכי רגל
+he-0332,lib:beqa-questions,src/lib/beqa-questions.ts:88,string,yes,מהו זמן התגובה הממוצע של נהג ער ומפוקס מרגע זיהוי מכשול ועד תחילת בלימה?
+he-0333,lib:beqa-questions,src/lib/beqa-questions.ts:89,string,yes,0.2 שניות
+he-0334,lib:beqa-questions,src/lib/beqa-questions.ts:89,string,yes,0.7-1.0 שניות
+he-0335,lib:beqa-questions,src/lib/beqa-questions.ts:89,string,yes,1.5 שניות
+he-0336,lib:beqa-questions,src/lib/beqa-questions.ts:89,string,yes,2 שניות
+he-0337,lib:beqa-questions,src/lib/beqa-questions.ts:94,string,yes,"כשנהג מגלה שמערכת ה-ABS אינה תקינה (נורת אזהרה דולקת), עליו:"
+he-0338,lib:beqa-questions,src/lib/beqa-questions.ts:96,string,yes,להמשיך בנסיעה רגילה — לא משפיע על בלימה
+he-0339,lib:beqa-questions,src/lib/beqa-questions.ts:97,string,yes,"להאט, להגביר מרחק ביטחון ולפנות למוסך בהקדם"
+he-0340,lib:beqa-questions,src/lib/beqa-questions.ts:98,string,yes,לעצור מיד באמצע הכביש
+he-0341,lib:beqa-questions,src/lib/beqa-questions.ts:99,string,yes,להגביר מהירות כדי להגיע מהר למוסך
+he-0342,lib:beqa-questions,src/lib/beqa-questions.ts:182,string,yes,יציב מאוד תחת לחץ
+he-0343,lib:beqa-questions,src/lib/beqa-questions.ts:183,string,yes,"יציבות טובה, עם רגעי לחץ נקודתיים"
+he-0344,lib:beqa-questions,src/lib/beqa-questions.ts:184,string,yes,חוסר יציבות מתון תחת לחץ
+he-0345,lib:beqa-questions,src/lib/beqa-questions.ts:185,string,yes,חוסר יציבות משמעותי בתנאי סטרס
+he-0346,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:7,string,no,מוטיבציה לנהיגה
+he-0347,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:8,string,no,שליטה עצמית
+he-0348,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:9,string,no,אחריות בטיחותית
+he-0349,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:10,string,no,הכרת חוק שעות נהיגה
+he-0350,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:11,string,no,חוסן לאחר כישלון
+he-0351,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:12,string,no,תמיכה משפחתית
+he-0352,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:13,string,no,תקשורת — חסם שפה
+he-0353,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:14,string,no,מחויבות ללמידה
+he-0354,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:15,string,no,ציפיות שכר
+he-0355,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:16,string,no,הגדרה עצמית
+he-0356,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:17,string,no,חוסן (קהילה)
+he-0357,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:18,string,no,ערכים קהילתיים
+he-0358,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:19,string,no,אומץ התמודדות
+he-0359,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:20,string,no,תרחיש לחץ
+he-0360,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:60,string,no,אתיופי
+he-0361,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:62,string,no,רוסי
+he-0362,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:64,string,no,קוקי
+he-0363,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:70,string,no,✓ מומלץ מאוד
+he-0364,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:72,string,no,✗ לא מומלץ כרגע
+he-0365,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:73,string,no,⚠ ראיון נוסף מומלץ
+he-0366,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:81,string,no,מצוין
+he-0367,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:81,string,no,טוב
+he-0368,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:81,string,no,בינוני
+he-0369,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:81,string,no,נמוך
+he-0370,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:95,template,no,<title>Haile Drive AI — דוח ${escapeHtml(reportId)}</title>
+he-0371,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:129,template,no,"<div class=""subtitle"">תיק אבחון פסיכולוגי-תעסוקתי | BEQA Report</div>"
+he-0372,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:132,template,no,"<p class=""confidential"">סודי — לשימוש מקצועי בלבד</p>"
+he-0373,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:135,template,no,"<tr><td>שם המועמד:</td><td>${escapeHtml(profile?.full_name || ""לא ידוע"")}</td><td>תאריך:</td><td>${escapeHtml(new Date(session.created_at).toLocaleDateString(""he-IL""))}</td></tr>"
+he-0374,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:136,template,no,<tr><td>קהילה:</td><td>${escapeHtml(communityLabel)}</td><td>מספר דוח:</td><td>${escapeHtml(reportId)}</td></tr>
+he-0375,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:137,template,no,"<tr><td>סוג אבחון:</td><td>${escapeHtml(session.assessment_type || ""פסיכולוגי"")}</td><td>מייל:</td><td>${escapeHtml(profile?.email || """")}</td></tr>"
+he-0376,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:140,template,no,"<div class=""section-title"">סיכום מנהלים</div>"
+he-0377,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:144,template,no,"<div class=""score-label"">ציון BEQA</div>"
+he-0378,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:148,template,no,ציון פסיכולוגי: <strong>${psych.toFixed(2)}/4.0</strong> &nbsp;|&nbsp;
+he-0379,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:149,template,no,ציון דיוק: <strong>${accuracy.toFixed(1)}%</strong>
+he-0380,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:155,jsx_text,no,ניתוח תשובות
+he-0381,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:159,jsx_text,no,מדד
+he-0382,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:159,jsx_text,no,ציון
+he-0383,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:159,jsx_text,no,הערכה
+he-0384,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:167,template,no,"<div class=""section-title"">המלצות מקצועיות</div>"
+he-0385,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:168,template,no,"<p class=""strength"">✔ מוטיבציה גבוהה ואמיתית למקצוע הנהיגה</p>"
+he-0386,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:169,template,no,"<p class=""strength"">✔ שליטה עצמית מוכחת תחת לחץ</p>"
+he-0387,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:170,template,no,"<p class=""strength"">✔ אחריות בטיחותית גבוהה</p>"
+he-0388,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:171,template,no,"<p class=""strength"">✔ מחויבות ללמידה ותהליך ארוך טווח</p>"
+he-0389,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:172,template,no,"${psych < 4 ? '<p class=""improve"">◆ מומלץ ראיון נוסף לאחר 30 יום</p>' : """"}"
+he-0390,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:173,template,no,"<p class=""improve"">◆ השלמת מבחן תיאוריה לפני המרב""ד הרשמי</p>"
+he-0391,lib:beqa-report.functions,src/lib/beqa-report.functions.ts:176,template,no,"הדוח הופק על ידי Haile Drive AI | haileai.app | מספר דוח: ${escapeHtml(reportId)} | ${escapeHtml(new Date().toLocaleDateString(""he-IL""))}"
+he-0392,lib:courses-api,src/lib/courses-api.ts:232,string,yes,עברית
+he-0393,lib:courses-api,src/lib/courses-api.ts:235,string,yes,רב־לשוני
+he-0394,lib:courses-api,src/lib/courses-api.ts:239,string,yes,וידאו
+he-0395,lib:courses-api,src/lib/courses-api.ts:240,string,yes,טקסט
+he-0396,lib:courses-api,src/lib/courses-api.ts:241,string,yes,חומר לימוד
+he-0397,lib:courses-api,src/lib/courses-api.ts:242,string,yes,בוחן
+he-0398,lib:courses-api,src/lib/courses-api.ts:243,string,yes,שיעור חי
+he-0399,lib:courses-api,src/lib/courses-api.ts:247,string,yes,טיוטה
+he-0400,lib:courses-api,src/lib/courses-api.ts:248,string,yes,מפורסם
+he-0401,lib:courses-api,src/lib/courses-api.ts:249,string,yes,ארכיון
+he-0402,lib:import-export,src/lib/import-export.ts:74,string,no,שם
+he-0403,lib:import-export,src/lib/import-export.ts:75,string,no,טלפון
+he-0404,lib:import-export,src/lib/import-export.ts:76,string,no,עיר
+he-0405,lib:import-export,src/lib/import-export.ts:77,string,no,סניף
+he-0406,lib:import-export,src/lib/import-export.ts:78,string,no,שפה
+he-0407,lib:import-export,src/lib/import-export.ts:79,string,no,כיתה
+he-0408,lib:import-export,src/lib/import-export.ts:80,string,no,סטטוס
+he-0409,lib:import-export,src/lib/import-export.ts:81,string,no,הערות
+he-0410,lib:languages,src/lib/languages.ts:25,string,yes,עברית
+he-0411,lib:live-classes.functions,src/lib/live-classes.functions.ts:71,string,yes,ליד אינו יכול להצטרף לשיעור חי
+he-0412,lib:live-classes.functions,src/lib/live-classes.functions.ts:80,string,yes,השיעור לא נמצא
+he-0413,lib:live-classes.functions,src/lib/live-classes.functions.ts:81,string,yes,השיעור אינו שיעור חי
+he-0414,lib:live-classes.functions,src/lib/live-classes.functions.ts:99,string,yes,תלמיד
+he-0415,lib:materials,src/lib/materials.ts:26,string,yes,שגיאה בפתיחת הקובץ
+he-0416,lib:phone-login.functions,src/lib/phone-login.functions.ts:44,string,yes,מספר טלפון לא תקין
+he-0417,lib:phone-login.functions,src/lib/phone-login.functions.ts:73,template,yes,קוד הכניסה שלך ל-Haile AI: ${otp}
+he-0418,lib:phone-login.functions,src/lib/phone-login.functions.ts:111,string,yes,קוד שגוי
+he-0419,lib:phone-login.functions,src/lib/phone-login.functions.ts:113,string,yes,הקוד פג תוקף
+he-0420,lib:phone-login.functions,src/lib/phone-login.functions.ts:115,string,yes,הבקשה נדחתה
+he-0421,lib:phone-login.functions,src/lib/phone-login.functions.ts:116,string,yes,ממתין לאישור מנהל
+he-0422,lib:phone-login.functions,src/lib/phone-login.functions.ts:117,string,yes,הקוד כבר נוצל
+he-0423,lib:phone-login.functions,src/lib/phone-login.functions.ts:118,string,yes,בקשה לא תקינה
+he-0424,lib:phone-login.functions,src/lib/phone-login.functions.ts:142,template,yes,סטודנט ${phone.slice(-4)}
+he-0425,lib:phone-login.functions,src/lib/phone-login.functions.ts:152,template,yes,סטודנט ${phone.slice(-4)}
+he-0426,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:32,string,no,אתיופי
+he-0427,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:33,string,no,רוסי
+he-0428,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:34,string,no,קוקי / בני מנשה
+he-0429,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:40,string,no,מומלץ מאוד להמשך תהליך
+he-0430,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:42,string,no,מומלץ ראיון נוסף
+he-0431,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:43,string,no,לא מומלץ כרגע
+he-0432,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:54,template,no,"<div style=""color:#888"">אין נתוני דופק</div>"
+he-0433,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:65,template,no,"<text x=""${width - pad - 40}"" y=""${height - 8}"" font-size=""11"" fill=""#6b7280"">זמן (שניות)</text>"
+he-0434,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:130,template,no,שאלה ${q.idx}
+he-0435,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:131,string,no,אין רגעי שיא משמעותיים
+he-0436,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:141,string,no,מוטיבציה
+he-0437,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:142,string,no,שליטה עצמית
+he-0438,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:143,string,no,בטיחות
+he-0439,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:144,string,no,תקשורת
+he-0440,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:145,string,no,יציבות
+he-0441,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:151,string,no,ריכוז גבוה לאורך הבדיקה — נכס לתפקיד נהג.
+he-0442,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:152,string,no,רמת ביטחון יציבה במתן תשובות.
+he-0443,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:153,string,no,ציון פסיכולוגי גבוה במדדי בטיחות והחלטה.
+he-0444,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:154,string,no,רמת חרדה כללית גבוהה — מומלץ תרגול נשימה ושיחת תמיכה.
+he-0445,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:155,string,no,עלייה משמעותית בדופק תחת לחץ — תרגול סימולציות.
+he-0446,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:156,string,no,ציון פסיכולוגי נמוך — שיחה מעמיקה לפני המשך תהליך.
+he-0447,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:157,string,no,ביצועים יציבים — אין דגלים אדומים.
+he-0448,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:158,string,no,לא זוהו תחומים הדורשים חיזוק מיידי.
+he-0449,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:173,template,no,"<div style=""font-size:36px;font-weight:900;margin-bottom:16px"">תיק אבחון פסיכולוגי-תעסוקתי</div>"
+he-0450,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:176,template,no,"<div style=""font-size:14px;color:#92400e;margin-bottom:8px"">שם המועמד</div>"
+he-0451,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:178,template,no,"<div style=""font-size:13px;color:#92400e"">תאריך אבחון: ${date}</div>"
+he-0452,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:179,template,no,"<div style=""font-size:13px;color:#92400e"">מספר דוח: ${session.id}</div>"
+he-0453,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:183,template,no,🔒 סודי — לשימוש מקצועי בלבד
+he-0454,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:189,template,no,"<h2 style=""font-size:24px;font-weight:800;border-bottom:2px solid #f59e0b;padding-bottom:8px"">סיכום מנהלים</h2>"
+he-0455,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:192,template,no,"<div style=""font-size:13px;opacity:.8"">ציון BEQA סופי</div>"
+he-0456,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:196,template,no,"<div style=""font-size:13px;color:#64748b"">המלצה</div>"
+he-0457,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:203,template,no,"${row(""שם המועמד"", escapeHtml(name))}"
+he-0458,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:204,template,no,"${row(""קהילה"", community)}"
+he-0459,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:205,template,no,"${row(""תאריך אבחון"", date)}"
+he-0460,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:206,template,no,"${row(""מספר דוח"", session.id)}"
+he-0461,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:207,template,no,"${row(""שם המאבחן"", ""Haile Drive AI System"")}"
+he-0462,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:208,template,no,"${row(""ציון פסיכולוגי"","
+he-0463,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:209,template,no,"${row(""ציון ביומטרי"","
+he-0464,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:210,template,no,"${row(""ציון ניתוח פנים"","
+he-0465,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:216,template,no,"<h2 style=""font-size:24px;font-weight:800;border-bottom:2px solid #ef4444;padding-bottom:8px"">מדדים ביומטריים</h2>"
+he-0466,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:218,template,no,"${tile(""דופק בסיס"","
+he-0467,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:219,template,no,"${tile(""דופק שיא (סטרס)"","
+he-0468,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:220,template,no,"${tile(""HRV ממוצע"","
+he-0469,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:223,template,no,"<div style=""font-weight:700;margin-bottom:8px"">גרף דופק לאורך המבחן</div>"
+he-0470,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:227,template,no,"<div style=""font-weight:700;margin-bottom:4px"">ניתוח</div>"
+he-0471,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:230,jsx_text,no,המועמד הראה עלייה משמעותית בדופק ובחרדה ב-$
+he-0472,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:231,template,no,": ""הדופק נשאר יציב לאורך כל המבחן — אין רגעי לחץ חריגים.""}"
+he-0473,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:246,template,no,"<h2 style=""font-size:24px;font-weight:800;border-bottom:2px solid #3b82f6;padding-bottom:8px"">ניתוח פסיכולוגי</h2>"
+he-0474,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:251,template,no,"<th style=""padding:8px;text-align:right"">מזהה שאלה</th>"
+he-0475,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:252,template,no,"<th style=""padding:8px;text-align:right"">ניקוד</th>"
+he-0476,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:253,template,no,"<th style=""padding:8px;text-align:right"">זמן תגובה</th>"
+he-0477,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:254,template,no,"<th style=""padding:8px;text-align:right"">חרדה</th>"
+he-0478,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:255,template,no,"<th style=""padding:8px;text-align:right"">ריכוז</th>"
+he-0479,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:258,jsx_text,no,אין תשובות מתועדות
+he-0480,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:261,template,no,"<div style=""font-weight:700;margin-bottom:8px"">פרופיל ממדים פסיכולוגיים</div>"
+he-0481,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:270,template,no,"<h2 style=""font-size:24px;font-weight:800;border-bottom:2px solid #8b5cf6;padding-bottom:8px"">ניתוח הבעות פנים</h2>"
+he-0482,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:272,template,no,"${tile(""חרדה ממוצעת"","
+he-0483,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:273,template,no,"${tile(""ריכוז ממוצע"","
+he-0484,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:274,template,no,"${tile(""ביטחון ממוצע"","
+he-0485,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:277,template,no,"<div style=""font-weight:700;margin-bottom:8px"">פילוח רגשי</div>"
+he-0486,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:279,template,no,"{ label: ""חרדה"", value: avg(""anxiety"") },"
+he-0487,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:280,template,no,"{ label: ""ריכוז"", value: avg(""focus"") },"
+he-0488,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:281,template,no,"{ label: ""ביטחון"", value: avg(""confidence"") },"
+he-0489,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:282,template,no,"{ label: ""בלבול"", value: avg(""confusion"") },"
+he-0490,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:286,template,no,"<div style=""font-weight:700;margin-bottom:6px"">רגעי שיא</div>"
+he-0491,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:289,jsx_text,no,שאלה $
+he-0492,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:289,jsx_text,no,גרמה לרמת חרדה הגבוהה ביותר ($
+he-0493,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:290,template,no,": ""לא זוהו רגעי שיא חריגים בחרדה.""}"
+he-0494,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:296,template,no,"<h2 style=""font-size:24px;font-weight:800;border-bottom:2px solid #10b981;padding-bottom:8px"">המלצות מקצועיות</h2>"
+he-0495,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:298,template,no,"<div style=""font-size:16px;font-weight:700;color:#059669;margin-bottom:8px"">✅ חוזקות שזוהו</div>"
+he-0496,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:304,template,no,"<div style=""font-size:16px;font-weight:700;color:#d97706;margin-bottom:8px"">⚠️ תחומים לחיזוק</div>"
+he-0497,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:310,template,no,"<div style=""font-size:16px;font-weight:700;color:#2563eb;margin-bottom:8px"">📋 המלצות לתהליך ההכשרה</div>"
+he-0498,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:314,template,no,": ""<li>המשך תהליך הכשרה רגיל בהתאם לסטנדרט.</li>""}"
+he-0499,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:315,template,no,<li>סקירה חוזרת לאחר 30 יום של תרגול.</li>
+he-0500,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:316,template,no,<li>תיעוד מתמשך של ביצועים בסימולציות.</li>
+he-0501,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:320,template,no,הדוח הופק על ידי Haile Drive AI | haileai.app | מספר דוח: ${session.id}
+he-0502,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:14,string,yes,🇪🇹 אמהרית
+he-0503,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:15,string,yes,🇷🇺 רוסית
+he-0504,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:16,string,yes,✡️ קוקי (בני מנשה)
+he-0505,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:27,string,yes,למה בחרת להיות נהג אוטובוס?
+he-0506,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:28,string,yes,זה הדבר היחיד שמצאתי
+he-0507,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:29,string,yes,הכסף טוב
+he-0508,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:30,string,yes,אני אוהב לנהוג ולעזור לאנשים
+he-0509,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:31,string,yes,מקצוע יציב עם עתיד
+he-0510,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:33,string,yes,נוסע צועק עליך — מה אתה עושה?
+he-0511,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:34,string,yes,צועק בחזרה
+he-0512,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:35,string,yes,מתעלם
+he-0513,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:36,string,yes,עוצר ומסביר בשקט
+he-0514,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:37,string,yes,מתנצל ומרגיע
+he-0515,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:39,string,yes,מצאת תקלה ברכב לפני יציאה — מה אתה עושה?
+he-0516,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:40,string,yes,יוצא בכל זאת
+he-0517,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:41,string,yes,מדווח אבל יוצא
+he-0518,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:42,string,yes,מדווח ומחכה לאישור
+he-0519,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:43,string,yes,לא יוצא ללא תיקון
+he-0520,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:45,string,yes,כמה שעות נהיגה ברצף מותר?
+he-0521,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:46,string,yes,כמה שצריך
+he-0522,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:47,string,yes,6-8 שעות
+he-0523,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:48,string,yes,עד 4.5 שעות לפי החוק
+he-0524,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:49,string,yes,תלוי במצב
+he-0525,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:51,string,yes,נכשלת במבחן — מה אתה עושה?
+he-0526,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:52,string,yes,מוותר
+he-0527,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:53,string,yes,מחכה הרבה זמן
+he-0528,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:54,string,yes,מנסה שוב אחרי מנוחה
+he-0529,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:55,string,yes,מבין מה לא עבד ומנסה
+he-0530,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:57,string,yes,המשפחה תומכת שתהיה נהג אוטובוס?
+he-0531,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:58,string,yes,"לא, נגד"
+he-0532,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:59,string,yes,לא בטוח
+he-0533,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:60,string,yes,"כן, עם חששות"
+he-0534,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:61,string,yes,"כן, לגמרי"
+he-0535,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:63,string,yes,לא הבנת הוראה בעברית — מה אתה עושה?
+he-0536,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:64,string,yes,מעמיד פנים שהבנת
+he-0537,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:65,string,yes,עושה מה שנראה נכון
+he-0538,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:66,string,yes,שואל חבר אחר כך
+he-0539,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:67,string,yes,מבקש הסבר מיד
+he-0540,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:69,string,yes,כמה שעות בשבוע מוכן ללמוד תיאוריה?
+he-0541,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:70,string,yes,שעה-שעתיים
+he-0542,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:71,string,yes,3-4 שעות
+he-0543,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:72,string,yes,5-7 שעות
+he-0544,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:73,string,yes,כמה שצריך
+he-0545,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:75,string,yes,מה השכר שאתה מצפה?
+he-0546,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:76,string,yes,"מעל 15,000 ₪ מיד"
+he-0547,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:79,string,yes,מוכן להתחיל בפחות ולצמוח
+he-0548,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:81,string,yes,תאר את עצמך כנהג:
+he-0549,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:82,string,yes,מהיר ויעיל
+he-0550,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:83,string,yes,סבלני ומכבד
+he-0551,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:84,string,yes,מקצועי ובטיחותי
+he-0552,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:85,string,yes,אדיב ושירותי
+he-0553,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:93,string,yes,אתה נוסע עם 40 נוסעים — שמעת צליל מוזר מהמנוע. מה אתה עושה?
+he-0554,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:98,string,yes,ממשיך — כנראה לא חמור
+he-0555,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:99,string,yes,מאט ומגיע לתחנה הבאה
+he-0556,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:100,string,yes,עוצר בצד בבטחה ומדווח
+he-0557,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:101,string,yes,מתקשר למנהל תוך כדי נסיעה
+he-0558,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:107,string,yes,אם לא עברת מבחן — מה תגיד למשפחה?
+he-0559,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:108,string,yes,אסתיר
+he-0560,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:108,string,yes,אגיד שדחיתי
+he-0561,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:108,string,yes,אגיד האמת ואנסה שוב
+he-0562,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:110,string,yes,פחדת פעם מכישלון ועשית בכל זאת — ספר
+he-0563,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:111,string,yes,לא קרה
+he-0564,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:111,string,yes,רק אם הייתי חייב
+he-0565,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:111,string,yes,"כן, תמיד אנסה"
+he-0566,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:113,string,yes,אדם שאתה מכבד — מה היה אומר על המקצוע?
+he-0567,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:114,string,yes,לא בטוח
+he-0568,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:114,string,yes,היה מסכים
+he-0569,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:114,string,yes,היה גאה
+he-0570,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:118,string,yes,מה עשית מקצועית לפני שהגעת לישראל?
+he-0571,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:119,string,yes,לא רלוונטי
+he-0572,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:119,string,yes,עבדתי בתחום שונה
+he-0573,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:119,string,yes,יש לי ניסיון תחבורה
+he-0574,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:121,string,yes,מנהל ביקש משהו שנראה לך לא נכון — מה תעשה?
+he-0575,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:122,string,yes,אתעלם
+he-0576,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:122,string,yes,אעשה אבל אתלונן
+he-0577,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:122,string,yes,אשאל לפני שאעשה
+he-0578,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:124,string,yes,בעוד 3 שנים — איפה אתה רוצה להיות?
+he-0579,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:125,string,yes,לא יודע
+he-0580,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:125,string,yes,אותו מקום
+he-0581,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:125,string,yes,נהג מנוסה / מדריך
+he-0582,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:129,string,yes,למה בחרת לעלות לישראל?
+he-0583,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:130,string,yes,הגעתי עם המשפחה
+he-0584,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:130,string,yes,חיפשתי עבודה
+he-0585,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:130,string,yes,זה החלום שלי מאז ילדות
+he-0586,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:132,string,yes,מוכן לנסוע כל יום לעיר אחרת?
+he-0587,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:133,string,yes,לא
+he-0588,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:133,string,yes,רק קרוב לבית
+he-0589,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:133,string,yes,"כן, בלי בעיה"
+he-0590,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:135,string,yes,ספר על עבודה קשה שעשית בחיים
+he-0591,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:136,string,yes,לא עשיתי
+he-0592,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:136,string,yes,עבדתי קשה כשהייתי חייב
+he-0593,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:136,string,yes,תמיד עבדתי קשה
+he-0594,/admin/ai-agent,src/routes/admin.ai-agent.tsx:18,string,no,תן לי דוח יומי קצר על מצב המערכת
+he-0595,/admin/ai-agent,src/routes/admin.ai-agent.tsx:19,string,no,אילו מועמדים ממתינים ולא טופלו ביותר מ-48 שעות?
+he-0596,/admin/ai-agent,src/routes/admin.ai-agent.tsx:20,string,no,סיכום pipeline: כמה בכל שלב והיכן יש צוואר בקבוק?
+he-0597,/admin/ai-agent,src/routes/admin.ai-agent.tsx:24,string,no,"תרגם לאמהרית: מרחק עצירה תלוי במהירות, בעומס ובמצב הכביש."
+he-0598,/admin/ai-agent,src/routes/admin.ai-agent.tsx:25,string,no,תרגם וסווג: שיעור על בלם פליטה לכיתת אוטובוס מתחילים.
+he-0599,/admin/ai-agent,src/routes/admin.ai-agent.tsx:26,string,no,הכן חומר באמהרית בנושא בטיחות בהסעת ילדים — רמה מתחיל.
+he-0600,/admin/ai-agent,src/routes/admin.ai-agent.tsx:67,string,no,⚠️ חסר מפתח AI בהגדרות המערכת (XAI_API_KEY).
+he-0601,/admin/ai-agent,src/routes/admin.ai-agent.tsx:69,string,no,💳 אין יתרת קרדיטים או הרשאה ל-API. בדוק את חשבון ה-AI.
+he-0602,/admin/ai-agent,src/routes/admin.ai-agent.tsx:71,string,no,⛔ פעולה זו זמינה לבעלים בלבד.
+he-0603,/admin/ai-agent,src/routes/admin.ai-agent.tsx:73,string,no,"⏳ יותר מדי בקשות, נסה שוב בעוד רגע."
+he-0604,/admin/ai-agent,src/routes/admin.ai-agent.tsx:75,string,no,אירעה שגיאה בעיבוד הבקשה.
+he-0605,/admin/ai-agent,src/routes/admin.ai-agent.tsx:80,string,no,שגיאת רשת. נסה שוב.
+he-0606,/admin/ai-agent,src/routes/admin.ai-agent.tsx:178,string,no,🤖 סוכן AI
+he-0607,/admin/ai-agent,src/routes/admin.ai-agent.tsx:183,jsx_text,no,סוכן ניהול
+he-0608,/admin/ai-agent,src/routes/admin.ai-agent.tsx:186,jsx_text,no,🌍 מרצה ולוקליזציה
+he-0609,/admin/ai-agent,src/routes/admin.ai-agent.tsx:196,jsx_text,no,סוכן Haile AI
+he-0610,/admin/ai-agent,src/routes/admin.ai-agent.tsx:197,jsx_text,no,ניתוח חי של נתוני המערכת בעברית
+he-0611,/admin/ai-agent,src/routes/admin.ai-agent.tsx:203,string,no,שלום בני 👋 שאל אותי כל דבר על המערכת. כמה הצעות:
+he-0612,/admin/ai-agent,src/routes/admin.ai-agent.tsx:204,string,no,"שאל את הסוכן… (Enter לשליחה, Shift+Enter לשורה)"
+he-0613,/admin/ai-agent,src/routes/admin.ai-agent.tsx:205,string,no,חושב
+he-0614,/admin/ai-agent,src/routes/admin.ai-agent.tsx:215,jsx_text,no,המרצה הראשי ומנהל הלוקליזציה
+he-0615,/admin/ai-agent,src/routes/admin.ai-agent.tsx:217,jsx_text,no,תרגום חומרי לימוד מעברית לאמהרית · סיווג · פלט מוכן ל-Supabase
+he-0616,/admin/ai-agent,src/routes/admin.ai-agent.tsx:224,string,no,"העלה חומר בעברית — אתרגם לאמהרית מקצועית, אסווג ואכין JSON מוכן לשמירה."
+he-0617,/admin/ai-agent,src/routes/admin.ai-agent.tsx:225,string,no,הדבק כאן חומר בעברית לתרגום וסיווג…
+he-0618,/admin/ai-agent,src/routes/admin.ai-agent.tsx:226,string,no,מתרגם
+he-0619,/admin/attendance/drilldown,src/routes/admin.attendance.drilldown.tsx:18,string,no,פירוט נוכחות — Haile Drive AI
+he-0620,/admin/attendance/drilldown,src/routes/admin.attendance.drilldown.tsx:23,string,no,נוכח
+he-0621,/admin/attendance/drilldown,src/routes/admin.attendance.drilldown.tsx:24,string,no,איחור
+he-0622,/admin/attendance/drilldown,src/routes/admin.attendance.drilldown.tsx:25,string,no,חסר
+he-0623,/admin/attendance/drilldown,src/routes/admin.attendance.drilldown.tsx:26,string,no,השלמה
+he-0624,/admin/attendance/drilldown,src/routes/admin.attendance.drilldown.tsx:93,template,no,פירוט: ${cls.name}${date ?
+he-0625,/admin/attendance/drilldown,src/routes/admin.attendance.drilldown.tsx:95,template,no,פירוט נוכחות · ${date}
+he-0626,/admin/attendance/drilldown,src/routes/admin.attendance.drilldown.tsx:96,template,no,פירוט נוכחות (${effectiveFrom} → ${effectiveTo})
+he-0627,/admin/attendance/drilldown,src/routes/admin.attendance.drilldown.tsx:102,jsx_text,no,חזרה לסקירה
+he-0628,/admin/attendance/drilldown,src/routes/admin.attendance.drilldown.tsx:104,jsx_text,no,סימונים
+he-0629,/admin/attendance/drilldown,src/routes/admin.attendance.drilldown.tsx:128,jsx_text,no,פילוח לפי מרצה
+he-0630,/admin/attendance/drilldown,src/routes/admin.attendance.drilldown.tsx:131,jsx_text,no,אין סימונים בטווח שנבחר.
+he-0631,/admin/attendance/drilldown,src/routes/admin.attendance.drilldown.tsx:138,jsx_text,no,מרצה
+he-0632,/admin/attendance/drilldown,src/routes/admin.attendance.drilldown.tsx:139,jsx_text,no,נוכח
+he-0633,/admin/attendance/drilldown,src/routes/admin.attendance.drilldown.tsx:140,jsx_text,no,איחור
+he-0634,/admin/attendance/drilldown,src/routes/admin.attendance.drilldown.tsx:141,jsx_text,no,חסר
+he-0635,/admin/attendance/drilldown,src/routes/admin.attendance.drilldown.tsx:142,jsx_text,no,השלמה
+he-0636,/admin/attendance/drilldown,src/routes/admin.attendance.drilldown.tsx:143,jsx_text,no,סה״כ
+he-0637,/admin/attendance/drilldown,src/routes/admin.attendance.drilldown.tsx:144,jsx_text,no,% השלמה
+he-0638,/admin/attendance/drilldown,src/routes/admin.attendance.drilldown.tsx:153,string,no,ללא שיוך
+he-0639,/admin/attendance/drilldown,src/routes/admin.attendance.drilldown.tsx:174,jsx_text,no,פילוח לפי מפגש
+he-0640,/admin/attendance/drilldown,src/routes/admin.attendance.drilldown.tsx:177,jsx_text,no,אין מפגשים בטווח שנבחר.
+he-0641,/admin/attendance,src/routes/admin.attendance.tsx:10,string,no,ניתוח נוכחות — Haile Drive AI
+he-0642,/admin/attendance,src/routes/admin.attendance.tsx:15,string,no,נוכח
+he-0643,/admin/attendance,src/routes/admin.attendance.tsx:16,string,no,איחור
+he-0644,/admin/attendance,src/routes/admin.attendance.tsx:17,string,no,חסר
+he-0645,/admin/attendance,src/routes/admin.attendance.tsx:18,string,no,השלמה
+he-0646,/admin/attendance,src/routes/admin.attendance.tsx:84,string,no,ניתוח נוכחות
+he-0647,/admin/attendance,src/routes/admin.attendance.tsx:87,jsx_text,no,חלון ניתוח:
+he-0648,/admin/attendance,src/routes/admin.attendance.tsx:87,jsx_text,no,ימים אחרונים (
+he-0649,/admin/attendance,src/routes/admin.attendance.tsx:100,jsx_text,no,ימים
+he-0650,/admin/attendance,src/routes/admin.attendance.tsx:109,string,no,שיעור השלמה
+he-0651,/admin/attendance,src/routes/admin.attendance.tsx:109,string,no,נוכח + השלמה
+he-0652,/admin/attendance,src/routes/admin.attendance.tsx:110,string,no,חסרים היום
+he-0653,/admin/attendance,src/routes/admin.attendance.tsx:111,string,no,תלמידים בסיכון
+he-0654,/admin/attendance,src/routes/admin.attendance.tsx:111,string,no,3+ היעדרויות
+he-0655,/admin/attendance,src/routes/admin.attendance.tsx:112,string,no,סה״כ סימונים
+he-0656,/admin/attendance,src/routes/admin.attendance.tsx:112,template,no,בחלון ${windowDays} ימים
+he-0657,/admin/attendance,src/routes/admin.attendance.tsx:134,jsx_text,no,תלמידים בסיכון
+he-0658,/admin/attendance,src/routes/admin.attendance.tsx:137,jsx_text,no,אין תלמידים בסיכון בחלון הנבחר.
+he-0659,/admin/attendance,src/routes/admin.attendance.tsx:144,jsx_text,no,שם
+he-0660,/admin/attendance,src/routes/admin.attendance.tsx:145,jsx_text,no,חסר
+he-0661,/admin/attendance,src/routes/admin.attendance.tsx:146,jsx_text,no,סך מפגשים
+he-0662,/admin/attendance,src/routes/admin.attendance.tsx:147,jsx_text,no,אחוז היעדרות
+he-0663,/admin/attendance,src/routes/admin.attendance.tsx:169,jsx_text,no,שיעור השלמה לפי כיתה
+he-0664,/admin/attendance,src/routes/admin.attendance.tsx:194,jsx_text,no,אין כיתות עדיין.
+he-0665,/admin/attendance,src/routes/admin.attendance.tsx:200,jsx_text,no,חסרים היום
+he-0666,/admin/attendance,src/routes/admin.attendance.tsx:203,jsx_text,no,אין היעדרויות מסומנות להיום.
+he-0667,/admin/attendance,src/routes/admin.attendance.tsx:224,jsx_text,no,סימון נוכחות מתבצע במסך המרצה.
+he-0668,/admin/attendance,src/routes/admin.attendance.tsx:224,jsx_text,no,פתח כעת
+he-0669,/admin/beqa,src/routes/admin.beqa.tsx:61,string,no,BEQA — אבחון ביומטרי
+he-0670,/admin/beqa,src/routes/admin.beqa.tsx:76,jsx_text,no,"דיוק: r.accuracy_score ?? 0,"
+he-0671,/admin/beqa,src/routes/admin.beqa.tsx:95,string,no,BEQA — אבחון ביומטרי
+he-0672,/admin/beqa,src/routes/admin.beqa.tsx:98,string,no,סשנים שהושלמו
+he-0673,/admin/beqa,src/routes/admin.beqa.tsx:99,string,no,ממוצע BEQA
+he-0674,/admin/beqa,src/routes/admin.beqa.tsx:100,string,no,תלמידים פעילים
+he-0675,/admin/beqa,src/routes/admin.beqa.tsx:101,string,no,ממוצע דיוק
+he-0676,/admin/beqa,src/routes/admin.beqa.tsx:106,jsx_text,no,מגמת BEQA (30 סשנים אחרונים)
+he-0677,/admin/beqa,src/routes/admin.beqa.tsx:116,string,no,דיוק
+he-0678,/admin/beqa,src/routes/admin.beqa.tsx:123,jsx_text,no,פילוח ציונים
+he-0679,/admin/beqa,src/routes/admin.beqa.tsx:139,jsx_text,no,סשנים אחרונים
+he-0680,/admin/beqa,src/routes/admin.beqa.tsx:142,jsx_text,no,אין עדיין סשני אבחון.
+he-0681,/admin/beqa,src/routes/admin.beqa.tsx:158,jsx_text,no,דיוק
+he-0682,/admin/beqa,src/routes/admin.beqa.tsx:163,jsx_text,no,יציבות
+he-0683,/admin/beqa,src/routes/admin.beqa.tsx:164,jsx_text,no,עקביות
+he-0684,/admin/candidates,src/routes/admin.candidates.tsx:15,string,no,טופס ירוק
+he-0685,/admin/candidates,src/routes/admin.candidates.tsx:16,string,no,אישור לימודים ממשרד הרישוי
+he-0686,/admin/candidates,src/routes/admin.candidates.tsx:17,string,no,ת.ז. — צד קדמי
+he-0687,/admin/candidates,src/routes/admin.candidates.tsx:18,string,no,ת.ז. — צד אחורי
+he-0688,/admin/candidates,src/routes/admin.candidates.tsx:19,string,no,רישיון נהיגה — קדמי
+he-0689,/admin/candidates,src/routes/admin.candidates.tsx:20,string,no,רישיון נהיגה — אחורי
+he-0690,/admin/candidates,src/routes/admin.candidates.tsx:21,string,no,תמונת פספורט
+he-0691,/admin/candidates,src/routes/admin.candidates.tsx:22,string,no,אישור רפואי
+he-0692,/admin/candidates,src/routes/admin.candidates.tsx:26,string,no,תלמידים ולידים — Haile Drive AI
+he-0693,/admin/candidates,src/routes/admin.candidates.tsx:31,string,no,ליד חדש
+he-0694,/admin/candidates,src/routes/admin.candidates.tsx:32,string,no,נוצר קשר
+he-0695,/admin/candidates,src/routes/admin.candidates.tsx:33,string,no,חסרים מסמכים
+he-0696,/admin/candidates,src/routes/admin.candidates.tsx:34,string,no,ממתין לפתיחה
+he-0697,/admin/candidates,src/routes/admin.candidates.tsx:35,string,no,שובץ
+he-0698,/admin/candidates,src/routes/admin.candidates.tsx:36,string,no,פעיל
+he-0699,/admin/candidates,src/routes/admin.candidates.tsx:37,string,no,סיים
+he-0700,/admin/candidates,src/routes/admin.candidates.tsx:38,string,no,לא פעיל
+he-0701,/admin/candidates,src/routes/admin.candidates.tsx:39,string,no,נכשל
+he-0702,/admin/candidates,src/routes/admin.candidates.tsx:67,string,no,נשמר
+he-0703,/admin/candidates,src/routes/admin.candidates.tsx:68,string,no,שמירה נכשלה
+he-0704,/admin/candidates,src/routes/admin.candidates.tsx:72,string,no,נמחק
+he-0705,/admin/candidates,src/routes/admin.candidates.tsx:73,string,no,מחיקה נכשלה
+he-0706,/admin/candidates,src/routes/admin.candidates.tsx:79,string,no,עודכן
+he-0707,/admin/candidates,src/routes/admin.candidates.tsx:80,string,no,עדכון נכשל
+he-0708,/admin/candidates,src/routes/admin.candidates.tsx:86,string,no,גישת BEQA עודכנה
+he-0709,/admin/candidates,src/routes/admin.candidates.tsx:87,string,no,עדכון נכשל
+he-0710,/admin/candidates,src/routes/admin.candidates.tsx:98,string,no,🇪🇹 אמהרית
+he-0711,/admin/candidates,src/routes/admin.candidates.tsx:99,string,no,🇮🇱 עברית
+he-0712,/admin/candidates,src/routes/admin.candidates.tsx:100,string,no,🇷🇺 רוסית
+he-0713,/admin/candidates,src/routes/admin.candidates.tsx:101,string,no,✡️ קוקי
+he-0714,/admin/candidates,src/routes/admin.candidates.tsx:102,string,no,✡️ קוקי
+he-0715,/admin/candidates,src/routes/admin.candidates.tsx:103,string,no,🇬🇧 אנגלית
+he-0716,/admin/candidates,src/routes/admin.candidates.tsx:104,string,no,🇫🇷 צרפתית
+he-0717,/admin/candidates,src/routes/admin.candidates.tsx:122,string,no,ניהול לידים ותלמידים
+he-0718,/admin/candidates,src/routes/admin.candidates.tsx:126,jsx_text,no,📋 לידים
+he-0719,/admin/candidates,src/routes/admin.candidates.tsx:130,jsx_text,no,🎓 סטודנטים
+he-0720,/admin/candidates,src/routes/admin.candidates.tsx:136,string,no,חיפוש שם / טלפון / אימייל…
+he-0721,/admin/candidates,src/routes/admin.candidates.tsx:140,jsx_text,no,כל הערים
+he-0722,/admin/candidates,src/routes/admin.candidates.tsx:144,jsx_text,no,כל הסטטוסים
+he-0723,/admin/candidates,src/routes/admin.candidates.tsx:148,jsx_text,no,ייבוא CSV
+he-0724,/admin/candidates,src/routes/admin.candidates.tsx:151,jsx_text,no,תלמיד חדש
+he-0725,/admin/candidates,src/routes/admin.candidates.tsx:157,string,no,"טוען תלמידים, ערים וכיתות מהמסד…"
+he-0726,/admin/candidates,src/routes/admin.candidates.tsx:160,jsx_text,no,טעינת הנתונים נכשלה:
+he-0727,/admin/candidates,src/routes/admin.candidates.tsx:168,jsx_text,no,שם
+he-0728,/admin/candidates,src/routes/admin.candidates.tsx:169,jsx_text,no,טלפון
+he-0729,/admin/candidates,src/routes/admin.candidates.tsx:170,jsx_text,no,עיר
+he-0730,/admin/candidates,src/routes/admin.candidates.tsx:171,jsx_text,no,כיתה
+he-0731,/admin/candidates,src/routes/admin.candidates.tsx:172,jsx_text,no,שפה
+he-0732,/admin/candidates,src/routes/admin.candidates.tsx:173,jsx_text,no,סטטוס
+he-0733,/admin/candidates,src/routes/admin.candidates.tsx:174,jsx_text,no,תשלום
+he-0734,/admin/candidates,src/routes/admin.candidates.tsx:180,jsx_text,no,טוען נתונים חיים…
+he-0735,/admin/candidates,src/routes/admin.candidates.tsx:181,jsx_text,no,אין רשומות
+he-0736,/admin/candidates,src/routes/admin.candidates.tsx:192,jsx_text,no,לא צוין
+he-0737,/admin/candidates,src/routes/admin.candidates.tsx:200,string,no,שייך לכיתה
+he-0738,/admin/candidates,src/routes/admin.candidates.tsx:202,jsx_text,no,— ללא כיתה —
+he-0739,/admin/candidates,src/routes/admin.candidates.tsx:213,jsx_text,no,שילם
+he-0740,/admin/candidates,src/routes/admin.candidates.tsx:218,template,no,לאשר תשלום של ${c.full_name} ולהפוך לסטודנט?
+he-0741,/admin/candidates,src/routes/admin.candidates.tsx:225,string,no,אשר תשלום והפוך לסטודנט
+he-0742,/admin/candidates,src/routes/admin.candidates.tsx:227,jsx_text,no,הפוך לסטודנט
+he-0743,/admin/candidates,src/routes/admin.candidates.tsx:234,string,no,בטל גישת BEQA
+he-0744,/admin/candidates,src/routes/admin.candidates.tsx:234,string,no,אפשר גישת BEQA
+he-0745,/admin/candidates,src/routes/admin.candidates.tsx:237,string,no,🔒 ללא
+he-0746,/admin/candidates,src/routes/admin.candidates.tsx:242,string,no,תיק נהג
+he-0747,/admin/candidates,src/routes/admin.candidates.tsx:244,template,no,למחוק את ${c.full_name}?
+he-0748,/admin/candidates,src/routes/admin.candidates.tsx:256,string,no,עריכת תלמיד
+he-0749,/admin/candidates,src/routes/admin.candidates.tsx:256,string,no,תלמיד חדש
+he-0750,/admin/candidates,src/routes/admin.candidates.tsx:260,string,no,שם חובה
+he-0751,/admin/candidates,src/routes/admin.candidates.tsx:265,string,no,שם מלא *
+he-0752,/admin/candidates,src/routes/admin.candidates.tsx:267,string,no,טלפון
+he-0753,/admin/candidates,src/routes/admin.candidates.tsx:268,string,no,אימייל
+he-0754,/admin/candidates,src/routes/admin.candidates.tsx:271,string,no,עיר
+he-0755,/admin/candidates,src/routes/admin.candidates.tsx:277,string,no,כיתה
+he-0756,/admin/candidates,src/routes/admin.candidates.tsx:284,string,no,תעודת זהות
+he-0757,/admin/candidates,src/routes/admin.candidates.tsx:296,string,no,שפה
+he-0758,/admin/candidates,src/routes/admin.candidates.tsx:301,string,no,סטטוס
+he-0759,/admin/candidates,src/routes/admin.candidates.tsx:307,string,no,הערות
+he-0760,/admin/candidates,src/routes/admin.candidates.tsx:310,jsx_text,no,🧬 גישה לאבחון BEQA (תשלום נפרד)
+he-0761,/admin/candidates,src/routes/admin.candidates.tsx:314,jsx_text,no,ביטול
+he-0762,/admin/candidates,src/routes/admin.candidates.tsx:315,string,no,שומר…
+he-0763,/admin/candidates,src/routes/admin.candidates.tsx:315,string,no,שמור
+he-0764,/admin/candidates,src/routes/admin.candidates.tsx:359,string,no,"תיק ויצ\""ר נפתח"
+he-0765,/admin/candidates,src/routes/admin.candidates.tsx:366,jsx_text,no,"💰 לפתוח תיק ויצ""ר עבור"
+he-0766,/admin/candidates,src/routes/admin.candidates.tsx:367,jsx_text,no,ייפתח מעקב תשלומים אוטומטית. ניתן לשנות את סכום השובר.
+he-0767,/admin/candidates,src/routes/admin.candidates.tsx:369,jsx_text,no,סכום השובר (₪)
+he-0768,/admin/candidates,src/routes/admin.candidates.tsx:373,jsx_text,no,לא עכשיו
+he-0769,/admin/candidates,src/routes/admin.candidates.tsx:375,string,no,פותח…
+he-0770,/admin/candidates,src/routes/admin.candidates.tsx:375,string,no,כן — פתח תיק
+he-0771,/admin/candidates,src/routes/admin.candidates.tsx:396,string,no,יש להזין כיתוב למסמך
+he-0772,/admin/candidates,src/routes/admin.candidates.tsx:400,string,no,הועלה לתיק הנהג
+he-0773,/admin/candidates,src/routes/admin.candidates.tsx:403,string,no,העלאה נכשלה
+he-0774,/admin/candidates,src/routes/admin.candidates.tsx:415,string,no,פתיחה נכשלה
+he-0775,/admin/candidates,src/routes/admin.candidates.tsx:420,template,no,"למחוק את ""${doc.label}""?"
+he-0776,/admin/candidates,src/routes/admin.candidates.tsx:423,string,no,נמחק
+he-0777,/admin/candidates,src/routes/admin.candidates.tsx:426,string,no,מחיקה נכשלה
+he-0778,/admin/candidates,src/routes/admin.candidates.tsx:435,jsx_text,no,תיק נהג
+he-0779,/admin/candidates,src/routes/admin.candidates.tsx:438,string,no,לא צוינה עיר
+he-0780,/admin/candidates,src/routes/admin.candidates.tsx:445,jsx_text,no,העלאת מסמך חדש
+he-0781,/admin/candidates,src/routes/admin.candidates.tsx:451,string,no,כיתוב חופשי (למשל: טופס ירוק)
+he-0782,/admin/candidates,src/routes/admin.candidates.tsx:463,string,no,מעלה…
+he-0783,/admin/candidates,src/routes/admin.candidates.tsx:463,string,no,בחר קובץ
+he-0784,/admin/candidates,src/routes/admin.candidates.tsx:484,jsx_text,no,טוען…
+he-0785,/admin/candidates,src/routes/admin.candidates.tsx:487,jsx_text,no,עדיין אין מסמכים בתיק
+he-0786,/admin/candidates,src/routes/admin.candidates.tsx:502,string,no,פתיחה
+he-0787,/admin/candidates,src/routes/admin.candidates.tsx:505,string,no,מחיקה
+he-0788,/admin/content,src/routes/admin.content.tsx:8,string,no,תוכן לימודי — Haile Drive AI
+he-0789,/admin/content,src/routes/admin.content.tsx:15,string,no,תוכן לימודי
+he-0790,/admin/content,src/routes/admin.content.tsx:21,jsx_text,no,📚 חומרי לימוד
+he-0791,/admin/content,src/routes/admin.content.tsx:27,jsx_text,no,📝 בנק מבחנים
+he-0792,/admin/courses,src/routes/admin.courses.tsx:17,string,no,ניהול קורסים מקוונים — Haile Drive AI
+he-0793,/admin/courses,src/routes/admin.courses.tsx:18,string,no,"יצירה ועריכה של קורסים מקוונים, מודולים, שיעורים ומעקב הרשמות ב-Haile Drive AI."
+he-0794,/admin/courses,src/routes/admin.courses.tsx:19,string,no,ניהול קורסים מקוונים — Haile Drive AI
+he-0795,/admin/courses,src/routes/admin.courses.tsx:20,string,no,"ניהול קורסים, מודולים, שיעורים והרשמות."
+he-0796,/admin/courses,src/routes/admin.courses.tsx:45,string,no,הקורס נשמר
+he-0797,/admin/courses,src/routes/admin.courses.tsx:49,string,no,שמירת הקורס נכשלה
+he-0798,/admin/courses,src/routes/admin.courses.tsx:55,string,no,הקורס נמחק
+he-0799,/admin/courses,src/routes/admin.courses.tsx:59,string,no,מחיקת הקורס נכשלה
+he-0800,/admin/courses,src/routes/admin.courses.tsx:65,string,no,🎓 קורסים מקוונים
+he-0801,/admin/courses,src/routes/admin.courses.tsx:67,jsx_text,no,"ניהול קטלוג הקורסים המקוונים, המודולים והשיעורים"
+he-0802,/admin/courses,src/routes/admin.courses.tsx:69,jsx_text,no,קורס חדש
+he-0803,/admin/courses,src/routes/admin.courses.tsx:79,string,no,נא להזין כותרת בעברית
+he-0804,/admin/courses,src/routes/admin.courses.tsx:86,string,no,טוען קורסים…
+he-0805,/admin/courses,src/routes/admin.courses.tsx:90,jsx_text,no,אין עדיין קורסים מקוונים. לחצו «קורס חדש» כדי להתחיל.
+he-0806,/admin/courses,src/routes/admin.courses.tsx:103,string,no,ללא עלות
+he-0807,/admin/courses,src/routes/admin.courses.tsx:104,jsx_text,no,שעות
+he-0808,/admin/courses,src/routes/admin.courses.tsx:109,jsx_text,no,עריכה
+he-0809,/admin/courses,src/routes/admin.courses.tsx:115,string,no,פרסם
+he-0810,/admin/courses,src/routes/admin.courses.tsx:115,string,no,החזר לטיוטה
+he-0811,/admin/courses,src/routes/admin.courses.tsx:115,string,no,ארכב
+he-0812,/admin/courses,src/routes/admin.courses.tsx:119,string,no,סגור תוכן
+he-0813,/admin/courses,src/routes/admin.courses.tsx:119,string,no,נהל תוכן
+he-0814,/admin/courses,src/routes/admin.courses.tsx:123,template,no,למחוק את «${c.title_he}»? כל המודולים והשיעורים יימחקו.
+he-0815,/admin/courses,src/routes/admin.courses.tsx:156,jsx_text,no,כותרת (עברית)
+he-0816,/admin/courses,src/routes/admin.courses.tsx:159,jsx_text,no,כותרת (אמהרית)
+he-0817,/admin/courses,src/routes/admin.courses.tsx:162,jsx_text,no,תיאור (עברית)
+he-0818,/admin/courses,src/routes/admin.courses.tsx:166,jsx_text,no,תיאור (אמהרית)
+he-0819,/admin/courses,src/routes/admin.courses.tsx:170,jsx_text,no,מחיר (₪)
+he-0820,/admin/courses,src/routes/admin.courses.tsx:174,jsx_text,no,שעות לימוד משוערות
+he-0821,/admin/courses,src/routes/admin.courses.tsx:178,jsx_text,no,שפה
+he-0822,/admin/courses,src/routes/admin.courses.tsx:183,jsx_text,no,סטטוס
+he-0823,/admin/courses,src/routes/admin.courses.tsx:188,jsx_text,no,תמונת נושא (HTTPS)
+he-0824,/admin/courses,src/routes/admin.courses.tsx:194,jsx_text,no,שמירה
+he-0825,/admin/courses,src/routes/admin.courses.tsx:195,jsx_text,no,ביטול
+he-0826,/admin/courses,src/routes/admin.courses.tsx:210,string,no,הפעולה נכשלה
+he-0827,/admin/courses,src/routes/admin.courses.tsx:217,jsx_text,no,מודולים ושיעורים
+he-0828,/admin/courses,src/routes/admin.courses.tsx:220,string,no,שם מודול חדש
+he-0829,/admin/courses,src/routes/admin.courses.tsx:225,string,no,המודול נוסף
+he-0830,/admin/courses,src/routes/admin.courses.tsx:228,jsx_text,no,הוסף מודול
+he-0831,/admin/courses,src/routes/admin.courses.tsx:231,jsx_text,no,טוען תוכן…
+he-0832,/admin/courses,src/routes/admin.courses.tsx:234,jsx_text,no,אין עדיין מודולים בקורס.
+he-0833,/admin/courses,src/routes/admin.courses.tsx:249,string,no,סודר מחדש
+he-0834,/admin/courses,src/routes/admin.courses.tsx:255,string,no,סודר מחדש
+he-0835,/admin/courses,src/routes/admin.courses.tsx:257,template,no,למחוק את המודול «${m.title_he}»?
+he-0836,/admin/courses,src/routes/admin.courses.tsx:257,string,no,המודול נמחק
+he-0837,/admin/courses,src/routes/admin.courses.tsx:269,jsx_text,no,הדגמה חופשית
+he-0838,/admin/courses,src/routes/admin.courses.tsx:276,string,no,סודר מחדש
+he-0839,/admin/courses,src/routes/admin.courses.tsx:281,string,no,סודר מחדש
+he-0840,/admin/courses,src/routes/admin.courses.tsx:283,template,no,למחוק את השיעור «${l.title_he}»?
+he-0841,/admin/courses,src/routes/admin.courses.tsx:283,string,no,השיעור נמחק
+he-0842,/admin/courses,src/routes/admin.courses.tsx:289,jsx_text,no,אין שיעורים במודול הזה.
+he-0843,/admin/courses,src/routes/admin.courses.tsx:325,jsx_text,no,הוסף שיעור
+he-0844,/admin/courses,src/routes/admin.courses.tsx:331,string,no,נא להזין כותרת לשיעור
+he-0845,/admin/courses,src/routes/admin.courses.tsx:345,string,no,השיעור נוסף
+he-0846,/admin/courses,src/routes/admin.courses.tsx:349,string,no,הוספת השיעור נכשלה
+he-0847,/admin/courses,src/routes/admin.courses.tsx:358,string,no,כותרת השיעור
+he-0848,/admin/courses,src/routes/admin.courses.tsx:364,string,no,תוכן השיעור
+he-0849,/admin/courses,src/routes/admin.courses.tsx:367,string,no,https://… קישור
+he-0850,/admin/courses,src/routes/admin.courses.tsx:371,jsx_text,no,בחרו חומר לימוד…
+he-0851,/admin/courses,src/routes/admin.courses.tsx:375,string,no,משך בדקות
+he-0852,/admin/courses,src/routes/admin.courses.tsx:378,jsx_text,no,שיעור הדגמה חופשי (גם ללידים)
+he-0853,/admin/courses,src/routes/admin.courses.tsx:382,jsx_text,no,שמירה
+he-0854,/admin/courses,src/routes/admin.courses.tsx:383,jsx_text,no,ביטול
+he-0855,/admin/courses,src/routes/admin.courses.tsx:406,jsx_text,no,נרשמים
+he-0856,/admin/courses,src/routes/admin.courses.tsx:407,jsx_text,no,טוען הרשמות…
+he-0857,/admin/courses,src/routes/admin.courses.tsx:410,jsx_text,no,אין עדיין נרשמים לקורס.
+he-0858,/admin/courses,src/routes/admin.courses.tsx:420,string,no,הושלם
+he-0859,/admin/courses,src/routes/admin.courses.tsx:420,string,no,בוטל
+he-0860,/admin/courses,src/routes/admin.courses.tsx:420,string,no,פעיל
+he-0861,/admin/diagnostics,src/routes/admin.diagnostics.tsx:30,string,no,דוחות אבחון — Owner
+he-0862,/admin/diagnostics,src/routes/admin.diagnostics.tsx:35,string,no,מועמד
+he-0863,/admin/diagnostics,src/routes/admin.diagnostics.tsx:43,string,no,אתיופי
+he-0864,/admin/diagnostics,src/routes/admin.diagnostics.tsx:45,string,no,רוסי
+he-0865,/admin/diagnostics,src/routes/admin.diagnostics.tsx:46,string,no,קוקי
+he-0866,/admin/diagnostics,src/routes/admin.diagnostics.tsx:50,string,no,מומלץ מאוד — כשיר לרכב ציבורי
+he-0867,/admin/diagnostics,src/routes/admin.diagnostics.tsx:52,string,no,מומלץ לראיון נוסף
+he-0868,/admin/diagnostics,src/routes/admin.diagnostics.tsx:53,string,no,לא מומלץ כרגע — נדרשת הכנה
+he-0869,/admin/diagnostics,src/routes/admin.diagnostics.tsx:58,string,no,מוטיבציה ומכוונות מקצועית
+he-0870,/admin/diagnostics,src/routes/admin.diagnostics.tsx:59,string,no,שליטה עצמית בפני גירוי חברתי
+he-0871,/admin/diagnostics,src/routes/admin.diagnostics.tsx:60,string,no,אחריות ומודעות בטיחותית
+he-0872,/admin/diagnostics,src/routes/admin.diagnostics.tsx:61,string,no,הכרת חוק שעות נהיגה
+he-0873,/admin/diagnostics,src/routes/admin.diagnostics.tsx:62,string,no,חוסן פסיכולוגי לאחר כישלון
+he-0874,/admin/diagnostics,src/routes/admin.diagnostics.tsx:63,string,no,מערכת תמיכה ויציבות חיצונית
+he-0875,/admin/diagnostics,src/routes/admin.diagnostics.tsx:64,string,no,גמישות תקשורתית בין-תרבותית
+he-0876,/admin/diagnostics,src/routes/admin.diagnostics.tsx:65,string,no,מחויבות לתהליך למידה
+he-0877,/admin/diagnostics,src/routes/admin.diagnostics.tsx:66,string,no,ריאליות ציפיות שכר
+he-0878,/admin/diagnostics,src/routes/admin.diagnostics.tsx:67,string,no,זהות מקצועית כנהג
+he-0879,/admin/diagnostics,src/routes/admin.diagnostics.tsx:68,string,no,חוסן תרבותי — קהילה
+he-0880,/admin/diagnostics,src/routes/admin.diagnostics.tsx:69,string,no,ערכים קהילתיים
+he-0881,/admin/diagnostics,src/routes/admin.diagnostics.tsx:70,string,no,אומץ מול אתגרים
+he-0882,/admin/diagnostics,src/routes/admin.diagnostics.tsx:71,string,no,קבלת החלטות תחת לחץ
+he-0883,/admin/diagnostics,src/routes/admin.diagnostics.tsx:75,string,no,המועמד הביע מוטיבציה עמוקה ואמיתית לעסוק במקצוע — לא כברירת מחדל אלא כבחירה מודעת.
+he-0884,/admin/diagnostics,src/routes/admin.diagnostics.tsx:76,string,no,תגובתיות מסוימת בפני גירויים חברתיים — תחום הדורש תשומת לב בראיון נוסף.
+he-0885,/admin/diagnostics,src/routes/admin.diagnostics.tsx:77,string,no,תגובה מושלמת — המועמד לא יצא לדרך עם תקלה ידועה. הבנה עמוקה של אחריות לנוסעים.
+he-0886,/admin/diagnostics,src/routes/admin.diagnostics.tsx:78,string,no,הכרה מלאה של הגבלות שעות נהיגה החוקיות. ידע בסיסי חיוני לבטיחות הציבור.
+he-0887,/admin/diagnostics,src/routes/admin.diagnostics.tsx:79,string,no,חוסן טוב עם יכולת התאוששות. קיים קושי קל בהפקת לקחים מלאה מכישלון.
+he-0888,/admin/diagnostics,src/routes/admin.diagnostics.tsx:80,string,no,עורף משפחתי תומך — גורם יציבות מרכזי המפחית נשירה מקצועית.
+he-0889,/admin/diagnostics,src/routes/admin.diagnostics.tsx:81,string,no,יכולת גבוהה לניהול תקשורת במצבי אי-הבנה לשונית — כישור קריטי בסביבה רב-לשונית.
+he-0890,/admin/diagnostics,src/routes/admin.diagnostics.tsx:82,string,no,מחויבות גבוהה לתהליך ההכשרה. מבין שהרישיון הוא תהליך ולא אירוע חד-פעמי.
+he-0891,/admin/diagnostics,src/routes/admin.diagnostics.tsx:83,string,no,ציפיות ריאליות ומותאמות לשוק — מנבא יציבות תעסוקתית.
+he-0892,/admin/diagnostics,src/routes/admin.diagnostics.tsx:84,string,no,מזדהה עם תפקיד הנהג כמקצוע — מנבא מוסר עבודה ואיכות שירות גבוהים.
+he-0893,/admin/diagnostics,src/routes/admin.diagnostics.tsx:85,string,no,ביטוי גבוה של חוסן בהקשר תרבותי — מוכנות לשאת בכישלון ולנסות שוב.
+he-0894,/admin/diagnostics,src/routes/admin.diagnostics.tsx:86,string,no,הקהילה כמקור כוח — מנבא מחויבות ומוסר עבודה גבוהים.
+he-0895,/admin/diagnostics,src/routes/admin.diagnostics.tsx:87,string,no,נכונות להתמודד עם מצבים מאיימים — תכונה הכרחית לנהג רכב ציבורי.
+he-0896,/admin/diagnostics,src/routes/admin.diagnostics.tsx:88,string,no,תגובה מיטבית לתרחיש הלחץ — עצירה בטוחה ודיווח מיידי. תגובה נכונה ביטחונית וחוקית.
+he-0897,/admin/diagnostics,src/routes/admin.diagnostics.tsx:98,string,no,מצוין
+he-0898,/admin/diagnostics,src/routes/admin.diagnostics.tsx:98,string,no,טוב
+he-0899,/admin/diagnostics,src/routes/admin.diagnostics.tsx:98,string,no,בינוני
+he-0900,/admin/diagnostics,src/routes/admin.diagnostics.tsx:98,string,no,נמוך
+he-0901,/admin/diagnostics,src/routes/admin.diagnostics.tsx:117,template,no,"<li style=""color:#9C4E00;font-size:12px;margin-bottom:6px;padding-right:8px;"">${qLabels[k] || k} — ציון ${v}/4 — מומלץ לחזק</li>"
+he-0902,/admin/diagnostics,src/routes/admin.diagnostics.tsx:125,template,no,<title>דוח BEQA — ${name} — ${reportNo}</title>
+he-0903,/admin/diagnostics,src/routes/admin.diagnostics.tsx:131,template,no,/* כריכה */
+he-0904,/admin/diagnostics,src/routes/admin.diagnostics.tsx:142,template,no,/* תוכן */
+he-0905,/admin/diagnostics,src/routes/admin.diagnostics.tsx:148,template,no,/* פרטים */
+he-0906,/admin/diagnostics,src/routes/admin.diagnostics.tsx:154,template,no,/* ציונים */
+he-0907,/admin/diagnostics,src/routes/admin.diagnostics.tsx:160,template,no,/* טבלה */
+he-0908,/admin/diagnostics,src/routes/admin.diagnostics.tsx:166,template,no,/* המלצות */
+he-0909,/admin/diagnostics,src/routes/admin.diagnostics.tsx:173,template,no,/* החלטה */
+he-0910,/admin/diagnostics,src/routes/admin.diagnostics.tsx:179,template,no,/* חתימות */
+he-0911,/admin/diagnostics,src/routes/admin.diagnostics.tsx:185,template,no,/* פוטר */
+he-0912,/admin/diagnostics,src/routes/admin.diagnostics.tsx:188,template,no,/* הדפסה */
+he-0913,/admin/diagnostics,src/routes/admin.diagnostics.tsx:200,template,no,<!-- ════ עמוד 1 — כריכה ════ -->
+he-0914,/admin/diagnostics,src/routes/admin.diagnostics.tsx:203,template,no,"<div class=""subtitle"">דוח אבחון פסיכולוגי-תעסוקתי מקיף<br>BEQA — Biometric Educational Quality Assessment</div>"
+he-0915,/admin/diagnostics,src/routes/admin.diagnostics.tsx:210,template,no,סודי — לשימוש מקצועי בלבד &nbsp;|&nbsp; משרד התחבורה &nbsp;|&nbsp; רשות הרישוי<br>
+he-0916,/admin/diagnostics,src/routes/admin.diagnostics.tsx:211,template,no,מסמך זה מיועד להגשה רשמית בלבד
+he-0917,/admin/diagnostics,src/routes/admin.diagnostics.tsx:215,template,no,<!-- ════ תוכן ════ -->
+he-0918,/admin/diagnostics,src/routes/admin.diagnostics.tsx:218,template,no,<!-- פרטי מועמד -->
+he-0919,/admin/diagnostics,src/routes/admin.diagnostics.tsx:220,template,no,"<div class=""section-title"">פרטי המועמד <span class=""pg"">עמוד 1/6</span></div>"
+he-0920,/admin/diagnostics,src/routes/admin.diagnostics.tsx:222,template,no,"<div class=""info-item""><div class=""lbl"">שם מלא</div><div class=""val"">${name}</div></div>"
+he-0921,/admin/diagnostics,src/routes/admin.diagnostics.tsx:223,template,no,"<div class=""info-item""><div class=""lbl"">תאריך אבחון</div><div class=""val"">${date}</div></div>"
+he-0922,/admin/diagnostics,src/routes/admin.diagnostics.tsx:224,template,no,"<div class=""info-item""><div class=""lbl"">קהילה ושפה</div><div class=""val"">${community}</div></div>"
+he-0923,/admin/diagnostics,src/routes/admin.diagnostics.tsx:225,template,no,"<div class=""info-item""><div class=""lbl"">מספר דוח</div><div class=""val"">BEQA-2026-${reportNo}</div></div>"
+he-0924,/admin/diagnostics,src/routes/admin.diagnostics.tsx:226,template,no,"<div class=""info-item""><div class=""lbl"">גורם מאבחן</div><div class=""val"">Haile Drive AI BEQA v1.0</div></div>"
+he-0925,/admin/diagnostics,src/routes/admin.diagnostics.tsx:227,template,no,"<div class=""info-item""><div class=""lbl"">תאריך הפקה</div><div class=""val"">${today}</div></div>"
+he-0926,/admin/diagnostics,src/routes/admin.diagnostics.tsx:231,template,no,<!-- ציונים -->
+he-0927,/admin/diagnostics,src/routes/admin.diagnostics.tsx:233,template,no,"<div class=""section-title"">ציונים מרכזיים <span class=""pg"">עמוד 2/6</span></div>"
+he-0928,/admin/diagnostics,src/routes/admin.diagnostics.tsx:235,template,no,"<div class=""score-box""><div class=""num"">${score}</div><div class=""lbl"">ציון BEQA כולל</div></div>"
+he-0929,/admin/diagnostics,src/routes/admin.diagnostics.tsx:236,template,no,"<div class=""score-box""><div class=""num"">${psych}/4</div><div class=""lbl"">ציון פסיכולוגי</div></div>"
+he-0930,/admin/diagnostics,src/routes/admin.diagnostics.tsx:237,template,no,"<div class=""score-box""><div class=""num"" style=""color:${recColor}"">${rec}</div><div class=""lbl"">דרגת המלצה</div></div>"
+he-0931,/admin/diagnostics,src/routes/admin.diagnostics.tsx:240,template,no,⚡ הדוח מבוסס על האבחון הפסיכולוגי המושלם (14 שאלות).
+he-0932,/admin/diagnostics,src/routes/admin.diagnostics.tsx:241,template,no,"מדדים ביומטריים (rPPG, ניתוח פנים) יתווספו עם חיבור חיישנים מאושרים — שלב ב של המערכת."
+he-0933,/admin/diagnostics,src/routes/admin.diagnostics.tsx:245,template,no,<!-- ניתוח שאלות -->
+he-0934,/admin/diagnostics,src/routes/admin.diagnostics.tsx:247,template,no,"<div class=""section-title"">ניתוח פסיכולוגי מפורט — שאלה אחר שאלה <span class=""pg"">עמוד 3/6</span></div>"
+he-0935,/admin/diagnostics,src/routes/admin.diagnostics.tsx:249,template,no,"האבחון מבוסס על 14 שאלות שנבנו בהתאם למתודולוגיית פסיכולוג תעסוקתי מומחה לקהילות אתיופית, רוסית ושבט המנשה."
+he-0936,/admin/diagnostics,src/routes/admin.diagnostics.tsx:253,template,no,"<th style=""width:25%"">מדד</th>"
+he-0937,/admin/diagnostics,src/routes/admin.diagnostics.tsx:254,template,no,"<th style=""width:12%;text-align:center"">ציון</th>"
+he-0938,/admin/diagnostics,src/routes/admin.diagnostics.tsx:256,template,no,"<th style=""width:10%"">הערכה</th>"
+he-0939,/admin/diagnostics,src/routes/admin.diagnostics.tsx:257,template,no,"<th style=""width:45%"">פרשנות מקצועית</th>"
+he-0940,/admin/diagnostics,src/routes/admin.diagnostics.tsx:259,template,no,"<tbody>${answersRows || '<tr><td colspan=""5"" style=""padding:12px;text-align:center;color:#999;"">אין נתוני שאלות</td></tr>'}</tbody>"
+he-0941,/admin/diagnostics,src/routes/admin.diagnostics.tsx:263,template,no,<!-- פרופיל -->
+he-0942,/admin/diagnostics,src/routes/admin.diagnostics.tsx:265,template,no,"<div class=""section-title"">פרופיל אישיות וגורמי סיכון/הגנה <span class=""pg"">עמוד 4/6</span></div>"
+he-0943,/admin/diagnostics,src/routes/admin.diagnostics.tsx:268,template,no,<h4>✔ חוזקות שזוהו</h4>
+he-0944,/admin/diagnostics,src/routes/admin.diagnostics.tsx:269,template,no,"<ul style=""list-style:none;padding:1;"">${strengths || '<li style=""color:#276749;font-size:12px;padding-right:8px;"">לא זוהו חוזקות בציון 4/4</li>'}</ul>"
+he-0945,/admin/diagnostics,src/routes/admin.diagnostics.tsx:272,template,no,<h4>◆ תחומים לחיזוק</h4>
+he-0946,/admin/diagnostics,src/routes/admin.diagnostics.tsx:273,template,no,"<ul style=""list-style:none;padding:1;"">${improvements || '<li style=""color:#9C4E00;font-size:12px;padding-right:8px;"">לא זוהו תחומים קריטיים לחיזוק</li>'}</ul>"
+he-0947,/admin/diagnostics,src/routes/admin.diagnostics.tsx:278,template,no,<!-- המלצות -->
+he-0948,/admin/diagnostics,src/routes/admin.diagnostics.tsx:280,template,no,"<div class=""section-title"">המלצות מקצועיות ונתיב פעולה <span class=""pg"">עמוד 5/6</span></div>"
+he-0949,/admin/diagnostics,src/routes/admin.diagnostics.tsx:281,template,no,"<p style=""font-weight:bold;margin-bottom:8px;color:#0D1B2A;"">המלצות מיידיות:</p>"
+he-0950,/admin/diagnostics,src/routes/admin.diagnostics.tsx:285,jsx_text,no,"לקיים ראיון פנים-אל-פנים נוסף תוך 30 יום, עם דגש על שליטה עצמית בתרחישי עימות"
+he-0951,/admin/diagnostics,src/routes/admin.diagnostics.tsx:286,jsx_text,no,"להשלים מבחן תיאוריה רשמי לפני קביעת מועד מרב""ד"
+he-0952,/admin/diagnostics,src/routes/admin.diagnostics.tsx:287,jsx_text,no,לשלב המועמד בסימולטור נהיגה ובמבחני הכנה של Haile Drive AI
+he-0953,/admin/diagnostics,src/routes/admin.diagnostics.tsx:288,jsx_text,no,לבצע אבחון BEQA מלא עם חיישנים ביומטריים לאחר חיבור SDK
+he-0954,/admin/diagnostics,src/routes/admin.diagnostics.tsx:292,jsx_text,no,"המועמד כשיר לשלב המרב""ד הרשמי — מומלץ לתאם מועד בהקדם"
+he-0955,/admin/diagnostics,src/routes/admin.diagnostics.tsx:293,jsx_text,no,להשלים מבחן תיאוריה רשמי
+he-0956,/admin/diagnostics,src/routes/admin.diagnostics.tsx:294,jsx_text,no,מעקב שוטף במהלך ההכשרה
+he-0957,/admin/diagnostics,src/routes/admin.diagnostics.tsx:297,jsx_text,no,נדרשת הכנה נוספת — לחזור לתהליך הכשרה עם Haile Drive AI
+he-0958,/admin/diagnostics,src/routes/admin.diagnostics.tsx:298,jsx_text,no,לאבחן מחדש בעוד 60 יום
+he-0959,/admin/diagnostics,src/routes/admin.diagnostics.tsx:299,jsx_text,no,לחזק תחומים שזוהו כחלשים
+he-0960,/admin/diagnostics,src/routes/admin.diagnostics.tsx:304,template,no,<!-- החלטה -->
+he-0961,/admin/diagnostics,src/routes/admin.diagnostics.tsx:306,template,no,"<div class=""section-title"">החלטה סופית <span class=""pg"">עמוד 6/6</span></div>"
+he-0962,/admin/diagnostics,src/routes/admin.diagnostics.tsx:312,template,no,"? 'המועמד עומד בכל דרישות הכשירות לנהג רכב ציבורי. מומלץ להמשיך לשלב המרב""ד הרשמי.'"
+he-0963,/admin/diagnostics,src/routes/admin.diagnostics.tsx:314,template,no,"? ""המועמד מציג פרופיל חיובי עם נקודה הדורשת בחינה נוספת. מומלץ ראיון פנים-אל-פנים תוך 30 יום."""
+he-0964,/admin/diagnostics,src/routes/admin.diagnostics.tsx:315,template,no,": ""המועמד זקוק להכנה נוספת. מומלץ לחזור לתהליך הכשרה ולאבחן מחדש בעוד 60 יום.""}"
+he-0965,/admin/diagnostics,src/routes/admin.diagnostics.tsx:319,template,no,<!-- חתימות -->
+he-0966,/admin/diagnostics,src/routes/admin.diagnostics.tsx:322,template,no,"<div class=""sig-label"">גורם מאבחן</div>"
+he-0967,/admin/diagnostics,src/routes/admin.diagnostics.tsx:326,template,no,"<div class=""sig-label"">תאריך הפקת הדוח</div>"
+he-0968,/admin/diagnostics,src/routes/admin.diagnostics.tsx:330,template,no,"<div class=""sig-label"">מספר דוח</div>"
+he-0969,/admin/diagnostics,src/routes/admin.diagnostics.tsx:334,template,no,"<div class=""sig-label"">גרסת אלגוריתם</div>"
+he-0970,/admin/diagnostics,src/routes/admin.diagnostics.tsx:342,template,no,<!-- פוטר -->
+he-0971,/admin/diagnostics,src/routes/admin.diagnostics.tsx:345,template,no,דוח מספר: BEQA-2026-${reportNo} &nbsp;|&nbsp; הופק: ${today}<br>
+he-0972,/admin/diagnostics,src/routes/admin.diagnostics.tsx:346,template,no,מסמך זה הוכן לצורך הגשה למשרד התחבורה ורשות הרישוי &nbsp;|&nbsp; © 2026 Haile Drive AI — כל הזכויות שמורות
+he-0973,/admin/diagnostics,src/routes/admin.diagnostics.tsx:349,template,no,<!-- כפתור הדפסה -->
+he-0974,/admin/diagnostics,src/routes/admin.diagnostics.tsx:352,template,no,🖨️ שמור כ-PDF
+he-0975,/admin/diagnostics,src/routes/admin.diagnostics.tsx:417,string,no,דוחות אבחון
+he-0976,/admin/diagnostics,src/routes/admin.diagnostics.tsx:420,jsx_text,no,אבחוני BEQA
+he-0977,/admin/diagnostics,src/routes/admin.diagnostics.tsx:426,jsx_text,no,שגיאה בטעינה:
+he-0978,/admin/diagnostics,src/routes/admin.diagnostics.tsx:428,jsx_text,no,אין אבחונים עדיין
+he-0979,/admin/diagnostics,src/routes/admin.diagnostics.tsx:433,jsx_text,no,תאריך
+he-0980,/admin/diagnostics,src/routes/admin.diagnostics.tsx:434,jsx_text,no,שם מועמד
+he-0981,/admin/diagnostics,src/routes/admin.diagnostics.tsx:435,jsx_text,no,ציון BEQA
+he-0982,/admin/diagnostics,src/routes/admin.diagnostics.tsx:436,jsx_text,no,דיוק
+he-0983,/admin/diagnostics,src/routes/admin.diagnostics.tsx:437,jsx_text,no,המלצה
+he-0984,/admin/diagnostics,src/routes/admin.diagnostics.tsx:438,jsx_text,no,כפתור
+he-0985,/admin/diagnostics,src/routes/admin.diagnostics.tsx:470,jsx_text,no,📄 הפק דוח
+he-0986,/admin/exams/$examId,src/routes/admin.exams.$examId.tsx:11,string,no,עריכת שאלות — Haile Drive AI
+he-0987,/admin/exams/$examId,src/routes/admin.exams.$examId.tsx:47,string,no,שאלה נוספה
+he-0988,/admin/exams/$examId,src/routes/admin.exams.$examId.tsx:52,string,no,נמחק
+he-0989,/admin/exams/$examId,src/routes/admin.exams.$examId.tsx:66,string,no,טקסט שאלה חובה
+he-0990,/admin/exams/$examId,src/routes/admin.exams.$examId.tsx:68,string,no,לפחות 2 אפשרויות
+he-0991,/admin/exams/$examId,src/routes/admin.exams.$examId.tsx:69,string,no,בחר תשובה נכונה
+he-0992,/admin/exams/$examId,src/routes/admin.exams.$examId.tsx:76,template,no,"עריכת שאלות — ${examQ.data?.title ?? """"}"
+he-0993,/admin/exams/$examId,src/routes/admin.exams.$examId.tsx:78,jsx_text,no,בנק מבחנים
+he-0994,/admin/exams/$examId,src/routes/admin.exams.$examId.tsx:84,jsx_text,no,שאלה חדשה
+he-0995,/admin/exams/$examId,src/routes/admin.exams.$examId.tsx:87,string,no,טוען מבחן ושאלות מהמסד…
+he-0996,/admin/exams/$examId,src/routes/admin.exams.$examId.tsx:88,jsx_text,no,טעינת הנתונים נכשלה:
+he-0997,/admin/exams/$examId,src/routes/admin.exams.$examId.tsx:91,jsx_text,no,אין שאלות עדיין.
+he-0998,/admin/exams/$examId,src/routes/admin.exams.$examId.tsx:96,jsx_text,no,שאלה
+he-0999,/admin/exams/$examId,src/routes/admin.exams.$examId.tsx:108,string,no,למחוק שאלה?
+he-1000,/admin/exams/$examId,src/routes/admin.exams.$examId.tsx:117,jsx_text,no,שאלה חדשה
+he-1001,/admin/exams/$examId,src/routes/admin.exams.$examId.tsx:120,jsx_text,no,טקסט השאלה *
+he-1002,/admin/exams/$examId,src/routes/admin.exams.$examId.tsx:124,jsx_text,no,תמונה (אופציונלי)
+he-1003,/admin/exams/$examId,src/routes/admin.exams.$examId.tsx:126,jsx_text,no,מעלה…
+he-1004,/admin/exams/$examId,src/routes/admin.exams.$examId.tsx:130,jsx_text,no,אפשרויות (סמן את הנכונה)
+he-1005,/admin/exams/$examId,src/routes/admin.exams.$examId.tsx:135,template,no,אפשרות ${i + 1}
+he-1006,/admin/exams/$examId,src/routes/admin.exams.$examId.tsx:141,jsx_text,no,ביטול
+he-1007,/admin/exams/$examId,src/routes/admin.exams.$examId.tsx:142,jsx_text,no,הוסף
+he-1008,/admin/exams,src/routes/admin.exams.tsx:4,string,no,מבחנים — Haile Drive AI
+he-1009,/admin/inbox,src/routes/admin.inbox.tsx:26,string,no,תיבת פניות — ניהול
+he-1010,/admin/inbox,src/routes/admin.inbox.tsx:32,template,no,${m} ד׳
+he-1011,/admin/inbox,src/routes/admin.inbox.tsx:34,template,no,${h} ש׳
+he-1012,/admin/inbox,src/routes/admin.inbox.tsx:35,template,no,${Math.floor(h / 24)} י׳
+he-1013,/admin/inbox,src/routes/admin.inbox.tsx:39,string,no,🐛 תקלה
+he-1014,/admin/inbox,src/routes/admin.inbox.tsx:40,string,no,💡 הצעה
+he-1015,/admin/inbox,src/routes/admin.inbox.tsx:41,string,no,😤 תלונה
+he-1016,/admin/inbox,src/routes/admin.inbox.tsx:42,string,no,👏 מחמאה
+he-1017,/admin/inbox,src/routes/admin.inbox.tsx:45,string,no,🏢 הנהלה
+he-1018,/admin/inbox,src/routes/admin.inbox.tsx:46,string,no,👨‍🏫 מרצה
+he-1019,/admin/inbox,src/routes/admin.inbox.tsx:47,string,no,📋 מזכירה
+he-1020,/admin/inbox,src/routes/admin.inbox.tsx:55,string,no,תיבת פניות ומשובים
+he-1021,/admin/inbox,src/routes/admin.inbox.tsx:63,jsx_text,no,משובים (
+he-1022,/admin/inbox,src/routes/admin.inbox.tsx:67,jsx_text,no,פניות (
+he-1023,/admin/inbox,src/routes/admin.inbox.tsx:73,string,no,אין משובים.
+he-1024,/admin/inbox,src/routes/admin.inbox.tsx:96,string,no,עודכן
+he-1025,/admin/inbox,src/routes/admin.inbox.tsx:119,jsx_text,no,פתוח
+he-1026,/admin/inbox,src/routes/admin.inbox.tsx:120,jsx_text,no,בבדיקה
+he-1027,/admin/inbox,src/routes/admin.inbox.tsx:121,jsx_text,no,טופל
+he-1028,/admin/inbox,src/routes/admin.inbox.tsx:127,string,no,תגובת ההנהלה (תוצג לסטודנט)
+he-1029,/admin/inbox,src/routes/admin.inbox.tsx:132,string,no,שמור
+he-1030,/admin/inbox,src/routes/admin.inbox.tsx:141,string,no,אין פניות.
+he-1031,/admin/inbox,src/routes/admin.inbox.tsx:159,string,no,התגובה נשלחה
+he-1032,/admin/inbox,src/routes/admin.inbox.tsx:175,jsx_text,no,חדש
+he-1033,/admin/inbox,src/routes/admin.inbox.tsx:189,jsx_text,no,תגובה ·
+he-1034,/admin/inbox,src/routes/admin.inbox.tsx:200,string,no,כתוב תשובה לסטודנט…
+he-1035,/admin/inbox,src/routes/admin.inbox.tsx:211,string,no,סומן כנקרא
+he-1036,/admin/inbox,src/routes/admin.inbox.tsx:216,jsx_text,no,סמן כנקרא
+he-1037,/admin/inbox,src/routes/admin.inbox.tsx:225,jsx_text,no,שלח
+he-1038,/admin/lessons,src/routes/admin.lessons.tsx:43,string,no,ניהול שיעורים
+he-1039,/admin/lessons,src/routes/admin.lessons.tsx:49,jsx_text,no,נהל חומרי לימוד
+he-1040,/admin/lessons,src/routes/admin.lessons.tsx:55,jsx_text,no,טוען…
+he-1041,/admin/lessons,src/routes/admin.lessons.tsx:60,jsx_text,no,עדיין לא הועלו שיעורים.
+he-1042,/admin/lessons,src/routes/admin.lessons.tsx:62,jsx_text,no,"עבור ל""חומרי לימוד"" כדי להעלות"
+he-1043,/admin/lessons,src/routes/admin.lessons.tsx:70,jsx_text,no,שיעור
+he-1044,/admin/lessons,src/routes/admin.lessons.tsx:71,jsx_text,no,קטגוריה
+he-1045,/admin/lessons,src/routes/admin.lessons.tsx:72,jsx_text,no,סוג
+he-1046,/admin/lessons,src/routes/admin.lessons.tsx:73,jsx_text,no,קישור
+he-1047,/admin/lessons,src/routes/admin.lessons.tsx:84,string,no,לא ניתן לפתוח קובץ
+he-1048,/admin/lessons,src/routes/admin.lessons.tsx:101,jsx_text,no,פתח
+he-1049,/admin/makeup,src/routes/admin.makeup.tsx:11,string,no,השלמות שיעורים — Haile Drive AI
+he-1050,/admin/makeup,src/routes/admin.makeup.tsx:16,string,no,ממתין לשיבוץ
+he-1051,/admin/makeup,src/routes/admin.makeup.tsx:17,string,no,משובץ
+he-1052,/admin/makeup,src/routes/admin.makeup.tsx:18,string,no,הושלם
+he-1053,/admin/makeup,src/routes/admin.makeup.tsx:19,string,no,בוטל
+he-1054,/admin/makeup,src/routes/admin.makeup.tsx:54,string,no,השלמות שיעורים
+he-1055,/admin/makeup,src/routes/admin.makeup.tsx:56,jsx_text,no,מנוע שיבוץ אוטומטי
+he-1056,/admin/makeup,src/routes/admin.makeup.tsx:57,jsx_text,no,תלמידים שפספסו שיעור — שיבוץ להשלמה
+he-1057,/admin/makeup,src/routes/admin.makeup.tsx:59,jsx_text,no,כל סימון
+he-1058,/admin/makeup,src/routes/admin.makeup.tsx:59,string,no,חסר
+he-1059,/admin/makeup,src/routes/admin.makeup.tsx:59,jsx_text,no,בלוח הנוכחות פותח אוטומטית רשומת השלמה. בחר/י כיתה ותאריך — המערכת מציעה התאמות לפי עיר ונושא.
+he-1060,/admin/makeup,src/routes/admin.makeup.tsx:64,string,no,ממתין
+he-1061,/admin/makeup,src/routes/admin.makeup.tsx:65,string,no,משובץ
+he-1062,/admin/makeup,src/routes/admin.makeup.tsx:66,string,no,הושלם
+he-1063,/admin/makeup,src/routes/admin.makeup.tsx:67,string,no,בוטל
+he-1064,/admin/makeup,src/routes/admin.makeup.tsx:79,template,no,הכול (${all.length})
+he-1065,/admin/makeup,src/routes/admin.makeup.tsx:88,jsx_text,no,אין רשומות בקטגוריה זו.
+he-1066,/admin/makeup,src/routes/admin.makeup.tsx:138,string,no,השיבוץ נשמר
+he-1067,/admin/makeup,src/routes/admin.makeup.tsx:139,string,no,שגיאה בשמירה
+he-1068,/admin/makeup,src/routes/admin.makeup.tsx:144,string,no,הסטטוס עודכן
+he-1069,/admin/makeup,src/routes/admin.makeup.tsx:145,string,no,שגיאה בעדכון
+he-1070,/admin/makeup,src/routes/admin.makeup.tsx:154,string,no,תלמיד לא ידוע
+he-1071,/admin/makeup,src/routes/admin.makeup.tsx:156,jsx_text,no,פספס:
+he-1072,/admin/makeup,src/routes/admin.makeup.tsx:169,jsx_text,no,הצעות:
+he-1073,/admin/makeup,src/routes/admin.makeup.tsx:191,jsx_text,no,בחר/י כיתת השלמה…
+he-1074,/admin/makeup,src/routes/admin.makeup.tsx:208,string,no,עדכן שיבוץ
+he-1075,/admin/makeup,src/routes/admin.makeup.tsx:208,string,no,שבץ
+he-1076,/admin/makeup,src/routes/admin.makeup.tsx:215,string,no,הערות (אופציונלי)
+he-1077,/admin/makeup,src/routes/admin.makeup.tsx:223,jsx_text,no,משובץ ל:
+he-1078,/admin/makeup,src/routes/admin.makeup.tsx:233,jsx_text,no,סמן כהושלם
+he-1079,/admin/makeup,src/routes/admin.makeup.tsx:241,jsx_text,no,בטל
+he-1080,/admin/makeup,src/routes/admin.makeup.tsx:249,jsx_text,no,"החזר ל""ממתין"""
+he-1081,/admin/notifications,src/routes/admin.notifications.tsx:18,string,no,תזכורות SMS/WhatsApp — Haile Drive AI
+he-1082,/admin/notifications,src/routes/admin.notifications.tsx:23,string,no,ממתין
+he-1083,/admin/notifications,src/routes/admin.notifications.tsx:24,string,no,נשלח
+he-1084,/admin/notifications,src/routes/admin.notifications.tsx:25,string,no,נכשל
+he-1085,/admin/notifications,src/routes/admin.notifications.tsx:26,string,no,בוטל
+he-1086,/admin/notifications,src/routes/admin.notifications.tsx:31,string,no,24 שעות לפני
+he-1087,/admin/notifications,src/routes/admin.notifications.tsx:32,string,no,שעתיים לפני
+he-1088,/admin/notifications,src/routes/admin.notifications.tsx:33,string,no,בוקר היום (07:00)
+he-1089,/admin/notifications,src/routes/admin.notifications.tsx:34,string,no,ידני (עכשיו)
+he-1090,/admin/notifications,src/routes/admin.notifications.tsx:58,string,no,מבחן
+he-1091,/admin/notifications,src/routes/admin.notifications.tsx:58,string,no,השלמה
+he-1092,/admin/notifications,src/routes/admin.notifications.tsx:58,string,no,שיעור
+he-1093,/admin/notifications,src/routes/admin.notifications.tsx:61,template,no,"שלום ${opts.candidateName}, תזכורת ל${heLabel}: ${opts.eventTitle} — ${when}${where}."
+he-1094,/admin/notifications,src/routes/admin.notifications.tsx:119,string,no,בחר אירוע
+he-1095,/admin/notifications,src/routes/admin.notifications.tsx:121,string,no,בחר לפחות נמען אחד
+he-1096,/admin/notifications,src/routes/admin.notifications.tsx:155,string,no,אף נמען עם טלפון תקין
+he-1097,/admin/notifications,src/routes/admin.notifications.tsx:162,template,no,${rows.length} תזכורות נוספו לתור${skipped.length ?
+he-1098,/admin/notifications,src/routes/admin.notifications.tsx:162,jsx_text,no,· דולגו $
+he-1099,/admin/notifications,src/routes/admin.notifications.tsx:162,jsx_text,no,ללא טלפון
+he-1100,/admin/notifications,src/routes/admin.notifications.tsx:167,string,no,שגיאה בהוספה
+he-1101,/admin/notifications,src/routes/admin.notifications.tsx:176,string,no,נשלח
+he-1102,/admin/notifications,src/routes/admin.notifications.tsx:177,string,no,נכשל
+he-1103,/admin/notifications,src/routes/admin.notifications.tsx:180,string,no,שגיאה
+he-1104,/admin/notifications,src/routes/admin.notifications.tsx:185,string,no,תזכורות SMS / WhatsApp
+he-1105,/admin/notifications,src/routes/admin.notifications.tsx:190,jsx_text,no,יצירת תזכורות חדשות
+he-1106,/admin/notifications,src/routes/admin.notifications.tsx:194,jsx_text,no,אירוע מהלוז
+he-1107,/admin/notifications,src/routes/admin.notifications.tsx:203,jsx_text,no,בחר אירוע…
+he-1108,/admin/notifications,src/routes/admin.notifications.tsx:213,jsx_text,no,ערוץ
+he-1109,/admin/notifications,src/routes/admin.notifications.tsx:234,jsx_text,no,תזמון
+he-1110,/admin/notifications,src/routes/admin.notifications.tsx:249,jsx_text,no,נמענים (
+he-1111,/admin/notifications,src/routes/admin.notifications.tsx:251,jsx_text,no,סמן הכל
+he-1112,/admin/notifications,src/routes/admin.notifications.tsx:252,jsx_text,no,נקה
+he-1113,/admin/notifications,src/routes/admin.notifications.tsx:256,jsx_text,no,בחר אירוע כדי לראות נמענים
+he-1114,/admin/notifications,src/routes/admin.notifications.tsx:258,jsx_text,no,אין מועמדים בכיתה זו
+he-1115,/admin/notifications,src/routes/admin.notifications.tsx:277,string,no,אין טלפון
+he-1116,/admin/notifications,src/routes/admin.notifications.tsx:286,jsx_text,no,הודעה מותאמת (אופציונלי)
+he-1117,/admin/notifications,src/routes/admin.notifications.tsx:291,string,no,ריק = הודעה דו-לשונית אוטומטית (עברית + אמהרית)
+he-1118,/admin/notifications,src/routes/admin.notifications.tsx:301,string,no,הוסף לתור
+he-1119,/admin/notifications,src/routes/admin.notifications.tsx:304,jsx_text,no,"תזכורות מתוזמנות יישלחו אוטומטית כל 5 דק' ע""י ה-cron. שליחה ידנית זמינה ברשימה למטה."
+he-1120,/admin/notifications,src/routes/admin.notifications.tsx:312,jsx_text,no,תור והיסטוריה
+he-1121,/admin/notifications,src/routes/admin.notifications.tsx:343,jsx_text,no,מתוזמן:
+he-1122,/admin/notifications,src/routes/admin.notifications.tsx:344,template,no,"· נשלח: ${new Date(n.sent_at).toLocaleString(""he-IL"")}"
+he-1123,/admin/notifications,src/routes/admin.notifications.tsx:345,template,no,· שגיאה: ${n.error}
+he-1124,/admin/notifications,src/routes/admin.notifications.tsx:351,string,no,שלח עכשיו
+he-1125,/admin/notifications,src/routes/admin.notifications.tsx:359,string,no,מחק
+he-1126,/admin/notifications,src/routes/admin.notifications.tsx:375,jsx_text,no,אין תזכורות עדיין
+he-1127,/admin/organization,src/routes/admin.organization.tsx:9,string,no,ארגון — Haile Drive AI
+he-1128,/admin/organization,src/routes/admin.organization.tsx:16,string,no,🏫 כיתות
+he-1129,/admin/organization,src/routes/admin.organization.tsx:17,string,no,👥 קבוצות
+he-1130,/admin/organization,src/routes/admin.organization.tsx:18,string,no,🏙️ ערים
+he-1131,/admin/organization,src/routes/admin.organization.tsx:19,string,no,🛤️ מסלולים
+he-1132,/admin/organization,src/routes/admin.organization.tsx:26,string,no,ניהול ארגוני
+he-1133,/admin/organization,src/routes/admin.organization.tsx:48,jsx_text,no,ניהול מסלולים — בקרוב
+he-1134,/admin/phone-requests,src/routes/admin.phone-requests.tsx:24,string,no,בקשות כניסה בטלפון — Owner
+he-1135,/admin/phone-requests,src/routes/admin.phone-requests.tsx:52,string,no,שגיאת טעינה
+he-1136,/admin/phone-requests,src/routes/admin.phone-requests.tsx:65,string,no,אושר — הסטודנט יכול להיכנס עם הקוד
+he-1137,/admin/phone-requests,src/routes/admin.phone-requests.tsx:68,string,no,שגיאה
+he-1138,/admin/phone-requests,src/routes/admin.phone-requests.tsx:75,string,no,נדחה
+he-1139,/admin/phone-requests,src/routes/admin.phone-requests.tsx:78,string,no,שגיאה
+he-1140,/admin/phone-requests,src/routes/admin.phone-requests.tsx:85,string,no,בקשות כניסה בטלפון
+he-1141,/admin/phone-requests,src/routes/admin.phone-requests.tsx:88,jsx_text,no,בקשות פעילות ואחרונות
+he-1142,/admin/phone-requests,src/routes/admin.phone-requests.tsx:92,jsx_text,no,אין בקשות כרגע
+he-1143,/admin/phone-requests,src/routes/admin.phone-requests.tsx:97,jsx_text,no,טלפון
+he-1144,/admin/phone-requests,src/routes/admin.phone-requests.tsx:98,jsx_text,no,קוד
+he-1145,/admin/phone-requests,src/routes/admin.phone-requests.tsx:100,jsx_text,no,סטטוס
+he-1146,/admin/phone-requests,src/routes/admin.phone-requests.tsx:101,jsx_text,no,נשלח
+he-1147,/admin/phone-requests,src/routes/admin.phone-requests.tsx:102,jsx_text,no,פעולות
+he-1148,/admin/phone-requests,src/routes/admin.phone-requests.tsx:132,string,no,(פג)
+he-1149,/admin/phone-requests,src/routes/admin.phone-requests.tsx:141,jsx_text,no,אשר
+he-1150,/admin/phone-requests,src/routes/admin.phone-requests.tsx:142,jsx_text,no,דחה
+he-1151,/admin/progress,src/routes/admin.progress.tsx:9,string,no,התקדמות תלמידים — Admin
+he-1152,/admin/progress,src/routes/admin.progress.tsx:28,string,no,חוקי תנועה
+he-1153,/admin/progress,src/routes/admin.progress.tsx:29,string,no,תמרורים
+he-1154,/admin/progress,src/routes/admin.progress.tsx:30,string,no,מכניקה
+he-1155,/admin/progress,src/routes/admin.progress.tsx:31,string,no,כללי
+he-1156,/admin/progress,src/routes/admin.progress.tsx:100,string,no,התקדמות תלמידים
+he-1157,/admin/progress,src/routes/admin.progress.tsx:110,string,no,חיפוש תלמיד…
+he-1158,/admin/progress,src/routes/admin.progress.tsx:117,jsx_text,no,לא נמצאו תלמידים
+he-1159,/admin/progress,src/routes/admin.progress.tsx:141,jsx_text,no,בחר תלמיד להצגת ההתקדמות
+he-1160,/admin/progress,src/routes/admin.progress.tsx:147,jsx_text,no,תלמיד
+he-1161,/admin/progress,src/routes/admin.progress.tsx:158,jsx_text,no,אין מבחנים מתועדים לתלמיד זה
+he-1162,/admin/progress,src/routes/admin.progress.tsx:164,jsx_text,no,ממוצע
+he-1163,/admin/progress,src/routes/admin.progress.tsx:168,jsx_text,no,עבר
+he-1164,/admin/progress,src/routes/admin.progress.tsx:174,jsx_text,no,מגמה
+he-1165,/admin/progress,src/routes/admin.progress.tsx:183,jsx_text,no,מגמת ציונים
+he-1166,/admin/progress,src/routes/admin.progress.tsx:192,string,no,ציון
+he-1167,/admin/progress,src/routes/admin.progress.tsx:205,jsx_text,no,נקודות לחיזוק
+he-1168,/admin/progress,src/routes/admin.progress.tsx:211,jsx_text,no,שגיאות
+he-1169,/admin/progress,src/routes/admin.progress.tsx:219,jsx_text,no,היסטוריית מבחנים
+he-1170,/admin/progress,src/routes/admin.progress.tsx:229,string,no,מבחן
+he-1171,/admin/progress,src/routes/admin.progress.tsx:231,string,no,עבר
+he-1172,/admin/progress,src/routes/admin.progress.tsx:231,string,no,נכשל
+he-1173,/admin/progress,src/routes/admin.progress.tsx:239,jsx_text,no,סקור טעויות
+he-1174,/admin/progress,src/routes/admin.progress.tsx:258,jsx_text,no,סקירת טעויות
+he-1175,/admin/progress,src/routes/admin.progress.tsx:269,jsx_text,no,תשובת התלמיד:
+he-1176,/admin/progress,src/routes/admin.progress.tsx:274,jsx_text,no,תשובה נכונה:
+he-1177,/admin/schedule,src/routes/admin.schedule.tsx:12,string,no,א׳
+he-1178,/admin/schedule,src/routes/admin.schedule.tsx:13,string,no,ב׳
+he-1179,/admin/schedule,src/routes/admin.schedule.tsx:14,string,no,ג׳
+he-1180,/admin/schedule,src/routes/admin.schedule.tsx:15,string,no,ד׳
+he-1181,/admin/schedule,src/routes/admin.schedule.tsx:16,string,no,ה׳
+he-1182,/admin/schedule,src/routes/admin.schedule.tsx:17,string,no,ו׳
+he-1183,/admin/schedule,src/routes/admin.schedule.tsx:18,string,no,ש׳
+he-1184,/admin/schedule,src/routes/admin.schedule.tsx:54,string,no,לוז שיעורים — Haile Drive AI
+he-1185,/admin/schedule,src/routes/admin.schedule.tsx:59,string,no,שיעור
+he-1186,/admin/schedule,src/routes/admin.schedule.tsx:60,string,no,מבחן
+he-1187,/admin/schedule,src/routes/admin.schedule.tsx:61,string,no,השלמה
+he-1188,/admin/schedule,src/routes/admin.schedule.tsx:100,string,no,חובה לבחור כיתה — בלי כיתה אף סטודנט לא יראה את האירוע
+he-1189,/admin/schedule,src/routes/admin.schedule.tsx:115,string,no,שיעור חי נוצר
+he-1190,/admin/schedule,src/routes/admin.schedule.tsx:117,string,no,השיעור נשמר אך יצירת חדר נכשלה:
+he-1191,/admin/schedule,src/routes/admin.schedule.tsx:120,string,no,נשמר
+he-1192,/admin/schedule,src/routes/admin.schedule.tsx:125,string,no,שגיאה
+he-1193,/admin/schedule,src/routes/admin.schedule.tsx:130,string,no,למחוק את האירוע?
+he-1194,/admin/schedule,src/routes/admin.schedule.tsx:149,string,no,חובה לבחור כיתה
+he-1195,/admin/schedule,src/routes/admin.schedule.tsx:150,string,no,חסר שם השיעור
+he-1196,/admin/schedule,src/routes/admin.schedule.tsx:152,string,no,לא נוצרו תאריכים — בחר ימים בשבוע
+he-1197,/admin/schedule,src/routes/admin.schedule.tsx:160,string,no,שגיאה
+he-1198,/admin/schedule,src/routes/admin.schedule.tsx:168,string,no,חובה לבחור כיתה
+he-1199,/admin/schedule,src/routes/admin.schedule.tsx:169,string,no,חסר שם השיעור
+he-1200,/admin/schedule,src/routes/admin.schedule.tsx:171,string,no,לא נוצרו תאריכים — בחר ימים בשבוע
+he-1201,/admin/schedule,src/routes/admin.schedule.tsx:179,template,no,נמצאו ${found.length} התנגשויות — בחר כיצד להמשיך
+he-1202,/admin/schedule,src/routes/admin.schedule.tsx:183,template,no,נוצרו ${inserted} אירועים
+he-1203,/admin/schedule,src/routes/admin.schedule.tsx:189,string,no,שגיאה
+he-1204,/admin/schedule,src/routes/admin.schedule.tsx:199,string,no,אין תאריכים ליצירה
+he-1205,/admin/schedule,src/routes/admin.schedule.tsx:204,template,no,נוצרו ${inserted} אירועים
+he-1206,/admin/schedule,src/routes/admin.schedule.tsx:210,string,no,שגיאה
+he-1207,/admin/schedule,src/routes/admin.schedule.tsx:217,string,no,לוז שיעורים ומבחנים
+he-1208,/admin/schedule,src/routes/admin.schedule.tsx:223,jsx_text,no,אירוע חדש
+he-1209,/admin/schedule,src/routes/admin.schedule.tsx:235,jsx_text,no,תזמון סדרת שיעורים
+he-1210,/admin/schedule,src/routes/admin.schedule.tsx:242,jsx_text,no,כל הכיתות
+he-1211,/admin/schedule,src/routes/admin.schedule.tsx:253,jsx_text,no,אין אירועים מתוזמנים
+he-1212,/admin/schedule,src/routes/admin.schedule.tsx:303,string,no,עריכת אירוע
+he-1213,/admin/schedule,src/routes/admin.schedule.tsx:303,string,no,אירוע חדש
+he-1214,/admin/schedule,src/routes/admin.schedule.tsx:305,jsx_text,no,סוג
+he-1215,/admin/schedule,src/routes/admin.schedule.tsx:311,jsx_text,no,שיעור
+he-1216,/admin/schedule,src/routes/admin.schedule.tsx:312,jsx_text,no,מבחן מתוזמן
+he-1217,/admin/schedule,src/routes/admin.schedule.tsx:313,jsx_text,no,מועד השלמה
+he-1218,/admin/schedule,src/routes/admin.schedule.tsx:317,jsx_text,no,כותרת
+he-1219,/admin/schedule,src/routes/admin.schedule.tsx:322,string,no,שם השיעור / המבחן
+he-1220,/admin/schedule,src/routes/admin.schedule.tsx:326,jsx_text,no,כיתה
+he-1221,/admin/schedule,src/routes/admin.schedule.tsx:333,jsx_text,no,— בחר כיתה —
+he-1222,/admin/schedule,src/routes/admin.schedule.tsx:337,jsx_text,no,בלי כיתה — אף סטודנט לא יראה את השיעור.
+he-1223,/admin/schedule,src/routes/admin.schedule.tsx:342,jsx_text,no,קישור למבחן
+he-1224,/admin/schedule,src/routes/admin.schedule.tsx:348,jsx_text,no,— ללא —
+he-1225,/admin/schedule,src/routes/admin.schedule.tsx:355,jsx_text,no,תלמיד (אופציונלי)
+he-1226,/admin/schedule,src/routes/admin.schedule.tsx:361,jsx_text,no,— ללא —
+he-1227,/admin/schedule,src/routes/admin.schedule.tsx:368,jsx_text,no,תאריך
+he-1228,/admin/schedule,src/routes/admin.schedule.tsx:376,jsx_text,no,משעה
+he-1229,/admin/schedule,src/routes/admin.schedule.tsx:384,jsx_text,no,עד שעה
+he-1230,/admin/schedule,src/routes/admin.schedule.tsx:394,jsx_text,no,מיקום
+he-1231,/admin/schedule,src/routes/admin.schedule.tsx:399,string,no,כיתה / סניף
+he-1232,/admin/schedule,src/routes/admin.schedule.tsx:403,jsx_text,no,הערות
+he-1233,/admin/schedule,src/routes/admin.schedule.tsx:415,jsx_text,no,📹 שיעור חי
+he-1234,/admin/schedule,src/routes/admin.schedule.tsx:427,jsx_text,no,✓ חדר חי פעיל
+he-1235,/admin/schedule,src/routes/admin.schedule.tsx:432,jsx_text,no,ביטול
+he-1236,/admin/schedule,src/routes/admin.schedule.tsx:433,jsx_text,no,שמור
+he-1237,/admin/schedule,src/routes/admin.schedule.tsx:442,jsx_text,no,תזמון סדרת שיעורים
+he-1238,/admin/schedule,src/routes/admin.schedule.tsx:443,jsx_text,no,"בחר ימי שבוע, מספר מפגשים או תאריך סיום, והמערכת תייצר את כל הלוז ותתריע על התנגשויות."
+he-1239,/admin/schedule,src/routes/admin.schedule.tsx:446,jsx_text,no,סוג
+he-1240,/admin/schedule,src/routes/admin.schedule.tsx:448,jsx_text,no,שיעור
+he-1241,/admin/schedule,src/routes/admin.schedule.tsx:449,jsx_text,no,מבחן
+he-1242,/admin/schedule,src/routes/admin.schedule.tsx:450,jsx_text,no,השלמה
+he-1243,/admin/schedule,src/routes/admin.schedule.tsx:453,jsx_text,no,כיתה
+he-1244,/admin/schedule,src/routes/admin.schedule.tsx:455,jsx_text,no,— בחר כיתה —
+he-1245,/admin/schedule,src/routes/admin.schedule.tsx:461,jsx_text,no,כותרת
+he-1246,/admin/schedule,src/routes/admin.schedule.tsx:462,string,no,לדוגמה: שיעור תאוריה
+he-1247,/admin/schedule,src/routes/admin.schedule.tsx:466,jsx_text,no,ימים בשבוע
+he-1248,/admin/schedule,src/routes/admin.schedule.tsx:486,jsx_text,no,משעה
+he-1249,/admin/schedule,src/routes/admin.schedule.tsx:489,jsx_text,no,עד שעה
+he-1250,/admin/schedule,src/routes/admin.schedule.tsx:495,jsx_text,no,מתאריך
+he-1251,/admin/schedule,src/routes/admin.schedule.tsx:498,jsx_text,no,עד תאריך
+he-1252,/admin/schedule,src/routes/admin.schedule.tsx:503,jsx_text,no,מיקום
+he-1253,/admin/schedule,src/routes/admin.schedule.tsx:504,string,no,כיתה / סניף
+he-1254,/admin/schedule,src/routes/admin.schedule.tsx:509,jsx_text,no,תצוגה מקדימה:
+he-1255,/admin/schedule,src/routes/admin.schedule.tsx:509,jsx_text,no,מפגשים
+he-1256,/admin/schedule,src/routes/admin.schedule.tsx:527,jsx_text,no,נמצאו
+he-1257,/admin/schedule,src/routes/admin.schedule.tsx:527,jsx_text,no,התנגשויות
+he-1258,/admin/schedule,src/routes/admin.schedule.tsx:532,jsx_text,no,— מתנגש עם
+he-1259,/admin/schedule,src/routes/admin.schedule.tsx:541,jsx_text,no,ביטול
+he-1260,/admin/schedule,src/routes/admin.schedule.tsx:542,jsx_text,no,תצוגה מקדימה
+he-1261,/admin/schedule,src/routes/admin.schedule.tsx:545,jsx_text,no,שמור ודלג על התנגשויות
+he-1262,/admin/schedule,src/routes/admin.schedule.tsx:546,jsx_text,no,שמור בכל זאת
+he-1263,/admin/schedule,src/routes/admin.schedule.tsx:549,jsx_text,no,שמור
+he-1264,/admin/staff,src/routes/admin.staff.tsx:12,string,no,צוות והרשאות
+he-1265,/admin/staff,src/routes/admin.staff.tsx:15,jsx_text,no,ניהול הצוות עבר לדפים החדשים.
+he-1266,/admin/staff,src/routes/admin.staff.tsx:18,jsx_text,no,משתמשים
+he-1267,/admin/staff,src/routes/admin.staff.tsx:21,jsx_text,no,מרצים
+he-1268,/admin/teachers,src/routes/admin.teachers.tsx:13,string,no,מרצים והרשאות — Haile Drive AI
+he-1269,/admin/teachers,src/routes/admin.teachers.tsx:34,string,no,עודכן
+he-1270,/admin/teachers,src/routes/admin.teachers.tsx:41,string,no,שובץ
+he-1271,/admin/teachers,src/routes/admin.teachers.tsx:51,string,no,חשבון נוצר
+he-1272,/admin/teachers,src/routes/admin.teachers.tsx:53,string,no,יצירה נכשלה
+he-1273,/admin/teachers,src/routes/admin.teachers.tsx:62,string,no,מרצים והרשאות
+he-1274,/admin/teachers,src/routes/admin.teachers.tsx:64,jsx_text,no,הרשאות מרצה
+he-1275,/admin/teachers,src/routes/admin.teachers.tsx:65,jsx_text,no,שיבוץ לכיתות
+he-1276,/admin/teachers,src/routes/admin.teachers.tsx:67,jsx_text,no,חשבון חדש
+he-1277,/admin/teachers,src/routes/admin.teachers.tsx:71,string,no,"טוען משתמשים, מרצים וכיתות מהמסד…"
+he-1278,/admin/teachers,src/routes/admin.teachers.tsx:74,jsx_text,no,טעינת הנתונים נכשלה:
+he-1279,/admin/teachers,src/routes/admin.teachers.tsx:82,jsx_text,no,שם
+he-1280,/admin/teachers,src/routes/admin.teachers.tsx:82,jsx_text,no,אימייל
+he-1281,/admin/teachers,src/routes/admin.teachers.tsx:82,jsx_text,no,מרצה?
+he-1282,/admin/teachers,src/routes/admin.teachers.tsx:85,jsx_text,no,טוען נתונים חיים…
+he-1283,/admin/teachers,src/routes/admin.teachers.tsx:86,jsx_text,no,אין משתמשים להצגה
+he-1284,/admin/teachers,src/routes/admin.teachers.tsx:98,string,no,מרצה
+he-1285,/admin/teachers,src/routes/admin.teachers.tsx:98,string,no,הפוך למרצה
+he-1286,/admin/teachers,src/routes/admin.teachers.tsx:113,jsx_text,no,כיתה
+he-1287,/admin/teachers,src/routes/admin.teachers.tsx:113,jsx_text,no,מרצה משויך
+he-1288,/admin/teachers,src/routes/admin.teachers.tsx:116,jsx_text,no,טוען נתונים חיים…
+he-1289,/admin/teachers,src/routes/admin.teachers.tsx:117,jsx_text,no,אין כיתות. צור כיתה במסך
+he-1290,/admin/teachers,src/routes/admin.teachers.tsx:117,string,no,כיתות וקבוצות
+he-1291,/admin/teachers,src/routes/admin.teachers.tsx:127,jsx_text,no,— ללא מרצה —
+he-1292,/admin/teachers,src/routes/admin.teachers.tsx:141,jsx_text,no,יצירת חשבון חדש
+he-1293,/admin/teachers,src/routes/admin.teachers.tsx:142,string,no,מלא את כל השדות (סיסמה ≥ 8 תווים)
+he-1294,/admin/teachers,src/routes/admin.teachers.tsx:144,jsx_text,no,שם מלא *
+he-1295,/admin/teachers,src/routes/admin.teachers.tsx:148,jsx_text,no,אימייל *
+he-1296,/admin/teachers,src/routes/admin.teachers.tsx:152,jsx_text,no,סיסמה ראשונית * (≥ 8 תווים)
+he-1297,/admin/teachers,src/routes/admin.teachers.tsx:156,jsx_text,no,טלפון
+he-1298,/admin/teachers,src/routes/admin.teachers.tsx:160,jsx_text,no,תפקיד *
+he-1299,/admin/teachers,src/routes/admin.teachers.tsx:162,jsx_text,no,מרצה
+he-1300,/admin/teachers,src/routes/admin.teachers.tsx:163,jsx_text,no,תלמיד
+he-1301,/admin/teachers,src/routes/admin.teachers.tsx:164,jsx_text,no,צוות
+he-1302,/admin/teachers,src/routes/admin.teachers.tsx:168,jsx_text,no,ביטול
+he-1303,/admin/teachers,src/routes/admin.teachers.tsx:169,string,no,יוצר…
+he-1304,/admin/teachers,src/routes/admin.teachers.tsx:169,string,no,צור חשבון
+he-1305,/admin,src/routes/admin.tsx:12,string,no,דשבורד בעלים — Haile Drive AI
+he-1306,/admin,src/routes/admin.tsx:63,string,no,תוכן ההודעה חובה
+he-1307,/admin,src/routes/admin.tsx:64,string,no,מקסימום 2000 תווים
+he-1308,/admin,src/routes/admin.tsx:65,string,no,נדרש להתחבר
+he-1309,/admin,src/routes/admin.tsx:75,string,no,ההודעה פורסמה בהצלחה
+he-1310,/admin,src/routes/admin.tsx:80,string,no,דשבורד בעלים
+he-1311,/admin,src/routes/admin.tsx:84,jsx_text,no,ניהול מלא של Haile Drive AI
+he-1312,/admin,src/routes/admin.tsx:85,jsx_text,no,"בעלים: תלמידים, מרצים, חומרי לימוד ומבחנים"
+he-1313,/admin,src/routes/admin.tsx:86,jsx_text,no,פעולות מהיר — כל פעולה כאן מעדכנת את מסד הנתונים בזמן אמת.
+he-1314,/admin,src/routes/admin.tsx:92,jsx_text,no,📢 פרסם הודעה לקהילה
+he-1315,/admin,src/routes/admin.tsx:100,string,no,סה״כ לידים/תלמידים
+he-1316,/admin,src/routes/admin.tsx:100,template,no,${active} פעילים
+he-1317,/admin,src/routes/admin.tsx:101,string,no,כיתות
+he-1318,/admin,src/routes/admin.tsx:102,string,no,מרצים
+he-1319,/admin,src/routes/admin.tsx:103,string,no,חומרים
+he-1320,/admin,src/routes/admin.tsx:104,string,no,מבחנים
+he-1321,/admin,src/routes/admin.tsx:108,jsx_text,no,📊 מדדי אבחון BEQA
+he-1322,/admin,src/routes/admin.tsx:110,string,no,סה״כ אבחונים
+he-1323,/admin,src/routes/admin.tsx:111,string,no,ממוצע ציון
+he-1324,/admin,src/routes/admin.tsx:112,string,no,מומלצים (A+B)
+he-1325,/admin,src/routes/admin.tsx:113,string,no,לא מומלצים (C)
+he-1326,/admin,src/routes/admin.tsx:118,string,no,לידים ותלמידים
+he-1327,/admin,src/routes/admin.tsx:118,string,no,"הוסף, ערוך, שייך לכיתה"
+he-1328,/admin,src/routes/admin.tsx:119,string,no,מרצים והרשאות
+he-1329,/admin,src/routes/admin.tsx:119,string,no,הענק הרשאת מרצה ושייך לכיתות
+he-1330,/admin,src/routes/admin.tsx:120,string,no,כיתות וקבוצות
+he-1331,/admin,src/routes/admin.tsx:120,string,no,צור כיתות לפי עיר
+he-1332,/admin,src/routes/admin.tsx:121,string,no,📚 תוכן לימודי
+he-1333,/admin,src/routes/admin.tsx:121,string,no,חומרי לימוד ובנק מבחנים
+he-1334,/admin,src/routes/admin.tsx:122,string,no,ערים ומסלולים
+he-1335,/admin,src/routes/admin.tsx:122,string,no,ניהול סניפי הלימוד
+he-1336,/admin,src/routes/admin.tsx:129,jsx_text,no,פרסום הודעה לקהילה
+he-1337,/admin,src/routes/admin.tsx:134,jsx_text,no,יעד
+he-1338,/admin,src/routes/admin.tsx:136,jsx_text,no,כל הקהילה
+he-1339,/admin,src/routes/admin.tsx:142,jsx_text,no,תוכן ההודעה *
+he-1340,/admin,src/routes/admin.tsx:150,string,no,כתוב כאן את ההודעה שתישלח לכל חברי הקהילה…
+he-1341,/admin,src/routes/admin.tsx:155,jsx_text,no,ביטול
+he-1342,/admin,src/routes/admin.tsx:157,string,no,מפרסם…
+he-1343,/admin,src/routes/admin.tsx:157,string,no,פרסם
+he-1344,/admin/vouchers,src/routes/admin.vouchers.tsx:14,string,no,"מעקב ויצ\""ר — Haile Drive AI"
+he-1345,/admin/vouchers,src/routes/admin.vouchers.tsx:42,string,no,ממתין
+he-1346,/admin/vouchers,src/routes/admin.vouchers.tsx:43,string,no,הוגש
+he-1347,/admin/vouchers,src/routes/admin.vouchers.tsx:44,string,no,התקבל
+he-1348,/admin/vouchers,src/routes/admin.vouchers.tsx:103,string,no,"💰 מעקב ויצ""ר — שוברי הכשרה"
+he-1349,/admin/vouchers,src/routes/admin.vouchers.tsx:105,string,no,סה״כ צפוי
+he-1350,/admin/vouchers,src/routes/admin.vouchers.tsx:106,string,no,סה״כ התקבל
+he-1351,/admin/vouchers,src/routes/admin.vouchers.tsx:107,string,no,ממתין
+he-1352,/admin/vouchers,src/routes/admin.vouchers.tsx:113,string,no,הכל
+he-1353,/admin/vouchers,src/routes/admin.vouchers.tsx:114,string,no,ממתין הגשה
+he-1354,/admin/vouchers,src/routes/admin.vouchers.tsx:115,string,no,הוגש
+he-1355,/admin/vouchers,src/routes/admin.vouchers.tsx:116,string,no,הושלם
+he-1356,/admin/vouchers,src/routes/admin.vouchers.tsx:130,jsx_text,no,"הוסף לוויצ""ר"
+he-1357,/admin/vouchers,src/routes/admin.vouchers.tsx:140,jsx_text,no,שם
+he-1358,/admin/vouchers,src/routes/admin.vouchers.tsx:141,jsx_text,no,עיר
+he-1359,/admin/vouchers,src/routes/admin.vouchers.tsx:142,jsx_text,no,תחילת קורס
+he-1360,/admin/vouchers,src/routes/admin.vouchers.tsx:143,jsx_text,no,תשלום 1
+he-1361,/admin/vouchers,src/routes/admin.vouchers.tsx:144,jsx_text,no,תשלום 2
+he-1362,/admin/vouchers,src/routes/admin.vouchers.tsx:145,jsx_text,no,תשלום 3
+he-1363,/admin/vouchers,src/routes/admin.vouchers.tsx:146,jsx_text,no,"סה""כ התקבל"
+he-1364,/admin/vouchers,src/routes/admin.vouchers.tsx:147,jsx_text,no,סכום שובר
+he-1365,/admin/vouchers,src/routes/admin.vouchers.tsx:163,jsx_text,no,דחוף
+he-1366,/admin/vouchers,src/routes/admin.vouchers.tsx:186,string,no,הסר מויצ״ר
+he-1367,/admin/vouchers,src/routes/admin.vouchers.tsx:188,template,no,"האם להסיר את ${cand?.full_name ?? ""המועמד""} מהמעקב?"
+he-1368,/admin/vouchers,src/routes/admin.vouchers.tsx:191,string,no,הוסר מהמעקב
+he-1369,/admin/vouchers,src/routes/admin.vouchers.tsx:204,jsx_text,no,אין רשומות להצגה
+he-1370,/admin/vouchers,src/routes/admin.vouchers.tsx:240,jsx_text,no,נדרש
+he-1371,/admin/vouchers,src/routes/admin.vouchers.tsx:257,string,no,סכום השובר עודכן
+he-1372,/admin/vouchers,src/routes/admin.vouchers.tsx:264,string,no,ערוך סכום
+he-1373,/admin/vouchers,src/routes/admin.vouchers.tsx:273,string,no,שמור
+he-1374,/admin/vouchers,src/routes/admin.vouchers.tsx:274,string,no,ביטול
+he-1375,/admin/vouchers,src/routes/admin.vouchers.tsx:295,string,no,המסמך הועלה
+he-1376,/admin/vouchers,src/routes/admin.vouchers.tsx:318,string,no,עודכן בהצלחה
+he-1377,/admin/vouchers,src/routes/admin.vouchers.tsx:326,jsx_text,no,עדכון תשלום
+he-1378,/admin/vouchers,src/routes/admin.vouchers.tsx:331,jsx_text,no,סטטוס
+he-1379,/admin/vouchers,src/routes/admin.vouchers.tsx:333,jsx_text,no,⬜ ממתין
+he-1380,/admin/vouchers,src/routes/admin.vouchers.tsx:334,jsx_text,no,🟡 הוגש
+he-1381,/admin/vouchers,src/routes/admin.vouchers.tsx:335,jsx_text,no,✅ התקבל
+he-1382,/admin/vouchers,src/routes/admin.vouchers.tsx:339,jsx_text,no,תאריך
+he-1383,/admin/vouchers,src/routes/admin.vouchers.tsx:343,jsx_text,no,סכום (₪)
+he-1384,/admin/vouchers,src/routes/admin.vouchers.tsx:347,jsx_text,no,מסמך
+he-1385,/admin/vouchers,src/routes/admin.vouchers.tsx:355,jsx_text,no,מעלה…
+he-1386,/admin/vouchers,src/routes/admin.vouchers.tsx:359,jsx_text,no,מסמך הועלה
+he-1387,/admin/vouchers,src/routes/admin.vouchers.tsx:364,jsx_text,no,ביטול
+he-1388,/admin/vouchers,src/routes/admin.vouchers.tsx:366,string,no,שומר…
+he-1389,/admin/vouchers,src/routes/admin.vouchers.tsx:366,string,no,שמור
+he-1390,/admin/vouchers,src/routes/admin.vouchers.tsx:384,string,no,בחר מועמד
+he-1391,/admin/vouchers,src/routes/admin.vouchers.tsx:395,string,no,"נוסף לוויצ\""ר"
+he-1392,/admin/vouchers,src/routes/admin.vouchers.tsx:403,jsx_text,no,"הוסף סטודנט לוויצ""ר"
+he-1393,/admin/vouchers,src/routes/admin.vouchers.tsx:408,jsx_text,no,מועמד *
+he-1394,/admin/vouchers,src/routes/admin.vouchers.tsx:410,jsx_text,no,— בחר —
+he-1395,/admin/vouchers,src/routes/admin.vouchers.tsx:415,jsx_text,no,סכום השובר (₪)
+he-1396,/admin/vouchers,src/routes/admin.vouchers.tsx:419,jsx_text,no,תאריך תחילת קורס
+he-1397,/admin/vouchers,src/routes/admin.vouchers.tsx:423,jsx_text,no,ביטול
+he-1398,/admin/vouchers,src/routes/admin.vouchers.tsx:425,string,no,שומר…
+he-1399,/admin/vouchers,src/routes/admin.vouchers.tsx:425,string,no,הוסף
+he-1400,/ai,src/routes/ai.tsx:23,string,yes,"ሰላም! 👋 እኔ Haile AI ነኝ — የመንዳት አስተማሪዎ።\n\nስለ መንዳት፣ **ብሬክ (בלם)**, **የመንገድ ምልክት (תמרור)** ወይም **ቴዎሪ (תיאוריה)** ማንኛውንም ጥያቄ ይጠይቁኝ።"
+he-1401,/ai,src/routes/ai.tsx:29,string,yes,תמרור עצור — מה לעשות?
+he-1402,/ai,src/routes/ai.tsx:30,string,yes,מהי מהירות מותרת בעיר?
+he-1403,/ai,src/routes/ai.tsx:107,string,yes,יותר מדי בקשות — נסה/י שוב בעוד רגע
+he-1404,/ai,src/routes/ai.tsx:111,string,yes,שגיאת אימות AI — פנה למנהל המערכת
+he-1405,/ai,src/routes/ai.tsx:115,string,yes,שגיאה בקבלת תשובה מה-AI
+he-1406,/ai,src/routes/ai.tsx:123,string,yes,שגיאה בחיבור ל-AI
+he-1407,/ai,src/routes/ai.tsx:135,string,yes,הדפדפן לא תומך בקלט קולי. נסה/י Chrome.
+he-1408,/ai,src/routes/ai.tsx:160,template,yes,שגיאת מיקרופון: ${ev.error}
+he-1409,/ai,src/routes/ai.tsx:180,jsx_text,yes,አማርኛ • עברית • English
+he-1410,/ai,src/routes/ai.tsx:194,string,yes,השתק תשובות קוליות
+he-1411,/ai,src/routes/ai.tsx:194,string,yes,הפעל תשובות קוליות
+he-1412,/ai,src/routes/ai.tsx:225,string,yes,שמע תשובה
+he-1413,/ai,src/routes/ai.tsx:228,jsx_text,yes,עצור
+he-1414,/ai,src/routes/ai.tsx:230,jsx_text,yes,שמע תשובה
+he-1415,/ai,src/routes/ai.tsx:248,jsx_text,yes,Haile AI חושב…
+he-1416,/ai,src/routes/ai.tsx:289,string,yes,מקשיב…
+he-1417,/beqa-history,src/routes/beqa-history.tsx:63,jsx_text,yes,"דיוק: s.accuracy_score ?? 0,"
+he-1418,/beqa-history,src/routes/beqa-history.tsx:64,string,yes,דופק מנוחה
+he-1419,/beqa-history,src/routes/beqa-history.tsx:65,string,yes,דופק סטרס
+he-1420,/beqa-history,src/routes/beqa-history.tsx:66,string,yes,זמן תגובה
+he-1421,/beqa-history,src/routes/beqa-history.tsx:83,jsx_text,yes,היסטוריית BEQA
+he-1422,/beqa-history,src/routes/beqa-history.tsx:85,jsx_text,yes,מעקב אחר מדד הביצוע הביומטרי-קוגניטיבי לאורך זמן
+he-1423,/beqa-history,src/routes/beqa-history.tsx:91,jsx_text,yes,אבחון חדש
+he-1424,/beqa-history,src/routes/beqa-history.tsx:99,jsx_text,yes,טוען נתונים…
+he-1425,/beqa-history,src/routes/beqa-history.tsx:107,jsx_text,yes,אין עדיין סשני אבחון מושלמים. בצע אבחון BEQA ראשון כדי להתחיל לעקוב.
+he-1426,/beqa-history,src/routes/beqa-history.tsx:110,jsx_text,yes,התחל אבחון
+he-1427,/beqa-history,src/routes/beqa-history.tsx:120,jsx_text,yes,ציון אחרון
+he-1428,/beqa-history,src/routes/beqa-history.tsx:130,jsx_text,yes,ממוצע BEQA
+he-1429,/beqa-history,src/routes/beqa-history.tsx:138,jsx_text,yes,דופק מנוחה אחרון
+he-1430,/beqa-history,src/routes/beqa-history.tsx:148,jsx_text,yes,"סשנים סה""כ"
+he-1431,/beqa-history,src/routes/beqa-history.tsx:157,jsx_text,yes,התקדמות BEQA & דיוק
+he-1432,/beqa-history,src/routes/beqa-history.tsx:175,string,yes,דיוק
+he-1433,/beqa-history,src/routes/beqa-history.tsx:186,jsx_text,yes,דופק: מנוחה מול סטרס
+he-1434,/beqa-history,src/routes/beqa-history.tsx:198,string,yes,דופק מנוחה
+he-1435,/beqa-history,src/routes/beqa-history.tsx:204,string,yes,דופק סטרס
+he-1436,/beqa-history,src/routes/beqa-history.tsx:215,jsx_text,yes,סשנים אחרונים
+he-1437,/beqa-history,src/routes/beqa-history.tsx:233,jsx_text,yes,דיוק
+he-1438,/beqa-history,src/routes/beqa-history.tsx:233,jsx_text,yes,% · דופק
+he-1439,/beqa-spike,src/routes/beqa-spike.tsx:9,string,no,BEQA spike — דופק + לחיצה
+he-1440,/beqa-spike,src/routes/beqa-spike.tsx:94,jsx_text,no,המצלמה מזהה דופק — לחץ
+he-1441,/beqa-spike,src/routes/beqa-spike.tsx:96,jsx_text,no,הווידאו לא נשמר. רק BPM / HRV / זמן תגובה.
+he-1442,/beqa-spike,src/routes/beqa-spike.tsx:105,jsx_text,no,לחץ
+he-1443,/classroom/$sessionId,src/routes/classroom.$sessionId.tsx:8,string,yes,שיעור חי — Haile Drive AI
+he-1444,/classroom/$sessionId,src/routes/classroom.$sessionId.tsx:29,string,yes,שגיאה לא ידועה
+he-1445,/classroom/$sessionId,src/routes/classroom.$sessionId.tsx:41,string,yes,שיעור חי
+he-1446,/classroom/$sessionId,src/routes/classroom.$sessionId.tsx:48,jsx_text,yes,צא מהשיעור
+he-1447,/classroom/$sessionId,src/routes/classroom.$sessionId.tsx:57,jsx_text,yes,מתחבר לשיעור…
+he-1448,/classroom/$sessionId,src/routes/classroom.$sessionId.tsx:63,jsx_text,yes,לא ניתן להצטרף לשיעור
+he-1449,/classroom/$sessionId,src/routes/classroom.$sessionId.tsx:66,jsx_text,yes,"חזור ללו""ז"
+he-1450,/classroom/$sessionId,src/routes/classroom.$sessionId.tsx:76,string,yes,שיעור חי
+he-1451,/classroom/$sessionId,src/routes/classroom.$sessionId.tsx:83,jsx_text,yes,Haile Drive AI · שיעור חי מאובטח
+he-1452,/community,src/routes/community.tsx:44,string,yes,קהילה — Haile Drive AI
+he-1453,/community,src/routes/community.tsx:45,string,yes,"פורטל קהילה לסטודנטים — פוסטים, הודעות, משוב ופניות."
+he-1454,/community,src/routes/community.tsx:62,string,yes,פורטל קהילה
+he-1455,/community,src/routes/community.tsx:63,string,yes,💬 קהילה
+he-1456,/community,src/routes/community.tsx:64,string,yes,📢 לוח מודעות
+he-1457,/community,src/routes/community.tsx:65,string,yes,⭐ משוב
+he-1458,/community,src/routes/community.tsx:66,string,yes,📩 פנה אלינו
+he-1459,/community,src/routes/community.tsx:67,string,yes,פוסט חדש
+he-1460,/community,src/routes/community.tsx:68,string,yes,מה תרצה לשתף עם הכיתה?
+he-1461,/community,src/routes/community.tsx:69,string,yes,צרף תמונה
+he-1462,/community,src/routes/community.tsx:70,string,yes,פרסם
+he-1463,/community,src/routes/community.tsx:71,string,yes,אין עדיין פוסטים בכיתה. תהיה הראשון!
+he-1464,/community,src/routes/community.tsx:72,string,yes,אין הודעות מההנהלה כרגע.
+he-1465,/community,src/routes/community.tsx:73,string,yes,הצג תגובות
+he-1466,/community,src/routes/community.tsx:74,string,yes,כתוב תגובה…
+he-1467,/community,src/routes/community.tsx:75,string,yes,שלח
+he-1468,/community,src/routes/community.tsx:76,string,yes,כותרת קצרה
+he-1469,/community,src/routes/community.tsx:77,string,yes,תאר בפירוט
+he-1470,/community,src/routes/community.tsx:78,string,yes,שלח משוב
+he-1471,/community,src/routes/community.tsx:79,string,yes,תודה! קיבלנו ונבדוק
+he-1472,/community,src/routes/community.tsx:80,string,yes,המשובים שלי
+he-1473,/community,src/routes/community.tsx:81,string,yes,נושא
+he-1474,/community,src/routes/community.tsx:82,string,yes,תוכן הפנייה
+he-1475,/community,src/routes/community.tsx:83,string,yes,שלח פנייה
+he-1476,/community,src/routes/community.tsx:84,string,yes,הפנייה נשלחה. נחזור אליך בקרוב.
+he-1477,/community,src/routes/community.tsx:85,string,yes,שיחות קודמות שלי
+he-1478,/community,src/routes/community.tsx:86,string,yes,עדיין לא שלחת שום פנייה.
+he-1479,/community,src/routes/community.tsx:90,string,yes,פתוח
+he-1480,/community,src/routes/community.tsx:91,string,yes,בבדיקה
+he-1481,/community,src/routes/community.tsx:92,string,yes,טופל
+he-1482,/community,src/routes/community.tsx:98,string,yes,כעת
+he-1483,/community,src/routes/community.tsx:99,template,yes,${m} ד׳
+he-1484,/community,src/routes/community.tsx:101,template,yes,${h} ש׳
+he-1485,/community,src/routes/community.tsx:102,template,yes,${Math.floor(h / 24)} י׳
+he-1486,/community,src/routes/community.tsx:243,string,yes,שגיאה בפרסום
+he-1487,/community,src/routes/community.tsx:303,string,yes,אנונימי
+he-1488,/community,src/routes/community.tsx:305,jsx_text,yes,שאלה
+he-1489,/community,src/routes/community.tsx:357,string,yes,אנונימי
+he-1490,/community,src/routes/community.tsx:411,jsx_text,yes,הודעה רשמית · ኦፊሴላዊ ማስታወቂያ
+he-1491,/community,src/routes/community.tsx:417,string,yes,הנהלה
+he-1492,/community,src/routes/community.tsx:427,string,yes,🐛 תקלה
+he-1493,/community,src/routes/community.tsx:428,string,yes,💡 הצעה
+he-1494,/community,src/routes/community.tsx:429,string,yes,😤 תלונה
+he-1495,/community,src/routes/community.tsx:430,string,yes,👏 מחמאה
+he-1496,/community,src/routes/community.tsx:450,string,yes,שגיאה
+he-1497,/community,src/routes/community.tsx:505,string,yes,עדיין לא שלחת משוב.
+he-1498,/community,src/routes/community.tsx:529,jsx_text,yes,תגובת ההנהלה · የአስተዳደር ምላሽ
+he-1499,/community,src/routes/community.tsx:545,string,yes,👨‍🏫 מרצה
+he-1500,/community,src/routes/community.tsx:546,string,yes,🏢 הנהלה
+he-1501,/community,src/routes/community.tsx:547,string,yes,📋 מזכירה
+he-1502,/community,src/routes/community.tsx:567,string,yes,שגיאה
+he-1503,/community,src/routes/community.tsx:648,jsx_text,yes,תגובה · ምላሽ ·
+he-1504,/courses/$courseId,src/routes/courses.$courseId.index.tsx:12,string,yes,קורס מקוון — Haile Drive AI
+he-1505,/courses/$courseId,src/routes/courses.$courseId.index.tsx:13,string,yes,"פרטי הקורס המקוון: מודולים, שיעורים והרשמה ללמידה עצמית ב-Haile Drive AI."
+he-1506,/courses/$courseId,src/routes/courses.$courseId.index.tsx:14,string,yes,קורס מקוון — Haile Drive AI
+he-1507,/courses/$courseId,src/routes/courses.$courseId.index.tsx:15,string,yes,"מודולים, שיעורים והרשמה ללמידה עצמית."
+he-1508,/courses/$courseId,src/routes/courses.$courseId.index.tsx:39,string,yes,נרשמת לקורס בהצלחה
+he-1509,/courses/$courseId,src/routes/courses.$courseId.index.tsx:44,string,yes,ההרשמה נכשלה — יש להסדיר תשלום או לפנות למשרד
+he-1510,/courses/$courseId,src/routes/courses.$courseId.index.tsx:54,jsx_text,yes,טוען קורס…
+he-1511,/courses/$courseId,src/routes/courses.$courseId.index.tsx:60,jsx_text,yes,הקורס לא נמצא.
+he-1512,/courses/$courseId,src/routes/courses.$courseId.index.tsx:61,jsx_text,yes,חזרה לקטלוג
+he-1513,/courses/$courseId,src/routes/courses.$courseId.index.tsx:71,jsx_text,yes,← כל הקורסים
+he-1514,/courses/$courseId,src/routes/courses.$courseId.index.tsx:84,jsx_text,yes,שיעורים
+he-1515,/courses/$courseId,src/routes/courses.$courseId.index.tsx:86,jsx_text,yes,שעות
+he-1516,/courses/$courseId,src/routes/courses.$courseId.index.tsx:90,string,yes,ללא עלות
+he-1517,/courses/$courseId,src/routes/courses.$courseId.index.tsx:102,jsx_text,yes,% הושלמו
+he-1518,/courses/$courseId,src/routes/courses.$courseId.index.tsx:108,jsx_text,yes,המשך למידה
+he-1519,/courses/$courseId,src/routes/courses.$courseId.index.tsx:114,jsx_text,yes,הרשמה לקורס נפתחת לאחר הסדרת התשלום. עד אז אפשר לצפות בשיעורי ההדגמה החופשיים שלמטה.
+he-1520,/courses/$courseId,src/routes/courses.$courseId.index.tsx:122,string,yes,נרשם…
+he-1521,/courses/$courseId,src/routes/courses.$courseId.index.tsx:122,string,yes,הרשמה לקורס
+he-1522,/courses/$courseId,src/routes/courses.$courseId.index.tsx:130,jsx_text,yes,תוכנית הקורס
+he-1523,/courses/$courseId,src/routes/courses.$courseId.index.tsx:133,jsx_text,yes,תוכן הקורס בהכנה.
+he-1524,/courses/$courseId,src/routes/courses.$courseId.index.tsx:145,jsx_text,yes,דק׳
+he-1525,/courses/$courseId,src/routes/courses.$courseId.index.tsx:149,jsx_text,yes,אין שיעורים במודול זה עדיין.
+he-1526,/courses/$courseId,src/routes/courses.$courseId.index.tsx:158,jsx_text,yes,צפייה חופשית
+he-1527,/courses/$courseId/learn,src/routes/courses.$courseId.learn.tsx:15,string,yes,למידה בקורס — Haile Drive AI
+he-1528,/courses/$courseId/learn,src/routes/courses.$courseId.learn.tsx:16,string,yes,"נגן התוכן של הקורס המקוון — שיעורים, חומרים וסימון התקדמות ב-Haile Drive AI."
+he-1529,/courses/$courseId/learn,src/routes/courses.$courseId.learn.tsx:17,string,yes,למידה בקורס — Haile Drive AI
+he-1530,/courses/$courseId/learn,src/routes/courses.$courseId.learn.tsx:18,string,yes,"שיעורים, חומרים וסימון התקדמות."
+he-1531,/courses/$courseId/learn,src/routes/courses.$courseId.learn.tsx:68,string,yes,כל הכבוד! סיימת את הקורס 🎉
+he-1532,/courses/$courseId/learn,src/routes/courses.$courseId.learn.tsx:70,string,yes,שמירת ההתקדמות נכשלה
+he-1533,/courses/$courseId/learn,src/routes/courses.$courseId.learn.tsx:74,jsx_text,yes,טוען…
+he-1534,/courses/$courseId/learn,src/routes/courses.$courseId.learn.tsx:82,jsx_text,yes,← חזרה לדף הקורס
+he-1535,/courses/$courseId/learn,src/routes/courses.$courseId.learn.tsx:90,jsx_text,yes,% הושלמו
+he-1536,/courses/$courseId/learn,src/routes/courses.$courseId.learn.tsx:96,jsx_text,yes,אין עדיין שיעורים בקורס הזה.
+he-1537,/courses/$courseId/learn,src/routes/courses.$courseId.learn.tsx:134,jsx_text,yes,בחרו שיעור מהרשימה.
+he-1538,/courses/$courseId/learn,src/routes/courses.$courseId.learn.tsx:139,jsx_text,yes,שיעור זה נעול. יש להירשם לקורס כדי לצפות.
+he-1539,/courses/$courseId/learn,src/routes/courses.$courseId.learn.tsx:150,jsx_text,yes,דק׳
+he-1540,/courses/$courseId/learn,src/routes/courses.$courseId.learn.tsx:169,string,yes,✓ הושלם — בטל סימון
+he-1541,/courses/$courseId/learn,src/routes/courses.$courseId.learn.tsx:169,string,yes,סמן כהושלם
+he-1542,/courses/$courseId/learn,src/routes/courses.$courseId.learn.tsx:205,jsx_text,yes,הצטרפות לשיעור החי
+he-1543,/courses/$courseId/learn,src/routes/courses.$courseId.learn.tsx:211,jsx_text,yes,טוען חומר…
+he-1544,/courses/$courseId/learn,src/routes/courses.$courseId.learn.tsx:213,jsx_text,yes,החומר אינו זמין כרגע.
+he-1545,/courses/$courseId/learn,src/routes/courses.$courseId.learn.tsx:217,jsx_text,yes,פתיחת «
+he-1546,/courses/$courseId/learn,src/routes/courses.$courseId.learn.tsx:228,jsx_text,yes,אין תוכן לשיעור זה עדיין.
+he-1547,/courses,src/routes/courses.index.tsx:11,string,yes,קורסים מקוונים — Haile Drive AI
+he-1548,/courses,src/routes/courses.index.tsx:12,string,yes,קטלוג הקורסים המקוונים של Haile Drive AI — לימוד עצמי לרישיון אוטובוס ורכב כבד בעברית ובאמהרית.
+he-1549,/courses,src/routes/courses.index.tsx:13,string,yes,קורסים מקוונים — Haile Drive AI
+he-1550,/courses,src/routes/courses.index.tsx:14,string,yes,קורסים מקוונים בקצב אישי לרישיון אוטובוס ורכב כבד.
+he-1551,/courses,src/routes/courses.index.tsx:41,jsx_text,yes,קורסים מקוונים
+he-1552,/courses,src/routes/courses.index.tsx:42,jsx_text,yes,"למידה בקצב אישי — צפו, קראו והתקדמו מתי שנוח לכם"
+he-1553,/courses,src/routes/courses.index.tsx:44,jsx_text,yes,טוען קורסים…
+he-1554,/courses,src/routes/courses.index.tsx:49,jsx_text,yes,אין עדיין קורסים מקוונים פתוחים. חזרו בקרוב.
+he-1555,/courses,src/routes/courses.index.tsx:78,string,yes,טיוטה
+he-1556,/courses,src/routes/courses.index.tsx:78,string,yes,ארכיון
+he-1557,/courses,src/routes/courses.index.tsx:89,jsx_text,yes,שעות
+he-1558,/courses,src/routes/courses.index.tsx:93,string,yes,ללא עלות
+he-1559,/courses,src/routes/courses.index.tsx:103,jsx_text,yes,% הושלמו
+he-1560,/dashboard,src/routes/dashboard.tsx:35,string,yes,שיעור
+he-1561,/dashboard,src/routes/dashboard.tsx:36,string,yes,מבחן
+he-1562,/dashboard,src/routes/dashboard.tsx:37,string,yes,השלמה
+he-1563,/dashboard,src/routes/dashboard.tsx:52,string,yes,מתחיל עכשיו
+he-1564,/dashboard,src/routes/dashboard.tsx:56,template,yes,בעוד ${h} שע׳ ${m} דק׳
+he-1565,/dashboard,src/routes/dashboard.tsx:57,template,yes,בעוד ${m} דק׳
+he-1566,/dashboard,src/routes/dashboard.tsx:59,template,yes,בעוד ${s} שנ׳
+he-1567,/dashboard,src/routes/dashboard.tsx:149,string,yes,ציון BEQA אחרון
+he-1568,/dashboard,src/routes/dashboard.tsx:154,template,yes,${beqaCount} סשנים · ${examPassedCount}/${examTotalCount} מבחנים
+he-1569,/dashboard,src/routes/dashboard.tsx:156,template,yes,${examPassedCount}/${examTotalCount} מבחנים
+he-1570,/dashboard,src/routes/dashboard.tsx:157,string,yes,טרם בוצע אבחון
+he-1571,/dashboard,src/routes/dashboard.tsx:182,jsx_text,yes,המשך מהנקודה האחרונה
+he-1572,/dashboard,src/routes/dashboard.tsx:183,jsx_text,yes,השיעור האחרון שלך
+he-1573,/dashboard,src/routes/dashboard.tsx:199,jsx_text,yes,"הלו""ז של היום"
+he-1574,/dashboard,src/routes/dashboard.tsx:201,jsx_text,yes,"כל הלו""ז"
+he-1575,/dashboard,src/routes/dashboard.tsx:211,jsx_text,yes,מבחן קרוב
+he-1576,/dashboard,src/routes/dashboard.tsx:221,jsx_text,yes,פתח
+he-1577,/dashboard,src/routes/dashboard.tsx:228,jsx_text,yes,טוען…
+he-1578,/dashboard,src/routes/dashboard.tsx:232,jsx_text,yes,אין שיעורים או מבחנים מתוזמנים להיום
+he-1579,/dashboard,src/routes/dashboard.tsx:264,string,yes,הסתיים
+he-1580,/dashboard,src/routes/dashboard.tsx:277,jsx_text,yes,הלוז שלי
+he-1581,/dashboard,src/routes/dashboard.tsx:278,jsx_text,yes,שיעורים ומבחנים
+he-1582,/dashboard,src/routes/dashboard.tsx:289,template,yes,אחרון: ${lastExamTitle}
+he-1583,/dashboard,src/routes/dashboard.tsx:289,string,yes,התחל מבחן
+he-1584,/dashboard,src/routes/dashboard.tsx:294,jsx_text,yes,BEQA חי
+he-1585,/dashboard,src/routes/dashboard.tsx:295,jsx_text,yes,מצלמה · BPM · HRV
+he-1586,/dashboard,src/routes/dashboard.tsx:301,jsx_text,yes,"סימולטור מרב""ד"
+he-1587,/dashboard,src/routes/dashboard.tsx:302,jsx_text,yes,MMPI · CPT · ATAVT · ראיון פסיכולוגי
+he-1588,/dashboard,src/routes/dashboard.tsx:311,jsx_text,yes,חומרי לימוד
+he-1589,/dashboard,src/routes/dashboard.tsx:318,jsx_text,yes,טוען…
+he-1590,/dashboard,src/routes/dashboard.tsx:321,jsx_text,yes,עדיין אין חומרי לימוד זמינים. פנה למרצה.
+he-1591,/diagnostics,src/routes/diagnostics.tsx:23,string,yes,אבחון מקצועי מאוחד — Haile Drive AI
+he-1592,/diagnostics,src/routes/diagnostics.tsx:128,string,yes,צריך להיות מחובר
+he-1593,/diagnostics,src/routes/diagnostics.tsx:169,string,yes,גישה למצלמה נדחתה. אפשר אותה בהגדרות הדפדפן.
+he-1594,/diagnostics,src/routes/diagnostics.tsx:182,string,yes,שב בנוחות. הסתכל על המצלמה. 30 שניות.
+he-1595,/diagnostics,src/routes/diagnostics.tsx:314,string,yes,שמירת האבחון נכשלה
+he-1596,/diagnostics,src/routes/diagnostics.tsx:341,jsx_text,yes,אבחון מקצועי מאוחד
+he-1597,/diagnostics,src/routes/diagnostics.tsx:342,jsx_text,yes,יש להתחבר כדי לבצע ולשמור את האבחון.
+he-1598,/diagnostics,src/routes/diagnostics.tsx:343,jsx_text,yes,התחבר
+he-1599,/diagnostics,src/routes/diagnostics.tsx:353,jsx_text,yes,האבחון נעול
+he-1600,/diagnostics,src/routes/diagnostics.tsx:354,jsx_text,yes,"האבחון המקצועי המאוחד זמין בתשלום של 1,200 ₪."
+he-1601,/diagnostics,src/routes/diagnostics.tsx:355,jsx_text,yes,📩 פנה להנהלה
+he-1602,/diagnostics,src/routes/diagnostics.tsx:430,jsx_text,yes,אבחון מקצועי מאוחד
+he-1603,/diagnostics,src/routes/diagnostics.tsx:432,jsx_text,yes,מערכת אבחון משולבת: פסיכולוגי + ביומטרי + ניתוח פנים.
+he-1604,/diagnostics,src/routes/diagnostics.tsx:433,jsx_text,yes,משך: ~7 דקות. נדרשת מצלמה.
+he-1605,/diagnostics,src/routes/diagnostics.tsx:436,jsx_text,yes,פסיכולוגי
+he-1606,/diagnostics,src/routes/diagnostics.tsx:437,jsx_text,yes,דופק (rPPG)
+he-1607,/diagnostics,src/routes/diagnostics.tsx:438,jsx_text,yes,פנים
+he-1608,/diagnostics,src/routes/diagnostics.tsx:441,jsx_text,yes,אפשר מצלמה והתחל
+he-1609,/diagnostics,src/routes/diagnostics.tsx:454,jsx_text,yes,תצוגה מקדימה — המצלמה פעילה
+he-1610,/diagnostics,src/routes/diagnostics.tsx:457,jsx_text,yes,בחר את הקהילה שלך
+he-1611,/diagnostics,src/routes/diagnostics.tsx:483,jsx_text,yes,דופק
+he-1612,/diagnostics,src/routes/diagnostics.tsx:491,string,yes,פוקוס
+he-1613,/diagnostics,src/routes/diagnostics.tsx:492,string,yes,חרדה
+he-1614,/diagnostics,src/routes/diagnostics.tsx:493,string,yes,ביטחון
+he-1615,/diagnostics,src/routes/diagnostics.tsx:494,string,yes,בלבול
+he-1616,/diagnostics,src/routes/diagnostics.tsx:517,jsx_text,yes,שלב 1 — כיול
+he-1617,/diagnostics,src/routes/diagnostics.tsx:518,jsx_text,yes,שב בנוחות. הסתכל על המצלמה.
+he-1618,/diagnostics,src/routes/diagnostics.tsx:519,jsx_text,yes,מודד דופק בסיס למשך 30 שניות
+he-1619,/diagnostics,src/routes/diagnostics.tsx:522,jsx_text,yes,דופק נוכחי:
+he-1620,/diagnostics,src/routes/diagnostics.tsx:524,jsx_text,yes,דלג — יש לי דופק יציב
+he-1621,/diagnostics,src/routes/diagnostics.tsx:540,jsx_text,yes,שאלה
+he-1622,/diagnostics,src/routes/diagnostics.tsx:540,jsx_text,yes,מתוך
+he-1623,/diagnostics,src/routes/diagnostics.tsx:584,jsx_text,yes,⚡ תרחיש לחץ —
+he-1624,/diagnostics,src/routes/diagnostics.tsx:618,jsx_text,yes,האבחון הושלם
+he-1625,/diagnostics,src/routes/diagnostics.tsx:620,jsx_text,yes,תודה. התוצאה נשמרה לבעלים בלבד. אין ציון במסך זה.
+he-1626,/diagnostics,src/routes/diagnostics.tsx:626,jsx_text,yes,אבחון חדש
+he-1627,/diagnostics,src/routes/diagnostics.tsx:628,jsx_text,yes,חזרה לדשבורד
+he-1628,/,src/routes/index.tsx:25,string,yes,עב
+he-1629,/lessons/$lessonId,src/routes/lessons.$lessonId.tsx:118,jsx_text,yes,טוען…
+he-1630,/lessons/$lessonId,src/routes/lessons.$lessonId.tsx:127,jsx_text,yes,השיעור לא נמצא
+he-1631,/lessons/$lessonId,src/routes/lessons.$lessonId.tsx:129,jsx_text,yes,ייתכן שהשיעור הוסר או טרם הועלה. חזור לרשימת השיעורים.
+he-1632,/lessons/$lessonId,src/routes/lessons.$lessonId.tsx:131,jsx_text,yes,← חזור
+he-1633,/lessons/$lessonId,src/routes/lessons.$lessonId.tsx:159,jsx_text,yes,· נותרו
+he-1634,/lessons/$lessonId,src/routes/lessons.$lessonId.tsx:168,jsx_text,yes,ממשיך מהנקודה האחרונה (
+he-1635,/lessons/$lessonId,src/routes/lessons.$lessonId.tsx:197,jsx_text,yes,השהה
+he-1636,/lessons/$lessonId,src/routes/lessons.$lessonId.tsx:197,string,yes,המשך
+he-1637,/lessons/$lessonId,src/routes/lessons.$lessonId.tsx:197,string,yes,הפעל
+he-1638,/lessons/$lessonId,src/routes/lessons.$lessonId.tsx:204,jsx_text,yes,התחל מחדש
+he-1639,/lessons/$lessonId,src/routes/lessons.$lessonId.tsx:215,jsx_text,yes,פתח את החומר המלא
+he-1640,/lessons/$lessonId,src/routes/lessons.$lessonId.tsx:230,jsx_text,yes,כתוביות בעברית
+he-1641,/lessons,src/routes/lessons.tsx:31,jsx_text,yes,שיעורי הכיתה שלך וחומרי לימוד שהוקצו לך
+he-1642,/lessons,src/routes/lessons.tsx:35,jsx_text,yes,שיעורים מתוזמנים
+he-1643,/lessons,src/routes/lessons.tsx:36,jsx_text,yes,כל הלו״ז ←
+he-1644,/lessons,src/routes/lessons.tsx:38,jsx_text,yes,טוען שיעורים…
+he-1645,/lessons,src/routes/lessons.tsx:42,jsx_text,yes,אין שיעורים מתוזמנים לכיתה שלך
+he-1646,/lessons,src/routes/lessons.tsx:48,jsx_text,yes,טוען…
+he-1647,/lessons,src/routes/lessons.tsx:51,jsx_text,yes,טרם הוקצו חומרי לימוד.
+he-1648,/lessons,src/routes/lessons.tsx:57,jsx_text,yes,חומרי לימוד
+he-1649,/lessons,src/routes/lessons.tsx:63,jsx_text,yes,חומרי העשרה
+he-1650,/lessons,src/routes/lessons.tsx:116,jsx_text,yes,שיעור
+he-1651,/login,src/routes/login.tsx:26,string,yes,בעלים
+he-1652,/login,src/routes/login.tsx:32,string,yes,כניסת בעלים — גישה מלאה לכל המודולים
+he-1653,/login,src/routes/login.tsx:36,string,yes,מרצה
+he-1654,/login,src/routes/login.tsx:46,string,yes,תלמיד
+he-1655,/login,src/routes/login.tsx:97,string,yes,הזן/י מספר טלפון תקין
+he-1656,/login,src/routes/login.tsx:106,string,yes,שגיאה בשליחת הקוד
+he-1657,/login,src/routes/login.tsx:113,string,yes,הזן/י קוד בן 6 ספרות
+he-1658,/login,src/routes/login.tsx:126,string,yes,קוד שגוי או בקשה ממתינה לאישור
+he-1659,/login,src/routes/login.tsx:132,string,yes,הזן/י כתובת אימייל לשחזור
+he-1660,/login,src/routes/login.tsx:139,string,yes,שלחנו קישור לאיפוס סיסמה למייל שלך. בדוק/י גם בתיקיית הספאם.
+he-1661,/login,src/routes/login.tsx:183,jsx_text,yes,בחר/י סוג חשבון · Choose portal
+he-1662,/login,src/routes/login.tsx:226,jsx_text,yes,אימייל · Email
+he-1663,/login,src/routes/login.tsx:231,jsx_text,yes,כניסה במספר טלפון · በስልክ ቁጥር ግባ
+he-1664,/login,src/routes/login.tsx:252,string,yes,כניסה במספר טלפון
+he-1665,/login,src/routes/login.tsx:305,jsx_text,yes,שכחת סיסמה? שלח/י קוד אימות
+he-1666,/login,src/routes/login.tsx:345,string,yes,שלח קוד · ላክ ኮድ
+he-1667,/login,src/routes/login.tsx:359,string,yes,קוד בן 6 ספרות
+he-1668,/login,src/routes/login.tsx:367,jsx_text,yes,שנה מספר טלפון
+he-1669,/login,src/routes/login.tsx:380,string,yes,אמת והיכנס · አረጋግጥ
+he-1670,/login,src/routes/login.tsx:390,jsx_text,yes,כניסת בעלים — הרשאה ניתנת ידנית דרך ניהול משתמשים
+he-1671,/marvad-simulator,src/routes/marvad-simulator.tsx:14,string,yes,"סימולטור מרב\""ד — Haile Drive AI"
+he-1672,/marvad-simulator,src/routes/marvad-simulator.tsx:30,string,yes,אני מרגיש שאנשים מבינים אותי היטב.
+he-1673,/marvad-simulator,src/routes/marvad-simulator.tsx:33,string,yes,תמיד
+he-1674,/marvad-simulator,src/routes/marvad-simulator.tsx:34,string,yes,לעיתים קרובות
+he-1675,/marvad-simulator,src/routes/marvad-simulator.tsx:35,string,yes,לפעמים
+he-1676,/marvad-simulator,src/routes/marvad-simulator.tsx:36,string,yes,לעולם לא
+he-1677,/marvad-simulator,src/routes/marvad-simulator.tsx:41,string,yes,"מעולם לא שיקרתי, אפילו לא במשהו קטן."
+he-1678,/marvad-simulator,src/routes/marvad-simulator.tsx:45,string,yes,נכון לחלוטין
+he-1679,/marvad-simulator,src/routes/marvad-simulator.tsx:46,string,yes,נכון בדרך כלל
+he-1680,/marvad-simulator,src/routes/marvad-simulator.tsx:47,string,yes,לא נכון
+he-1681,/marvad-simulator,src/routes/marvad-simulator.tsx:52,string,yes,אני מסוגל להתמודד עם לחץ ביום-יום.
+he-1682,/marvad-simulator,src/routes/marvad-simulator.tsx:55,string,yes,תמיד
+he-1683,/marvad-simulator,src/routes/marvad-simulator.tsx:56,string,yes,לרוב
+he-1684,/marvad-simulator,src/routes/marvad-simulator.tsx:57,string,yes,מדי פעם
+he-1685,/marvad-simulator,src/routes/marvad-simulator.tsx:58,string,yes,כמעט אף פעם
+he-1686,/marvad-simulator,src/routes/marvad-simulator.tsx:63,string,yes,אני ישן טוב בלילה.
+he-1687,/marvad-simulator,src/routes/marvad-simulator.tsx:66,string,yes,תמיד
+he-1688,/marvad-simulator,src/routes/marvad-simulator.tsx:67,string,yes,לרוב
+he-1689,/marvad-simulator,src/routes/marvad-simulator.tsx:68,string,yes,לפעמים
+he-1690,/marvad-simulator,src/routes/marvad-simulator.tsx:69,string,yes,כמעט אף פעם
+he-1691,/marvad-simulator,src/routes/marvad-simulator.tsx:74,string,yes,אני אף פעם לא כועס על אף אחד.
+he-1692,/marvad-simulator,src/routes/marvad-simulator.tsx:78,string,yes,נכון לחלוטין
+he-1693,/marvad-simulator,src/routes/marvad-simulator.tsx:79,string,yes,נכון לרוב
+he-1694,/marvad-simulator,src/routes/marvad-simulator.tsx:80,string,yes,לא נכון
+he-1695,/marvad-simulator,src/routes/marvad-simulator.tsx:89,string,yes,ספר לי על מצב לחץ שחווית לאחרונה. איך התמודדת?
+he-1696,/marvad-simulator,src/routes/marvad-simulator.tsx:91,string,yes,פעלתי באימפולסיביות וניסיתי לסיים מהר
+he-1697,/marvad-simulator,src/routes/marvad-simulator.tsx:92,string,yes,"עצרתי, נשמתי עמוק וחשבתי לפני שפעלתי"
+he-1698,/marvad-simulator,src/routes/marvad-simulator.tsx:93,string,yes,פניתי לעזרה ושיתפתי מישהו קרוב
+he-1699,/marvad-simulator,src/routes/marvad-simulator.tsx:98,string,yes,מה אתה מרגיש כשנהג אחר חותך אותך בכביש?
+he-1700,/marvad-simulator,src/routes/marvad-simulator.tsx:100,string,yes,כועס מאוד ורוצה להגיב
+he-1701,/marvad-simulator,src/routes/marvad-simulator.tsx:101,string,yes,מתעצבן רגע אבל ממשיך הלאה
+he-1702,/marvad-simulator,src/routes/marvad-simulator.tsx:102,string,yes,"לא אכפת לי, אני נשאר רגוע"
+he-1703,/marvad-simulator,src/routes/marvad-simulator.tsx:107,string,yes,מה הסיבה האמיתית שלך לרצות להיות נהג?
+he-1704,/marvad-simulator,src/routes/marvad-simulator.tsx:109,string,yes,כסף ופרנסה בלבד
+he-1705,/marvad-simulator,src/routes/marvad-simulator.tsx:110,string,yes,אהבה לכביש ועצמאות
+he-1706,/marvad-simulator,src/routes/marvad-simulator.tsx:111,string,yes,אין לי ברירה אחרת
+he-1707,/marvad-simulator,src/routes/marvad-simulator.tsx:116,string,yes,איך אתה מגיב לביקורת מהמנהל שלך?
+he-1708,/marvad-simulator,src/routes/marvad-simulator.tsx:118,string,yes,מתגונן ומסביר את עצמי
+he-1709,/marvad-simulator,src/routes/marvad-simulator.tsx:119,string,yes,מקשיב ומנסה להשתפר
+he-1710,/marvad-simulator,src/routes/marvad-simulator.tsx:120,string,yes,מקבל אבל בפנים נפגע
+he-1711,/marvad-simulator,src/routes/marvad-simulator.tsx:193,string,yes,שגיאה בשמירת התוצאות:
+he-1712,/marvad-simulator,src/routes/marvad-simulator.tsx:194,string,yes,התוצאות נשמרו בהצלחה
+he-1713,/marvad-simulator,src/routes/marvad-simulator.tsx:200,jsx_text,yes,טוען…
+he-1714,/marvad-simulator,src/routes/marvad-simulator.tsx:212,jsx_text,yes,"סימולטור מרב""ד נעול"
+he-1715,/marvad-simulator,src/routes/marvad-simulator.tsx:214,jsx_text,yes,"גישה לסימולטור מרב""ד מלא בתשלום נפרד של"
+he-1716,/marvad-simulator,src/routes/marvad-simulator.tsx:217,jsx_text,yes,פנה להנהלת הקמפוס לפרטים והפעלה.
+he-1717,/marvad-simulator,src/routes/marvad-simulator.tsx:220,jsx_text,yes,חזרה לדשבורד
+he-1718,/marvad-simulator,src/routes/marvad-simulator.tsx:232,jsx_text,yes,"סימולטור מרב""ד"
+he-1719,/marvad-simulator,src/routes/marvad-simulator.tsx:233,jsx_text,yes,אבחון פסיכוטכני מלא 🧠
+he-1720,/marvad-simulator,src/routes/marvad-simulator.tsx:236,string,yes,התחלה
+he-1721,/marvad-simulator,src/routes/marvad-simulator.tsx:236,string,yes,סיום
+he-1722,/marvad-simulator,src/routes/marvad-simulator.tsx:307,jsx_text,yes,"ברוך הבא לסימולטור המרב""ד המלא. במהלך האבחון תעבור 4 מודולים:"
+he-1723,/marvad-simulator,src/routes/marvad-simulator.tsx:310,jsx_text,yes,שאלון אישיות MMPI
+he-1724,/marvad-simulator,src/routes/marvad-simulator.tsx:311,jsx_text,yes,מבדק קשב CPT
+he-1725,/marvad-simulator,src/routes/marvad-simulator.tsx:312,jsx_text,yes,אומדן מהירות ATAVT
+he-1726,/marvad-simulator,src/routes/marvad-simulator.tsx:313,jsx_text,yes,"ראיון עם ד""ר סולומון"
+he-1727,/marvad-simulator,src/routes/marvad-simulator.tsx:316,jsx_text,yes,שפת השאלון:
+he-1728,/marvad-simulator,src/routes/marvad-simulator.tsx:318,jsx_text,yes,עברית
+he-1729,/marvad-simulator,src/routes/marvad-simulator.tsx:323,jsx_text,yes,התחל אבחון
+he-1730,/marvad-simulator,src/routes/marvad-simulator.tsx:467,jsx_text,yes,מבדק CPT — קשב מתמשך
+he-1731,/marvad-simulator,src/routes/marvad-simulator.tsx:469,jsx_text,yes,יוצגו לך צורות צבעוניות. לחץ
+he-1732,/marvad-simulator,src/routes/marvad-simulator.tsx:469,jsx_text,yes,רק כשרואה
+he-1733,/marvad-simulator,src/routes/marvad-simulator.tsx:469,jsx_text,yes,ריבוע ירוק
+he-1734,/marvad-simulator,src/routes/marvad-simulator.tsx:470,jsx_text,yes,אל תלחץ אם הופיע ריבוע ירוק ברצף פעמיים.
+he-1735,/marvad-simulator,src/routes/marvad-simulator.tsx:472,jsx_text,yes,התחל
+he-1736,/marvad-simulator,src/routes/marvad-simulator.tsx:503,jsx_text,yes,לחץ SPACE על ריבוע ירוק שלא הופיע ברצף
+he-1737,/marvad-simulator,src/routes/marvad-simulator.tsx:630,jsx_text,yes,ATAVT — אומדן מהירות
+he-1738,/marvad-simulator,src/routes/marvad-simulator.tsx:632,jsx_text,yes,כדור ינוע על מסלול וייעלם. נחש את מיקומו בזמן הלחיצה. הזז את הסמן ולחץ
+he-1739,/marvad-simulator,src/routes/marvad-simulator.tsx:634,jsx_text,yes,התחל
+he-1740,/marvad-simulator,src/routes/marvad-simulator.tsx:669,jsx_text,yes,לחץ SPACE כדי לאשר את המיקום
+he-1741,/marvad-simulator,src/routes/marvad-simulator.tsx:675,jsx_text,yes,שגיאה:
+he-1742,/marvad-simulator,src/routes/marvad-simulator.tsx:675,jsx_text,yes,· ניקוד:
+he-1743,/marvad-simulator,src/routes/marvad-simulator.tsx:678,string,yes,סיים
+he-1744,/marvad-simulator,src/routes/marvad-simulator.tsx:678,string,yes,המשך
+he-1745,/marvad-simulator,src/routes/marvad-simulator.tsx:711,jsx_text,yes,"ד""ר סולומון"
+he-1746,/marvad-simulator,src/routes/marvad-simulator.tsx:712,jsx_text,yes,פסיכולוג קליני · ראיון מובנה
+he-1747,/marvad-simulator,src/routes/marvad-simulator.tsx:749,string,yes,מוכן לגיוס
+he-1748,/marvad-simulator,src/routes/marvad-simulator.tsx:749,string,yes,תקין עם מקום לשיפור
+he-1749,/marvad-simulator,src/routes/marvad-simulator.tsx:749,string,yes,ממליצים על אימון נוסף
+he-1750,/marvad-simulator,src/routes/marvad-simulator.tsx:760,jsx_text,yes,שומר תוצאות…
+he-1751,/marvad-simulator,src/routes/marvad-simulator.tsx:766,jsx_text,yes,פירוט תוצאות
+he-1752,/marvad-simulator,src/routes/marvad-simulator.tsx:767,string,yes,MMPI אישיות
+he-1753,/marvad-simulator,src/routes/marvad-simulator.tsx:768,jsx_text,yes,⚠️ זוהו תשובות לא עקביות במדד אמינות
+he-1754,/marvad-simulator,src/routes/marvad-simulator.tsx:769,string,yes,CPT — קשב
+he-1755,/marvad-simulator,src/routes/marvad-simulator.tsx:770,string,yes,CPT — שגיאות
+he-1756,/marvad-simulator,src/routes/marvad-simulator.tsx:771,string,yes,ATAVT — אומדן מהירות
+he-1757,/marvad-simulator,src/routes/marvad-simulator.tsx:772,string,yes,ראיון פסיכולוגי
+he-1758,/marvad-simulator,src/routes/marvad-simulator.tsx:778,jsx_text,yes,חזרה לדשבורד
+he-1759,/marvad-simulator,src/routes/marvad-simulator.tsx:781,jsx_text,yes,אבחון נוסף
+he-1760,/profile,src/routes/profile.tsx:80,jsx_text,yes,הכיתה שלי
+he-1761,/profile,src/routes/profile.tsx:82,string,yes,לא משויך/ת לכיתה
+he-1762,/psych-diagnostic,src/routes/psych-diagnostic.tsx:12,string,yes,אבחון פסיכולוגי-תעסוקתי — Haile Drive AI
+he-1763,/psych-diagnostic,src/routes/psych-diagnostic.tsx:26,string,yes,למה בחרת להיות נהג אוטובוס?
+he-1764,/psych-diagnostic,src/routes/psych-diagnostic.tsx:27,string,yes,זה הדבר היחיד שמצאתי
+he-1765,/psych-diagnostic,src/routes/psych-diagnostic.tsx:28,string,yes,הכסף טוב
+he-1766,/psych-diagnostic,src/routes/psych-diagnostic.tsx:29,string,yes,אני אוהב לנהוג ולעזור לאנשים
+he-1767,/psych-diagnostic,src/routes/psych-diagnostic.tsx:30,string,yes,זה מקצוע יציב עם עתיד
+he-1768,/psych-diagnostic,src/routes/psych-diagnostic.tsx:32,string,yes,נוסע צועק עליך — מה אתה עושה?
+he-1769,/psych-diagnostic,src/routes/psych-diagnostic.tsx:33,string,yes,צועק בחזרה
+he-1770,/psych-diagnostic,src/routes/psych-diagnostic.tsx:34,string,yes,מתעלם
+he-1771,/psych-diagnostic,src/routes/psych-diagnostic.tsx:35,string,yes,עוצר ומסביר בשקט
+he-1772,/psych-diagnostic,src/routes/psych-diagnostic.tsx:36,string,yes,מתנצל ומרגיע
+he-1773,/psych-diagnostic,src/routes/psych-diagnostic.tsx:38,string,yes,מצאת תקלה ברכב לפני יציאה — מה אתה עושה?
+he-1774,/psych-diagnostic,src/routes/psych-diagnostic.tsx:39,string,yes,יוצא בכל זאת
+he-1775,/psych-diagnostic,src/routes/psych-diagnostic.tsx:40,string,yes,מדווח אבל יוצא
+he-1776,/psych-diagnostic,src/routes/psych-diagnostic.tsx:41,string,yes,מדווח ומחכה לאישור
+he-1777,/psych-diagnostic,src/routes/psych-diagnostic.tsx:42,string,yes,לא יוצא ללא תיקון
+he-1778,/psych-diagnostic,src/routes/psych-diagnostic.tsx:44,string,yes,כמה שעות נהיגה ברצף מותר?
+he-1779,/psych-diagnostic,src/routes/psych-diagnostic.tsx:45,string,yes,כמה שצריך
+he-1780,/psych-diagnostic,src/routes/psych-diagnostic.tsx:46,string,yes,6-8 שעות
+he-1781,/psych-diagnostic,src/routes/psych-diagnostic.tsx:47,string,yes,עד 4.5 שעות לפי החוק
+he-1782,/psych-diagnostic,src/routes/psych-diagnostic.tsx:48,string,yes,תלוי במצב
+he-1783,/psych-diagnostic,src/routes/psych-diagnostic.tsx:50,string,yes,נכשלת במבחן — מה אתה עושה?
+he-1784,/psych-diagnostic,src/routes/psych-diagnostic.tsx:51,string,yes,מוותר
+he-1785,/psych-diagnostic,src/routes/psych-diagnostic.tsx:52,string,yes,מחכה הרבה זמן
+he-1786,/psych-diagnostic,src/routes/psych-diagnostic.tsx:53,string,yes,מנסה שוב אחרי מנוחה
+he-1787,/psych-diagnostic,src/routes/psych-diagnostic.tsx:54,string,yes,מבין מה לא עבד ומנסה
+he-1788,/psych-diagnostic,src/routes/psych-diagnostic.tsx:56,string,yes,המשפחה תומכת שתהיה נהג אוטובוס?
+he-1789,/psych-diagnostic,src/routes/psych-diagnostic.tsx:57,string,yes,"לא, נגד"
+he-1790,/psych-diagnostic,src/routes/psych-diagnostic.tsx:58,string,yes,לא בטוח
+he-1791,/psych-diagnostic,src/routes/psych-diagnostic.tsx:59,string,yes,"כן, עם חששות"
+he-1792,/psych-diagnostic,src/routes/psych-diagnostic.tsx:60,string,yes,"כן, לגמרי"
+he-1793,/psych-diagnostic,src/routes/psych-diagnostic.tsx:62,string,yes,לא הבנת הוראה בעברית — מה אתה עושה?
+he-1794,/psych-diagnostic,src/routes/psych-diagnostic.tsx:63,string,yes,מעמיד פנים שהבנת
+he-1795,/psych-diagnostic,src/routes/psych-diagnostic.tsx:64,string,yes,עושה מה שנראה נכון
+he-1796,/psych-diagnostic,src/routes/psych-diagnostic.tsx:65,string,yes,שואל חבר אחר כך
+he-1797,/psych-diagnostic,src/routes/psych-diagnostic.tsx:66,string,yes,מבקש הסבר מיד
+he-1798,/psych-diagnostic,src/routes/psych-diagnostic.tsx:68,string,yes,כמה שעות בשבוע מוכן ללמוד תיאוריה?
+he-1799,/psych-diagnostic,src/routes/psych-diagnostic.tsx:69,string,yes,שעה-שעתיים
+he-1800,/psych-diagnostic,src/routes/psych-diagnostic.tsx:70,string,yes,3-4 שעות
+he-1801,/psych-diagnostic,src/routes/psych-diagnostic.tsx:71,string,yes,5-7 שעות
+he-1802,/psych-diagnostic,src/routes/psych-diagnostic.tsx:72,string,yes,כמה שצריך
+he-1803,/psych-diagnostic,src/routes/psych-diagnostic.tsx:74,string,yes,מה השכר שאתה מצפה?
+he-1804,/psych-diagnostic,src/routes/psych-diagnostic.tsx:75,string,yes,"מעל 15,000 ₪ מיד"
+he-1805,/psych-diagnostic,src/routes/psych-diagnostic.tsx:78,string,yes,מוכן להתחיל בפחות ולצמוח
+he-1806,/psych-diagnostic,src/routes/psych-diagnostic.tsx:80,string,yes,תאר את עצמך כנהג:
+he-1807,/psych-diagnostic,src/routes/psych-diagnostic.tsx:81,string,yes,מהיר ויעיל
+he-1808,/psych-diagnostic,src/routes/psych-diagnostic.tsx:82,string,yes,סבלני ומכבד
+he-1809,/psych-diagnostic,src/routes/psych-diagnostic.tsx:83,string,yes,מקצועי ובטיחותי
+he-1810,/psych-diagnostic,src/routes/psych-diagnostic.tsx:84,string,yes,אדיב ושירותי
+he-1811,/psych-diagnostic,src/routes/psych-diagnostic.tsx:90,string,yes,אתה נוסע עם 40 נוסעים — שמעת צליל מוזר מהמנוע. מה אתה עושה?
+he-1812,/psych-diagnostic,src/routes/psych-diagnostic.tsx:92,string,yes,ממשיך — כנראה לא חמור
+he-1813,/psych-diagnostic,src/routes/psych-diagnostic.tsx:93,string,yes,מאט ומגיע לתחנה הבאה
+he-1814,/psych-diagnostic,src/routes/psych-diagnostic.tsx:94,string,yes,עוצר בצד בבטחה ומדווח
+he-1815,/psych-diagnostic,src/routes/psych-diagnostic.tsx:95,string,yes,מתקשר למנהל תוך כדי נסיעה
+he-1816,/psych-diagnostic,src/routes/psych-diagnostic.tsx:101,string,yes,אם לא עברת מבחן — מה תגיד למשפחה?
+he-1817,/psych-diagnostic,src/routes/psych-diagnostic.tsx:102,string,yes,אסתיר
+he-1818,/psych-diagnostic,src/routes/psych-diagnostic.tsx:102,string,yes,אגיד שדחיתי
+he-1819,/psych-diagnostic,src/routes/psych-diagnostic.tsx:102,string,yes,אגיד האמת ואנסה שוב
+he-1820,/psych-diagnostic,src/routes/psych-diagnostic.tsx:104,string,yes,פחדת פעם מכישלון ועשית בכל זאת — ספר
+he-1821,/psych-diagnostic,src/routes/psych-diagnostic.tsx:105,string,yes,לא קרה
+he-1822,/psych-diagnostic,src/routes/psych-diagnostic.tsx:105,string,yes,רק אם הייתי חייב
+he-1823,/psych-diagnostic,src/routes/psych-diagnostic.tsx:105,string,yes,"כן, תמיד אנסה"
+he-1824,/psych-diagnostic,src/routes/psych-diagnostic.tsx:107,string,yes,אדם שאתה מכבד — מה הוא היה אומר על המקצוע הזה?
+he-1825,/psych-diagnostic,src/routes/psych-diagnostic.tsx:108,string,yes,לא בטוח
+he-1826,/psych-diagnostic,src/routes/psych-diagnostic.tsx:108,string,yes,היה מסכים
+he-1827,/psych-diagnostic,src/routes/psych-diagnostic.tsx:108,string,yes,היה גאה
+he-1828,/psych-diagnostic,src/routes/psych-diagnostic.tsx:112,string,yes,מה עשית מקצועית לפני שהגעת לישראל?
+he-1829,/psych-diagnostic,src/routes/psych-diagnostic.tsx:113,string,yes,לא רלוונטי
+he-1830,/psych-diagnostic,src/routes/psych-diagnostic.tsx:113,string,yes,עבדתי בתחום שונה
+he-1831,/psych-diagnostic,src/routes/psych-diagnostic.tsx:113,string,yes,יש לי ניסיון תחבורה
+he-1832,/psych-diagnostic,src/routes/psych-diagnostic.tsx:115,string,yes,מנהל ישראלי ביקש משהו שנראה לך לא נכון — מה תעשה?
+he-1833,/psych-diagnostic,src/routes/psych-diagnostic.tsx:116,string,yes,אתעלם
+he-1834,/psych-diagnostic,src/routes/psych-diagnostic.tsx:116,string,yes,אעשה אבל אתלונן
+he-1835,/psych-diagnostic,src/routes/psych-diagnostic.tsx:116,string,yes,אשאל לפני שאעשה
+he-1836,/psych-diagnostic,src/routes/psych-diagnostic.tsx:118,string,yes,בעוד 3 שנים — איפה אתה רוצה להיות?
+he-1837,/psych-diagnostic,src/routes/psych-diagnostic.tsx:119,string,yes,לא יודע
+he-1838,/psych-diagnostic,src/routes/psych-diagnostic.tsx:119,string,yes,אותו מקום
+he-1839,/psych-diagnostic,src/routes/psych-diagnostic.tsx:119,string,yes,נהג מנוסה / מדריך
+he-1840,/psych-diagnostic,src/routes/psych-diagnostic.tsx:123,string,yes,למה בחרת לעלות לישראל?
+he-1841,/psych-diagnostic,src/routes/psych-diagnostic.tsx:124,string,yes,הגעתי עם המשפחה
+he-1842,/psych-diagnostic,src/routes/psych-diagnostic.tsx:124,string,yes,חיפשתי עבודה
+he-1843,/psych-diagnostic,src/routes/psych-diagnostic.tsx:124,string,yes,זה החלום שלי מאז ילדות
+he-1844,/psych-diagnostic,src/routes/psych-diagnostic.tsx:126,string,yes,מוכן לנסוע כל יום לעיר אחרת?
+he-1845,/psych-diagnostic,src/routes/psych-diagnostic.tsx:127,string,yes,לא
+he-1846,/psych-diagnostic,src/routes/psych-diagnostic.tsx:127,string,yes,רק קרוב לבית
+he-1847,/psych-diagnostic,src/routes/psych-diagnostic.tsx:127,string,yes,"כן, בלי בעיה"
+he-1848,/psych-diagnostic,src/routes/psych-diagnostic.tsx:129,string,yes,ספר על עבודה קשה שעשית בחיים
+he-1849,/psych-diagnostic,src/routes/psych-diagnostic.tsx:130,string,yes,לא עשיתי
+he-1850,/psych-diagnostic,src/routes/psych-diagnostic.tsx:130,string,yes,עבדתי קשה כשהייתי חייב
+he-1851,/psych-diagnostic,src/routes/psych-diagnostic.tsx:130,string,yes,תמיד עבדתי קשה
+he-1852,/psych-diagnostic,src/routes/psych-diagnostic.tsx:136,string,yes,🇪🇹 אמהרית
+he-1853,/psych-diagnostic,src/routes/psych-diagnostic.tsx:137,string,yes,🇷🇺 רוסית
+he-1854,/psych-diagnostic,src/routes/psych-diagnostic.tsx:138,string,yes,✡️ קוקי (בני מנשה)
+he-1855,/psych-diagnostic,src/routes/psych-diagnostic.tsx:163,string,yes,מומלץ מאוד להמשך תהליך
+he-1856,/psych-diagnostic,src/routes/psych-diagnostic.tsx:164,string,yes,מומלץ ראיון נוסף
+he-1857,/psych-diagnostic,src/routes/psych-diagnostic.tsx:165,string,yes,לא מומלץ כרגע
+he-1858,/psych-diagnostic,src/routes/psych-diagnostic.tsx:198,string,yes,צריך להיות מחובר כדי לשמור תוצאה
+he-1859,/psych-diagnostic,src/routes/psych-diagnostic.tsx:227,string,yes,שמירה נכשלה:
+he-1860,/psych-diagnostic,src/routes/psych-diagnostic.tsx:229,template,yes,ציון: ${score} — ${rec.label}
+he-1861,/psych-diagnostic,src/routes/psych-diagnostic.tsx:244,jsx_text,yes,אבחון פסיכולוגי-תעסוקתי
+he-1862,/psych-diagnostic,src/routes/psych-diagnostic.tsx:245,jsx_text,yes,יש להתחבר כדי לבצע ולשמור את האבחון.
+he-1863,/psych-diagnostic,src/routes/psych-diagnostic.tsx:246,jsx_text,yes,התחבר
+he-1864,/psych-diagnostic,src/routes/psych-diagnostic.tsx:258,jsx_text,yes,ציון BEQA פסיכולוגי
+he-1865,/psych-diagnostic,src/routes/psych-diagnostic.tsx:260,jsx_text,yes,מועמד
+he-1866,/psych-diagnostic,src/routes/psych-diagnostic.tsx:264,jsx_text,yes,פילוח קטגוריות (1–4):
+he-1867,/psych-diagnostic,src/routes/psych-diagnostic.tsx:266,string,yes,מוטיבציה (25%)
+he-1868,/psych-diagnostic,src/routes/psych-diagnostic.tsx:267,string,yes,שליטה עצמית (25%)
+he-1869,/psych-diagnostic,src/routes/psych-diagnostic.tsx:268,string,yes,בטיחות ואחריות (20%)
+he-1870,/psych-diagnostic,src/routes/psych-diagnostic.tsx:269,string,yes,תקשורת (15%)
+he-1871,/psych-diagnostic,src/routes/psych-diagnostic.tsx:270,string,yes,יציבות ותמיכה (15%)
+he-1872,/psych-diagnostic,src/routes/psych-diagnostic.tsx:278,jsx_text,yes,בצע אבחון נוסף
+he-1873,/psych-diagnostic,src/routes/psych-diagnostic.tsx:279,jsx_text,yes,חזרה לדשבורד
+he-1874,/psych-diagnostic,src/routes/psych-diagnostic.tsx:292,jsx_text,yes,אבחון פסיכולוגי-תעסוקתי
+he-1875,/psych-diagnostic,src/routes/psych-diagnostic.tsx:293,jsx_text,yes,לפני שמתחילים — בחר את הקהילה שלך:
+he-1876,/psych-diagnostic,src/routes/psych-diagnostic.tsx:309,jsx_text,yes,14 שאלות · ~5 דקות · התוצאה נשמרת בפרופיל שלך
+he-1877,/psych-diagnostic,src/routes/psych-diagnostic.tsx:321,jsx_text,yes,שאלה
+he-1878,/psych-diagnostic,src/routes/psych-diagnostic.tsx:321,jsx_text,yes,מתוך
+he-1879,/psych-diagnostic,src/routes/psych-diagnostic.tsx:358,jsx_text,yes,← שאלה קודמת
+he-1880,/quiz,src/routes/quiz.tsx:68,jsx_text,yes,טוען…
+he-1881,/quiz,src/routes/quiz.tsx:76,jsx_text,yes,אין מבחן זמין
+he-1882,/quiz,src/routes/quiz.tsx:77,jsx_text,yes,המרצה טרם פרסם מבחן. חזור מאוחר יותר.
+he-1883,/quiz,src/routes/quiz.tsx:78,jsx_text,yes,חזור לדשבורד
+he-1884,/quiz,src/routes/quiz.tsx:122,jsx_text,yes,שוב
+he-1885,/quiz,src/routes/quiz.tsx:167,string,yes,סיום
+he-1886,/quiz,src/routes/quiz.tsx:167,string,yes,הבא →
+he-1887,/reset-password,src/routes/reset-password.tsx:41,string,yes,הסיסמה חייבת להיות באורך 6 תווים לפחות
+he-1888,/reset-password,src/routes/reset-password.tsx:42,string,yes,הסיסמאות אינן תואמות
+he-1889,/reset-password,src/routes/reset-password.tsx:55,jsx_text,yes,איפוס סיסמה
+he-1890,/reset-password,src/routes/reset-password.tsx:56,jsx_text,yes,בחר/י סיסמה חדשה לחשבון שלך.
+he-1891,/reset-password,src/routes/reset-password.tsx:59,jsx_text,yes,טוען…
+he-1892,/reset-password,src/routes/reset-password.tsx:63,jsx_text,yes,הסיסמה עודכנה. מעביר/ה לדף ההתחברות…
+he-1893,/reset-password,src/routes/reset-password.tsx:68,jsx_text,yes,הקישור פג תוקף או אינו תקין. בקש/י קישור חדש מדף ההתחברות.
+he-1894,/reset-password,src/routes/reset-password.tsx:71,jsx_text,yes,חזרה להתחברות
+he-1895,/reset-password,src/routes/reset-password.tsx:84,string,yes,סיסמה חדשה
+he-1896,/reset-password,src/routes/reset-password.tsx:96,string,yes,אישור סיסמה
+he-1897,/reset-password,src/routes/reset-password.tsx:106,string,yes,מעדכן…
+he-1898,/reset-password,src/routes/reset-password.tsx:106,string,yes,עדכן/י סיסמה
+he-1899,/schedule,src/routes/schedule.tsx:9,string,yes,"הלו\""ז שלי — Haile Drive AI"
+he-1900,/schedule,src/routes/schedule.tsx:14,string,yes,שיעור
+he-1901,/schedule,src/routes/schedule.tsx:15,string,yes,מבחן
+he-1902,/schedule,src/routes/schedule.tsx:16,string,yes,השלמה
+he-1903,/schedule,src/routes/schedule.tsx:60,jsx_text,yes,לוח אישי
+he-1904,/schedule,src/routes/schedule.tsx:61,jsx_text,yes,"הלו""ז שלי"
+he-1905,/schedule,src/routes/schedule.tsx:64,jsx_text,yes,כיתה:
+he-1906,/schedule,src/routes/schedule.tsx:70,jsx_text,yes,טוען…
+he-1907,/schedule,src/routes/schedule.tsx:74,jsx_text,yes,אין אירועים מתוזמנים לכיתה שלך
+he-1908,/schedule,src/routes/schedule.tsx:123,jsx_text,yes,📹 שיעור חי
+he-1909,/schedule,src/routes/schedule.tsx:129,jsx_text,yes,כיתה:
+he-1910,/schedule,src/routes/schedule.tsx:133,jsx_text,yes,שיעור:
+he-1911,/schedule,src/routes/schedule.tsx:137,jsx_text,yes,מרצה:
+he-1912,/schedule,src/routes/schedule.tsx:141,jsx_text,yes,תאריך:
+he-1913,/schedule,src/routes/schedule.tsx:144,jsx_text,yes,שעה:
+he-1914,/schedule,src/routes/schedule.tsx:149,jsx_text,yes,מיקום:
+he-1915,/schedule,src/routes/schedule.tsx:161,jsx_text,yes,🎥 הצטרף לשיעור
+he-1916,/schedule,src/routes/schedule.tsx:165,jsx_text,yes,פתח מבחן ←
+he-1917,/teacher/attendance,src/routes/teacher.attendance.tsx:17,string,no,סימון נוכחות — Haile Drive AI
+he-1918,/teacher/attendance,src/routes/teacher.attendance.tsx:22,string,no,נוכח
+he-1919,/teacher/attendance,src/routes/teacher.attendance.tsx:23,string,no,איחור
+he-1920,/teacher/attendance,src/routes/teacher.attendance.tsx:24,string,no,חסר
+he-1921,/teacher/attendance,src/routes/teacher.attendance.tsx:25,string,no,השלמה
+he-1922,/teacher/attendance,src/routes/teacher.attendance.tsx:82,string,no,הנוכחות נשמרה
+he-1923,/teacher/attendance,src/routes/teacher.attendance.tsx:86,string,no,שמירה נכשלה
+he-1924,/teacher/attendance,src/routes/teacher.attendance.tsx:94,string,no,סימון נוכחות
+he-1925,/teacher/attendance,src/routes/teacher.attendance.tsx:104,jsx_text,no,אין כיתות משובצות
+he-1926,/teacher/attendance,src/routes/teacher.attendance.tsx:117,jsx_text,no,תלמידים
+he-1927,/teacher/attendance,src/routes/teacher.attendance.tsx:128,jsx_text,no,אין תלמידים משובצים לכיתה זו.
+he-1928,/teacher/attendance,src/routes/teacher.attendance.tsx:128,jsx_text,no,שייך תלמידים
+he-1929,/teacher/attendance,src/routes/teacher.attendance.tsx:171,string,no,שומר…
+he-1930,/teacher/attendance,src/routes/teacher.attendance.tsx:171,string,no,שמור נוכחות
+he-1931,/teacher,src/routes/teacher.tsx:9,string,no,מסך מרצה — Haile Drive AI
+he-1932,/teacher,src/routes/teacher.tsx:14,string,no,ליד חדש
+he-1933,/teacher,src/routes/teacher.tsx:14,string,no,נוצר קשר
+he-1934,/teacher,src/routes/teacher.tsx:14,string,no,חסרים מסמכים
+he-1935,/teacher,src/routes/teacher.tsx:15,string,no,ממתין
+he-1936,/teacher,src/routes/teacher.tsx:15,string,no,שובץ
+he-1937,/teacher,src/routes/teacher.tsx:15,string,no,פעיל
+he-1938,/teacher,src/routes/teacher.tsx:16,string,no,סיים
+he-1939,/teacher,src/routes/teacher.tsx:16,string,no,לא פעיל
+he-1940,/teacher,src/routes/teacher.tsx:16,string,no,נכשל
+he-1941,/teacher,src/routes/teacher.tsx:32,template,no,"שלום ${profile?.full_name ?? """"}"
+he-1942,/teacher,src/routes/teacher.tsx:34,string,no,הכיתות שלי
+he-1943,/teacher,src/routes/teacher.tsx:35,string,no,התלמידים שלי
+he-1944,/teacher,src/routes/teacher.tsx:36,string,no,פעילים
+he-1945,/teacher,src/routes/teacher.tsx:40,jsx_text,no,הכיתות שלי
+he-1946,/teacher,src/routes/teacher.tsx:41,jsx_text,no,לא שובצת לכיתות עדיין.
+he-1947,/teacher,src/routes/teacher.tsx:53,jsx_text,no,התלמידים שלי
+he-1948,/teacher,src/routes/teacher.tsx:54,jsx_text,no,טוען…
+he-1949,/teacher,src/routes/teacher.tsx:55,jsx_text,no,לא שויכו תלמידים.
+he-1950,/teacher,src/routes/teacher.tsx:59,jsx_text,no,שם
+he-1951,/teacher,src/routes/teacher.tsx:59,jsx_text,no,טלפון
+he-1952,/teacher,src/routes/teacher.tsx:59,jsx_text,no,סטטוס
