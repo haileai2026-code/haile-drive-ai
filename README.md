@@ -4,7 +4,7 @@
 כדי לשנות ספק TTS — שנה את `TTS_PROVIDER` ב-`src/lib/diagnostics/config.ts`:
 
 - `'browser'`    → חינמי, איכות נמוכה (Web Speech API)
-- `'elevenlabs'` → דורש `ELEVENLABS_API_KEY` ב-Lovable Secrets (משתמש ב-server function)
+- `'elevenlabs'` → דורש `ELEVENLABS_API_KEY` ב-server/runtime secrets (משתמש ב-server function)
 - `'azure'`      → דורש `VITE_AZURE_TTS_KEY` + `VITE_AZURE_TTS_REGION`
 - `'google'`     → דורש `VITE_GOOGLE_TTS_KEY`
 
