@@ -4,17 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { phoneToEmail, normalizePhone } from "./sms/config";
 import { sendViaTwilio, normalizePhone as toE164 } from "./notifications.functions";
-
-function generateOtp(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
-
-async function hashOtp(otp: string): Promise<string> {
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(otp));
-  return Array.from(new Uint8Array(buf))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
+import { generateOtp, hashOtp, otpOutcomeMessage } from "./otp";
 
 function generateTempPassword(): string {
   // 16 url-safe chars; user never sees this, used internally for signInWithPassword
@@ -43,14 +33,21 @@ export const requestPhoneOtp = createServerFn({ method: "POST" })
     const phone = normalizePhone(data.phone);
     if (phone.length < 6) throw new Error("מספר טלפון לא תקין");
 
-    const otp = generateOtp();
+    // Per-phone throttle + lockout (SQL, service role only).
+    const { data: allowed, error: throttleErr } = await supabaseAdmin.rpc(
+      "phone_otp_request_allowed",
+      { p_phone: phone },
+    );
+    if (throttleErr) throw new Error("שגיאה, נסה שוב מאוחר יותר");
+    if (allowed !== true) throw new Error("יותר מדי ניסיונות. נסה שוב בעוד 15 דקות");
+
+    const otp = generateOtp(); // CSPRNG, uniform 6 digits
 
     const { data: inserted, error } = await supabaseAdmin
       .from("phone_login_requests")
       .insert({
         phone,
-        otp_hash: await hashOtp(otp),
-        otp_plain: otp,
+        otp_hash: await hashOtp(otp), // hash only; plaintext is never stored
         status: "pending",
       })
       .select("id")
@@ -60,7 +57,7 @@ export const requestPhoneOtp = createServerFn({ method: "POST" })
     const request_id = inserted.id;
 
     // Twilio path: send the OTP via SMS. The SMS itself is the verification,
-    // so on success the request is auto-approved and the plain code wiped.
+    // so on success the request is auto-approved.
     const provider = (process.env.SMS_PROVIDER ?? "manual") as "manual" | "twilio";
     if (
       provider === "twilio" &&
@@ -75,7 +72,7 @@ export const requestPhoneOtp = createServerFn({ method: "POST" })
       if (r.ok) {
         await supabaseAdmin
           .from("phone_login_requests")
-          .update({ status: "approved", otp_plain: null })
+          .update({ status: "approved" })
           .eq("id", request_id);
         return { ok: true, request_id, delivery: "sms" as const };
       }
@@ -84,7 +81,8 @@ export const requestPhoneOtp = createServerFn({ method: "POST" })
       return { ok: true, request_id, delivery: "manual" as const, warning: r.error };
     }
 
-    // Manual mode: the raw code is visible only to owner/staff in the admin screen.
+    // Manual mode: nobody knows this code. When staff approves the request a
+    // fresh code is generated and shown to staff once (approvePhoneRequest).
     return { ok: true, request_id, delivery: "manual" as const };
   });
 
@@ -99,23 +97,18 @@ export const verifyPhoneOtp = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const phone = normalizePhone(data.phone);
 
-    const { data: req, error } = await supabaseAdmin
-      .from("phone_login_requests")
-      .select("id, status, otp_hash, expires_at")
-      .eq("phone", phone)
-      .eq("otp_hash", await hashOtp(data.otp))
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if (error) throw new Error(error.message);
-    if (!req) throw new Error("קוד שגוי");
-    if (new Date(req.expires_at).getTime() < Date.now()) {
-      throw new Error("הקוד פג תוקף");
-    }
-    if (req.status === "rejected") throw new Error("הבקשה נדחתה");
-    if (req.status === "pending") throw new Error("ממתין לאישור מנהל");
-    if (req.status === "used") throw new Error("הקוד כבר נוצל");
-    if (req.status !== "approved") throw new Error("בקשה לא תקינה");
+    // Atomic in SQL: per-phone lockout, 10-min TTL, 5 attempts per code
+    // (5th wrong guess invalidates the code), and single use (a correct,
+    // approved code is marked 'used' inside phone_otp_verify).
+    const { data: rows, error } = await supabaseAdmin.rpc("phone_otp_verify", {
+      p_phone: phone,
+      p_otp_hash: await hashOtp(data.otp),
+    });
+    if (error) throw new Error("שגיאה, נסה שוב מאוחר יותר");
+    const result = rows?.[0];
+    const msg = otpOutcomeMessage(result?.outcome ?? "invalid");
+    if (msg || !result?.request_id) throw new Error(msg ?? "קוד שגוי");
+    const req = { id: result.request_id };
 
     // Provision auth user if missing, then set a known temp password so the
     // client can complete sign-in with signInWithPassword.
@@ -158,25 +151,33 @@ export const verifyPhoneOtp = createServerFn({ method: "POST" })
 
     await supabaseAdmin
       .from("phone_login_requests")
-      .update({ status: "used", user_id: userId })
+      .update({ user_id: userId }) // status already 'used' (set by phone_otp_verify)
       .eq("id", req.id);
 
     return { ok: true, email, password: tempPassword };
   });
 
-// Owner approves a pending phone login request.
+// Owner/staff approves a pending phone login request. A fresh code is issued
+// here (the DB resets its 10-min TTL and attempt counter) and returned to the
+// approving staff member ONCE so they can relay it; only its hash is stored.
 export const approvePhoneRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     await assertOwnerOrStaff(context.supabase, context.userId);
-    const { error } = await supabaseAdmin
+    const otp = generateOtp();
+    const { data: updated, error } = await supabaseAdmin
       .from("phone_login_requests")
-      .update({ status: "approved" })
+      .update({ status: "approved", otp_hash: await hashOtp(otp) })
       .eq("id", data.id)
-      .eq("status", "pending");
+      .eq("status", "pending")
+      .gt("expires_at", new Date().toISOString())
+      .select("id, expires_at");
     if (error) throw new Error(error.message);
-    return { ok: true };
+    if (!updated || updated.length === 0) {
+      throw new Error("הבקשה פגה או כבר טופלה — הסטודנט צריך לבקש קוד חדש");
+    }
+    return { ok: true, otp, expires_at: updated[0].expires_at as string };
   });
 
 export const rejectPhoneRequest = createServerFn({ method: "POST" })
@@ -198,7 +199,7 @@ export const listPhoneRequests = createServerFn({ method: "POST" })
     await assertOwnerOrStaff(context.supabase, context.userId);
     const { data, error } = await supabaseAdmin
       .from("phone_login_requests")
-      .select("id, phone, status, created_at, expires_at, otp_plain")
+      .select("id, phone, status, created_at, expires_at, attempts")
       .order("created_at", { ascending: false })
       .limit(100);
     if (error) throw new Error(error.message);
