@@ -7,6 +7,7 @@ import { LangSwitcher } from "@/components/LangSwitcher";
 import { getPrimaryRole, useAuth, roleHomePath } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { requestPhoneOtp, verifyPhoneOtp } from "@/lib/phone-login.functions";
+import { BETA_FEATURES } from "@/lib/beta-flags";
 import type { Role } from "@/lib/ops-data";
 
 type PortalRole = Extract<Role, "owner" | "teacher" | "student">;
@@ -222,8 +223,8 @@ function LoginPage() {
             {portalCfg.labelHe} · {portalCfg.label}
           </div>
 
-          {/* Auth method tabs: email vs phone (phone hidden for owner portal) */}
-          {!isOwnerPortal && (
+          {/* Auth method tabs: email vs phone (phone hidden for owner portal and in the closed beta) */}
+          {!isOwnerPortal && BETA_FEATURES.phoneOtpLogin && (
             <div className="mb-3 flex gap-2 rounded-xl bg-background/50 p-1">
               <button
                 type="button"

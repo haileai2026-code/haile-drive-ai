@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
+import { BETA_FEATURES } from "@/lib/beta-flags";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -50,7 +51,8 @@ function ProfilePage() {
   const items: { icon: typeof BarChart3; label: string; to?: string }[] = [
     { icon: BarChart3, label: "Analytics" },
     { icon: Award, label: "Certificates" },
-    { icon: FileImage, label: "Document helper" },
+    // ID / document helper: hidden in the closed beta
+    ...(BETA_FEATURES.idMedicalDocuments ? [{ icon: FileImage, label: "Document helper" }] : []),
     { icon: Bell, label: "Notifications" },
     { icon: Settings, label: "Translations (Admin)", to: "/admin/translations" },
   ];

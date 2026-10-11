@@ -7,6 +7,7 @@ import { LeadLockScreen } from "./LeadLockScreen";
 import { useAuth, roleHomePath } from "@/lib/auth";
 import type { ReactNode } from "react";
 import type { Role } from "@/lib/ops-data";
+import { BETA_FEATURES } from "@/lib/beta-flags";
 
 type NavItem = { to: string; icon: LucideIcon; key?: "dashboard" | "lessons" | "aiTeacher" | "quiz" | "community"; label?: string };
 
@@ -16,7 +17,8 @@ const items: NavItem[] = [
   { to: "/courses", icon: GraduationCap, label: "קורסים" },
   { to: "/ai", icon: Bot, key: "aiTeacher" },
   { to: "/quiz", icon: Trophy, key: "quiz" },
-  { to: "/diagnostics", icon: Activity, label: "BEQA" },
+  // heart-rate camera diagnostic: hidden in the closed beta
+  ...(BETA_FEATURES.heartRateCamera ? [{ to: "/diagnostics", icon: Activity, label: "BEQA" }] : []),
   { to: "/community", icon: Users, key: "community" },
 ];
 
