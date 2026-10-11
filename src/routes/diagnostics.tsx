@@ -94,12 +94,10 @@ function DiagnosticsPage() {
   useEffect(() => {
     if (!user) { setBeqaAccess(null); return; }
     (async () => {
-      const { data } = await supabase
-        .from("candidates")
-        .select("beqa_access")
-        .or(`id.eq.${user.id},email.eq.${user.email ?? ""}`)
-        .maybeSingle();
-      setBeqaAccess(!!data?.beqa_access);
+      // SECURITY DEFINER helper keyed on candidates.user_id (students have no
+      // table access to public.candidates; never match on email).
+      const { data } = await supabase.rpc("current_user_has_beqa_access");
+      setBeqaAccess(data === true);
     })();
   }, [user]);
 

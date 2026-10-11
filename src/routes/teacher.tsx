@@ -56,13 +56,12 @@ function TeacherDashboard() {
         <div className="overflow-hidden rounded-2xl border border-border/60 bg-card/40">
           <table className="w-full text-sm">
             <thead className="bg-background/40 text-right text-[11px] uppercase tracking-wider text-muted-foreground">
-              <tr><th className="px-3 py-2">שם</th><th className="px-3 py-2">טלפון</th><th className="px-3 py-2">סטטוס</th></tr>
+              <tr><th className="px-3 py-2">שם</th><th className="px-3 py-2">סטטוס</th></tr>
             </thead>
             <tbody className="divide-y divide-border/40">
               {candidates.map((c) => (
                 <tr key={c.id}>
                   <td className="px-3 py-3 font-semibold">{c.full_name}</td>
-                  <td className="px-3 py-3 text-muted-foreground">{c.phone}</td>
                   <td className="px-3 py-3"><span className="rounded-full border border-gold/30 bg-gold/10 px-2 py-0.5 text-[10px] text-gold">{STATUS_LABELS[c.status] ?? c.status}</span></td>
                 </tr>
               ))}
