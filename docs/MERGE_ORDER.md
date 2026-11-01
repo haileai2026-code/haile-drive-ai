@@ -1,6 +1,6 @@
 # Merge order — haile-drive-ai open PRs (2026-11-01, security round 5)
 
-Verified (2026-11-01, after security round 5; heads #6 `98bab69`, #11 `1b80e7e`,
+Verified (2026-11-01, after security round 5; heads #4 `7fa356d`, #6 `98bab69`, #11 `1b80e7e`,
 #15 `87c29f4`, #10 `0316183`, #14 this PR, #16 `3e549d6`): a combined merge of the first 13 branches
 (#3 … #14) **in exactly this order** on top of `origin/main` (temp worktree,
 deleted afterwards) replays all migrations and re-runs this round's
@@ -93,7 +93,7 @@ Notes
   `"Teachers view their students bio log"` and #4's `raw_bio_teacher_select`
   are dropped. #4's `sec_candidates_rls.test.sql` I5b must then expect no
   teacher policy on `raw_biometric_log` (adjustment in
-  `sec_candidates_rls.test.combined.patch`); with it the combined merge passes
+  #4 at `7fa356d`, check I5c); with it the combined merge passes
   all SQL tests in both grant modes.
 
 ## 2. Known conflicts and exact resolutions
