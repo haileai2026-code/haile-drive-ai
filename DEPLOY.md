@@ -40,6 +40,15 @@ npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
 npx wrangler secret put DAILY_API_KEY
 ```
 
+**Phone OTP (server only, required before phone login is enabled):**
+- `OTP_PEPPER` — at least 32 random characters (`openssl rand -hex 32`); no value in the repo. Without it OTP requests fail closed. The IP-hash key is derived from it (HKDF), so no separate env var is needed.
+- CAPTCHA must be in place before phone login / Twilio is turned on.
+- Phone login is **hard-disabled in code** (R5-1): `phoneLoginEnabled()` always returns false, so phone OTP request/verify always return 403. `PHONE_LOGIN_ENABLED` and `TURNSTILE_SECRET_KEY` have **no effect** until server-side Turnstile siteverify (token + `remoteip`, hostname/action checks, fail closed) and the client widget land in a separate PR. No client CAPTCHA token is read today.
+- In production (`VERCEL=1` or `NODE_ENV=production`) an SMS request without a resolvable client IP is refused with 400; outside production IP-less requests share one strict per-IP bucket, so the per-IP limit is never disabled.
+- Deploy order: PR #10 (beta flag guard) must be merged before #6 is deployed.
+- Caps-hit alerting (R4-4) is a follow-up; acceptable once Turnstile is in place.
+- Client IP is read from ONE header chosen by platform (`src/lib/client-ip.ts`): on Vercel (`VERCEL=1`, set by the platform) only `x-vercel-forwarded-for`; on Cloudflare (`EDGE_PLATFORM=cloudflare`, set by ops only if the origin accepts Cloudflare traffic exclusively) only `cf-connecting-ip`; behind another proxy (`TRUSTED_PROXY=on`) `x-real-ip`, else the rightmost `X-Forwarded-For`; otherwise no IP (production: request refused with 400; dev: shared bucket).
+
 ה-workflow מעביר גם env בזמן deploy; ה-secrets של wrangler נשארים ב-Worker.
 
 ## 4. ריצה מקומית (בלי Lovable)
