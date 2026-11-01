@@ -23,6 +23,13 @@ export const OTP_TTL_MINUTES = 10; // code lifetime from issue
 export const OTP_MAX_ATTEMPTS_PER_CODE = 5; // 5th wrong guess invalidates the code
 export const OTP_MAX_FAILED_ATTEMPTS = 5; // per phone per 15 min (lockout)
 export const OTP_MAX_REQUESTS_PER_WINDOW = 3; // per phone per 15 min
+// Request limits enforced in public.phone_otp_request (same constants there).
+export const OTP_LIMITS = {
+  perPhonePer15Min: OTP_MAX_REQUESTS_PER_WINDOW,
+  failedPerPhonePer15Min: OTP_MAX_FAILED_ATTEMPTS,
+  perIpPerHour: 10,
+  globalSmsPerHour: 200,
+} as const;
 
 // OTP codes are stored as HMAC-SHA256(OTP_PEPPER, code), hex. OTP_PEPPER is a
 // SERVER-ONLY secret (never VITE_-prefixed; generate with `openssl rand -hex 32`).
@@ -62,22 +69,20 @@ export type OtpVerifyOutcome =
   | "rejected"
   | "ok";
 
-// Hebrew user-facing message for each non-ok verify outcome.
+// User-facing messages. Deliberately ONE generic message for every outcome
+// except ok / locked, so responses do not reveal whether a phone exists, a
+// request is pending, a code expired, etc.
+export const OTP_GENERIC_MESSAGE = "הקוד שגוי או שאינו בתוקף. נסו שוב או בקשו קוד חדש";
+export const OTP_LOCKED_MESSAGE = "יותר מדי ניסיונות שגויים. נסו שוב בעוד 15 דקות";
+export const OTP_REQUEST_GENERIC_MESSAGE = "לא ניתן לשלוח קוד כרגע. נסו שוב מאוחר יותר";
+
 export function otpOutcomeMessage(outcome: string | null | undefined): string | null {
-  switch (outcome) {
-    case "ok":
-      return null;
-    case "locked":
-      return "יותר מדי ניסיונות שגויים. נסה שוב בעוד 15 דקות";
-    case "failed":
-      return "הקוד נחסם אחרי 5 ניסיונות שגויים. יש לבקש קוד חדש";
-    case "expired":
-      return "הקוד פג תוקף. יש לבקש קוד חדש";
-    case "pending":
-      return "ממתין לאישור מנהל";
-    case "rejected":
-      return "הבקשה נדחתה";
-    default:
-      return "קוד שגוי";
-  }
+  if (outcome === "ok") return null;
+  if (outcome === "locked") return OTP_LOCKED_MESSAGE;
+  return OTP_GENERIC_MESSAGE;
+}
+
+/** HMAC of the client IP for the per-IP limit (never stored in clear). */
+export async function hashIp(ip: string, pepper: string = getOtpPepper()): Promise<string> {
+  return hashOtp(`ip:${ip}`, pepper);
 }

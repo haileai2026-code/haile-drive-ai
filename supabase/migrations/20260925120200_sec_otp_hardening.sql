@@ -17,6 +17,10 @@
 --  * purge_phone_otps(): expires stale codes, deletes rows expired > 1 day
 --    (pg_cron every 5 min).
 --
+--  * Review fixes (section 8): no client/staff table access, approved_by
+--    audit, race-free phone_otp_request (advisory lock, per-IP + global
+--    hourly caps), claim/consume so a code is used only after account setup.
+--
 -- DRAFT: NOT applied to any database. Applying to cmvv = gate G2 (Sol).
 -- Only ephemeral login-code rows are affected.
 -- =====================================================================
@@ -32,7 +36,7 @@ alter table public.phone_login_requests
   drop constraint if exists phone_login_requests_status_check;
 alter table public.phone_login_requests
   add constraint phone_login_requests_status_check
-  check (status in ('pending','approved','rejected','used','expired','failed'));
+  check (status in ('pending','approved','verified','rejected','used','expired','failed'));
 
 -- 1. Hash only + TTL guard.
 --    The otp_plain column is kept (NULL-only) so an older app build that still
@@ -85,7 +89,7 @@ begin
      set status = 'expired'
    where phone = new.phone
      and id <> new.id
-     and status in ('pending','approved');
+     and status in ('pending','approved','verified');
   return null;
 end;
 $$;
@@ -120,7 +124,8 @@ grant execute on function public.phone_otp_request_allowed(text) to service_role
 --             'expired' - code older than its 10-min TTL: code invalidated
 --             'pending' - correct code but staff has not approved yet
 --             'rejected'- request was rejected by staff
---             'ok'      - correct, approved, unexpired: consumed ('used')
+--             'ok'      - correct, approved, unexpired: claimed ('verified');
+--                         phone_otp_consume() marks it 'used' after setup
 create or replace function public.phone_otp_verify(p_phone text, p_otp_hash text)
 returns table (outcome text, request_id uuid, status text, expires_at timestamptz)
 language plpgsql
@@ -160,8 +165,9 @@ begin
   end if;
 
   if v_req.status not in ('pending','approved') then
-    -- newest request is already terminal: no active code; count the guess
-    update public.phone_login_requests set attempts = attempts + 1 where id = v_req.id;
+    -- newest request is already terminal (used/expired/failed/rejected) or
+    -- claimed ('verified'): no active code. Guesses are NOT counted against
+    -- dead rows (review fix), so they cannot lock out a fresh request.
     if v_req.status = 'rejected' and v_req.otp_hash = p_otp_hash then
       return query select 'rejected'::text, v_req.id, v_req.status, v_req.expires_at;
     else
@@ -195,9 +201,12 @@ begin
     return;
   end if;
 
-  -- approved + correct + unexpired: consume now (single use)
-  update public.phone_login_requests set status = 'used' where id = v_req.id;
-  return query select 'ok'::text, v_req.id, 'used'::text, v_req.expires_at;
+  -- approved + correct + unexpired: CLAIM it ('verified'). It is consumed
+  -- ('used') by phone_otp_consume() only after account setup succeeded, or
+  -- released back to 'approved' by phone_otp_release() if setup failed. A
+  -- claimed code cannot be verified a second time (single use).
+  update public.phone_login_requests set status = 'verified' where id = v_req.id;
+  return query select 'ok'::text, v_req.id, 'verified'::text, v_req.expires_at;
 end;
 $$;
 revoke all on function public.phone_otp_verify(text, text) from public, anon, authenticated;
@@ -213,7 +222,7 @@ set search_path = ''
 as $$
   update public.phone_login_requests
      set status = 'expired'
-   where status in ('pending','approved')
+   where status in ('pending','approved','verified')
      and expires_at <= now();
   delete from public.phone_login_requests
    where expires_at < now() - interval '1 day';
@@ -237,12 +246,11 @@ update public.phone_login_requests set status = 'expired' where status in ('pend
 -- 7. Explicit grants (Supabase breaking change 2026-10-30). Minimum,
 --    re-runnable. Rollback (grants only):
 --    supabase/rollback/20260925120200_sec_otp_hardening.down.sql
---    Table: anon nothing; authenticated SELECT only (existing owner/staff read
---    policy; the app reads through service-role server functions);
+--    Table: anon and authenticated nothing (section 8a drops the staff
+--    policies; the app reads through service-role server functions only);
 --    service_role DML used by phone-login.functions.ts.
 --    No sequences (uuid key).
 revoke all on public.phone_login_requests from anon, authenticated, service_role;
-grant select on public.phone_login_requests to authenticated;
 grant select, insert, update, delete on public.phone_login_requests to service_role;
 --    RPCs: service_role only (server functions). Trigger functions: nobody
 --    (triggers do not check EXECUTE).
@@ -254,3 +262,128 @@ grant execute on function public.phone_otp_verify(text, text)     to service_rol
 grant execute on function public.purge_phone_otps()               to service_role;
 revoke all on function public.phone_login_requests_guard()     from public, anon, authenticated, service_role;
 revoke all on function public.phone_login_requests_supersede() from public, anon, authenticated, service_role;
+
+-- =====================================================================
+-- 8. Security review fixes (2026-11-01). Re-runnable.
+--    (CAPTCHA on the request step is a noted follow-up, not part of this PR.)
+-- =====================================================================
+-- 8a. Staff never read phone_login_requests (incl. otp_hash) directly: the
+--     admin screen goes through service-role server functions only.
+drop policy if exists "owner staff manage phone requests" on public.phone_login_requests;
+drop policy if exists "owner staff read phone requests"   on public.phone_login_requests;
+revoke all on public.phone_login_requests from anon, authenticated;
+
+-- 8b. Audit + per-IP limit columns.
+alter table public.phone_login_requests
+  add column if not exists approved_by uuid references auth.users (id) on delete set null,
+  add column if not exists approved_at timestamptz,
+  add column if not exists request_ip_hash text;
+alter table public.phone_login_requests drop constraint if exists phone_login_requests_ip_hash_check;
+alter table public.phone_login_requests add constraint phone_login_requests_ip_hash_check
+  check (request_ip_hash is null or request_ip_hash ~ '^[0-9a-f]{64}$');
+create index if not exists phone_login_requests_ip_created_idx
+  on public.phone_login_requests (request_ip_hash, created_at desc) where request_ip_hash is not null;
+create index if not exists phone_login_requests_created_idx
+  on public.phone_login_requests (created_at desc);
+
+-- 8c. Race-free request: serialised per phone (advisory xact lock), then
+--     lockout, per-phone throttle, per-IP limit, global hourly cap, insert.
+--     outcome: 'ok' | 'locked' | 'limited' (any throttle/cap; the app shows
+--     one generic message for everything except ok / locked).
+create or replace function public.phone_otp_request(p_phone text, p_otp_hash text, p_ip_hash text)
+returns table (outcome text, request_id uuid)
+language plpgsql
+volatile
+security definer
+set search_path = ''
+as $$
+declare
+  -- Limits (constants; mirrored in OTP_LIMITS in src/lib/otp.ts)
+  c_phone_per_15min constant integer := 3;
+  c_fail_per_15min  constant integer := 5;
+  c_ip_per_hour     constant integer := 10;
+  c_global_per_hour constant integer := 200;
+  v_id uuid;
+begin
+  if p_phone !~ '^[+][1-9][0-9]{6,14}$' or p_otp_hash !~ '^[0-9a-f]{64}$' then
+    raise exception 'invalid input' using errcode = '22023';
+  end if;
+  perform pg_advisory_xact_lock(hashtext(p_phone));
+
+  if (select coalesce(sum(r.attempts), 0) from public.phone_login_requests r
+       where r.phone = p_phone and r.created_at > now() - interval '15 minutes') >= c_fail_per_15min then
+    return query select 'locked'::text, null::uuid; return;
+  end if;
+  if (select count(*) from public.phone_login_requests r
+       where r.phone = p_phone and r.created_at > now() - interval '15 minutes') >= c_phone_per_15min
+     or (p_ip_hash is not null and
+         (select count(*) from public.phone_login_requests r
+           where r.request_ip_hash = p_ip_hash and r.created_at > now() - interval '1 hour') >= c_ip_per_hour)
+     or (select count(*) from public.phone_login_requests r
+          where r.created_at > now() - interval '1 hour') >= c_global_per_hour then
+    return query select 'limited'::text, null::uuid; return;
+  end if;
+
+  insert into public.phone_login_requests (phone, otp_hash, status, request_ip_hash)
+  values (p_phone, p_otp_hash, 'pending', p_ip_hash)
+  returning id into v_id;
+  return query select 'ok'::text, v_id;
+end;
+$$;
+
+-- 8d. Consume only after account setup succeeded; release on failure.
+create or replace function public.phone_otp_consume(p_request_id uuid, p_user_id uuid)
+returns boolean
+language sql
+volatile
+security definer
+set search_path = ''
+as $$
+  with u as (
+    update public.phone_login_requests
+       set status = 'used', user_id = p_user_id
+     where id = p_request_id and status = 'verified'
+    returning 1)
+  select exists (select 1 from u);
+$$;
+create or replace function public.phone_otp_release(p_request_id uuid)
+returns boolean
+language sql
+volatile
+security definer
+set search_path = ''
+as $$
+  with u as (
+    update public.phone_login_requests
+       set status = 'approved'
+     where id = p_request_id and status = 'verified' and expires_at > now()
+    returning 1)
+  select exists (select 1 from u);
+$$;
+
+-- 8e. Exact auth-user lookup for the synthetic phone e-mail (replaces
+--     listUsers({perPage:200})). First match in the given preference order
+--     (E.164 form first, then legacy formats).
+create or replace function public.phone_auth_user_lookup(p_emails text[])
+returns uuid
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select u.id
+    from unnest(p_emails) with ordinality e(email, ord)
+    join auth.users u on lower(u.email) = lower(e.email)
+   order by e.ord
+   limit 1;
+$$;
+
+-- 8f. Explicit grants (minimum): service_role only.
+revoke all on function public.phone_otp_request(text, text, text) from public, anon, authenticated;
+revoke all on function public.phone_otp_consume(uuid, uuid)       from public, anon, authenticated;
+revoke all on function public.phone_otp_release(uuid)             from public, anon, authenticated;
+revoke all on function public.phone_auth_user_lookup(text[])      from public, anon, authenticated;
+grant execute on function public.phone_otp_request(text, text, text) to service_role;
+grant execute on function public.phone_otp_consume(uuid, uuid)       to service_role;
+grant execute on function public.phone_otp_release(uuid)             to service_role;
+grant execute on function public.phone_auth_user_lookup(text[])      to service_role;

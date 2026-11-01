@@ -49,9 +49,18 @@ begin
   if r.outcome <> 'invalid' then raise exception 'FAIL A2: old code accepted: %', r.outcome; end if;
   -- correct code works once and is consumed
   select * into r from public.phone_otp_verify('9720000000001', new_code);
-  if r.outcome <> 'ok' or r.status <> 'used' then raise exception 'FAIL V1: %', r.outcome; end if;
+  if r.outcome <> 'ok' or r.status <> 'verified' then raise exception 'FAIL V1: % %', r.outcome, r.status; end if;
   select * into r from public.phone_otp_verify('9720000000001', new_code);
-  if r.outcome = 'ok' then raise exception 'FAIL V1b: code reusable'; end if;
+  if r.outcome = 'ok' then raise exception 'FAIL V1b: claimed code reusable'; end if;
+  -- setup failed -> release -> works again; then consume after setup succeeded
+  if not public.phone_otp_release(rid) then raise exception 'FAIL V1c release'; end if;
+  select * into r from public.phone_otp_verify('9720000000001', new_code);
+  if r.outcome <> 'ok' then raise exception 'FAIL V1d after release: %', r.outcome; end if;
+  if not public.phone_otp_consume(rid, null) then raise exception 'FAIL V1e consume'; end if;
+  if (select status from public.phone_login_requests where id = rid) <> 'used' then raise exception 'FAIL V1f not used'; end if;
+  if public.phone_otp_release(rid) then raise exception 'FAIL V1g used code released'; end if;
+  select * into r from public.phone_otp_verify('9720000000001', new_code);
+  if r.outcome = 'ok' then raise exception 'FAIL V1h: code reusable'; end if;
 
   -- 5 attempts per code: 4x invalid, 5th => failed + code invalidated
   insert into public.phone_login_requests(phone, otp_hash, status)
@@ -135,6 +144,87 @@ begin
           and has_table_privilege('service_role','public.phone_login_requests','SELECT')) then raise exception 'FAIL G2d service_role table'; end if;
   if has_table_privilege('anon','public.phone_login_requests','SELECT') then raise exception 'FAIL G2e anon table'; end if;
   raise notice 'PASS G2 explicit grants';
+end $$;
+
+
+-- R: security review fixes (2026-11-01)
+do $$
+declare
+  pep  text := 'test-pepper-0123456789abcdef0123456789abcdef';
+  h1 text := encode(extensions.hmac('111111', pep, 'sha256'), 'hex');
+  bad text := encode(extensions.hmac('000000', pep, 'sha256'), 'hex');
+  ip text := encode(extensions.digest('ip-test', 'sha256'), 'hex');
+  ip2 text := encode(extensions.digest('ip-test-2', 'sha256'), 'hex');
+  r record; i int; n int; rid uuid; owner uuid := '00000000-0000-0000-0000-0000000b0601';
+begin
+  -- R1: no client access, no staff policies
+  if has_table_privilege('authenticated','public.phone_login_requests','SELECT')
+     or has_table_privilege('anon','public.phone_login_requests','SELECT') then raise exception 'FAIL R1 client select'; end if;
+  if exists (select 1 from pg_policy where polrelid = 'public.phone_login_requests'::regclass) then
+    raise exception 'FAIL R1b policies remain'; end if;
+
+  -- R2: request RPC: E.164 only, throttle per phone, then 'limited'
+  begin perform public.phone_otp_request('0501234567', h1, ip); raise exception 'FAIL R2a non-E164 accepted';
+  exception when invalid_parameter_value then null; end;
+  for i in 1..3 loop
+    select * into r from public.phone_otp_request('+972500000101', h1, ip);
+    if r.outcome <> 'ok' then raise exception 'FAIL R2b request %: %', i, r.outcome; end if;
+  end loop;
+  select * into r from public.phone_otp_request('+972500000101', h1, ip);
+  if r.outcome <> 'limited' then raise exception 'FAIL R2c 4th: %', r.outcome; end if;
+  select count(*) into n from public.phone_login_requests where phone = '+972500000101' and status = 'pending';
+  if n <> 1 then raise exception 'FAIL R2d supersede: % active', n; end if;
+
+  -- R3: per-IP limit (10/hour across phones)
+  for i in 1..7 loop
+    select * into r from public.phone_otp_request('+97250000020' || i, h1, ip);
+    if r.outcome <> 'ok' then raise exception 'FAIL R3a %: %', i, r.outcome; end if;
+  end loop;
+  select * into r from public.phone_otp_request('+972500000299', h1, ip);
+  if r.outcome <> 'limited' then raise exception 'FAIL R3b ip limit: %', r.outcome; end if;
+  select * into r from public.phone_otp_request('+972500000299', h1, ip2);
+  if r.outcome <> 'ok' then raise exception 'FAIL R3c other ip: %', r.outcome; end if;
+
+  -- R4: global hourly cap (200)
+  insert into public.phone_login_requests(phone, otp_hash, status)
+    select '+97250001' || lpad(g::text, 4, '0'), h1, 'expired' from generate_series(1, 200) g;
+  select * into r from public.phone_otp_request('+972500000301', h1, null);
+  if r.outcome <> 'limited' then raise exception 'FAIL R4 global cap: %', r.outcome; end if;
+  delete from public.phone_login_requests where phone like '+97250001%';
+
+  -- R5: guesses against dead rows are not counted (no lockout from them)
+  insert into public.phone_login_requests(phone, otp_hash, status) values ('+972500000401', h1, 'approved') returning id into rid;
+  update public.phone_login_requests set status = 'used' where id = rid;
+  for i in 1..6 loop perform public.phone_otp_verify('+972500000401', bad); end loop;
+  select attempts into n from public.phone_login_requests where id = rid;
+  if n <> 0 then raise exception 'FAIL R5a attempts counted on used row: %', n; end if;
+  select * into r from public.phone_otp_request('+972500000401', h1, null);
+  if r.outcome <> 'ok' then raise exception 'FAIL R5b locked by dead-row guesses: %', r.outcome; end if;
+
+  -- R6: lockout -> 'locked' on request
+  insert into public.phone_login_requests(phone, otp_hash, status) values ('+972500000501', h1, 'approved');
+  for i in 1..5 loop perform public.phone_otp_verify('+972500000501', bad); end loop;
+  select * into r from public.phone_otp_request('+972500000501', h1, null);
+  if r.outcome <> 'locked' then raise exception 'FAIL R6 expected locked: %', r.outcome; end if;
+
+  -- R7: audit column + exact user lookup in preference order
+  insert into auth.users(id, email) values (owner, 'otp-owner@test.invalid'),
+    ('00000000-0000-0000-0000-0000000b0602', '0500000602@haileai.app');
+  update public.phone_login_requests set approved_by = owner, approved_at = now() where id = rid;
+  if (select approved_by from public.phone_login_requests where id = rid) <> owner then raise exception 'FAIL R7a approved_by'; end if;
+  if public.phone_auth_user_lookup(array['972500000602@haileai.app','0500000602@haileai.app'])
+       <> '00000000-0000-0000-0000-0000000b0602' then raise exception 'FAIL R7b legacy lookup'; end if;
+  if public.phone_auth_user_lookup(array['nobody@haileai.app']) is not null then raise exception 'FAIL R7c'; end if;
+
+  -- R8: grants: new functions service_role only
+  if has_function_privilege('authenticated','public.phone_otp_request(text,text,text)','EXECUTE')
+     or has_function_privilege('anon','public.phone_otp_consume(uuid,uuid)','EXECUTE')
+     or has_function_privilege('authenticated','public.phone_otp_release(uuid)','EXECUTE')
+     or has_function_privilege('authenticated','public.phone_auth_user_lookup(text[])','EXECUTE')
+     or not has_function_privilege('service_role','public.phone_otp_request(text,text,text)','EXECUTE')
+     or not has_function_privilege('service_role','public.phone_auth_user_lookup(text[])','EXECUTE') then
+    raise exception 'FAIL R8 grants'; end if;
+  raise notice 'PASS R review fixes';
 end $$;
 
 rollback;
