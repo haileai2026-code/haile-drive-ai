@@ -404,7 +404,11 @@ export const docsApi = {
       mime_type: file.type || null,
       size_bytes: file.size,
     });
-    if (insErr) throw insErr;
+    if (insErr) {
+      // Do not leave an orphaned file when the row insert is rejected.
+      await (supabase as any).storage.from("candidate-documents").remove([path]);
+      throw insErr;
+    }
   },
   async signedUrl(path: string, expiresIn = 300): Promise<string> {
     const { data, error } = await (supabase as any).storage

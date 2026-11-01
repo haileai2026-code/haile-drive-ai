@@ -31,7 +31,10 @@ function todayISO() {
 
 function MarkAttendance() {
   const { classId, date: searchDate } = Route.useSearch();
-  const { user } = useAuth();
+  const { user, role } = useAuth();
+  // Owners/staff see every class and full candidate rows (RLS via is_staff());
+  // teachers see only their classes through the roster RPC.
+  const isStaff = role === "owner" || role === "staff";
   const qc = useQueryClient();
   const [date, setDate] = useState(searchDate ?? todayISO());
   const [activeClassId, setActiveClassId] = useState<string | undefined>(classId);
@@ -39,15 +42,16 @@ function MarkAttendance() {
 
   const classesQ = useQuery({ queryKey: ["classes"], queryFn: adminApi.listClasses, enabled: !!user });
   const myClasses = useMemo(
-    () => (classesQ.data ?? []).filter((c) => c.teacher_id === user?.id),
-    [classesQ.data, user?.id],
+    () => (classesQ.data ?? []).filter((c) => isStaff || c.teacher_id === user?.id),
+    [classesQ.data, user?.id, isStaff],
   );
   const currentClassId = activeClassId ?? myClasses[0]?.id;
   const cls = myClasses.find((c) => c.id === currentClassId);
 
   const candidatesQ = useQuery({
-    queryKey: ["class-candidates", currentClassId],
-    queryFn: () => adminApi.listCandidates({ teacherId: user!.id }),
+    queryKey: ["class-candidates", currentClassId, isStaff],
+    queryFn: (): Promise<{ id: string; full_name: string; class_id: string | null }[]> =>
+      isStaff ? adminApi.listCandidates() : adminApi.listCandidates({ teacherId: user!.id }),
     enabled: !!user && !!currentClassId,
     select: (rows) => rows.filter((r) => r.class_id === currentClassId),
   });

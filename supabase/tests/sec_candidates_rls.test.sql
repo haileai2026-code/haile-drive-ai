@@ -224,4 +224,114 @@ begin
   raise notice 'PASS G attendance/makeup/contact';
 end $$;
 
+
+-- H: explicit grants (Supabase 2026-10-30 behaviour; replay revokes default privileges first)
+do $$
+declare t text; f text;
+begin
+  foreach t in array array['public.candidates','public.candidate_documents','public.notifications','public.schedule_events'] loop
+    if has_table_privilege('anon', t, 'SELECT') or has_table_privilege('anon', t, 'INSERT') then
+      raise exception 'FAIL H1: anon has access to %', t; end if;
+    if not (has_table_privilege('authenticated', t, 'SELECT') and has_table_privilege('authenticated', t, 'INSERT')
+            and has_table_privilege('authenticated', t, 'UPDATE') and has_table_privilege('authenticated', t, 'DELETE')) then
+      raise exception 'FAIL H2: authenticated missing DML on %', t; end if;
+    if not (has_table_privilege('service_role', t, 'SELECT') and has_table_privilege('service_role', t, 'INSERT')
+            and has_table_privilege('service_role', t, 'UPDATE') and has_table_privilege('service_role', t, 'DELETE')) then
+      raise exception 'FAIL H3: service_role missing DML on %', t; end if;
+    if has_table_privilege('service_role', t, 'TRUNCATE') or has_table_privilege('authenticated', t, 'TRUNCATE') then
+      raise exception 'FAIL H4: TRUNCATE granted on %', t; end if;
+  end loop;
+  foreach f in array array['public.is_staff(boolean)','public.current_candidate_id()','public.current_user_class_id()',
+                           'public.current_user_has_beqa_access()','public.get_teacher_roster()','public.teaches_student_user(uuid)'] loop
+    if has_function_privilege('anon', f, 'EXECUTE') then raise exception 'FAIL H5: anon can execute %', f; end if;
+    if not has_function_privilege('authenticated', f, 'EXECUTE') then raise exception 'FAIL H6: authenticated cannot execute %', f; end if;
+  end loop;
+  if has_function_privilege('service_role', 'public.get_teacher_roster()', 'EXECUTE') then
+    raise exception 'FAIL H7: service_role does not need get_teacher_roster'; end if;
+  if not has_column_privilege('authenticated', 'public.profiles', 'full_name', 'UPDATE')
+     or has_column_privilege('authenticated', 'public.profiles', 'email', 'UPDATE') then
+    raise exception 'FAIL H8: profiles column grants wrong'; end if;
+  raise notice 'PASS H explicit grants';
+end $$;
+
+
+-- I: review fixes (2026-11-01)
+do $$
+declare n int; owner uuid := '00000000-0000-0000-0000-00000000000a';
+        staff uuid := '00000000-0000-0000-0000-00000000000b';
+        stu uuid := '00000000-0000-0000-0000-00000000000c';
+        tch uuid := '00000000-0000-0000-0000-00000000000e';
+begin
+  -- I1: staff upload works without sending uploaded_by (default auth.uid())
+  set local role authenticated;
+  perform set_config('request.jwt.claims', json_build_object('sub',staff,'role','authenticated')::text, true);
+  insert into public.candidate_documents(candidate_id, label, file_path)
+    values ('10000000-0000-0000-0000-000000000001','I1','10000000-0000-0000-0000-000000000001/i1.pdf');
+  reset role;
+  if (select uploaded_by from public.candidate_documents where label='I1') <> staff then raise exception 'FAIL I1 uploaded_by default'; end if;
+  -- I1b: spoofed uploaded_by still rejected
+  set local role authenticated;
+  perform set_config('request.jwt.claims', json_build_object('sub',staff,'role','authenticated')::text, true);
+  begin
+    insert into public.candidate_documents(candidate_id, label, file_path, uploaded_by)
+      values ('10000000-0000-0000-0000-000000000001','I1b','x/i1b.pdf', owner);
+    raise exception 'FAIL I1b spoofed uploaded_by accepted';
+  exception when insufficient_privilege then null; end;
+  reset role;
+
+  -- I2: roster requires teacher role; includes assigned_teacher_id
+  update public.candidates set assigned_teacher_id = tch where id = '10000000-0000-0000-0000-000000000002';
+  set local role authenticated;
+  perform set_config('request.jwt.claims', json_build_object('sub',tch,'role','authenticated')::text, true);
+  select count(*) into n from public.get_teacher_roster();
+  if n <> 2 then raise exception 'FAIL I2a teacher roster=% (class + assigned)', n; end if;
+  perform set_config('request.jwt.claims', json_build_object('sub',owner,'role','authenticated')::text, true);
+  select count(*) into n from public.get_teacher_roster();
+  if n <> 0 then raise exception 'FAIL I2b non-teacher got roster'; end if;
+  reset role;
+  delete from public.user_roles where user_id = tch and role = 'teacher';
+  set local role authenticated;
+  perform set_config('request.jwt.claims', json_build_object('sub',tch,'role','authenticated')::text, true);
+  select count(*) into n from public.get_teacher_roster();
+  if n <> 0 then raise exception 'FAIL I2c teacher_id without teacher role got roster'; end if;
+  reset role;
+  insert into public.user_roles(user_id, role) values (tch, 'teacher');
+
+  -- I3: has_role cannot probe others unless staff
+  set local role authenticated;
+  perform set_config('request.jwt.claims', json_build_object('sub',stu,'role','authenticated')::text, true);
+  if public.has_role(owner, 'owner') then raise exception 'FAIL I3a student probed owner role'; end if;
+  if not public.has_role(stu, 'student') then raise exception 'FAIL I3b own role'; end if;
+  if not public.is_teacher_user(tch) then raise exception 'FAIL I3c teacher lookup'; end if;
+  perform set_config('request.jwt.claims', json_build_object('sub',staff,'role','authenticated')::text, true);
+  if not public.has_role(owner, 'owner') then raise exception 'FAIL I3d staff lookup'; end if;
+  reset role;
+  if (select prosecdef from pg_proc where oid='public.has_role(uuid,public.app_role)'::regprocedure) is not true
+     or not exists (select 1 from pg_proc where oid='public.has_role(uuid,public.app_role)'::regprocedure and proconfig @> array['search_path=""']) then
+    raise exception 'FAIL I3e has_role definer/search_path'; end if;
+
+  -- I4: teacher update WITH CHECK (cannot move attendance to another class)
+  if not exists (select 1 from pg_policy where polname='Teachers update their class attendance' and polwithcheck is not null)
+     or not exists (select 1 from pg_policy where polname='Teachers update their schedule' and polwithcheck is not null) then
+    raise exception 'FAIL I4 WITH CHECK missing'; end if;
+
+  -- I5: rewritten teacher policies on exam_results / raw_biometric_log
+  if exists (select 1 from pg_policy where polname in ('Teachers view their candidates results','Teachers view their students bio log')) then
+    raise exception 'FAIL I5a dead policies remain'; end if;
+  if (select count(*) from pg_policy where polname in ('exam_results_teacher_select','raw_bio_teacher_select')) <> 2 then
+    raise exception 'FAIL I5b new teacher policies missing'; end if;
+
+  -- I6: default privileges no longer give PUBLIC/anon EXECUTE on new functions
+  create function public._i6_probe() returns int language sql as 'select 1';
+  if has_function_privilege('anon','public._i6_probe()','EXECUTE') then raise exception 'FAIL I6 default EXECUTE'; end if;
+  drop function public._i6_probe();
+  -- I7: exact auth lookup is service_role only
+  if has_function_privilege('authenticated','public.admin_find_auth_user(text)','EXECUTE')
+     or has_function_privilege('anon','public.admin_find_auth_user(text)','EXECUTE')
+     or not has_function_privilege('service_role','public.admin_find_auth_user(text)','EXECUTE') then
+    raise exception 'FAIL I7a admin_find_auth_user grants'; end if;
+  if (select id from public.admin_find_auth_user(' STUDENT1@test.invalid ')) <> stu then raise exception 'FAIL I7b exact lookup'; end if;
+  raise notice 'PASS I review fixes';
+end $$;
+
 rollback;

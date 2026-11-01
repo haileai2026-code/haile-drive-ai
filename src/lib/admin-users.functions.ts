@@ -2,6 +2,9 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { likeLiteral } from "@/lib/sql-like";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 
 export const createUserAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -52,6 +55,41 @@ export const createUserAccount = createServerFn({ method: "POST" })
     return { id: newId };
   });
 
+type ImportResult = {
+  email: string;
+  full_name: string;
+  ok: boolean;
+  /** linked = candidate linked to a confirmed account; pending = waiting for email confirmation */
+  status?: "linked" | "pending";
+  error?: string;
+};
+
+/** Exact, case-insensitive auth user lookup (service role RPC, no pagination limit). */
+async function findAuthUser(email: string): Promise<{ id: string; confirmed: boolean } | null> {
+  const { data, error } = await supabaseAdmin.rpc("admin_find_auth_user", { _email: email });
+  if (error) throw new Error(error.message);
+  const row = data?.[0];
+  return row ? { id: row.id, confirmed: !!row.email_confirmed_at } : null;
+}
+
+async function ensureLeadRole(userId: string, email: string, fullName: string): Promise<void> {
+  await supabaseAdmin.from("profiles").upsert({ id: userId, email, full_name: fullName, is_active: true });
+  const { data: hasRole } = await supabaseAdmin
+    .from("user_roles").select("id")
+    .eq("user_id", userId).eq("role", "lead").maybeSingle();
+  if (!hasRole) await supabaseAdmin.from("user_roles").insert({ user_id: userId, role: "lead" });
+}
+
+async function requireOwner(
+  context: { supabase: SupabaseClient<Database>; userId: string },
+  msg: string,
+): Promise<void> {
+  const { data: roleRow } = await context.supabase
+    .from("user_roles").select("role")
+    .eq("user_id", context.userId).eq("role", "owner").maybeSingle();
+  if (!roleRow) throw new Error(msg);
+}
+
 export const importStudents = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
@@ -64,80 +102,108 @@ export const importStudents = createServerFn({ method: "POST" })
     }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { data: roleRow } = await context.supabase
-      .from("user_roles").select("role")
-      .eq("user_id", context.userId).eq("role", "owner").maybeSingle();
-    if (!roleRow) throw new Error("Only owners can import students");
+    await requireOwner(context, "Only owners can import students");
 
-    const results: { email: string; full_name: string; ok: boolean; error?: string }[] = [];
+    const results: ImportResult[] = [];
 
     for (const s of data.students) {
+      const email = s.email.trim().toLowerCase();
       try {
-        // TODO(phone-otp): students who log in via phone OTP are not linked to
-        // candidates.user_id by any flow yet; link them through this staff
-        // flow. Never add phone-based matching (phone login is off in beta).
-        // Resolve the auth user first; the candidate row is linked and
-        // de-duplicated on candidates.user_id (never on the email column).
-        // Invite via auth (creates user + sends email).
-        let userId: string | null = null;
-        const { data: invited, error: invErr } = await supabaseAdmin.auth.admin.inviteUserByEmail(
-          s.email,
-          { data: { full_name: s.full_name } },
-        );
-        if (invErr) {
-          // user may already exist in auth — try to look up
-          const { data: list } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
-          const found = list?.users?.find((u) => u.email?.toLowerCase() === s.email.toLowerCase());
-          if (found) {
-            userId = found.id;
-          } else {
-            results.push({ email: s.email, full_name: s.full_name, ok: false, error: invErr.message });
+        // Phone-OTP students are not matched here; staff link them with
+        // linkCandidateUser. Never add phone-based matching.
+        let user = await findAuthUser(email);
+        if (!user) {
+          const { data: invited, error: invErr } = await supabaseAdmin.auth.admin.inviteUserByEmail(
+            email,
+            { data: { full_name: s.full_name } },
+          );
+          if (invErr || !invited.user?.id) {
+            results.push({ email, full_name: s.full_name, ok: false, error: invErr?.message ?? "no auth user id" });
+            continue;
+          }
+          user = { id: invited.user.id, confirmed: !!invited.user.email_confirmed_at };
+        }
+
+        // Already linked to this account -> nothing to do.
+        const { data: existCand } = await supabaseAdmin
+          .from("candidates").select("id").eq("user_id", user.id).maybeSingle();
+        if (existCand) {
+          results.push({ email, full_name: s.full_name, ok: false, error: "תלמיד כבר קיים" });
+          continue;
+        }
+
+        // A previous import left an unlinked row (user_id null) for this
+        // email: reuse it instead of inserting a duplicate. candidates.email
+        // is written only by staff/server, never by the student.
+        const { data: pending } = await supabaseAdmin
+          .from("candidates").select("id")
+          .is("user_id", null).ilike("email", likeLiteral(email))
+          .order("created_at", { ascending: true }).limit(1).maybeSingle();
+
+        // Link ONLY to an account whose email is confirmed.
+        const linkId = user.confirmed ? user.id : null;
+        if (pending) {
+          const { error: updErr } = await supabaseAdmin.from("candidates")
+            .update({ user_id: linkId, class_id: data.class_id, full_name: s.full_name })
+            .eq("id", pending.id).is("user_id", null);
+          if (updErr) {
+            results.push({ email, full_name: s.full_name, ok: false, error: updErr.message });
             continue;
           }
         } else {
-          userId = invited.user?.id ?? null;
+          const { error: candErr } = await supabaseAdmin.from("candidates").insert({
+            full_name: s.full_name, email, user_id: linkId,
+            class_id: data.class_id, status: "new_lead", payment_status: "unpaid",
+          });
+          if (candErr) {
+            results.push({ email, full_name: s.full_name, ok: false, error: candErr.message });
+            continue;
+          }
         }
 
-        if (!userId) {
-          results.push({ email: s.email, full_name: s.full_name, ok: false, error: "no auth user id" });
-          continue;
-        }
-
-        // check existing candidate linked to this auth user
-        const { data: existCand } = await supabaseAdmin
-          .from("candidates").select("id").eq("user_id", userId).maybeSingle();
-        if (existCand) {
-          results.push({ email: s.email, full_name: s.full_name, ok: false, error: "תלמיד כבר קיים" });
-          continue;
-        }
-
-        await supabaseAdmin.from("profiles").upsert({
-          id: userId, email: s.email, full_name: s.full_name, is_active: true,
-        });
-        const { data: hasRole } = await supabaseAdmin
-          .from("user_roles").select("id")
-          .eq("user_id", userId).eq("role", "lead").maybeSingle();
-        if (!hasRole) {
-          await supabaseAdmin.from("user_roles").insert({ user_id: userId, role: "lead" });
-        }
-
-        const { error: candErr } = await supabaseAdmin.from("candidates").insert({
-          full_name: s.full_name, email: s.email, user_id: userId,
-          class_id: data.class_id, status: "new_lead", payment_status: "unpaid",
-        });
-        if (candErr) {
-          results.push({ email: s.email, full_name: s.full_name, ok: false, error: candErr.message });
-          continue;
-        }
-
-        results.push({ email: s.email, full_name: s.full_name, ok: true });
-      } catch (e: any) {
-        results.push({ email: s.email, full_name: s.full_name, ok: false, error: e.message ?? "שגיאה" });
+        if (linkId) await ensureLeadRole(linkId, email, s.full_name);
+        results.push({ email, full_name: s.full_name, ok: true, status: linkId ? "linked" : "pending" });
+      } catch (e) {
+        results.push({ email, full_name: s.full_name, ok: false, error: e instanceof Error ? e.message : "שגיאה" });
       }
     }
 
     const success = results.filter((r) => r.ok).length;
     return { results, success, failed: results.length - success };
+  });
+
+/**
+ * Owner-only explicit link of a candidate row to an auth account (e.g. a
+ * phone-OTP student, or an import that was pending email confirmation).
+ * The account must be confirmed (email or phone) and not linked elsewhere.
+ */
+export const linkCandidateUser = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ candidate_id: z.string().uuid(), user_id: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await requireOwner(context, "Only owners can link students");
+
+    const { data: got, error: uErr } = await supabaseAdmin.auth.admin.getUserById(data.user_id);
+    const u = got?.user;
+    if (uErr || !u) throw new Error("User not found");
+    if (!u.email_confirmed_at && !u.phone_confirmed_at) throw new Error("User has not confirmed email or phone");
+
+    const { data: other } = await supabaseAdmin
+      .from("candidates").select("id").eq("user_id", data.user_id).maybeSingle();
+    if (other && other.id !== data.candidate_id) throw new Error("User is already linked to another candidate");
+
+    const { data: cand, error: cErr } = await supabaseAdmin
+      .from("candidates").select("id,user_id,full_name,email").eq("id", data.candidate_id).maybeSingle();
+    if (cErr || !cand) throw new Error("Candidate not found");
+    if (cand.user_id && cand.user_id !== data.user_id) throw new Error("Candidate is already linked to another user");
+
+    const { error } = await supabaseAdmin.from("candidates")
+      .update({ user_id: data.user_id }).eq("id", data.candidate_id);
+    if (error) throw new Error(error.message);
+    await ensureLeadRole(data.user_id, u.email ?? cand.email ?? "", cand.full_name);
+    return { ok: true };
   });
 
 export const setCandidatePayment = createServerFn({ method: "POST" })
