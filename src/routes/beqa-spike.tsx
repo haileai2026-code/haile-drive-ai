@@ -2,8 +2,6 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { InHouseRppgProvider } from "@/lib/diagnostics/inhouse-rppg";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/beqa-spike")({
   // Dev-only spike page (plan C4): 404 in production builds.
@@ -22,13 +20,9 @@ type ClickRow = {
 };
 
 function BeqaSpikePage() {
-  const { user } = useAuth();
   const videoRef = useRef<HTMLVideoElement>(null);
   const rppgRef = useRef<InHouseRppgProvider | null>(null);
   const shownAt = useRef(performance.now());
-  const sessionId = useRef(
-    typeof crypto !== "undefined" ? crypto.randomUUID() : String(Date.now()),
-  );
   const [bpm, setBpm] = useState<number | null>(null);
   const [hrv, setHrv] = useState<number | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -73,17 +67,8 @@ function BeqaSpikePage() {
       at: new Date().toISOString(),
     };
     setClicks((c) => [...c, row]);
-    if (user) {
-      await (supabase as any).from("beqa_pulse_clicks").insert({
-        session_id: sessionId.current,
-        student_id: user.id,
-        bpm,
-        hrv,
-        signal_quality: bpm ? "medium" : "none",
-        reaction_ms: row.reaction_ms,
-        provider: "inhouse",
-      });
-    }
+    // Dev-only spike: clicks stay in local state. beqa_pulse_clicks is
+    // written server-side only (finishDiagnostic, service_role).
   };
 
   return (

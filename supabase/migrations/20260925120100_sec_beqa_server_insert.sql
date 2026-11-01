@@ -40,3 +40,15 @@ grant all on public.beqa_diagnostic_sessions to service_role;
 revoke all on public.beqa_diagnostic_sessions from anon, authenticated, service_role;
 grant select, delete on public.beqa_diagnostic_sessions to authenticated;
 grant select, insert, update, delete on public.beqa_diagnostic_sessions to service_role;
+
+-- 4. beqa_pulse_clicks (security round 3, N4): server-side writes only.
+--    finishDiagnostic writes the clicks with service_role; the dev-only
+--    /beqa-spike page no longer writes from the browser. Students keep
+--    reading their own clicks ("student read own pulse clicks"). No data
+--    changed. Re-runnable. (feat/consent-record's migration 120400 runs
+--    after this one and re-creates the insert policy ONLY if it still
+--    exists, so the combined state has no student insert policy.)
+drop policy if exists "student insert own pulse clicks" on public.beqa_pulse_clicks;
+revoke all on public.beqa_pulse_clicks from anon, authenticated;
+grant select on public.beqa_pulse_clicks to authenticated;
+grant select, insert, update, delete on public.beqa_pulse_clicks to service_role;

@@ -1,7 +1,7 @@
 // Run: bun test tests/beqa-answers.test.ts
 import { describe, expect, spyOn, test } from "bun:test";
 import { readFileSync } from "node:fs";
-import { DIAG_SAVE_ERROR, failSave } from "../src/lib/diagnostics/save-error";
+import { DIAG_SAVE_ERROR, errorSummary, failSave } from "../src/lib/diagnostics/save-error";
 import { assertExactQuestionSet } from "../src/lib/diagnostics/answer-set";
 import { assertPsychAssessmentsEnabled, isPsychAssessmentRoute } from "../src/lib/psych-assessments-flag";
 import { gradePsych } from "../src/lib/diagnostics/psych-grading";
@@ -75,12 +75,22 @@ describe("psych assessments beta flag", () => {
 });
 
 describe("server error handling + consent gate", () => {
-  test("failSave logs the full error and throws a generic one", () => {
+  test("failSave logs only code + constraint and throws a generic error", () => {
     const spy = spyOn(console, "error").mockImplementation(() => {});
-    const dbErr = { message: 'new row violates check constraint "beqa_x" on table beqa_diagnostic_sessions' };
+    const dbErr = {
+      code: "23514",
+      message: 'new row violates check constraint "beqa_x" on table beqa_diagnostic_sessions',
+      details: "Failing row contains (secret-value, 42)",
+    };
     expect(() => failSave("finishDiagnostic insert", dbErr)).toThrow(DIAG_SAVE_ERROR);
-    expect(spy).toHaveBeenCalledWith("[finishDiagnostic insert]", dbErr);
+    expect(spy).toHaveBeenCalledWith("[finishDiagnostic insert]", { code: "23514", constraint: "beqa_x" });
+    expect(JSON.stringify(spy.mock.calls)).not.toContain("secret-value");
+    expect(JSON.stringify(spy.mock.calls)).not.toContain("Failing row");
     spy.mockRestore();
+  });
+  test("errorSummary without code/constraint", () => {
+    expect(errorSummary(new Error("boom"))).toEqual({ code: null, constraint: null });
+    expect(errorSummary(null)).toEqual({ code: null, constraint: null });
   });
   const read = (f: string) => readFileSync(new URL(`../src/lib/diagnostics/${f}`, import.meta.url), "utf8");
   test("finishDiagnostic never returns the raw DB message", () => {

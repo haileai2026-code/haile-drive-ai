@@ -91,7 +91,7 @@ export const finishDiagnostic = createServerFn({ method: "POST" })
     }));
     // Server client: students have no INSERT grant on beqa_pulse_clicks.
     const { error: clickErr } = await supabaseAdmin.from("beqa_pulse_clicks").insert(clicks);
-    if (clickErr) console.error("beqa_pulse_clicks", clickErr.message);
+    if (clickErr) console.error("[beqa_pulse_clicks]", clickErr.code);
 
     return { ok: true as const };
   });

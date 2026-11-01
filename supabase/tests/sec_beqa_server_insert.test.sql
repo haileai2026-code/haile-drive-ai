@@ -67,4 +67,19 @@ begin
   raise notice 'PASS G explicit grants';
 end $$;
 
+-- P: beqa_pulse_clicks server-side writes only (round 3, N4)
+do $$
+declare t text := 'public.beqa_pulse_clicks'; ok boolean;
+begin
+  if exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'beqa_pulse_clicks' and cmd in ('INSERT','ALL','UPDATE','DELETE')) then
+    raise exception 'FAIL P1 student write policy on beqa_pulse_clicks'; end if;
+  if has_table_privilege('anon', t, 'SELECT') or has_table_privilege('anon', t, 'INSERT') then raise exception 'FAIL P2 anon'; end if;
+  if has_table_privilege('authenticated', t, 'INSERT') or has_table_privilege('authenticated', t, 'UPDATE')
+     or has_table_privilege('authenticated', t, 'DELETE') or has_table_privilege('authenticated', t, 'TRUNCATE') then
+    raise exception 'FAIL P3 authenticated can write pulse clicks'; end if;
+  if not has_table_privilege('authenticated', t, 'SELECT') then raise exception 'FAIL P4 authenticated lost select'; end if;
+  if not has_table_privilege('service_role', t, 'INSERT') then raise exception 'FAIL P5 service_role cannot insert'; end if;
+  raise notice 'PASS P beqa_pulse_clicks server-only';
+end $$;
+
 rollback;
