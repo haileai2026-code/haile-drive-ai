@@ -11,6 +11,9 @@
 
 export type SmsProviderName = "manual" | "twilio";
 
+// Closed beta: outbound SMS/WhatsApp is off regardless of SMS_PROVIDER
+// (see src/lib/beta-flags.ts); the Twilio sender refuses to send.
+
 // Imported by client code too — only touch process.env when it exists.
 export const SMS_PROVIDER: SmsProviderName =
   (typeof process !== "undefined"

@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { AdminLoading, AdminShell } from "@/components/AdminShell";
 import { adminApi, docsApi, type Candidate, type CandidateDocument } from "@/lib/admin-api";
+import { BETA_FEATURES } from "@/lib/beta-flags";
 import { setCandidatePayment, setCandidateBeqaAccess } from "@/lib/admin-users.functions";
 import { useAuth } from "@/lib/auth";
 import { Plus, Pencil, Trash2, Search, FolderOpen, Upload, FileText, X, Download, GraduationCap, UserCheck } from "lucide-react";
@@ -98,8 +99,6 @@ function CandidatesPage() {
     am: "🇪🇹 אמהרית",
     he: "🇮🇱 עברית",
     ru: "🇷🇺 רוסית",
-    ku: "✡️ קוקי",
-    kuki: "✡️ קוקי",
     en: "🇬🇧 אנגלית",
     fr: "🇫🇷 צרפתית",
   };
@@ -239,7 +238,9 @@ function CandidatesPage() {
                 </td>
                 <td className="px-3 py-3">
                   <div className="flex justify-end gap-1">
-                    <button onClick={() => setFolderFor(c)} title="תיק נהג" className="rounded-md p-1.5 text-gold hover:bg-gold/10"><FolderOpen className="h-3.5 w-3.5" /></button>
+                    {BETA_FEATURES.idMedicalDocuments && (
+                      <button onClick={() => setFolderFor(c)} title="תיק נהג" className="rounded-md p-1.5 text-gold hover:bg-gold/10"><FolderOpen className="h-3.5 w-3.5" /></button>
+                    )}
                     <button onClick={() => setEditing(c)} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent"><Pencil className="h-3.5 w-3.5" /></button>
                     <button onClick={() => { if (confirm(`למחוק את ${c.full_name}?`)) delMut.mutate(c.id); }} className="rounded-md p-1.5 text-rose-400 hover:bg-rose-500/10"><Trash2 className="h-3.5 w-3.5" /></button>
                   </div>
@@ -281,6 +282,7 @@ function CandidatesPage() {
                   </select>
                 </Field>
               </div>
+              {BETA_FEATURES.idMedicalDocuments && (
               <Field label="תעודת זהות">
                 <input
                   type="text"
@@ -292,6 +294,7 @@ function CandidatesPage() {
                   className="inp"
                 />
               </Field>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 <Field label="שפה">
                   <select value={editing.language ?? "he"} onChange={(e) => setEditing({ ...editing, language: e.target.value })} className="inp">
@@ -319,7 +322,7 @@ function CandidatesPage() {
         </div>
       )}
 
-      {folderFor && <DriverFolderModal candidate={folderFor} cityLabel={cityName(folderFor.city_id)} onClose={() => setFolderFor(null)} />}
+      {BETA_FEATURES.idMedicalDocuments && folderFor && <DriverFolderModal candidate={folderFor} cityLabel={cityName(folderFor.city_id)} onClose={() => setFolderFor(null)} />}
 
       {voucherPrompt && (
         <OpenVoucherPrompt

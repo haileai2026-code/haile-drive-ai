@@ -8,6 +8,8 @@ import { ConsentGate } from "./ConsentGate";
 import { useAuth, roleHomePath } from "@/lib/auth";
 import type { ReactNode } from "react";
 import type { Role } from "@/lib/ops-data";
+import { BETA_FEATURES } from "@/lib/beta-flags";
+import { PSYCH_ASSESSMENTS_DISABLED_MESSAGE, isPsychAssessmentRoute } from "@/lib/psych-assessments-flag";
 
 type NavItem = { to: string; icon: LucideIcon; key?: "dashboard" | "lessons" | "aiTeacher" | "quiz" | "community"; label?: string };
 
@@ -17,7 +19,8 @@ const items: NavItem[] = [
   { to: "/courses", icon: GraduationCap, label: "קורסים" },
   { to: "/ai", icon: Bot, key: "aiTeacher" },
   { to: "/quiz", icon: Trophy, key: "quiz" },
-  { to: "/diagnostics", icon: Activity, label: "BEQA" },
+  // heart-rate camera diagnostic: hidden in the closed beta
+  ...(BETA_FEATURES.heartRateCamera ? [{ to: "/diagnostics", icon: Activity, label: "BEQA" }] : []),
   { to: "/community", icon: Users, key: "community" },
 ];
 
@@ -42,6 +45,8 @@ export function AppShell({
   const isLead = role === "lead";
   const allowedForLead = loc.pathname.startsWith("/profile") || loc.pathname.startsWith("/courses");
   const lockContent = isLead && !allowedForLead;
+  // Closed beta: psych assessment routes are blocked (server + DB guard too).
+  const psychBlocked = !BETA_FEATURES.psychAssessments && isPsychAssessmentRoute(loc.pathname);
 
   const shell = (
     <div className="min-h-screen bg-night pb-24">
@@ -61,7 +66,13 @@ export function AppShell({
       </header>
 
       <main className="mx-auto max-w-screen-md px-4 py-6">
-        <ConsentGate>{lockContent ? <LeadLockScreen /> : children}</ConsentGate>
+        <ConsentGate>
+        {psychBlocked ? (
+          <div dir="rtl" className="mx-auto max-w-md py-16 text-center text-sm text-muted-foreground">
+            {PSYCH_ASSESSMENTS_DISABLED_MESSAGE}
+          </div>
+        ) : lockContent ? <LeadLockScreen /> : children}
+        </ConsentGate>
       </main>
 
       {(
