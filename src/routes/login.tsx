@@ -8,7 +8,7 @@ import { getPrimaryRole, useAuth, roleHomePath } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { requestPhoneOtp, verifyPhoneOtp } from "@/lib/phone-login.functions";
 import type { Role } from "@/lib/ops-data";
-import { TurnstileWidget } from "@/components/TurnstileWidget";
+import { TurnstileWidget, sendOtpDisabled } from "@/components/TurnstileWidget";
 
 type PortalRole = Extract<Role, "owner" | "teacher" | "student">;
 
@@ -351,7 +351,7 @@ function LoginPage() {
                 <button
                   type="button"
                   onClick={sendOtp}
-                  disabled={busy}
+                  disabled={sendOtpDisabled(busy, turnstileToken)}
                   className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-br ${portalCfg.gradient} px-6 py-3.5 text-base font-semibold text-white shadow-lg disabled:opacity-50`}
                 >
                   {busy ? "..." : "שלח קוד · ላክ ኮድ"}

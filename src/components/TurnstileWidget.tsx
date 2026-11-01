@@ -25,14 +25,49 @@ function loadScript(): Promise<void> {
       s.async = true;
       s.defer = true;
       s.onload = () => resolve();
-      s.onerror = () => { scriptPromise = null; reject(new Error("turnstile script failed")); };
+      s.onerror = () => {
+        scriptPromise = null;
+        reject(new Error("turnstile script failed"));
+      };
       document.head.appendChild(s);
     });
   }
   return scriptPromise;
 }
 
-export const TURNSTILE_SITE_KEY: string = (import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined) ?? "";
+type TurnstileApi = NonNullable<Window["turnstile"]>;
+
+/** Render options; expired/error null the token so the send button disables. */
+export function turnstileRenderOptions(sitekey: string, onToken: (t: string | null) => void) {
+  return {
+    sitekey,
+    action: "phone_otp",
+    callback: (t: string) => onToken(t),
+    "expired-callback": () => onToken(null),
+    "error-callback": () => onToken(null),
+  };
+}
+
+/** On a new resetKey: reset the widget and drop the (single-use) token. */
+export function applyTurnstileReset(
+  resetKey: number | undefined,
+  id: string | null,
+  api: TurnstileApi | undefined,
+  onToken: (t: string | null) => void,
+): boolean {
+  if (!resetKey || !id || !api) return false;
+  api.reset(id);
+  onToken(null);
+  return true;
+}
+
+/** Send-code button is disabled while busy or while there is no token. */
+export function sendOtpDisabled(busy: boolean, token: string | null): boolean {
+  return busy || !token;
+}
+
+export const TURNSTILE_SITE_KEY: string =
+  (import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined) ?? "";
 
 export function TurnstileWidget({
   onToken,
@@ -52,13 +87,10 @@ export function TurnstileWidget({
     loadScript()
       .then(() => {
         if (cancelled || !ref.current || !window.turnstile) return;
-        idRef.current = window.turnstile.render(ref.current, {
-          sitekey: TURNSTILE_SITE_KEY,
-          action: "phone_otp",
-          callback: (t: string) => cb.current(t),
-          "expired-callback": () => cb.current(null),
-          "error-callback": () => cb.current(null),
-        });
+        idRef.current = window.turnstile.render(
+          ref.current,
+          turnstileRenderOptions(TURNSTILE_SITE_KEY, (t) => cb.current(t)),
+        );
       })
       .catch(() => cb.current(null));
     return () => {
@@ -69,10 +101,7 @@ export function TurnstileWidget({
   }, []);
 
   useEffect(() => {
-    if (resetKey && idRef.current && window.turnstile) {
-      window.turnstile.reset(idRef.current);
-      cb.current(null);
-    }
+    applyTurnstileReset(resetKey, idRef.current, window.turnstile, (t) => cb.current(t));
   }, [resetKey]);
 
   if (!TURNSTILE_SITE_KEY) return null;

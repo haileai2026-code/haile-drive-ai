@@ -12,7 +12,7 @@ import {
   phoneLoginEnabled,
   smsIpKey,
 } from "./phone-login-gate";
-import { verifyTurnstile } from "./turnstile";
+import { HttpError, requestPhoneOtpCore } from "./phone-otp-request";
 import { sendViaTwilio } from "./notifications.functions";
 import {
   OTP_GENERIC_MESSAGE,
@@ -42,7 +42,7 @@ async function assertOwnerOrStaff(supabase: any, userId: string) {
   if (!data) throw new Error("Forbidden");
 }
 
-// HB-01: PHONE_LOGIN_ENABLED=on AND TURNSTILE_SECRET_KEY present, else 403.
+// HB-01: PHONE_LOGIN_ENABLED=on AND TURNSTILE_SECRET_KEY AND TURNSTILE_ALLOWED_HOSTNAMES present, else 403.
 function assertPhoneLoginEnabled() {
   if (!phoneLoginEnabled(process.env)) {
     setResponseStatus(403);
@@ -63,72 +63,21 @@ export const requestPhoneOtp = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
     z.object({
       phone: z.string().min(6).max(40),
-      turnstileToken: z.string().max(2048).optional(),
+      turnstileToken: z.string().max(4096).optional() // length policed in verifyTurnstile (token-too-long),
     }).parse(input),
   )
   .handler(async ({ data }) => {
-    assertPhoneLoginEnabled();
-    const ip = clientIp();
-    // HB-01: verify the Turnstile token on every request, fail closed.
-    const ts = await verifyTurnstile({ token: data.turnstileToken, remoteip: ip });
-    if (!ts.ok) {
-      console.warn("[phone-login] turnstile rejected", ts.reason);
-      setResponseStatus(403);
-      throw new Error(PHONE_LOGIN_DISABLED_MESSAGE);
+    try {
+      return await requestPhoneOtpCore(data, {
+        env: process.env,
+        ip: clientIp(),
+        rpc: (fn, args) => supabaseAdmin.rpc(fn as any, args as any) as any,
+        sendSms: (to, body) => sendViaTwilio({ channel: "sms", to, body }),
+      });
+    } catch (e) {
+      if (e instanceof HttpError) setResponseStatus(e.status);
+      throw e instanceof HttpError ? new Error(e.message) : e;
     }
-    const phone = normalizePhoneE164(data.phone);
-    if (!phone) throw new Error("מספר טלפון לא תקין");
-
-    // R4-3: no client IP never disables the per-IP limit (400 in production,
-    // one shared strict bucket elsewhere).
-    const ipKey = smsIpKey(ip, process.env);
-    if (ipKey.refuse) {
-      setResponseStatus(400);
-      throw new Error(PHONE_LOGIN_NO_IP_MESSAGE);
-    }
-    const otp = generateOtp(); // CSPRNG, uniform 6 digits
-    const provider = (process.env.SMS_PROVIDER ?? "manual") as "manual" | "twilio";
-    const twilio =
-      provider === "twilio" && !!process.env.TWILIO_ACCOUNT_SID && !!process.env.TWILIO_AUTH_TOKEN;
-    // The global SMS slot is reserved in the DB under the global advisory
-    // lock (p_reserve_sms) BEFORE Twilio is called, so parallel requests can
-    // never exceed the hourly cap; it is released below if the send fails.
-    const { data: rows, error } = await supabaseAdmin.rpc("phone_otp_request", {
-      p_phone: phone.e164,
-      p_otp_hash: await hashOtp(phone.e164, otp), // HMAC(phone:code); plaintext never stored
-      p_ip_hash: await hashIp(ipKey.key),
-      p_reserve_sms: twilio,
-    });
-    if (error) throw new Error(OTP_REQUEST_GENERIC_MESSAGE);
-    const res = rows?.[0];
-    if (res?.outcome === "locked") throw new Error(OTP_LOCKED_MESSAGE);
-    if (res?.outcome !== "ok" || !res.request_id) throw new Error(OTP_REQUEST_GENERIC_MESSAGE);
-    const request_id = res.request_id;
-
-    // Twilio path: send the OTP via SMS. The SMS itself is the verification,
-    // so on success the request is auto-approved (phone_otp_sms_result).
-    if (twilio) {
-      let sent = false;
-      try {
-        const r = await sendViaTwilio({
-          channel: "sms",
-          to: phone.e164,
-          body: `קוד הכניסה שלך ל-Haile AI: ${otp}`,
-        });
-        sent = r.ok;
-      } finally {
-        // sent -> approved + sms_sent_at; failed -> reserved slot released
-        await supabaseAdmin.rpc("phone_otp_sms_result", { p_request_id: request_id, p_sent: sent });
-      }
-      if (sent) return { ok: true, request_id, delivery: "sms" as const };
-      // Twilio failed — keep the manual admin flow as fallback. Never throw:
-      // an SMS outage must not block a student from logging in manually.
-      return { ok: true, request_id, delivery: "manual" as const };
-    }
-
-    // Manual mode: nobody knows this code. When staff approves the request a
-    // fresh code is generated and shown to staff once (approvePhoneRequest).
-    return { ok: true, request_id, delivery: "manual" as const };
   });
 
 // Step 2 — student submits OTP. If approved → create / sign in user.
