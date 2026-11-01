@@ -1,10 +1,18 @@
-# Merge order — haile-drive-ai open PRs (2026-11-01)
+# Merge order — haile-drive-ai open PRs (2026-11-01, security round 3)
 
-Verified: a combined merge of all branches **in exactly this order** on top of
-`origin/main` (temp worktree, deleted afterwards) replays all migrations twice
-(old auto-grant mode and post-2026-10-30 explicit-grant mode), passes all 7 SQL
-test files, `bun test` (63 pass / 0 fail), `tsc`, `vite build` (no service-role
-code in the client bundle) and `bun install --frozen-lockfile`.
+Verified (2026-11-01, after security round 3): a combined merge of all 12
+branches **in exactly this order** on top of `origin/main` (temp worktree,
+deleted afterwards) replays all migrations twice in each grant mode (old
+auto-grant mode and post-2026-10-30 explicit-grant mode), passes all 7 SQL
+test files, `bun test` (71 pass / 0 fail), `tsc`, `vite build` (no
+service-role code in the client bundle) and `bun install --frozen-lockfile`.
+OTP global-cap race (190 sent + 50 parallel, slow send, some failures): 10
+slots granted, never above 200; failed sends release their slot.
+
+> **Phone login stays OFF** (`BETA_FEATURES.phoneOtpLogin` false, Twilio not
+> enabled) **until Turnstile CAPTCHA is in place** (security N5, product).
+> Interim DB limits: 3/phone/15 min, 10/IP/h, 200 SMS/h (reserved+sent,
+> under a global lock), 1000 request rows/h overall.
 
 ## 1. Order
 
@@ -28,7 +36,12 @@ Notes
   (merge commit `f1cf525`), so GitHub shows those commits in #11/#5 until #4/#11
   are merged; merging in this order makes them disappear from the diffs.
 - `src/lib/psych-assessments-flag.ts` is byte-identical on #5 and #10;
-  `src/lib/client-ip.ts` is byte-identical on #6 and #11 (no conflict).
+  `src/lib/client-ip.ts` and `tests/client-ip.test.ts` are byte-identical on
+  #6 and #11 (round 3: platform-specific client IP), no conflict.
+- `beqa_pulse_clicks`: #5 (migration 120100) drops the student INSERT policy
+  and client write grants; #11 (120400, runs later) re-creates that policy with
+  `consent_ok` **only if it still exists**, so the combined state has no
+  student insert policy (verified by `PASS P` in #5 and `PASS N … absent` in #11).
 - Migrations are timestamp-ordered and independent of the merge order:
   `20260925120000` (#4) · `…120100` (#5) · `…120200` (#6) · `…120300` (#9) ·
   `…120400` (#11) · `20261101120000` (#12) · `20261101130000` (#10).
@@ -65,7 +78,9 @@ No other conflicts. If GitHub's "Update branch" is used instead, resolve the sam
 | `OTP_PEPPER` and `CONSENT_EVIDENCE_PEPPER` set in the server env, each ≥ 32 random chars (no values in the repo) | **CTO** |
 | Confirm `postgres` can `SET ROLE service_role` inside pg_cron on cmvv (used by `consents-retention-purge`) | **CTO** |
 | Dry run on a Supabase branch first (section 3) | ops |
-| CAPTCHA before phone login / Twilio is enabled (not needed for the closed beta) | dev |
+| #4 migration contains one data UPDATE: one-off re-sync of `candidates.assigned_teacher_id` to the class teacher (stale rows only). Review the affected row count on the dry run; covered by the pre-apply snapshot | **CTO** |
+| Client-IP source: Vercel sets `VERCEL=1` (only `x-vercel-forwarded-for` is used). Set `EDGE_PLATFORM=cloudflare` only if the origin is reachable via Cloudflare exclusively; `TRUSTED_PROXY=on` only behind another proxy | ops |
+| **Turnstile CAPTCHA before phone login / Twilio is enabled** — phone login stays OFF until then (N5; not needed for the closed beta) | dev / product |
 | Vault secrets `notifications_tick_url`, `notifications_tick_secret` + `CRON_SECRET` | ops |
 | Beta flags stay off: `VITE_BETA_PSYCH_ASSESSMENTS`, `VITE_BETA_SENSITIVE_FEATURES`, DB `app.beta_psych_assessments` | CTO decision |
 
@@ -74,6 +89,7 @@ No other conflicts. If GitHub's "Update branch" is used instead, resolve the sam
   migrated to object paths, run
   `alter table public.community_posts validate constraint community_posts_media_in_author_folder;`
   (the CHECK is `NOT VALID` until then; new/updated rows are already enforced).
-- #5: `/beqa-spike` client insert; Marvad client practice scores (CTO decision).
+- #5: Marvad client practice scores (CTO decision).
 - #4: UI for `linkCandidateUser`.
-- #11: consent gates on course enrollment / lesson progress (not in the CTO list).
+- #11: consent gates on course enrollment / lesson progress / BEQA / biometric consent: **done in round 3** (N3). Not gated: student UPDATE of own `course_enrollments` row (not in the finding).
+- #5: `/beqa-spike` no longer writes from the browser (round 3; pulse clicks are server-side only).
