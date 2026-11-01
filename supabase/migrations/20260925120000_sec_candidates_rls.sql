@@ -288,3 +288,39 @@ create policy contact_update on public.contact_messages for update to authentica
     or (recipient_role = 'teacher'::public.contact_recipient
         and public.teaches_student_user(sender_id))
   );
+
+-- ---------------------------------------------------------------------
+-- 10. Explicit grants (Supabase breaking change 2026-10-30: new objects in
+--     public are no longer granted to anon/authenticated/service_role by
+--     default). Minimum privileges; RLS still decides rows. Re-runnable
+--     (GRANT/REVOKE are idempotent). Rollback: supabase/rollback/
+--     20260925120000_sec_candidates_rls.down.sql.
+-- ---------------------------------------------------------------------
+-- Tables: anon nothing (sections 4/7); authenticated = the commands its
+-- policies allow (select/insert/update/delete, section 6); service_role =
+-- DML only (server functions: import, payment, notifications) - no
+-- TRUNCATE/REFERENCES/TRIGGER.
+revoke all on public.candidates, public.candidate_documents,
+              public.notifications, public.schedule_events from service_role;
+grant select, insert, update, delete on public.candidates, public.candidate_documents,
+              public.notifications, public.schedule_events to service_role;
+
+-- Functions: EXECUTE only for the roles that call them (none for anon/PUBLIC).
+revoke all on function public.is_staff(boolean)                from public, anon;
+revoke all on function public.current_candidate_id()           from public, anon;
+revoke all on function public.current_user_class_id()          from public, anon;
+revoke all on function public.current_user_has_beqa_access()   from public, anon;
+revoke all on function public.get_teacher_roster()             from public, anon, service_role;
+revoke all on function public.teaches_student_user(uuid)       from public, anon;
+grant execute on function public.is_staff(boolean)              to authenticated, service_role;
+grant execute on function public.current_candidate_id()         to authenticated, service_role;
+grant execute on function public.current_user_class_id()        to authenticated, service_role;
+grant execute on function public.current_user_has_beqa_access() to authenticated, service_role;
+grant execute on function public.get_teacher_roster()           to authenticated;
+grant execute on function public.teaches_student_user(uuid)     to authenticated, service_role;
+
+-- No sequences are created here (all new keys are uuid).
+-- Extend the revoke-anon intent of section 4 to future functions/sequences;
+-- this matches the 2026-10-30 platform default and never grants anything.
+alter default privileges for role postgres in schema public revoke all on functions from anon;
+alter default privileges for role postgres in schema public revoke all on sequences from anon;

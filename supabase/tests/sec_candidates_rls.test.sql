@@ -224,4 +224,34 @@ begin
   raise notice 'PASS G attendance/makeup/contact';
 end $$;
 
+
+-- H: explicit grants (Supabase 2026-10-30 behaviour; replay revokes default privileges first)
+do $$
+declare t text; f text;
+begin
+  foreach t in array array['public.candidates','public.candidate_documents','public.notifications','public.schedule_events'] loop
+    if has_table_privilege('anon', t, 'SELECT') or has_table_privilege('anon', t, 'INSERT') then
+      raise exception 'FAIL H1: anon has access to %', t; end if;
+    if not (has_table_privilege('authenticated', t, 'SELECT') and has_table_privilege('authenticated', t, 'INSERT')
+            and has_table_privilege('authenticated', t, 'UPDATE') and has_table_privilege('authenticated', t, 'DELETE')) then
+      raise exception 'FAIL H2: authenticated missing DML on %', t; end if;
+    if not (has_table_privilege('service_role', t, 'SELECT') and has_table_privilege('service_role', t, 'INSERT')
+            and has_table_privilege('service_role', t, 'UPDATE') and has_table_privilege('service_role', t, 'DELETE')) then
+      raise exception 'FAIL H3: service_role missing DML on %', t; end if;
+    if has_table_privilege('service_role', t, 'TRUNCATE') or has_table_privilege('authenticated', t, 'TRUNCATE') then
+      raise exception 'FAIL H4: TRUNCATE granted on %', t; end if;
+  end loop;
+  foreach f in array array['public.is_staff(boolean)','public.current_candidate_id()','public.current_user_class_id()',
+                           'public.current_user_has_beqa_access()','public.get_teacher_roster()','public.teaches_student_user(uuid)'] loop
+    if has_function_privilege('anon', f, 'EXECUTE') then raise exception 'FAIL H5: anon can execute %', f; end if;
+    if not has_function_privilege('authenticated', f, 'EXECUTE') then raise exception 'FAIL H6: authenticated cannot execute %', f; end if;
+  end loop;
+  if has_function_privilege('service_role', 'public.get_teacher_roster()', 'EXECUTE') then
+    raise exception 'FAIL H7: service_role does not need get_teacher_roster'; end if;
+  if not has_column_privilege('authenticated', 'public.profiles', 'full_name', 'UPDATE')
+     or has_column_privilege('authenticated', 'public.profiles', 'email', 'UPDATE') then
+    raise exception 'FAIL H8: profiles column grants wrong'; end if;
+  raise notice 'PASS H explicit grants';
+end $$;
+
 rollback;
