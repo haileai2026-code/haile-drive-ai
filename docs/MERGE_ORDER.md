@@ -1,30 +1,35 @@
-# Merge order — haile-drive-ai open PRs (2026-11-01, security round 4)
+# Merge order — haile-drive-ai open PRs (2026-11-01, security round 5)
 
-Verified (2026-11-01, after security round 4): a combined merge of all 13
+Verified (2026-11-01, after security round 5; heads #6 `98bab69`, #11 `577acb8`,
+#15 `87c29f4`, #14 = this commit): a combined merge of all 13
 branches **in exactly this order** on top of `origin/main` (temp worktree,
 deleted afterwards) replays all migrations and re-runs them twice in each
 grant mode (old auto-grant mode and post-2026-10-30 explicit-grant mode),
-passes all 9 SQL test files, `bun test` (80 pass / 0 fail), `tsc`,
+passes all 10 SQL test files (incl. the read-only `check_client_grants.sql` from #15), `bun test` (76 pass / 0 fail), `tsc`,
 `vite build` (no service-role / pepper / Turnstile secret names in
 `.output/public`) and `bun install --frozen-lockfile`. OTP global-cap race
 (190 sent + 50 parallel, slow send, some failures): ≤ 10 slots granted, never
-above 200; failed sends release their slot.
+above 200; failed sends release their slot. Conflicts were exactly those in
+section 2 (#10: AppShell/profile; #6: types.ts/phone-login.functions.ts).
 
 > **Apply migrations ONLY from merged `main`.** #11 and #5 carry an older copy
 > of #4's migration (merge commits on their branches); never apply migrations
 > from a feature branch. After all merges, `main` holds the final version.
 
-> **Phone login stays OFF.** Server switch `PHONE_LOGIN_ENABLED` (default
-> off, fail closed) — it is honoured only if `TURNSTILE_SECRET_KEY` is also
-> present, and it is independent of `VITE_BETA_SENSITIVE_FEATURES`. Set it
-> only after Turnstile CAPTCHA is live (N5). **#10 must be merged before #6 is
+> **Phone login is HARD-DISABLED in code (R5-1, #6).** `phoneLoginEnabled()`
+> always returns false (403) regardless of env; `PHONE_LOGIN_ENABLED` /
+> `TURNSTILE_SECRET_KEY` have no effect until a separate Turnstile siteverify
+> PR lands (see BACKLOG_R5). No client CAPTCHA token is read today.
+> **#10 must be merged before #6 is
 > deployed.** Interim DB limits: 3/phone/15 min, 10/IP/h, 200 SMS/h
 > (reserved+sent, under a global lock), 1000 request rows/h overall. A request
 > without a client IP is refused with 400 in production (`VERCEL=1` or
 > `NODE_ENV=production`); in dev all IP-less requests share one bucket, so the
 > per-IP limit is never disabled.
-> R4-4 (documented, follow-up): no alert yet when the SMS / row caps are hit;
-> acceptable once Turnstile is in place.
+> R4-4 (documented, follow-up): no alert yet when the SMS / row caps are hit.
+> #15 (round 5): also revokes MAINTAIN on PG17+; re-run
+> `supabase/tests/check_client_grants.sql` after every migration (a later
+> `grant all` re-adds the privileges).
 
 ## 1. Order
 
@@ -98,7 +103,8 @@ No other conflicts. If GitHub's "Update branch" is used instead, resolve the sam
 | Confirm `postgres` can `SET ROLE service_role` inside pg_cron on cmvv (used by `consents-retention-purge`) | **CTO** |
 | #4 migration's one data UPDATE: one-off backfill/re-sync of `candidates.assigned_teacher_id` to the class teacher (stale rows only). Review the affected row count on the dry run; covered by the snapshot | **CTO** |
 | #9: after legacy `community_posts.media_url` values are migrated to object paths, run `alter table public.community_posts validate constraint community_posts_media_in_author_folder;` (CHECK is `NOT VALID` until then) | ops |
-| **Turnstile CAPTCHA live before `PHONE_LOGIN_ENABLED=on`** (also needs `TURNSTILE_SECRET_KEY`; token verification is the N5 follow-up). #10 merged before #6 deploys | dev / product |
+| Phone login is hard-disabled in code; enabling needs the separate Turnstile siteverify PR + client widget first (BACKLOG_R5 #1). #10 merged before #6 deploys | dev / product |
+| After apply (and after every later migration): `check_client_grants.sql` PASS | ops |
 | Dry run on a Supabase branch first (section 3) | ops |
 | Client-IP source: Vercel sets `VERCEL=1` (only `x-vercel-forwarded-for`). `EDGE_PLATFORM=cloudflare` only if origin is Cloudflare-only; `TRUSTED_PROXY=on` only behind another proxy | ops |
 | Vault secrets `notifications_tick_url`, `notifications_tick_secret` + `CRON_SECRET` | ops |
@@ -106,7 +112,7 @@ No other conflicts. If GitHub's "Update branch" is used instead, resolve the sam
 
 ## 5. Follow-ups
 - R4-4: alert when SMS / request-row caps are hit (acceptable once Turnstile is in place).
-- N5: Turnstile token verification in `requestPhoneOtp` (today only the secret's presence is required).
+- Round 5 backlog (CTO decisions): see `BACKLOG_R5.md` (beside this file in the worktree root): Turnstile siteverify PR before `PHONE_LOGIN_ENABLED`; server-side lesson completion before certificates (#11 R5-2); `supabase_admin` default privileges (#15); reduce anon DML on legacy tables; bind pulse clicks to a server-created session (`finish-diagnostic.functions.ts:28/84`).
 - #9: `VALIDATE CONSTRAINT` after legacy media URLs are migrated (see G2).
 - #5: Marvad client practice scores (CTO decision).
 - #4: UI for `linkCandidateUser`.
