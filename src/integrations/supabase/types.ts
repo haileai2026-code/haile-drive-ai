@@ -1026,34 +1026,49 @@ export type Database = {
       }
       phone_login_requests: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
+          attempts: number
           created_at: string
           expires_at: string
           id: string
           otp_hash: string | null
           otp_plain: string | null
           phone: string
+          request_ip_hash: string | null
+          sms_sent_at: string | null
           status: string
           updated_at: string
           user_id: string | null
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          attempts?: number
           created_at?: string
           expires_at?: string
           id?: string
           otp_hash?: string | null
           otp_plain?: string | null
           phone: string
+          request_ip_hash?: string | null
+          sms_sent_at?: string | null
           status?: string
           updated_at?: string
           user_id?: string | null
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          attempts?: number
           created_at?: string
           expires_at?: string
           id?: string
           otp_hash?: string | null
           otp_plain?: string | null
           phone?: string
+          request_ip_hash?: string | null
+          sms_sent_at?: string | null
           status?: string
           updated_at?: string
           user_id?: string | null
@@ -1388,6 +1403,36 @@ export type Database = {
         }
         Returns: boolean
       }
+      phone_auth_user_lookup: { Args: { p_emails: string[] }; Returns: string }
+      phone_otp_consume: {
+        Args: { p_request_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      phone_otp_release: { Args: { p_request_id: string }; Returns: boolean }
+      phone_otp_request: {
+        Args: {
+          p_ip_hash: string | null
+          p_otp_hash: string
+          p_phone: string
+          p_reserve_sms?: boolean
+        }
+        Returns: { outcome: string; request_id: string | null }[]
+      }
+      phone_otp_request_allowed: { Args: { p_phone: string }; Returns: boolean }
+      phone_otp_sms_result: {
+        Args: { p_request_id: string; p_sent: boolean }
+        Returns: boolean
+      }
+      phone_otp_verify: {
+        Args: { p_otp_hash: string; p_phone: string }
+        Returns: {
+          expires_at: string | null
+          outcome: string
+          request_id: string | null
+          status: string | null
+        }[]
+      }
+      purge_phone_otps: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "owner" | "staff" | "teacher" | "student" | "lead"
