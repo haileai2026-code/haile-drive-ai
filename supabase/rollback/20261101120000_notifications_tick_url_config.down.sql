@@ -3,3 +3,5 @@
 -- hardcoded-URL job (re-create it manually only if really needed).
 do $$ begin perform cron.unschedule('notifications-tick'); exception when others then null; end $$;
 drop function if exists public.notifications_tick();
+drop function if exists public.notifications_tick_schedule();
+drop table if exists public.notifications_tick_state;
