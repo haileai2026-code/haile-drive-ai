@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireCurrentConsent } from "@/lib/consent/enforce.server";
 import { chatCompletion } from "@/lib/ai-gateway";
 
 const SYSTEM_PROMPT = `You are an expert driving theory teacher for Haile Drive AI.
@@ -39,7 +40,7 @@ NEVER:
 - Say "I cannot" — always try to help within driving theory context`;
 
 export const aiChat = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAuth, requireCurrentConsent])
   .inputValidator((input: unknown) =>
     z.object({
       messages: z

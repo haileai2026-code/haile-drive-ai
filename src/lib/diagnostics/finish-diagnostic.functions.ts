@@ -3,6 +3,7 @@ import { z } from "zod";
 import { assertPsychAssessmentsEnabled } from "@/lib/psych-assessments-flag";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { requireCurrentConsent } from "@/lib/consent/enforce.server";
 import { calculateBeqaScore } from "@/lib/beqa-questions";
 import { scoreFor } from "./scoring";
 import { assertExactQuestionSet } from "./answer-set";
@@ -17,7 +18,7 @@ const AnswerIn = z.object({
 });
 
 export const finishDiagnostic = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAuth, requireCurrentConsent])
   .inputValidator((input: unknown) =>
     z
       .object({

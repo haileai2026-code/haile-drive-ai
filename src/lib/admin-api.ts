@@ -30,6 +30,33 @@ export type Candidate = {
   national_id?: string | null;
   created_at: string;
 };
+/**
+ * Teacher-visible roster row, returned by the SECURITY DEFINER RPC
+ * public.get_teacher_roster(). Deliberately has NO phone / email / notes /
+ * national_id / document fields: teachers get no table access to candidates.
+ */
+export type TeacherRosterRow = {
+  id: string;
+  full_name: string;
+  class_id: string | null;
+  status: string;
+};
+
+// Staff/owner: full rows via RLS. Teacher (opts.teacherId): roster RPC only;
+// the RPC scopes to classes taught by auth.uid(), teacherId is not trusted.
+async function listCandidates(): Promise<Candidate[]>;
+async function listCandidates(opts: { teacherId: string }): Promise<TeacherRosterRow[]>;
+async function listCandidates(opts?: { teacherId?: string }): Promise<Candidate[] | TeacherRosterRow[]> {
+  if (opts?.teacherId) {
+    const { data, error } = await sb.rpc("get_teacher_roster");
+    if (error) throw error;
+    return (data ?? []) as TeacherRosterRow[];
+  }
+  const { data, error } = await sb.from("candidates").select("*").order("created_at", { ascending: false });
+  if (error) throw error;
+  return data ?? [];
+}
+
 export type Material = {
   id: string;
   title: string;
@@ -96,13 +123,7 @@ export const adminApi = {
   },
 
   // CANDIDATES
-  async listCandidates(opts?: { teacherId?: string }): Promise<Candidate[]> {
-    let q = sb.from("candidates").select("*").order("created_at", { ascending: false });
-    if (opts?.teacherId) q = q.eq("assigned_teacher_id", opts.teacherId);
-    const { data, error } = await q;
-    if (error) throw error;
-    return data ?? [];
-  },
+  listCandidates,
   async upsertCandidate(c: Partial<Candidate> & { full_name: string }) {
     const { error } = await sb.from("candidates").upsert(c);
     if (error) throw error;
@@ -383,7 +404,11 @@ export const docsApi = {
       mime_type: file.type || null,
       size_bytes: file.size,
     });
-    if (insErr) throw insErr;
+    if (insErr) {
+      // Do not leave an orphaned file when the row insert is rejected.
+      await (supabase as any).storage.from("candidate-documents").remove([path]);
+      throw insErr;
+    }
   },
   async signedUrl(path: string, expiresIn = 300): Promise<string> {
     const { data, error } = await (supabase as any).storage

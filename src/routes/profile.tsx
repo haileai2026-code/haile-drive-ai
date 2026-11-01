@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
+import { ConsentWithdrawal } from "@/components/ConsentWithdrawal";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,18 +29,18 @@ function ProfilePage() {
         .maybeSingle();
       if (!cancelled) setProfile(p ?? null);
 
-      // Find candidate row for this user (by email) and JOIN class name
-      const email = p?.email ?? user.email ?? null;
-      if (email) {
-        const { data: cand } = await supabase
-          .from("candidates")
-          .select("class_id, classes:class_id(name)")
-          .ilike("email", email)
+      // Class via SECURITY DEFINER helper keyed on candidates.user_id
+      // (students have no table access to public.candidates).
+      const { data: classId } = await supabase.rpc("current_user_class_id");
+      if (classId) {
+        const { data: cls } = await supabase
+          .from("classes")
+          .select("name")
+          .eq("id", classId)
           .maybeSingle();
-        if (!cancelled) {
-          const name = (cand as any)?.classes?.name ?? null;
-          setClassName(name);
-        }
+        if (!cancelled) setClassName(cls?.name ?? null);
+      } else if (!cancelled) {
+        setClassName(null);
       }
     })();
     return () => {
@@ -104,6 +105,8 @@ function ProfilePage() {
           );
         })}
       </ul>
+
+      <ConsentWithdrawal />
 
       <Link to="/" className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm font-semibold text-destructive">
         <LogOut className="h-4 w-4" /> {t("login")}
