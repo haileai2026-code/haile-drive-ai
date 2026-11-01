@@ -15,9 +15,17 @@ import {
 
 const LANG = z.enum(["he", "am", "ru"]);
 
+// Generic client message; the configuration detail is logged server-side only.
+export const CONSENT_GENERIC_ERROR = "consent could not be recorded";
+
 async function webEvidence() {
   const headers = getRequest()?.headers ?? new Headers();
-  return buildWebEvidence(clientIpFrom(headers), headers.get("user-agent"), process.env.CONSENT_EVIDENCE_PEPPER);
+  try {
+    return await buildWebEvidence(clientIpFrom(headers), headers.get("user-agent"), process.env.CONSENT_EVIDENCE_PEPPER);
+  } catch (e) {
+    console.error("[consent] evidence failed", e instanceof Error ? e.message : e); // e.g. pepper missing
+    throw new Error(CONSENT_GENERIC_ERROR);
+  }
 }
 
 function rowFor(type: "privacy_terms_abroad" | "partner_individual_progress", granted: boolean, lang: ConsentLanguage) {
@@ -32,7 +40,7 @@ async function insert(userId: string, row: ReturnType<typeof rowFor>, evidence: 
   const { error } = await supabaseAdmin.rpc("record_consent", {
     p_user_id: userId, p_subject_candidate_id: null, p_channel: "web", p_evidence: evidence, ...row,
   });
-  if (error) throw new Error("consent could not be recorded");
+  if (error) throw new Error(CONSENT_GENERIC_ERROR);
 }
 
 /**

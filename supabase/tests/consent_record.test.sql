@@ -281,4 +281,88 @@ begin
   raise notice 'PASS C consent-gated student writes';
 end $$;
 
+-- N: round 3 (N3) - BEQA / biometric consent / course writes need the current consent.
+do $$
+declare
+  s3 uuid := '00000000-0000-0000-0000-0000000c0701';
+  so uuid := '00000000-0000-0000-0000-0000000c0702';
+  crs uuid := '00000000-0000-0000-0000-0000000c07c1';
+  crs2 uuid := '00000000-0000-0000-0000-0000000c07c2';
+  les uuid := '00000000-0000-0000-0000-0000000c07d1';
+  enr uuid := '00000000-0000-0000-0000-0000000c07e1';
+  web jsonb := '{"ip_hash":"00ff","user_agent":"t"}';
+  ok boolean; st text; res jsonb := '{}';
+  pulse boolean := exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'beqa_pulse_clicks'
+                             and policyname = 'student insert own pulse clicks');
+begin
+  set local session_replication_role = replica;  -- fixtures only: skip FK/guard triggers
+  insert into auth.users(id, email) values (s3, 'cs3@test.local'), (so, 'cso@test.local');
+  insert into public.user_roles(user_id, role) values (s3, 'student'), (so, 'staff') on conflict do nothing;
+  insert into public.candidates(id, full_name, email, user_id, beqa_access)
+    values ('00000000-0000-0000-0000-0000000c07a1', 'CS3', 'cs3@test.local', s3, true);
+  insert into public.online_courses(id, title_he, status) values (crs, 'c', 'published'), (crs2, 'c2', 'published');
+  insert into public.course_enrollments(id, course_id, student_id) values (enr, crs, s3);
+  for st in select unnest(array['none', 'current', 'withdrawn']) loop
+    if st = 'current' then
+      execute 'set local role service_role';
+      perform public.record_consent(s3, null, 'privacy_terms_abroad', true, 'campus-privacy-v0.4', 'campus-terms-beta-v0.4',
+                                    'campus-consent-v0.3-he', 'he', 'web', web);
+      execute 'reset role';
+    elsif st = 'withdrawn' then
+      execute 'set local role service_role';
+      perform public.record_consent(s3, null, 'privacy_terms_abroad', false, 'campus-privacy-v0.4', 'campus-terms-beta-v0.4',
+                                    'campus-consent-v0.3-he', 'he', 'web', web);
+      execute 'reset role';
+      -- same transaction => same now(); make the withdrawal the newest row
+      update public.consents set created_at = now() + interval '1 second'
+       where user_id = s3 and granted = false;
+    end if;
+    delete from public.course_enrollments where student_id = s3 and id <> enr;
+    delete from public.course_lesson_progress where enrollment_id = enr;
+    perform set_config('request.jwt.claims', json_build_object('sub', s3, 'role', 'authenticated')::text, true);
+    execute 'set local role authenticated';
+    begin insert into public.raw_biometric_log(session_id, student_id, event_type) values (gen_random_uuid(), s3, 'x'); ok := true;
+    exception when insufficient_privilege then ok := false; end;
+    res := res || jsonb_build_object(st || ':bio_log', ok);
+    if pulse then
+      begin insert into public.beqa_pulse_clicks(session_id, student_id) values (gen_random_uuid(), s3); ok := true;
+      exception when insufficient_privilege then ok := false; end;
+      res := res || jsonb_build_object(st || ':pulse', ok);
+    end if;
+    begin insert into public.biometric_consents(student_id, consent_text_version, granted) values (s3, 'v1', true); ok := true;
+    exception when insufficient_privilege then ok := false; end;
+    res := res || jsonb_build_object(st || ':bio_consent_grant', ok);
+    begin insert into public.course_enrollments(course_id, student_id) values (crs2, s3); ok := true;
+    exception when insufficient_privilege then ok := false; end;
+    res := res || jsonb_build_object(st || ':enroll', ok);
+    begin insert into public.course_lesson_progress(enrollment_id, lesson_id) values (enr, les); ok := true;
+    exception when insufficient_privilege then ok := false; end;
+    res := res || jsonb_build_object(st || ':progress', ok);
+    -- refusing biometric consent is always possible
+    insert into public.biometric_consents(student_id, consent_text_version, granted) values (s3, 'v1', false);
+    -- reads stay allowed
+    perform count(*) from public.course_enrollments where student_id = s3;
+    execute 'reset role';
+  end loop;
+  if exists (select 1 from jsonb_each_text(res) e(k, v) where k !~ '^current:' and v::boolean) then
+    raise exception 'FAIL N1 write without current consent: %', (select string_agg(k, ',') from jsonb_each_text(res) e(k, v) where k !~ '^current:' and v::boolean); end if;
+  if exists (select 1 from jsonb_each_text(res) e(k, v) where k ~ '^current:' and not v::boolean) then
+    raise exception 'FAIL N2 write denied with current consent: %', (select string_agg(k, ',') from jsonb_each_text(res) e(k, v) where k ~ '^current:' and not v::boolean); end if;
+  -- N3: lesson progress UPDATE after withdrawal is denied (row from 'current' was deleted; make one)
+  insert into public.course_lesson_progress(enrollment_id, lesson_id) values (enr, les);
+  perform set_config('request.jwt.claims', json_build_object('sub', s3, 'role', 'authenticated')::text, true);
+  execute 'set local role authenticated';
+  begin update public.course_lesson_progress set status = 'completed' where enrollment_id = enr; ok := true;
+  exception when insufficient_privilege then ok := false; end;
+  execute 'reset role';
+  if ok then raise exception 'FAIL N3 progress update after withdrawal'; end if;
+  -- N4: staff (no consent row) still enrols / writes progress as before
+  perform set_config('request.jwt.claims', json_build_object('sub', so, 'role', 'authenticated')::text, true);
+  execute 'set local role authenticated';
+  insert into public.course_enrollments(course_id, student_id) values (crs, so);
+  update public.course_lesson_progress set status = 'completed' where enrollment_id = enr;
+  execute 'reset role';
+  raise notice 'PASS N round-3 consent-gated writes (pulse policy %)', case when pulse then 'present+gated' else 'absent (dropped by #5)' end;
+end $$;
+
 rollback;
