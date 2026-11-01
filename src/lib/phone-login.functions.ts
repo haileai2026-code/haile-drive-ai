@@ -12,6 +12,7 @@ import {
   phoneLoginEnabled,
   smsIpKey,
 } from "./phone-login-gate";
+import { verifyTurnstile } from "./turnstile";
 import { sendViaTwilio } from "./notifications.functions";
 import {
   OTP_GENERIC_MESSAGE,
@@ -41,7 +42,7 @@ async function assertOwnerOrStaff(supabase: any, userId: string) {
   if (!data) throw new Error("Forbidden");
 }
 
-// R5-1: hard-disabled in code (always 403) until server-side Turnstile siteverify lands.
+// HB-01: PHONE_LOGIN_ENABLED=on AND TURNSTILE_SECRET_KEY present, else 403.
 function assertPhoneLoginEnabled() {
   if (!phoneLoginEnabled(process.env)) {
     setResponseStatus(403);
@@ -55,21 +56,32 @@ function clientIp(): string | null {
 }
 
 // Step 1 — student requests an OTP. Anonymous-callable, but only when the
-// gate is open (assertPhoneLoginEnabled) - currently hard-disabled (R5-1)
-// until server-side Turnstile siteverify lands. The per-phone, per-IP and global hourly limits in
+// gate is open (assertPhoneLoginEnabled) AND the Turnstile token passes
+// server-side siteverify (HB-01, fail closed). The per-phone, per-IP and global hourly limits in
 // public.phone_otp_request apply (atomic, advisory lock per phone).
 export const requestPhoneOtp = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
-    z.object({ phone: z.string().min(6).max(40) }).parse(input),
+    z.object({
+      phone: z.string().min(6).max(40),
+      turnstileToken: z.string().max(2048).optional(),
+    }).parse(input),
   )
   .handler(async ({ data }) => {
     assertPhoneLoginEnabled();
+    const ip = clientIp();
+    // HB-01: verify the Turnstile token on every request, fail closed.
+    const ts = await verifyTurnstile({ token: data.turnstileToken, remoteip: ip });
+    if (!ts.ok) {
+      console.warn("[phone-login] turnstile rejected", ts.reason);
+      setResponseStatus(403);
+      throw new Error(PHONE_LOGIN_DISABLED_MESSAGE);
+    }
     const phone = normalizePhoneE164(data.phone);
     if (!phone) throw new Error("מספר טלפון לא תקין");
 
     // R4-3: no client IP never disables the per-IP limit (400 in production,
     // one shared strict bucket elsewhere).
-    const ipKey = smsIpKey(clientIp(), process.env);
+    const ipKey = smsIpKey(ip, process.env);
     if (ipKey.refuse) {
       setResponseStatus(400);
       throw new Error(PHONE_LOGIN_NO_IP_MESSAGE);

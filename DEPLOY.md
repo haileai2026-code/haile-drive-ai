@@ -43,7 +43,8 @@ npx wrangler secret put DAILY_API_KEY
 **Phone OTP (server only, required before phone login is enabled):**
 - `OTP_PEPPER` — at least 32 random characters (`openssl rand -hex 32`); no value in the repo. Without it OTP requests fail closed. The IP-hash key is derived from it (HKDF), so no separate env var is needed.
 - CAPTCHA must be in place before phone login / Twilio is turned on.
-- Phone login is **hard-disabled in code** (R5-1): `phoneLoginEnabled()` always returns false, so phone OTP request/verify always return 403. `PHONE_LOGIN_ENABLED` and `TURNSTILE_SECRET_KEY` have **no effect** until server-side Turnstile siteverify (token + `remoteip`, hostname/action checks, fail closed) and the client widget land in a separate PR. No client CAPTCHA token is read today.
+- Phone login (HB-01) is gated by `PHONE_LOGIN_ENABLED=on` **and** `TURNSTILE_SECRET_KEY` (server only); otherwise phone OTP request/verify return 403. In addition, every `requestPhoneOtp` call must carry a Cloudflare Turnstile token, which the server verifies via `https://challenges.cloudflare.com/turnstile/v0/siteverify` (secret, token, `remoteip` from `src/lib/client-ip.ts`, 5 s timeout). It requires `success=true`, `hostname` in `TURNSTILE_ALLOWED_HOSTNAMES` (comma-separated, required) and `action=phone_otp`; any error/timeout fails closed (403).
+- Client widget: set `VITE_TURNSTILE_SITE_KEY` (public site key, build-time). Without it no widget renders and phone OTP requests are rejected. If a CSP is added, allow `https://challenges.cloudflare.com` for script-src and frame-src.
 - In production (`VERCEL=1` or `NODE_ENV=production`) an SMS request without a resolvable client IP is refused with 400; outside production IP-less requests share one strict per-IP bucket, so the per-IP limit is never disabled.
 - Deploy order: PR #10 (beta flag guard) must be merged before #6 is deployed.
 - Caps-hit alerting (R4-4) is a follow-up; acceptable once Turnstile is in place.

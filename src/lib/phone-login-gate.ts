@@ -7,15 +7,16 @@ export const PHONE_LOGIN_DISABLED_MESSAGE = "כניסה עם טלפון אינה
 export const PHONE_LOGIN_NO_IP_MESSAGE = "הבקשה נדחתה";
 
 /**
- * R5-1 (CTO decision): phone login is HARD-DISABLED in code. It always returns
- * false (-> 403) regardless of env, including PHONE_LOGIN_ENABLED and
- * TURNSTILE_SECRET_KEY. No client CAPTCHA token is read or verified today, so
- * an env switch must not be able to open the SMS path. Re-enabling requires a
- * separate PR that adds server-side Turnstile siteverify (token + remoteip,
- * hostname/action checks, fail closed) and a client widget.
+ * HB-01: the phone-login gate opens only when ops set PHONE_LOGIN_ENABLED=on
+ * AND TURNSTILE_SECRET_KEY is present. This is necessary but not sufficient:
+ * requestPhoneOtp additionally verifies a Turnstile token server-side
+ * (verifyTurnstile, fail closed) on EVERY request.
  */
-export function phoneLoginEnabled(_env: Env): false {
-  return false;
+export function phoneLoginEnabled(env: Env): boolean {
+  return (
+    (env.PHONE_LOGIN_ENABLED ?? "").trim().toLowerCase() === "on" &&
+    (env.TURNSTILE_SECRET_KEY ?? "").trim().length > 0
+  );
 }
 
 export function isProductionEnv(env: Env): boolean {

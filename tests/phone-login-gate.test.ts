@@ -2,16 +2,14 @@
 import { describe, expect, test } from "bun:test";
 import { UNKNOWN_IP_BUCKET, phoneLoginEnabled, smsIpKey } from "../src/lib/phone-login-gate";
 
-describe("phoneLoginEnabled (R5-1, hard-disabled in code)", () => {
-  test("always off, whatever the env", () => {
-    const envs = [
-      {},
-      { PHONE_LOGIN_ENABLED: "on" },
-      { PHONE_LOGIN_ENABLED: "on", TURNSTILE_SECRET_KEY: "x" },
-      { PHONE_LOGIN_ENABLED: " ON ", TURNSTILE_SECRET_KEY: "x", TURNSTILE_ALLOWED_HOSTNAMES: "a.example" },
-      { VITE_BETA_SENSITIVE_FEATURES: "on", PHONE_LOGIN_ENABLED: "on", TURNSTILE_SECRET_KEY: "x" },
-    ];
-    for (const e of envs) expect(phoneLoginEnabled(e)).toBe(false);
+describe("phoneLoginEnabled (HB-01)", () => {
+  test("off unless PHONE_LOGIN_ENABLED=on AND TURNSTILE_SECRET_KEY", () => {
+    for (const e of [{}, { PHONE_LOGIN_ENABLED: "on" }, { TURNSTILE_SECRET_KEY: "x" }, { PHONE_LOGIN_ENABLED: "off", TURNSTILE_SECRET_KEY: "x" }, { PHONE_LOGIN_ENABLED: "on", TURNSTILE_SECRET_KEY: "  " }])
+      expect(phoneLoginEnabled(e)).toBe(false);
+  });
+  test("on when both set", () => {
+    expect(phoneLoginEnabled({ PHONE_LOGIN_ENABLED: "on", TURNSTILE_SECRET_KEY: "x" })).toBe(true);
+    expect(phoneLoginEnabled({ PHONE_LOGIN_ENABLED: " ON ", TURNSTILE_SECRET_KEY: "x" })).toBe(true);
   });
 });
 

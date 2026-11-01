@@ -8,6 +8,7 @@ import { getPrimaryRole, useAuth, roleHomePath } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { requestPhoneOtp, verifyPhoneOtp } from "@/lib/phone-login.functions";
 import type { Role } from "@/lib/ops-data";
+import { TurnstileWidget } from "@/components/TurnstileWidget";
 
 type PortalRole = Extract<Role, "owner" | "teacher" | "student">;
 
@@ -88,6 +89,8 @@ function LoginPage() {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileReset, setTurnstileReset] = useState(0);
   const requestOtpFn = useServerFn(requestPhoneOtp);
   const verifyOtpFn = useServerFn(verifyPhoneOtp);
 
@@ -99,12 +102,17 @@ function LoginPage() {
     }
     setBusy(true);
     try {
-      const res = await requestOtpFn({ data: { phone } });
+      const res = await requestOtpFn({ data: { phone, turnstileToken: turnstileToken ?? undefined } });
       setOtpSent(true);
       setInfo(res.delivery === "sms" ? t("otpSentSms") : t("otpSentManual"));
     } catch (e: any) {
       setErr(e?.message ?? "שגיאה בשליחת הקוד");
-    } finally { setBusy(false); }
+    } finally {
+      // Turnstile tokens are single-use: always get a fresh one.
+      setTurnstileToken(null);
+      setTurnstileReset((n) => n + 1);
+      setBusy(false);
+    }
   };
 
   const submitPhone = async (e: React.FormEvent) => {
@@ -334,6 +342,10 @@ function LoginPage() {
                   disabled={otpSent}
                 />
               </div>
+
+              {!otpSent && (
+                <TurnstileWidget onToken={setTurnstileToken} resetKey={turnstileReset} />
+              )}
 
               {!otpSent ? (
                 <button
