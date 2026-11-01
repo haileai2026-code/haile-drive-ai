@@ -319,3 +319,196 @@ grant execute on function public.consent_version_allowed(text, text, text, text)
 grant execute on function public.record_consent(uuid, uuid, text, boolean, text, text, text, text, text, jsonb) to service_role;
 grant execute on function public.consent_ok(uuid) to service_role;
 grant execute on function public.purge_expired_consents() to service_role;
+
+-- =====================================================================
+-- R9. Security re-review (2026-11-01). Re-runnable.
+-- =====================================================================
+-- R9a. More channels (offline / assisted consent), each with its evidence.
+alter table public.consents drop constraint if exists consents_channel_check;
+alter table public.consents add constraint consents_channel_check
+  check (channel in ('web', 'whatsapp', 'telegram', 'paper', 'phone'));
+alter table public.consents drop constraint if exists consents_evidence_check;
+alter table public.consents add constraint consents_evidence_check check (
+  jsonb_typeof(evidence) = 'object' and
+  case channel
+    when 'web'      then evidence ? 'ip_hash' and evidence ? 'user_agent'
+    when 'whatsapp' then evidence ? 'message_id' and evidence ? 'template'
+    when 'telegram' then evidence ? 'message_id' and evidence ? 'template'
+    when 'paper'    then evidence ? 'document_ref' and evidence ? 'recorded_by'
+    when 'phone'    then evidence ? 'call_ref' and evidence ? 'recorded_by'
+  end);
+
+-- R9b. The guard also rejects unknown versions on INSERT (not only record_consent).
+create or replace function public.consents_guard()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  if tg_op = 'INSERT' then
+    if new.user_id is null and new.subject_candidate_id is null then
+      raise exception 'consents: a subject (user_id or subject_candidate_id) is required';
+    end if;
+    if not public.consent_version_allowed(new.consent_type, new.notice_version, new.terms_version, new.checkbox_version) then
+      raise exception 'consents: version not allowed' using errcode = '22023';
+    end if;
+    new.created_at := clock_timestamp();  -- server time; strictly ordered within a transaction
+    new.subject_erased_at := null;
+    return new;
+  elsif tg_op = 'UPDATE' then
+    if (to_jsonb(new) - 'user_id' - 'subject_candidate_id' - 'subject_erased_at')
+         = (to_jsonb(old) - 'user_id' - 'subject_candidate_id' - 'subject_erased_at')
+       and (new.user_id is null or new.user_id = old.user_id)
+       and (new.subject_candidate_id is null or new.subject_candidate_id = old.subject_candidate_id)
+       and (new.user_id is distinct from old.user_id
+            or new.subject_candidate_id is distinct from old.subject_candidate_id) then
+      if new.user_id is null and new.subject_candidate_id is null then
+        new.subject_erased_at := coalesce(old.subject_erased_at, now());
+      else
+        new.subject_erased_at := old.subject_erased_at;
+      end if;
+      return new;
+    end if;
+    raise exception 'consents is append-only';
+  else -- DELETE / TRUNCATE
+    if current_user = 'service_role'
+       and coalesce(current_setting('app.erasure', true), '') = 'on' then
+      if tg_op = 'DELETE' then return old; end if;
+      return null;
+    end if;
+    raise exception 'consents: % only via service_role with app.erasure=on', lower(tg_op);
+  end if;
+end;
+$$;
+revoke all on function public.consents_guard() from public, anon, authenticated, service_role;
+-- the guard runs as the inserting role (service_role); it needs the checker
+grant execute on function public.consent_version_allowed(text, text, text, text) to service_role;
+
+-- R9c. consent_ok for RLS (CTO 2026-11-01): SECURITY DEFINER (reads consents
+--      as the owner, no RLS recursion), STABLE, search_path ''. A caller can
+--      ask only about itself, unless staff or no end-user JWT (server).
+create or replace function public.consent_ok(p_user_id uuid)
+returns boolean
+language sql stable
+security definer
+set search_path = ''
+as $$
+  select case
+    when (select auth.uid()) is not null
+         and p_user_id is distinct from (select auth.uid())
+         and not public.is_staff() then false
+    else coalesce((
+      select c.granted
+         and public.consent_version_allowed(c.consent_type, c.notice_version, c.terms_version, c.checkbox_version)
+        from public.consents c
+       where c.user_id = p_user_id and c.consent_type = 'privacy_terms_abroad'
+       order by c.created_at desc
+       limit 1), false)
+  end;
+$$;
+revoke all on function public.consent_ok(uuid) from public, anon;
+grant execute on function public.consent_ok(uuid) to authenticated, service_role;
+
+-- R9d. Student writes require the CURRENT consent (RLS). Staff / teacher
+--      writes are unchanged: the consent term is OR-ed with a staff/teacher
+--      check, so those roles keep exactly their previous rights.
+--      Covered: community posts (insert/update), comments, community-media
+--      uploads, feedback, contact messages; exam results via a trigger
+--      (written by the SECURITY DEFINER grade_exam_attempt RPC, which RLS
+--      does not see). Attendance has no student write path (teacher/owner only).
+drop policy if exists "Members create posts in own class" on public.community_posts;
+create policy "Members create posts in own class" on public.community_posts for insert to authenticated
+with check (
+  author_id = (select auth.uid())
+  and ((select public.consent_ok((select auth.uid())))
+       or public.has_role((select auth.uid()), 'owner'::public.app_role)
+       or public.has_role((select auth.uid()), 'staff'::public.app_role)
+       or public.has_role((select auth.uid()), 'teacher'::public.app_role))
+  and (
+    (post_type = any (array['post'::public.community_post_type, 'question'::public.community_post_type])
+      and (class_id = public.current_user_class_id()
+           or public.has_role((select auth.uid()), 'owner'::public.app_role)
+           or public.has_role((select auth.uid()), 'staff'::public.app_role)
+           or exists (select 1 from public.classes cl where cl.id = community_posts.class_id and cl.teacher_id = (select auth.uid()))))
+    or (post_type = 'announcement'::public.community_post_type
+      and (public.has_role((select auth.uid()), 'owner'::public.app_role)
+           or public.has_role((select auth.uid()), 'staff'::public.app_role)
+           or exists (select 1 from public.classes cl where cl.id = community_posts.class_id and cl.teacher_id = (select auth.uid()))))
+  )
+);
+
+drop policy if exists "Author or owner update post" on public.community_posts;
+create policy "Author or owner update post" on public.community_posts for update to authenticated
+using (
+  (author_id = (select auth.uid())
+   and ((select public.consent_ok((select auth.uid())))
+        or public.has_role((select auth.uid()), 'staff'::public.app_role)
+        or public.has_role((select auth.uid()), 'teacher'::public.app_role)))
+  or public.has_role((select auth.uid()), 'owner'::public.app_role)
+);
+
+drop policy if exists "Insert comment when post visible" on public.community_comments;
+create policy "Insert comment when post visible" on public.community_comments for insert to authenticated
+with check (
+  author_id = (select auth.uid())
+  and ((select public.consent_ok((select auth.uid())))
+       or public.has_role((select auth.uid()), 'owner'::public.app_role)
+       or public.has_role((select auth.uid()), 'staff'::public.app_role)
+       or public.has_role((select auth.uid()), 'teacher'::public.app_role))
+  and exists (select 1 from public.community_posts p where p.id = community_comments.post_id)
+);
+
+drop policy if exists "Author inserts own feedback" on public.feedback_reports;
+create policy "Author inserts own feedback" on public.feedback_reports for insert to authenticated
+with check (
+  author_id = (select auth.uid())
+  and ((select public.consent_ok((select auth.uid())))
+       or public.has_role((select auth.uid()), 'owner'::public.app_role)
+       or public.has_role((select auth.uid()), 'staff'::public.app_role)
+       or public.has_role((select auth.uid()), 'teacher'::public.app_role))
+);
+
+drop policy if exists "Authenticated insert contact" on public.contact_messages;
+create policy "Authenticated insert contact" on public.contact_messages for insert to authenticated
+with check (
+  sender_id = (select auth.uid())
+  and ((select public.consent_ok((select auth.uid())))
+       or public.has_role((select auth.uid()), 'owner'::public.app_role)
+       or public.has_role((select auth.uid()), 'staff'::public.app_role)
+       or public.has_role((select auth.uid()), 'teacher'::public.app_role))
+);
+
+drop policy if exists "Authenticated upload to own folder" on storage.objects;
+create policy "Authenticated upload to own folder" on storage.objects for insert to authenticated
+with check (
+  bucket_id = 'community-media'
+  and (storage.foldername(name))[1] = ((select auth.uid()))::text
+  and ((select public.consent_ok((select auth.uid())))
+       or public.has_role((select auth.uid()), 'owner'::public.app_role)
+       or public.has_role((select auth.uid()), 'staff'::public.app_role)
+       or public.has_role((select auth.uid()), 'teacher'::public.app_role))
+);
+
+-- exam results: written by grade_exam_attempt (SECURITY DEFINER) -> trigger.
+create or replace function public.exam_results_consent_guard()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare v_uid uuid := (select auth.uid());
+begin
+  if v_uid is not null and new.user_id = v_uid
+     and not public.consent_ok(v_uid)
+     and not public.has_role(v_uid, 'owner'::public.app_role)
+     and not public.has_role(v_uid, 'staff'::public.app_role)
+     and not public.has_role(v_uid, 'teacher'::public.app_role) then
+    raise exception 'current consent required' using errcode = '42501';
+  end if;
+  return new;
+end;
+$$;
+revoke all on function public.exam_results_consent_guard() from public, anon, authenticated, service_role;
+drop trigger if exists exam_results_consent_guard on public.exam_results;
+create trigger exam_results_consent_guard before insert or update on public.exam_results
+  for each row execute function public.exam_results_consent_guard();

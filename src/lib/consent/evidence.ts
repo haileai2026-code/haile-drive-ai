@@ -7,14 +7,9 @@ const UA_MAX = 512;
 export type WebEvidence = { ip_hash: string | null; user_agent: string };
 export type WhatsappEvidence = { message_id: string; template: string };
 
-/** First address of X-Forwarded-For, else X-Real-IP; null when unknown. */
-export function clientIpFrom(headers: Headers): string | null {
-  const xff = headers.get("x-forwarded-for");
-  const first = xff?.split(",")[0]?.trim();
-  if (first) return first;
-  const real = headers.get("x-real-ip")?.trim();
-  return real || null;
-}
+// Client IP: same trusted-header logic as phone OTP (never the leftmost
+// X-Forwarded-For); see src/lib/client-ip.ts.
+export { clientIpFrom } from "../client-ip";
 
 async function hmacHex(key: string, value: string): Promise<string> {
   const enc = new TextEncoder();

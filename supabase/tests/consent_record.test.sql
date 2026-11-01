@@ -150,7 +150,14 @@ begin
      or has_table_privilege('service_role','public.consents','UPDATE') then raise exception 'FAIL G2 truncate/update'; end if;
   if not (has_table_privilege('service_role','public.consents','SELECT') and has_table_privilege('service_role','public.consents','INSERT')
           and has_table_privilege('service_role','public.consents','DELETE')) then raise exception 'FAIL G3 service_role'; end if;
-  foreach f in array array['public.record_consent(uuid,uuid,text,boolean,text,text,text,text,text,jsonb)','public.consent_ok(uuid)',
+  -- consent_ok is used by RLS: authenticated + service_role (R9c)
+  if has_function_privilege('anon','public.consent_ok(uuid)','EXECUTE')
+     or not has_function_privilege('authenticated','public.consent_ok(uuid)','EXECUTE')
+     or not has_function_privilege('service_role','public.consent_ok(uuid)','EXECUTE') then raise exception 'FAIL G4b consent_ok grants'; end if;
+  if (select not prosecdef or provolatile <> 's' or not (proconfig @> array['search_path=""'])
+        from pg_proc where oid = 'public.consent_ok(uuid)'::regprocedure) then raise exception 'FAIL G4c consent_ok definer/stable/search_path'; end if;
+  if has_function_privilege('authenticated','public.exam_results_consent_guard()','EXECUTE') then raise exception 'FAIL G4d trigger fn'; end if;
+  foreach f in array array['public.record_consent(uuid,uuid,text,boolean,text,text,text,text,text,jsonb)',
                            'public.purge_expired_consents()','public.consent_version_allowed(text,text,text,text)'] loop
     if has_function_privilege('anon', f, 'EXECUTE') or has_function_privilege('authenticated', f, 'EXECUTE') then
       raise exception 'FAIL G4 client can execute %', f; end if;
@@ -160,6 +167,118 @@ begin
      or has_function_privilege('service_role','public.consents_guard()','EXECUTE') then raise exception 'FAIL G6 consents_guard'; end if;
   if (select count(*) from cron.job where jobname = 'consents-retention-purge') <> 1 then raise exception 'FAIL G7 purge cron'; end if;
   raise notice 'PASS G explicit grants';
+end $$;
+
+-- C: student writes require the CURRENT consent (RLS, R9d); staff unchanged.
+do $$
+declare
+  s1 uuid := '00000000-0000-0000-0000-0000000c0601';
+  sf uuid := '00000000-0000-0000-0000-0000000c0602';
+  cls uuid := '00000000-0000-0000-0000-0000000c06c1';
+  post uuid;
+  web jsonb := '{"ip_hash":"00ff","user_agent":"t"}';
+  ok boolean;
+  procedure_name text;
+  res jsonb := '{}';
+begin
+  insert into auth.users(id, email) values (s1, 'cs1@test.local'), (sf, 'csf@test.local');
+  insert into public.user_roles(user_id, role) values (s1, 'student'), (sf, 'staff') on conflict do nothing;
+  insert into public.classes(id, name) values (cls, 'C class');
+  insert into public.candidates(id, full_name, email, user_id, class_id)
+    values ('00000000-0000-0000-0000-0000000c06a1', 'CS1', 'cs1@test.local', s1, cls);
+  insert into public.community_posts(id, author_id, content, post_type, class_id)
+    values (gen_random_uuid(), sf, 'staff post', 'post', cls) returning id into post;
+
+
+  for procedure_name in select unnest(array['none', 'old', 'current']) loop
+    if procedure_name = 'old' then
+      alter table public.consents disable trigger consents_guard;
+      insert into public.consents(user_id, consent_type, granted, notice_version, terms_version, checkbox_version, language, channel, evidence)
+        values (s1, 'privacy_terms_abroad', true, 'campus-privacy-v0.3', 'campus-terms-beta-v0.3', 'campus-consent-v0.2-he', 'he', 'web', web);
+      alter table public.consents enable trigger consents_guard;
+    elsif procedure_name = 'current' then
+      execute 'set local role service_role';
+      perform public.record_consent(s1, null, 'privacy_terms_abroad', true, 'campus-privacy-v0.4', 'campus-terms-beta-v0.4',
+                                    'campus-consent-v0.3-he', 'he', 'web', web);
+      execute 'reset role';
+    end if;
+    perform set_config('request.jwt.claims', json_build_object('sub', s1, 'role', 'authenticated')::text, true);
+    execute 'set local role authenticated';
+    begin insert into public.community_posts(author_id, content, post_type, class_id) values (s1, 'p', 'post', cls); ok := true;
+    exception when insufficient_privilege then ok := false; end;
+    res := res || jsonb_build_object(procedure_name || ':post', ok);
+    begin insert into public.community_comments(post_id, author_id, content) values (post, s1, 'c'); ok := true;
+    exception when insufficient_privilege then ok := false; end;
+    res := res || jsonb_build_object(procedure_name || ':comment', ok);
+    begin insert into public.feedback_reports(author_id, type, title, content) values (s1, 'bug', 't', 'c'); ok := true;
+    exception when insufficient_privilege then ok := false; end;
+    res := res || jsonb_build_object(procedure_name || ':feedback', ok);
+    begin insert into public.contact_messages(sender_id, recipient_role, subject, content) values (s1, 'secretary', 's', 'c'); ok := true;
+    exception when insufficient_privilege then ok := false; end;
+    res := res || jsonb_build_object(procedure_name || ':contact', ok);
+    begin insert into storage.objects(bucket_id, name, owner) values ('community-media', s1::text || '/' || procedure_name || '.jpg', s1); ok := true;
+    exception when insufficient_privilege then ok := false; end;
+    res := res || jsonb_build_object(procedure_name || ':upload', ok);
+    execute 'reset role';
+    -- exam results are written by the SECURITY DEFINER RPC: trigger guard
+    begin insert into public.exam_results(user_id, exam_title, score) values (s1, procedure_name, 1); ok := true;
+    exception when insufficient_privilege then ok := false; end;
+    res := res || jsonb_build_object(procedure_name || ':exam', ok);
+  end loop;
+
+  if exists (select 1 from jsonb_each_text(res) e(name, v) where name like 'none:%' and v::boolean) then
+    raise exception 'FAIL C1 write without consent: %', (select string_agg(name, ',') from jsonb_each_text(res) e(name, v) where name like 'none:%' and v::boolean); end if;
+  if exists (select 1 from jsonb_each_text(res) e(name, v) where name like 'old:%' and v::boolean) then
+    raise exception 'FAIL C2 write with an OLD consent version: %', (select string_agg(name, ',') from jsonb_each_text(res) e(name, v) where name like 'old:%' and v::boolean); end if;
+  if exists (select 1 from jsonb_each_text(res) e(name, v) where name like 'current:%' and not v::boolean) then
+    raise exception 'FAIL C3 write denied with current consent: %', (select string_agg(name, ',') from jsonb_each_text(res) e(name, v) where name like 'current:%' and not v::boolean); end if;
+
+  -- C4: post update needs consent too (withdraw -> denied)
+  execute 'set local role service_role';
+  perform public.record_consent(s1, null, 'privacy_terms_abroad', false, 'campus-privacy-v0.4', 'campus-terms-beta-v0.4',
+                                'campus-consent-v0.3-he', 'he', 'web', web);
+  execute 'reset role';
+  perform set_config('request.jwt.claims', json_build_object('sub', s1, 'role', 'authenticated')::text, true);
+  execute 'set local role authenticated';
+  update public.community_posts set content = 'edited' where author_id = s1;
+  execute 'reset role';
+  if exists (select 1 from public.community_posts where author_id = s1 and content = 'edited') then
+    raise exception 'FAIL C4 update after withdrawal'; end if;
+
+  -- C5: staff (no consent row) unchanged
+  perform set_config('request.jwt.claims', json_build_object('sub', sf, 'role', 'authenticated')::text, true);
+  execute 'set local role authenticated';
+  insert into public.community_posts(author_id, content, post_type, class_id) values (sf, 'staff 2', 'announcement', cls);
+  insert into public.community_comments(post_id, author_id, content) values (post, sf, 'staff c');
+  execute 'reset role';
+
+  -- C6: a student cannot probe someone else's consent; staff can
+  perform set_config('request.jwt.claims', json_build_object('sub', sf, 'role', 'authenticated')::text, true);
+  execute 'set local role authenticated';
+  ok := public.consent_ok(s1);  -- withdrawn -> false, but answered
+  execute 'reset role';
+  perform set_config('request.jwt.claims', json_build_object('sub', s1, 'role', 'authenticated')::text, true);
+  execute 'set local role authenticated';
+  if public.consent_ok(sf) then raise exception 'FAIL C6 probe'; end if;
+  execute 'reset role';
+
+  -- C7: guard rejects an unknown version even on a direct service_role insert
+  execute 'set local role service_role';
+  begin
+    insert into public.consents(user_id, consent_type, granted, notice_version, terms_version, checkbox_version, language, channel, evidence)
+      values (s1, 'privacy_terms_abroad', true, 'campus-privacy-v9', 'campus-terms-beta-v0.4', 'campus-consent-v0.3-he', 'he', 'web', web);
+    raise exception 'FAIL C7 unknown version inserted';
+  exception when invalid_parameter_value then null; end;
+  -- C8: new channels need their evidence
+  perform public.record_consent(s1, null, 'privacy_terms_abroad', true, 'campus-privacy-v0.4', 'campus-terms-beta-v0.4',
+                                'campus-consent-v0.3-he', 'he', 'paper', '{"document_ref":"scan-1","recorded_by":"staff"}');
+  begin
+    perform public.record_consent(s1, null, 'privacy_terms_abroad', true, 'campus-privacy-v0.4', 'campus-terms-beta-v0.4',
+                                  'campus-consent-v0.3-he', 'he', 'telegram', '{}');
+    raise exception 'FAIL C8 telegram without evidence';
+  exception when check_violation then null; end;
+  execute 'reset role';
+  raise notice 'PASS C consent-gated student writes';
 end $$;
 
 rollback;

@@ -36,9 +36,13 @@ describe("consent evidence", () => {
     expect((await buildWebEvidence(null, "x".repeat(2000), PEPPER)).user_agent.length).toBe(512);
   });
   test("client ip from headers", () => {
-    expect(clientIpFrom(new Headers({ "x-forwarded-for": "198.51.100.1, 10.0.0.1" }))).toBe("198.51.100.1");
-    expect(clientIpFrom(new Headers({ "x-real-ip": "198.51.100.2" }))).toBe("198.51.100.2");
-    expect(clientIpFrom(new Headers())).toBeNull();
+    // never the client-controlled leftmost X-Forwarded-For
+    expect(clientIpFrom(new Headers({ "x-forwarded-for": "6.6.6.6, 198.51.100.1" }), false)).toBeNull();
+    expect(clientIpFrom(new Headers({ "x-forwarded-for": "6.6.6.6, 198.51.100.1" }), true)).toBe("198.51.100.1");
+    expect(clientIpFrom(new Headers({ "cf-connecting-ip": "198.51.100.3", "x-real-ip": "198.51.100.2" }), true)).toBe("198.51.100.3");
+    expect(clientIpFrom(new Headers({ "x-real-ip": "198.51.100.2" }), false)).toBeNull();
+    expect(clientIpFrom(new Headers({ "x-real-ip": "198.51.100.2" }), true)).toBe("198.51.100.2");
+    expect(clientIpFrom(new Headers(), true)).toBeNull();
   });
   test("whatsapp evidence requires message id and template", () => {
     expect(buildWhatsappEvidence(" wamid.1 ", "consent_v1")).toEqual({ message_id: "wamid.1", template: "consent_v1" });
