@@ -37,5 +37,17 @@ begin
   exception when insufficient_privilege then raise notice 'PASS T4 truncate denied (%)', t;
   end;
   execute 'reset role';
+
+  -- T5 (round 5): no MAINTAIN for client roles on PG17+ (existing + default privileges)
+  if current_setting('server_version_num')::int >= 170000 then
+    select count(*) into n
+      from pg_class c join pg_namespace ns on ns.oid = c.relnamespace, unnest(array['anon', 'authenticated']) rl
+     where ns.nspname = 'public' and c.relkind in ('r', 'p', 'v', 'm', 'f')
+       and has_table_privilege(rl, c.oid, 'MAINTAIN');
+    if n <> 0 then raise exception 'FAIL T5: % client MAINTAIN grants remain', n; end if;
+    raise notice 'PASS T5 no client MAINTAIN';
+  else
+    raise notice 'SKIP T5 (server < 17)';
+  end if;
 end $$;
 rollback;
