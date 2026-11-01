@@ -5,7 +5,8 @@
 --   trigger rejects those changes unless they come from owner/staff, the
 --   server (service_role / postgres) or the SECURITY DEFINER function
 --   public.recompute_course_progress(), which derives the values from
---   course_lesson_progress. Re-runnable; no data changes.
+--   course_lesson_progress. Functions use search_path = '' with fully
+--   qualified names (round 5 NIT). Re-runnable; no data changes.
 
 drop policy if exists "enrollments own update" on public.course_enrollments;
 create policy "enrollments own update" on public.course_enrollments for update to authenticated
@@ -23,7 +24,7 @@ with check (
 create or replace function public.course_enrollments_guard()
 returns trigger
 language plpgsql
-set search_path = public, pg_temp
+set search_path = ''
 as $$
 begin
   -- current_user is the definer (postgres) inside recompute_course_progress,
@@ -53,19 +54,19 @@ create or replace function public.recompute_course_progress(p_enrollment_id uuid
 returns numeric
 language plpgsql
 security definer
-set search_path = public, pg_temp
+set search_path = ''
 as $$
 declare
   uid uuid := auth.uid();
   e public.course_enrollments%rowtype;
-  total int; done int; pct numeric;
+  total pg_catalog.int4; done pg_catalog.int4; pct pg_catalog.numeric;
 begin
   select * into e from public.course_enrollments where id = p_enrollment_id;
-  if not found then raise exception 'not found' using errcode = '42501'; end if;
-  if not ((e.student_id = uid and public.consent_ok(uid))
+  -- one error for missing and forbidden rows (no existence oracle)
+  if not found or not ((e.student_id = uid and public.consent_ok(uid))
           or public.has_role(uid, 'owner'::public.app_role)
           or public.has_role(uid, 'staff'::public.app_role)) then
-    raise exception 'not allowed' using errcode = '42501';
+    raise exception 'enrollment not found or not allowed' using errcode = '42501';
   end if;
   select count(*) into total from public.course_lessons l
     join public.course_modules m on m.id = l.module_id where m.course_id = e.course_id;
@@ -73,12 +74,12 @@ begin
     join public.course_lessons l on l.id = p.lesson_id
     join public.course_modules m on m.id = l.module_id
    where p.enrollment_id = e.id and p.status = 'completed' and m.course_id = e.course_id;
-  pct := case when total > 0 then round(done * 100.0 / total) else 0 end;
+  pct := case when total > 0 then pg_catalog.round(done * 100.0 / total) else 0 end;
   update public.course_enrollments
      set progress_pct = pct,
          status = case when pct >= 100 then 'completed'::public.course_enrollment_status
                        else 'active'::public.course_enrollment_status end,
-         completed_at = case when pct >= 100 then coalesce(e.completed_at, now()) else null end
+         completed_at = case when pct >= 100 then coalesce(e.completed_at, pg_catalog.now()) else null end
    where id = e.id;
   return pct;
 end $$;

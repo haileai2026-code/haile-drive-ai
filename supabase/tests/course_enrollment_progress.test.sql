@@ -85,5 +85,25 @@ begin
   if not has_function_privilege('authenticated', 'public.recompute_course_progress(uuid)', 'EXECUTE') then
     raise exception 'FAIL E6b authenticated execute'; end if;
   raise notice 'PASS E6 grants';
+
+  -- E7 (round 5 NIT): missing and forbidden enrollments raise the same error
+  declare m1 text; m2 text; begin
+    perform set_config('request.jwt.claims', json_build_object('sub', s2, 'role', 'authenticated')::text, true);
+    execute 'set local role authenticated';
+    begin perform public.recompute_course_progress(e2);
+    exception when insufficient_privilege then get stacked diagnostics m1 = message_text; end;
+    begin perform public.recompute_course_progress(gen_random_uuid());
+    exception when insufficient_privilege then get stacked diagnostics m2 = message_text; end;
+    execute 'reset role';
+    if m1 is null or m1 is distinct from m2 then raise exception 'FAIL E7 % / %', m1, m2; end if;
+  end;
+  raise notice 'PASS E7 unified not-found/not-allowed';
+
+  -- E8 (round 5 NIT): search_path = '' on the definer + guard functions
+  if exists (select 1 from pg_proc where oid in ('public.recompute_course_progress(uuid)'::regprocedure,
+             'public.course_enrollments_guard()'::regprocedure)
+             and not (coalesce(proconfig, '{}') @> array['search_path=""'])) then
+    raise exception 'FAIL E8 search_path'; end if;
+  raise notice 'PASS E8 search_path empty';
 end $$;
 rollback;
