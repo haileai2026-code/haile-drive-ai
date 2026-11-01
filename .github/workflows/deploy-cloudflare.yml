@@ -1,11 +1,20 @@
-name: Deploy to Cloudflare Workers (frozen)
+name: Deploy to Cloudflare Workers (DISABLED - Vercel only)
 
-# P0: Workers Assets token is a dead path. Do not auto-run on push.
+# DISABLED: production deploys are Vercel-only (deploy-vercel.yml).
+# No push/PR/schedule triggers. Kept as manual workflow_dispatch only, and the
+# job is skipped unless the operator types the exact confirmation string, so
+# an accidental "Run workflow" click does nothing.
 on:
   workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Cloudflare deploy is disabled (Vercel only). Type I-KNOW-CLOUDFLARE-IS-DISABLED to run anyway.'
+        required: true
+        default: 'no'
 
 jobs:
   deploy:
+    if: ${{ github.event.inputs.confirm == 'I-KNOW-CLOUDFLARE-IS-DISABLED' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
