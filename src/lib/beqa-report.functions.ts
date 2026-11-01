@@ -55,7 +55,6 @@ export const generateBeqaReport = createServerFn({ method: "POST" })
       profile = p ?? null;
     }
 
-
     const recommendation = (session.recommendation as string) || "B";
     const recText =
       recommendation === "A"
