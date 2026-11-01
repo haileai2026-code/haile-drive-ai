@@ -294,6 +294,11 @@ declare
   ok boolean; st text; res jsonb := '{}';
   pulse boolean := exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'beqa_pulse_clicks'
                              and policyname = 'student insert own pulse clicks');
+  -- fix/beta-no-id-medical-docs (#10, 20261101150000) makes raw_biometric_log
+  -- server-write-only: with no student insert policy the insert must be
+  -- denied in EVERY consent state (stricter than consent gating).
+  bio boolean := exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'raw_biometric_log'
+                           and policyname = 'Students insert own bio log');
 begin
   set local session_replication_role = replica;  -- fixtures only: skip FK/guard triggers
   insert into auth.users(id, email) values (s3, 'cs3@test.local'), (so, 'cso@test.local');
@@ -323,7 +328,7 @@ begin
     execute 'set local role authenticated';
     begin insert into public.raw_biometric_log(session_id, student_id, event_type) values (gen_random_uuid(), s3, 'x'); ok := true;
     exception when insufficient_privilege then ok := false; end;
-    res := res || jsonb_build_object(st || ':bio_log', ok);
+    res := res || jsonb_build_object(case when bio then '' else 'denied_' end || st || ':bio_log', ok);
     if pulse then
       begin insert into public.beqa_pulse_clicks(session_id, student_id) values (gen_random_uuid(), s3); ok := true;
       exception when insufficient_privilege then ok := false; end;
@@ -362,7 +367,8 @@ begin
   insert into public.course_enrollments(course_id, student_id) values (crs, so);
   update public.course_lesson_progress set status = 'completed' where enrollment_id = enr;
   execute 'reset role';
-  raise notice 'PASS N round-3 consent-gated writes (pulse policy %)', case when pulse then 'present+gated' else 'absent (dropped by #5)' end;
+  raise notice 'PASS N round-3 consent-gated writes (pulse policy %, bio log policy %)', case when pulse then 'present+gated' else 'absent (dropped by #5)' end,
+    case when bio then 'present+gated' else 'absent (dropped by #10), insert denied in all states' end;
 end $$;
 
 rollback;
