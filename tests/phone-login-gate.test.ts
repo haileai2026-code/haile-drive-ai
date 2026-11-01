@@ -2,22 +2,16 @@
 import { describe, expect, test } from "bun:test";
 import { UNKNOWN_IP_BUCKET, phoneLoginEnabled, smsIpKey } from "../src/lib/phone-login-gate";
 
-describe("phoneLoginEnabled (R4-2, fail closed)", () => {
-  test("off when unset", () => expect(phoneLoginEnabled({})).toBe(false));
-  test("off when switch on but no Turnstile secret", () => {
-    expect(phoneLoginEnabled({ PHONE_LOGIN_ENABLED: "on" })).toBe(false);
-    expect(phoneLoginEnabled({ PHONE_LOGIN_ENABLED: "on", TURNSTILE_SECRET_KEY: "  " })).toBe(false);
-  });
-  test("off for anything but 'on'", () => {
-    for (const v of ["", "off", "1", "true", "yes", "enabled"])
-      expect(phoneLoginEnabled({ PHONE_LOGIN_ENABLED: v, TURNSTILE_SECRET_KEY: "x" })).toBe(false);
-  });
-  test("independent of VITE_BETA_SENSITIVE_FEATURES", () => {
-    expect(phoneLoginEnabled({ VITE_BETA_SENSITIVE_FEATURES: "on", TURNSTILE_SECRET_KEY: "x" })).toBe(false);
-  });
-  test("on only with switch + secret", () => {
-    expect(phoneLoginEnabled({ PHONE_LOGIN_ENABLED: "on", TURNSTILE_SECRET_KEY: "x" })).toBe(true);
-    expect(phoneLoginEnabled({ PHONE_LOGIN_ENABLED: " ON ", TURNSTILE_SECRET_KEY: "x" })).toBe(true);
+describe("phoneLoginEnabled (R5-1, hard-disabled in code)", () => {
+  test("always off, whatever the env", () => {
+    const envs = [
+      {},
+      { PHONE_LOGIN_ENABLED: "on" },
+      { PHONE_LOGIN_ENABLED: "on", TURNSTILE_SECRET_KEY: "x" },
+      { PHONE_LOGIN_ENABLED: " ON ", TURNSTILE_SECRET_KEY: "x", TURNSTILE_ALLOWED_HOSTNAMES: "a.example" },
+      { VITE_BETA_SENSITIVE_FEATURES: "on", PHONE_LOGIN_ENABLED: "on", TURNSTILE_SECRET_KEY: "x" },
+    ];
+    for (const e of envs) expect(phoneLoginEnabled(e)).toBe(false);
   });
 });
 

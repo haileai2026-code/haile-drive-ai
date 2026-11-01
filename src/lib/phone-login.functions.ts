@@ -41,7 +41,7 @@ async function assertOwnerOrStaff(supabase: any, userId: string) {
   if (!data) throw new Error("Forbidden");
 }
 
-// R4-2: server switch, fail closed (PHONE_LOGIN_ENABLED=on + TURNSTILE_SECRET_KEY).
+// R5-1: hard-disabled in code (always 403) until server-side Turnstile siteverify lands.
 function assertPhoneLoginEnabled() {
   if (!phoneLoginEnabled(process.env)) {
     setResponseStatus(403);
@@ -55,8 +55,8 @@ function clientIp(): string | null {
 }
 
 // Step 1 — student requests an OTP. Anonymous-callable, but only when the
-// server switch is on (assertPhoneLoginEnabled). CAPTCHA is REQUIRED
-// before phone login / Twilio is enabled (not needed for the closed beta); until then the per-phone, per-IP and global hourly limits in
+// gate is open (assertPhoneLoginEnabled) - currently hard-disabled (R5-1)
+// until server-side Turnstile siteverify lands. The per-phone, per-IP and global hourly limits in
 // public.phone_otp_request apply (atomic, advisory lock per phone).
 export const requestPhoneOtp = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
