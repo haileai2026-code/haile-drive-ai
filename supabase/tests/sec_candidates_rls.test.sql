@@ -325,7 +325,16 @@ begin
   -- I5: rewritten teacher policies on exam_results / raw_biometric_log
   if exists (select 1 from pg_policy where polname in ('Teachers view their candidates results','Teachers view their students bio log')) then
     raise exception 'FAIL I5a dead policies remain'; end if;
-  if (select count(*) from pg_policy where polname in ('exam_results_teacher_select','raw_bio_teacher_select')) <> 2 then
+  if not exists (select 1 from pg_policy where polname = 'exam_results_teacher_select') then
+    raise exception 'FAIL I5b new teacher policies missing'; end if;
+  -- CTO (round 6): once #10's 20261101150000 is applied, teachers have NO
+  -- raw_biometric_log policy at all; before it, #4's rewritten one must exist.
+  if to_regclass('public.raw_biometric_log') is not null
+     and (select relforcerowsecurity from pg_class where oid = 'public.raw_biometric_log'::regclass) then
+    if exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'raw_biometric_log'
+               and (policyname ilike '%teacher%' or qual ilike '%teach%')) then
+      raise exception 'FAIL I5c teacher policy on raw_biometric_log after #10'; end if;
+  elsif not exists (select 1 from pg_policy where polname = 'raw_bio_teacher_select') then
     raise exception 'FAIL I5b new teacher policies missing'; end if;
 
   -- I6: default privileges no longer give PUBLIC/anon EXECUTE on new functions
