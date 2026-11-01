@@ -27,3 +27,16 @@ grant all on public.beqa_diagnostic_sessions to service_role;
 -- Kept unchanged: "staff reads all beqa" (SELECT owner/staff/teacher) and
 -- "owners delete beqa" (DELETE owner). There is intentionally NO student
 -- SELECT policy, so students cannot read their own scores (plan C3).
+
+-- 3. Explicit grants (Supabase breaking change 2026-10-30). This migration
+--    creates no tables, views, functions or sequences in public; it pins the
+--    minimum grants on the existing table so they no longer depend on the
+--    (old, over-broad) default privileges. Re-runnable. Rollback (grants only):
+--    supabase/rollback/20260925120100_sec_beqa_server_insert.down.sql
+--    anon: nothing. authenticated: SELECT (staff policy) + DELETE (owner
+--    policy) only - also drops TRUNCATE/REFERENCES/TRIGGER from the old ALL.
+--    service_role: DML used by the server functions (insert/select; update/
+--    delete for admin tooling), no TRUNCATE/REFERENCES/TRIGGER.
+revoke all on public.beqa_diagnostic_sessions from anon, authenticated, service_role;
+grant select, delete on public.beqa_diagnostic_sessions to authenticated;
+grant select, insert, update, delete on public.beqa_diagnostic_sessions to service_role;

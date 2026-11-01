@@ -49,4 +49,20 @@ begin
   reset role;
   raise notice 'PASS sec_beqa_server_insert';
 end $$;
+
+-- G: explicit grants (Supabase 2026-10-30 behaviour)
+do $$
+declare t text := 'public.beqa_diagnostic_sessions';
+begin
+  if has_table_privilege('anon', t, 'SELECT') or has_table_privilege('anon', t, 'INSERT') then raise exception 'FAIL G1 anon'; end if;
+  if has_table_privilege('authenticated', t, 'INSERT') or has_table_privilege('authenticated', t, 'UPDATE')
+     or has_table_privilege('authenticated', t, 'TRUNCATE') then raise exception 'FAIL G2 authenticated can write'; end if;
+  if not (has_table_privilege('authenticated', t, 'SELECT') and has_table_privilege('authenticated', t, 'DELETE')) then
+    raise exception 'FAIL G3 authenticated lost select/delete'; end if;
+  if not (has_table_privilege('service_role', t, 'INSERT') and has_table_privilege('service_role', t, 'SELECT')) then
+    raise exception 'FAIL G4 service_role cannot insert/select'; end if;
+  if has_table_privilege('service_role', t, 'TRUNCATE') then raise exception 'FAIL G5 service_role truncate'; end if;
+  raise notice 'PASS G explicit grants';
+end $$;
+
 rollback;
