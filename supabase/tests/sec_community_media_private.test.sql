@@ -52,13 +52,20 @@ begin
   execute 'reset role';
   if n <> 1 then raise exception 'FAIL B6: announcement media not readable'; end if;
 
-  -- B7: legacy full public URL form still matches
+  -- B7: legacy full public URL form still matches (simulate a pre-existing
+  -- legacy row: the NOT VALID check would reject it on update)
+  alter table public.community_posts drop constraint community_posts_media_in_author_folder;
   update public.community_posts set media_url =
     'https://example.supabase.co/storage/v1/object/public/community-media/' || obj;
   execute 'set local role authenticated';
   select count(*) into n from storage.objects where bucket_id = 'community-media';
   execute 'reset role';
   if n <> 1 then raise exception 'FAIL B7: legacy URL no longer matches'; end if;
+  update public.community_posts set media_url = obj;
+  alter table public.community_posts add constraint community_posts_media_in_author_folder
+    check (media_url is null
+           or (left(media_url, length(author_id::text) + 1) = author_id::text || '/'
+               and position('..' in media_url) = 0)) not valid;
 
   -- B8: a partial path in a post does not unlock a different object
   update public.community_posts set media_url = '00000000-0000-0000-0000-00000000c001/';
@@ -66,6 +73,29 @@ begin
   select count(*) into n from storage.objects where bucket_id = 'community-media';
   execute 'reset role';
   if n <> 0 then raise exception 'FAIL B8: substring match unlocked object'; end if;
+
+  -- B9: CHECK - a post cannot reference another user's object or use '..'
+  begin
+    insert into public.community_posts(author_id, content, media_url, post_type)
+      values (u_other, 'y', obj, 'announcement');
+    raise exception 'FAIL B9: foreign media path accepted';
+  exception when check_violation then null; end;
+  begin
+    insert into public.community_posts(author_id, content, media_url, post_type)
+      values (u_other, 'y', u_other::text || '/../' || obj, 'announcement');
+    raise exception 'FAIL B9b: traversal path accepted';
+  exception when check_violation then null; end;
+
+  -- B10: policy - even a (legacy) foreign reference does not unlock the object
+  delete from public.community_posts;
+  alter table public.community_posts drop constraint community_posts_media_in_author_folder;
+  insert into public.community_posts(author_id, content, media_url, post_type)
+    values (u_other, 'z', obj, 'announcement');
+  perform set_config('request.jwt.claims', json_build_object('sub', '00000000-0000-0000-0000-00000000c003', 'role', 'authenticated')::text, true);
+  execute 'set local role authenticated';
+  select count(*) into n from storage.objects where bucket_id = 'community-media';
+  execute 'reset role';
+  if n <> 0 then raise exception 'FAIL B10: foreign post reference unlocked object'; end if;
 
   raise notice 'PASS sec_community_media_private';
 end $$;

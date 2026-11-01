@@ -30,6 +30,9 @@ using (
     or exists (
       select 1 from public.community_posts p
       where p.media_url is not null
+        -- review fix: a post only unlocks objects in its AUTHOR's folder, so
+        -- a post cannot reference (and expose) someone else's upload.
+        and (storage.foldername(storage.objects.name))[1] = p.author_id::text
         and (p.media_url = storage.objects.name
              or p.media_url like '%/storage/v1/object/public/community-media/' || storage.objects.name)
         and (p.class_id = public.current_user_class_id()
@@ -37,6 +40,18 @@ using (
     )
   )
 );
+
+-- Review fix (CTO 2026-11-01): DB CHECK - media_url is null or a path in the
+-- author's own folder (no '..'). NOT VALID: enforced for every new / updated
+-- row; legacy rows that still hold a full public URL are not rewritten
+-- (validate after they are migrated: alter table public.community_posts
+-- validate constraint community_posts_media_in_author_folder).
+alter table public.community_posts drop constraint if exists community_posts_media_in_author_folder;
+alter table public.community_posts add constraint community_posts_media_in_author_folder
+  check (media_url is null
+         or (left(media_url, length(author_id::text) + 1) = author_id::text || '/'
+             and position('..' in media_url) = 0))
+  not valid;
 
 -- Upload (own folder) and delete (own folder) policies are unchanged:
 --   "Authenticated upload to own folder", "Owner deletes own media".
