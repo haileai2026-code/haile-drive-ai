@@ -1356,6 +1356,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_find_auth_user: {
+        Args: { _email: string }
+        Returns: { email_confirmed_at: string | null; id: string }[]
+      }
       calculate_haile_readiness_score: {
         Args: { user_id_param: string }
         Returns: number
@@ -1402,6 +1406,7 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _owner_only?: boolean }; Returns: boolean }
+      is_teacher_user: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "owner" | "staff" | "teacher" | "student" | "lead"
