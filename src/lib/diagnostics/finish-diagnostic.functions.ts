@@ -8,6 +8,7 @@ import { calculateBeqaScore } from "@/lib/beqa-questions";
 import { scoreFor } from "./scoring";
 import { assertExactQuestionSet } from "./answer-set";
 import { DIAG_QUESTION_IDS } from "./questions";
+import { failSave } from "./save-error";
 
 const AnswerIn = z.object({
   qId: z.string().min(1).max(16),
@@ -77,7 +78,7 @@ export const finishDiagnostic = createServerFn({ method: "POST" })
         reaction_sd_ms: breakdown.reactionSdMs,
       },
     });
-    if (error) throw new Error(error.message);
+    if (error) failSave("finishDiagnostic insert", error);
 
     const clicks = scored.map((a) => ({
       session_id: data.sessionId,

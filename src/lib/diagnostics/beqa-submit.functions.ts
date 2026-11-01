@@ -3,6 +3,7 @@ import { z } from "zod";
 import { assertPsychAssessmentsEnabled } from "@/lib/psych-assessments-flag";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { requireCurrentConsent } from "@/lib/consent/enforce.server";
 import { gradePsych } from "./psych-grading";
 import { PSYCH_QUESTION_IDS } from "./psych-questions";
 import { assertExactQuestionSet } from "./answer-set";
@@ -23,7 +24,7 @@ import {
 // Nothing score-related is returned to the client.
 
 export const submitPsychDiagnostic = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAuth, requireCurrentConsent])
   .inputValidator((input: unknown) =>
     z
       .object({
@@ -66,7 +67,7 @@ export const submitPsychDiagnostic = createServerFn({ method: "POST" })
   });
 
 export const submitMarvadSession = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAuth, requireCurrentConsent])
   .inputValidator((input: unknown) =>
     z
       .object({

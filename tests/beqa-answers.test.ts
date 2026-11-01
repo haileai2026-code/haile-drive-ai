@@ -1,5 +1,7 @@
 // Run: bun test tests/beqa-answers.test.ts
-import { describe, expect, test } from "bun:test";
+import { describe, expect, spyOn, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { DIAG_SAVE_ERROR, failSave } from "../src/lib/diagnostics/save-error";
 import { assertExactQuestionSet } from "../src/lib/diagnostics/answer-set";
 import { assertPsychAssessmentsEnabled, isPsychAssessmentRoute } from "../src/lib/psych-assessments-flag";
 import { gradePsych } from "../src/lib/diagnostics/psych-grading";
@@ -69,5 +71,27 @@ describe("psych assessments beta flag", () => {
     expect(isPsychAssessmentRoute("/psych-diagnostic")).toBe(true);
     expect(isPsychAssessmentRoute("/marvad-simulator/x")).toBe(true);
     expect(isPsychAssessmentRoute("/dashboard")).toBe(false);
+  });
+});
+
+describe("server error handling + consent gate", () => {
+  test("failSave logs the full error and throws a generic one", () => {
+    const spy = spyOn(console, "error").mockImplementation(() => {});
+    const dbErr = { message: 'new row violates check constraint "beqa_x" on table beqa_diagnostic_sessions' };
+    expect(() => failSave("finishDiagnostic insert", dbErr)).toThrow(DIAG_SAVE_ERROR);
+    expect(spy).toHaveBeenCalledWith("[finishDiagnostic insert]", dbErr);
+    spy.mockRestore();
+  });
+  const read = (f: string) => readFileSync(new URL(`../src/lib/diagnostics/${f}`, import.meta.url), "utf8");
+  test("finishDiagnostic never returns the raw DB message", () => {
+    expect(read("finish-diagnostic.functions.ts")).not.toContain("new Error(error.message)");
+  });
+  test("every BEQA write function requires current consent", () => {
+    for (const f of ["beqa-submit.functions.ts", "finish-diagnostic.functions.ts"]) {
+      const mws = read(f).match(/\.middleware\(\[[^\]]*\]\)/g) ?? [];
+      expect(mws.length).toBeGreaterThan(0);
+      for (const m of mws) expect(m).toContain("requireCurrentConsent");
+    }
+    expect(read("beqa-submit.functions.ts").match(/requireCurrentConsent\]/g)?.length).toBe(2);
   });
 });
