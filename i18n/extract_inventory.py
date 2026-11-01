@@ -139,6 +139,10 @@ DEMO_TEXT = re.compile(
     r"אתיופ|קוקי|מנשה|^רוסי$|קהילה:|row\(\"קהילה\"|קהילה ושפה|ערכים קהילתיים|לעלות לישראל|שהגעת לישראל"
 )
 
+# A label that is only a language name (optionally with a flag emoji) is a
+# LANGUAGE label, never REMOVE, even inside a COMMUNITY_LABEL block.
+LANG_ONLY = re.compile(r"^(?:\S+\s+)?(?:עברית|אמהרית|רוסית|אנגלית|צרפתית|ערבית|תיגרינית)$")
+
 
 def demographic_lines(text):
     """Line numbers inside BY_COMMUNITY / COMMUNITY_LABEL declarations."""
@@ -171,7 +175,12 @@ def main():
             scr = screen_for(rel)
             demo = demographic_lines(text)
             for ln, kind, val in scan(text):
-                action = "REMOVE" if ln in demo or DEMO_TEXT.search(val) else ""
+                if DEMO_TEXT.search(val):
+                    action = "REMOVE"
+                elif ln in demo and not LANG_ONLY.match(val.strip()):
+                    action = "REMOVE"
+                else:
+                    action = ""
                 rows.append((scr, f"{rel}:{ln}", kind, core_path(rel, scr), val, action))
     w = csv.writer(sys.stdout, lineterminator="\n")
     w.writerow(["id", "screen/route", "file:line", "kind", "core_path", "hebrew_source", "action"])

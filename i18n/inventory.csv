@@ -500,8 +500,8 @@ he-0498,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:314,templat
 he-0499,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:315,template,no,<li>סקירה חוזרת לאחר 30 יום של תרגול.</li>,
 he-0500,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:316,template,no,<li>תיעוד מתמשך של ביצועים בסימולציות.</li>,
 he-0501,lib:diagnostics/pdf-report,src/lib/diagnostics/pdf-report.ts:320,template,no,הדוח הופק על ידי Haile Drive AI | haileai.app | מספר דוח: ${session.id},
-he-0502,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:14,string,yes,🇪🇹 אמהרית,REMOVE
-he-0503,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:15,string,yes,🇷🇺 רוסית,REMOVE
+he-0502,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:14,string,yes,🇪🇹 אמהרית,
+he-0503,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:15,string,yes,🇷🇺 רוסית,
 he-0504,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:16,string,yes,✡️ קוקי (בני מנשה),REMOVE
 he-0505,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:27,string,yes,למה בחרת להיות נהג אוטובוס?,
 he-0506,lib:diagnostics/questions,src/lib/diagnostics/questions.ts:28,string,yes,זה הדבר היחיד שמצאתי,
@@ -1850,8 +1850,8 @@ he-1848,/psych-diagnostic,src/routes/psych-diagnostic.tsx:129,string,yes,ספר 
 he-1849,/psych-diagnostic,src/routes/psych-diagnostic.tsx:130,string,yes,לא עשיתי,REMOVE
 he-1850,/psych-diagnostic,src/routes/psych-diagnostic.tsx:130,string,yes,עבדתי קשה כשהייתי חייב,REMOVE
 he-1851,/psych-diagnostic,src/routes/psych-diagnostic.tsx:130,string,yes,תמיד עבדתי קשה,REMOVE
-he-1852,/psych-diagnostic,src/routes/psych-diagnostic.tsx:136,string,yes,🇪🇹 אמהרית,REMOVE
-he-1853,/psych-diagnostic,src/routes/psych-diagnostic.tsx:137,string,yes,🇷🇺 רוסית,REMOVE
+he-1852,/psych-diagnostic,src/routes/psych-diagnostic.tsx:136,string,yes,🇪🇹 אמהרית,
+he-1853,/psych-diagnostic,src/routes/psych-diagnostic.tsx:137,string,yes,🇷🇺 רוסית,
 he-1854,/psych-diagnostic,src/routes/psych-diagnostic.tsx:138,string,yes,✡️ קוקי (בני מנשה),REMOVE
 he-1855,/psych-diagnostic,src/routes/psych-diagnostic.tsx:163,string,yes,מומלץ מאוד להמשך תהליך,
 he-1856,/psych-diagnostic,src/routes/psych-diagnostic.tsx:164,string,yes,מומלץ ראיון נוסף,
