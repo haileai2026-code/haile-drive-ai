@@ -8,6 +8,10 @@ begin
   insert into public.profiles(id, email) values (uid, 'rawbio@test.invalid') on conflict (id) do nothing;
   insert into public.user_roles(user_id, role) values (uid, 'student') on conflict do nothing;
   insert into public.candidates(id, full_name, email, beqa_access) values (uid, 'RB', 'rawbio@test.invalid', true);
+  -- fix/sec-candidates-rls (#4) links candidates by user_id
+  if exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'candidates' and column_name = 'user_id') then
+    execute 'update public.candidates set user_id = $1 where id = $1' using uid;
+  end if;
   perform set_config('app.beta_psych_assessments', 'on', true);  -- #10 write guard
   insert into public.beqa_diagnostic_sessions(student_id, assessment_type) values (uid, 'biometric') returning id into sid;
 
