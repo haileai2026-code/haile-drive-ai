@@ -17,15 +17,14 @@ export function normalizePhoneE164(input: string): NormalizedPhone | null {
 }
 
 /**
- * Synthetic e-mails to look up, in preference order: the E.164 form first,
- * then legacy formats written by older builds (digits of the raw input, and
- * the national form with a leading 0, e.g. 0501234567@...).
+ * Synthetic e-mails to look up, in preference order. Derived ONLY from the
+ * parsed number (never from raw user input): the E.164 digits first, then the
+ * legacy national form with a leading 0 (e.g. 0501234567@...) written by
+ * older builds.
  */
-export function phoneEmailCandidates(input: string, n: NormalizedPhone): string[] {
+export function phoneEmailCandidates(n: NormalizedPhone): string[] {
   const out = [phoneToEmail(n.digits)];
-  const raw = (input ?? "").replace(/\D/g, "");
-  if (raw) out.push(phoneToEmail(raw));
   const p = parsePhoneNumberFromString(n.e164);
-  if (p?.country === "IL") out.push(phoneToEmail(`0${p.nationalNumber}`));
+  if (p?.nationalNumber) out.push(phoneToEmail(`0${p.nationalNumber}`));
   return [...new Set(out)];
 }

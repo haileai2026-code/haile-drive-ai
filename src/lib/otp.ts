@@ -31,7 +31,8 @@ export const OTP_LIMITS = {
   globalSmsPerHour: 200,
 } as const;
 
-// OTP codes are stored as HMAC-SHA256(OTP_PEPPER, code), hex. OTP_PEPPER is a
+// OTP codes are stored as HMAC-SHA256(OTP_PEPPER, phone + ":" + code), hex
+// (bound to the E.164 phone, so a hash is useless for any other number). OTP_PEPPER is a
 // SERVER-ONLY secret (never VITE_-prefixed; generate with `openssl rand -hex 32`).
 // Without it the 10^6 code space could be brute-forced from a leaked hash, so
 // the server fails closed when it is missing or too short.
@@ -45,19 +46,33 @@ export function getOtpPepper(): string {
   return p;
 }
 
-export async function hashOtp(otp: string, pepper: string = getOtpPepper()): Promise<string> {
-  const enc = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    "raw",
-    enc.encode(pepper),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
-  const mac = await crypto.subtle.sign("HMAC", key, enc.encode(otp));
+async function hmacHex(key: CryptoKey, msg: string): Promise<string> {
+  const mac = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(msg));
   return Array.from(new Uint8Array(mac))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
+}
+
+function hmacKey(raw: BufferSource): Promise<CryptoKey> {
+  return crypto.subtle.importKey("raw", raw, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+}
+
+/** HMAC-SHA256(OTP_PEPPER, phoneE164 + ":" + code). */
+export async function hashOtp(phoneE164: string, code: string, pepper: string = getOtpPepper()): Promise<string> {
+  return hmacHex(await hmacKey(new TextEncoder().encode(pepper)), `${phoneE164}:${code}`);
+}
+
+/** Separate key for IP hashes: HKDF-SHA256(OTP_PEPPER, info=label). No new env var. */
+export const OTP_IP_HKDF_INFO = "haile/otp/ip-hash/v1";
+export async function deriveIpKey(pepper: string): Promise<CryptoKey> {
+  const enc = new TextEncoder();
+  const base = await crypto.subtle.importKey("raw", enc.encode(pepper), "HKDF", false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits(
+    { name: "HKDF", hash: "SHA-256", salt: new Uint8Array(32), info: enc.encode(OTP_IP_HKDF_INFO) },
+    base,
+    256,
+  );
+  return hmacKey(bits);
 }
 
 export type OtpVerifyOutcome =
@@ -84,5 +99,5 @@ export function otpOutcomeMessage(outcome: string | null | undefined): string | 
 
 /** HMAC of the client IP for the per-IP limit (never stored in clear). */
 export async function hashIp(ip: string, pepper: string = getOtpPepper()): Promise<string> {
-  return hashOtp(`ip:${ip}`, pepper);
+  return hmacHex(await deriveIpKey(pepper), ip);
 }

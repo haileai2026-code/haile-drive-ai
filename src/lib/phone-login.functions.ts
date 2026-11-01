@@ -5,6 +5,7 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { getRequest } from "@tanstack/react-start/server";
 import { phoneToEmail } from "./sms/config";
 import { normalizePhoneE164, phoneEmailCandidates } from "./phone";
+import { clientIpFrom } from "./client-ip";
 import { sendViaTwilio } from "./notifications.functions";
 import {
   OTP_GENERIC_MESSAGE,
@@ -36,12 +37,11 @@ async function assertOwnerOrStaff(supabase: any, userId: string) {
 
 function clientIp(): string | null {
   const h = getRequest()?.headers;
-  const xff = h?.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return xff || h?.get("x-real-ip")?.trim() || null;
+  return h ? clientIpFrom(h) : null; // never the leftmost X-Forwarded-For
 }
 
-// Step 1 — student requests an OTP. Anonymous-callable. CAPTCHA is a noted
-// follow-up; until then the per-phone, per-IP and global hourly limits in
+// Step 1 — student requests an OTP. Anonymous-callable. CAPTCHA is REQUIRED
+// before phone login / Twilio is enabled (not needed for the closed beta); until then the per-phone, per-IP and global hourly limits in
 // public.phone_otp_request apply (atomic, advisory lock per phone).
 export const requestPhoneOtp = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
@@ -55,7 +55,7 @@ export const requestPhoneOtp = createServerFn({ method: "POST" })
     const ip = clientIp();
     const { data: rows, error } = await supabaseAdmin.rpc("phone_otp_request", {
       p_phone: phone.e164,
-      p_otp_hash: await hashOtp(otp), // hash only; plaintext is never stored
+      p_otp_hash: await hashOtp(phone.e164, otp), // HMAC(phone:code); plaintext never stored
       p_ip_hash: ip ? await hashIp(ip) : null,
     });
     if (error) throw new Error(OTP_REQUEST_GENERIC_MESSAGE);
@@ -80,7 +80,7 @@ export const requestPhoneOtp = createServerFn({ method: "POST" })
       if (r.ok) {
         await supabaseAdmin
           .from("phone_login_requests")
-          .update({ status: "approved" })
+          .update({ status: "approved", sms_sent_at: new Date().toISOString() }) // counts toward the global SMS cap
           .eq("id", request_id);
         return { ok: true, request_id, delivery: "sms" as const };
       }
@@ -111,7 +111,7 @@ export const verifyPhoneOtp = createServerFn({ method: "POST" })
     // after the account setup below succeeds (released on failure).
     const { data: rows, error } = await supabaseAdmin.rpc("phone_otp_verify", {
       p_phone: phone.e164,
-      p_otp_hash: await hashOtp(data.otp),
+      p_otp_hash: await hashOtp(phone.e164, data.otp),
     });
     if (error) throw new Error(OTP_GENERIC_MESSAGE);
     const result = rows?.[0];
@@ -123,7 +123,7 @@ export const verifyPhoneOtp = createServerFn({ method: "POST" })
       const tempPassword = generateTempPassword();
       // Exact lookup (E.164 e-mail first, then legacy formats); no listUsers.
       const { data: existingId, error: lookErr } = await supabaseAdmin.rpc("phone_auth_user_lookup", {
-        p_emails: phoneEmailCandidates(data.phone, phone),
+        p_emails: phoneEmailCandidates(phone),
       });
       if (lookErr) throw new Error(lookErr.message);
 
@@ -184,11 +184,17 @@ export const approvePhoneRequest = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertOwnerOrStaff(context.supabase, context.userId);
     const otp = generateOtp();
+    const { data: reqRow } = await supabaseAdmin
+      .from("phone_login_requests")
+      .select("phone")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (!reqRow?.phone) throw new Error("הבקשה פגה או כבר טופלה — הסטודנט צריך לבקש קוד חדש");
     const { data: updated, error } = await supabaseAdmin
       .from("phone_login_requests")
       .update({
         status: "approved",
-        otp_hash: await hashOtp(otp),
+        otp_hash: await hashOtp(reqRow.phone, otp), // HMAC(phone:code)
         approved_by: context.userId, // audit
         approved_at: new Date().toISOString(),
       })

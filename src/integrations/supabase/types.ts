@@ -1036,6 +1036,7 @@ export type Database = {
           otp_plain: string | null
           phone: string
           request_ip_hash: string | null
+          sms_sent_at: string | null
           status: string
           updated_at: string
           user_id: string | null
@@ -1051,6 +1052,7 @@ export type Database = {
           otp_plain?: string | null
           phone: string
           request_ip_hash?: string | null
+          sms_sent_at?: string | null
           status?: string
           updated_at?: string
           user_id?: string | null
@@ -1066,6 +1068,7 @@ export type Database = {
           otp_plain?: string | null
           phone?: string
           request_ip_hash?: string | null
+          sms_sent_at?: string | null
           status?: string
           updated_at?: string
           user_id?: string | null

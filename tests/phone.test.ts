@@ -1,6 +1,7 @@
 // Run: bun test tests/phone.test.ts
 import { describe, expect, test } from "bun:test";
 import { normalizePhoneE164, phoneEmailCandidates } from "../src/lib/phone";
+import { behindTrustedProxy, clientIpFrom } from "../src/lib/client-ip";
 import {
   OTP_GENERIC_MESSAGE,
   OTP_LIMITS,
@@ -25,11 +26,11 @@ describe("normalizePhoneE164 (region IL)", () => {
 describe("phoneEmailCandidates", () => {
   test("E.164 first, then legacy formats, no duplicates", () => {
     const n = normalizePhoneE164("050-123-4567")!;
-    expect(phoneEmailCandidates("050-123-4567", n)).toEqual([
+    expect(phoneEmailCandidates(n)).toEqual([
       "972501234567@haileai.app",
       "0501234567@haileai.app",
     ]);
-    expect(phoneEmailCandidates("+972501234567", normalizePhoneE164("+972501234567")!)).toEqual([
+    expect(phoneEmailCandidates(normalizePhoneE164("00972-50-123-4567")!)).toEqual([
       "972501234567@haileai.app",
       "0501234567@haileai.app",
     ]);
@@ -50,10 +51,34 @@ describe("generic OTP messages", () => {
 });
 
 describe("hashIp", () => {
-  test("HMAC, domain-separated from OTP hashes", async () => {
+  test("HMAC with an HKDF-derived key, separate from the OTP key", async () => {
     const h = await hashIp("203.0.113.7", PEPPER);
     expect(h).toMatch(/^[0-9a-f]{64}$/);
-    expect(h).not.toBe(await hashOtp("203.0.113.7", PEPPER));
+    expect(await hashIp("203.0.113.7", PEPPER)).toBe(h);
+    const { createHmac } = await import("node:crypto");
+    expect(h).not.toBe(createHmac("sha256", PEPPER).update("203.0.113.7").digest("hex"));
+    expect(h).not.toBe(createHmac("sha256", PEPPER).update("ip:203.0.113.7").digest("hex"));
+    const { hkdfSync } = await import("node:crypto");
+    const k = Buffer.from(hkdfSync("sha256", PEPPER, Buffer.alloc(32), "haile/otp/ip-hash/v1", 32));
+    expect(h).toBe(createHmac("sha256", k).update("203.0.113.7").digest("hex"));
+  });
+});
+
+describe("clientIpFrom", () => {
+  const H = (o: Record<string, string>) => new Headers(o);
+  test("never the leftmost X-Forwarded-For", () => {
+    expect(clientIpFrom(H({ "x-forwarded-for": "6.6.6.6, 198.51.100.9" }), false)).toBeNull();
+    expect(clientIpFrom(H({ "x-forwarded-for": "6.6.6.6, 198.51.100.9" }), true)).toBe("198.51.100.9");
+  });
+  test("order: cf-connecting-ip, x-vercel-forwarded-for, x-real-ip (trusted proxy only)", () => {
+    const all = { "cf-connecting-ip": "203.0.113.1", "x-vercel-forwarded-for": "203.0.113.2", "x-real-ip": "203.0.113.3" };
+    expect(clientIpFrom(H(all), false)).toBe("203.0.113.1");
+    expect(clientIpFrom(H({ "x-vercel-forwarded-for": "203.0.113.2", "x-real-ip": "203.0.113.3" }), false)).toBe("203.0.113.2");
+    expect(clientIpFrom(H({ "x-real-ip": "203.0.113.3" }), false)).toBeNull();
+    expect(clientIpFrom(H({ "x-real-ip": "203.0.113.3" }), true)).toBe("203.0.113.3");
+    expect(clientIpFrom(H({ "cf-connecting-ip": "not-an-ip" }), false)).toBeNull();
+    expect(behindTrustedProxy({ VERCEL: "1" })).toBe(true);
+    expect(behindTrustedProxy({})).toBe(false);
   });
 });
 

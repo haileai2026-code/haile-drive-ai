@@ -185,11 +185,16 @@ begin
   select * into r from public.phone_otp_request('+972500000299', h1, ip2);
   if r.outcome <> 'ok' then raise exception 'FAIL R3c other ip: %', r.outcome; end if;
 
-  -- R4: global hourly cap (200)
+  -- R4: global hourly cap (200) counts only requests that SENT an SMS
   insert into public.phone_login_requests(phone, otp_hash, status)
     select '+97250001' || lpad(g::text, 4, '0'), h1, 'expired' from generate_series(1, 200) g;
   select * into r from public.phone_otp_request('+972500000301', h1, null);
+  if r.outcome <> 'ok' then raise exception 'FAIL R4a unsent requests counted toward global cap: %', r.outcome; end if;
+  update public.phone_login_requests set sms_sent_at = now() where phone like '+97250001%';
+  select * into r from public.phone_otp_request('+972500000302', h1, null);
   if r.outcome <> 'limited' then raise exception 'FAIL R4 global cap: %', r.outcome; end if;
+  if position('otp-global' in pg_get_functiondef('public.phone_otp_request(text,text,text)'::regprocedure)) = 0 then
+    raise exception 'FAIL R4c no global advisory lock'; end if;
   delete from public.phone_login_requests where phone like '+97250001%';
 
   -- R5: guesses against dead rows are not counted (no lockout from them)

@@ -290,6 +290,11 @@ create index if not exists phone_login_requests_created_idx
 --     lockout, per-phone throttle, per-IP limit, global hourly cap, insert.
 --     outcome: 'ok' | 'locked' | 'limited' (any throttle/cap; the app shows
 --     one generic message for everything except ok / locked).
+-- sms_sent_at: set by the server when Twilio accepted the SMS (global cap).
+alter table public.phone_login_requests add column if not exists sms_sent_at timestamptz;
+create index if not exists phone_login_requests_sms_sent_idx
+  on public.phone_login_requests (sms_sent_at) where sms_sent_at is not null;
+
 create or replace function public.phone_otp_request(p_phone text, p_otp_hash text, p_ip_hash text)
 returns table (outcome text, request_id uuid)
 language plpgsql
@@ -316,11 +321,18 @@ begin
   end if;
   if (select count(*) from public.phone_login_requests r
        where r.phone = p_phone and r.created_at > now() - interval '15 minutes') >= c_phone_per_15min
-     or (p_ip_hash is not null and
+     then
+    return query select 'limited'::text, null::uuid; return;
+  end if;
+  -- per-IP and global counts are serialised across phones (re-review LOW);
+  -- lock order is always phone -> global, so no deadlock.
+  perform pg_advisory_xact_lock(hashtext('otp-global'));
+  if (p_ip_hash is not null and
          (select count(*) from public.phone_login_requests r
            where r.request_ip_hash = p_ip_hash and r.created_at > now() - interval '1 hour') >= c_ip_per_hour)
+     -- global cap counts only requests that actually sent an SMS
      or (select count(*) from public.phone_login_requests r
-          where r.created_at > now() - interval '1 hour') >= c_global_per_hour then
+          where r.sms_sent_at > now() - interval '1 hour') >= c_global_per_hour then
     return query select 'limited'::text, null::uuid; return;
   end if;
 
