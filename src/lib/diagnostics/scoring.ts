@@ -1,4 +1,8 @@
-/** Option scores by question id. Server-only — never import from client routes. */
+/**
+ * Option scores by question id (single bank: q1-q10 + qp; per-community
+ * banks removed, CTO gate 5). Server-only: imported only by server function
+ * handlers / psych-grading.ts, never by client routes.
+ */
 export const OPTION_SCORES: Record<string, number[]> = {
   q1: [1, 2, 4, 3],
   q2: [1, 2, 4, 3],
@@ -11,15 +15,6 @@ export const OPTION_SCORES: Record<string, number[]> = {
   q9: [1, 2, 3, 4],
   q10: [2, 4, 4, 3],
   qp: [1, 2, 4, 2],
-  qe1: [1, 2, 4],
-  qe2: [1, 2, 4],
-  qe3: [1, 3, 4],
-  qr1: [1, 2, 4],
-  qr2: [1, 2, 4],
-  qr3: [1, 2, 4],
-  qm1: [2, 2, 4],
-  qm2: [1, 2, 4],
-  qm3: [1, 2, 4],
 };
 
 export function scoreFor(qId: string, optionIndex: number): number {
