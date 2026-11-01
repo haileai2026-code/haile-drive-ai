@@ -2,6 +2,8 @@
 -- Run ONLY against a local / branch DB as postgres; rolled back at the end.
 -- Synthetic ids only.
 begin;
+-- fix/beta-no-id-medical-docs DB guard: enable psych writes for this test transaction
+select set_config('app.beta_psych_assessments', 'on', true);
 insert into auth.users (id, email, aud, role) values
   ('00000000-0000-0000-0000-0000000000c1','stu@test.invalid','authenticated','authenticated'),
   ('00000000-0000-0000-0000-0000000000a1','own@test.invalid','authenticated','authenticated');
