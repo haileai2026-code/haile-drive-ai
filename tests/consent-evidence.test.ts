@@ -1,7 +1,7 @@
 // Run: bun test tests/consent-evidence.test.ts
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
-import { buildWebEvidence, buildWhatsappEvidence, clientIpFrom } from "../src/lib/consent/evidence";
+import { EVIDENCE_PEPPER_ERROR, buildWebEvidence, buildWhatsappEvidence, clientIpFrom } from "../src/lib/consent/evidence";
 import { CHECKBOX_VERSION, NOTICE_VERSION, PARTNER_CHECKBOX_VERSION, TERMS_VERSION } from "../src/lib/consent/versions";
 
 const PEPPER = "test-pepper-0123456789abcdef0123456789abcdef";
@@ -14,9 +14,23 @@ describe("consent evidence", () => {
     expect(ev.user_agent).toBe("UA/1.0");
     expect((await buildWebEvidence("203.0.113.7", null, PEPPER)).ip_hash).toBe(ev.ip_hash);
   });
-  test("no / short pepper -> ip_hash null (still has both keys)", async () => {
-    const ev = await buildWebEvidence("203.0.113.7", "UA", "short");
-    expect(ev).toEqual({ ip_hash: null, user_agent: "UA" });
+  test("missing / short pepper fails closed (no evidence, no row)", async () => {
+    await expect(buildWebEvidence("203.0.113.7", "UA", undefined)).rejects.toThrow(EVIDENCE_PEPPER_ERROR);
+    await expect(buildWebEvidence("203.0.113.7", "UA", "")).rejects.toThrow(EVIDENCE_PEPPER_ERROR);
+    await expect(buildWebEvidence("203.0.113.7", "UA", "x".repeat(31))).rejects.toThrow(EVIDENCE_PEPPER_ERROR);
+    await expect(buildWebEvidence(null, "UA", "x".repeat(32))).resolves.toEqual({ ip_hash: null, user_agent: "UA" });
+  });
+  test("server functions build evidence before any record_consent call", () => {
+    const src = readFileSync(new URL("../src/lib/consent/consent.functions.ts", import.meta.url), "utf8");
+    for (const name of ["recordMyConsent", "withdrawMyConsent"]) {
+      const body = src.slice(src.indexOf(`export const ${name}`));
+      const handler = body.slice(body.indexOf(".handler("));
+      const ev = handler.indexOf("webEvidence()");
+      const ins = handler.indexOf("insert(");
+      expect(ev).toBeGreaterThan(-1);
+      expect(ins).toBeGreaterThan(ev);
+    }
+    expect(src.match(/record_consent/g)?.length).toBe(1);
   });
   test("user agent truncated", async () => {
     expect((await buildWebEvidence(null, "x".repeat(2000), PEPPER)).user_agent.length).toBe(512);

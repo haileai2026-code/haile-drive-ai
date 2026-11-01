@@ -23,19 +23,29 @@ async function hmacHex(key: string, value: string): Promise<string> {
   return Array.from(new Uint8Array(sig), (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+export const EVIDENCE_PEPPER_ERROR =
+  "Consent not recorded: server misconfigured (CONSENT_EVIDENCE_PEPPER missing or shorter than 32 characters)";
+
+/** Fail closed: throws unless the pepper is set and >= 32 chars. */
+export function requireEvidencePepper(pepper: string | undefined): string {
+  if (!pepper || pepper.length < EVIDENCE_PEPPER_MIN_LENGTH) throw new Error(EVIDENCE_PEPPER_ERROR);
+  return pepper;
+}
+
 /**
- * ip_hash = HMAC-SHA256(pepper, ip). Without a valid pepper
- * (CONSENT_EVIDENCE_PEPPER, >= 32 chars) or without an IP the hash is null:
- * the consent is still recorded, the IP is never stored unhashed.
+ * ip_hash = HMAC-SHA256(pepper, ip). FAILS CLOSED: without a valid pepper
+ * (CONSENT_EVIDENCE_PEPPER, >= 32 chars) it throws, so no consent row is ever
+ * written without evidence. Only an unknown client IP gives ip_hash = null;
+ * the IP is never stored unhashed.
  */
 export async function buildWebEvidence(
   ip: string | null,
   userAgent: string | null,
   pepper: string | undefined,
 ): Promise<WebEvidence> {
-  const ok = !!pepper && pepper.length >= EVIDENCE_PEPPER_MIN_LENGTH;
+  const key = requireEvidencePepper(pepper);
   return {
-    ip_hash: ok && ip ? await hmacHex(pepper!, ip) : null,
+    ip_hash: ip ? await hmacHex(key, ip) : null,
     user_agent: (userAgent ?? "").slice(0, UA_MAX),
   };
 }

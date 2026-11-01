@@ -46,7 +46,7 @@ export const recordMyConsent = createServerFn({ method: "POST" })
     z.object({ language: LANG, partnerTicked: z.boolean(), hasPartnerRecord: z.boolean() }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    const ev = await webEvidence();
+    const ev = await webEvidence(); // fails closed without CONSENT_EVIDENCE_PEPPER
     await insert(context.userId, rowFor("privacy_terms_abroad", true, data.language), ev);
     if (data.partnerTicked || !data.hasPartnerRecord) {
       await insert(context.userId, rowFor("partner_individual_progress", data.partnerTicked, data.language), ev);
@@ -61,6 +61,7 @@ export const withdrawMyConsent = createServerFn({ method: "POST" })
     z.object({ consent_type: z.enum(["privacy_terms_abroad", "partner_individual_progress"]), language: LANG }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    await insert(context.userId, rowFor(data.consent_type, false, data.language), await webEvidence());
+    const ev = await webEvidence(); // fails closed without CONSENT_EVIDENCE_PEPPER
+    await insert(context.userId, rowFor(data.consent_type, false, data.language), ev);
     return { ok: true };
   });
