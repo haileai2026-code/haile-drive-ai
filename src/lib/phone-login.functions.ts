@@ -53,10 +53,17 @@ export const requestPhoneOtp = createServerFn({ method: "POST" })
 
     const otp = generateOtp(); // CSPRNG, uniform 6 digits
     const ip = clientIp();
+    const provider = (process.env.SMS_PROVIDER ?? "manual") as "manual" | "twilio";
+    const twilio =
+      provider === "twilio" && !!process.env.TWILIO_ACCOUNT_SID && !!process.env.TWILIO_AUTH_TOKEN;
+    // The global SMS slot is reserved in the DB under the global advisory
+    // lock (p_reserve_sms) BEFORE Twilio is called, so parallel requests can
+    // never exceed the hourly cap; it is released below if the send fails.
     const { data: rows, error } = await supabaseAdmin.rpc("phone_otp_request", {
       p_phone: phone.e164,
       p_otp_hash: await hashOtp(phone.e164, otp), // HMAC(phone:code); plaintext never stored
       p_ip_hash: ip ? await hashIp(ip) : null,
+      p_reserve_sms: twilio,
     });
     if (error) throw new Error(OTP_REQUEST_GENERIC_MESSAGE);
     const res = rows?.[0];
@@ -65,25 +72,21 @@ export const requestPhoneOtp = createServerFn({ method: "POST" })
     const request_id = res.request_id;
 
     // Twilio path: send the OTP via SMS. The SMS itself is the verification,
-    // so on success the request is auto-approved.
-    const provider = (process.env.SMS_PROVIDER ?? "manual") as "manual" | "twilio";
-    if (
-      provider === "twilio" &&
-      process.env.TWILIO_ACCOUNT_SID &&
-      process.env.TWILIO_AUTH_TOKEN
-    ) {
-      const r = await sendViaTwilio({
-        channel: "sms",
-        to: phone.e164,
-        body: `קוד הכניסה שלך ל-Haile AI: ${otp}`,
-      });
-      if (r.ok) {
-        await supabaseAdmin
-          .from("phone_login_requests")
-          .update({ status: "approved", sms_sent_at: new Date().toISOString() }) // counts toward the global SMS cap
-          .eq("id", request_id);
-        return { ok: true, request_id, delivery: "sms" as const };
+    // so on success the request is auto-approved (phone_otp_sms_result).
+    if (twilio) {
+      let sent = false;
+      try {
+        const r = await sendViaTwilio({
+          channel: "sms",
+          to: phone.e164,
+          body: `קוד הכניסה שלך ל-Haile AI: ${otp}`,
+        });
+        sent = r.ok;
+      } finally {
+        // sent -> approved + sms_sent_at; failed -> reserved slot released
+        await supabaseAdmin.rpc("phone_otp_sms_result", { p_request_id: request_id, p_sent: sent });
       }
+      if (sent) return { ok: true, request_id, delivery: "sms" as const };
       // Twilio failed — keep the manual admin flow as fallback. Never throw:
       // an SMS outage must not block a student from logging in manually.
       return { ok: true, request_id, delivery: "manual" as const };

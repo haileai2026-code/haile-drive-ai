@@ -29,6 +29,7 @@ export const OTP_LIMITS = {
   failedPerPhonePer15Min: OTP_MAX_FAILED_ATTEMPTS,
   perIpPerHour: 10,
   globalSmsPerHour: 200,
+  globalRowsPerHour: 1000,
 } as const;
 
 // OTP codes are stored as HMAC-SHA256(OTP_PEPPER, phone + ":" + code), hex

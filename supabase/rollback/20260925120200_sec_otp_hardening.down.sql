@@ -5,7 +5,8 @@
 revoke execute on function public.phone_otp_request_allowed(text) from service_role;
 revoke execute on function public.phone_otp_verify(text, text)     from service_role;
 revoke execute on function public.purge_phone_otps()               from service_role;
-revoke execute on function public.phone_otp_request(text, text, text) from service_role;
+revoke execute on function public.phone_otp_request(text, text, text, boolean) from service_role;
+revoke execute on function public.phone_otp_sms_result(uuid, boolean)  from service_role;
 revoke execute on function public.phone_otp_consume(uuid, uuid)       from service_role;
 revoke execute on function public.phone_otp_release(uuid)             from service_role;
 revoke execute on function public.phone_auth_user_lookup(text[])      from service_role;

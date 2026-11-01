@@ -1,7 +1,7 @@
 // Run: bun test tests/phone.test.ts
 import { describe, expect, test } from "bun:test";
 import { normalizePhoneE164, phoneEmailCandidates } from "../src/lib/phone";
-import { behindTrustedProxy, clientIpFrom } from "../src/lib/client-ip";
+import { clientIpFrom } from "../src/lib/client-ip";
 import {
   OTP_GENERIC_MESSAGE,
   OTP_LIMITS,
@@ -46,7 +46,7 @@ describe("generic OTP messages", () => {
     }
   });
   test("limits match the SQL constants", () => {
-    expect(OTP_LIMITS).toEqual({ perPhonePer15Min: 3, failedPerPhonePer15Min: 5, perIpPerHour: 10, globalSmsPerHour: 200 });
+    expect(OTP_LIMITS).toEqual({ perPhonePer15Min: 3, failedPerPhonePer15Min: 5, perIpPerHour: 10, globalSmsPerHour: 200, globalRowsPerHour: 1000 });
   });
 });
 
@@ -67,18 +67,15 @@ describe("hashIp", () => {
 describe("clientIpFrom", () => {
   const H = (o: Record<string, string>) => new Headers(o);
   test("never the leftmost X-Forwarded-For", () => {
-    expect(clientIpFrom(H({ "x-forwarded-for": "6.6.6.6, 198.51.100.9" }), false)).toBeNull();
-    expect(clientIpFrom(H({ "x-forwarded-for": "6.6.6.6, 198.51.100.9" }), true)).toBe("198.51.100.9");
+    expect(clientIpFrom(H({ "x-forwarded-for": "6.6.6.6, 198.51.100.9" }), "none")).toBeNull();
+    expect(clientIpFrom(H({ "x-forwarded-for": "6.6.6.6, 198.51.100.9" }), "trusted-proxy")).toBe("198.51.100.9");
   });
-  test("order: cf-connecting-ip, x-vercel-forwarded-for, x-real-ip (trusted proxy only)", () => {
+  test("platform-specific header only (see tests/client-ip.test.ts)", () => {
     const all = { "cf-connecting-ip": "203.0.113.1", "x-vercel-forwarded-for": "203.0.113.2", "x-real-ip": "203.0.113.3" };
-    expect(clientIpFrom(H(all), false)).toBe("203.0.113.1");
-    expect(clientIpFrom(H({ "x-vercel-forwarded-for": "203.0.113.2", "x-real-ip": "203.0.113.3" }), false)).toBe("203.0.113.2");
-    expect(clientIpFrom(H({ "x-real-ip": "203.0.113.3" }), false)).toBeNull();
-    expect(clientIpFrom(H({ "x-real-ip": "203.0.113.3" }), true)).toBe("203.0.113.3");
-    expect(clientIpFrom(H({ "cf-connecting-ip": "not-an-ip" }), false)).toBeNull();
-    expect(behindTrustedProxy({ VERCEL: "1" })).toBe(true);
-    expect(behindTrustedProxy({})).toBe(false);
+    expect(clientIpFrom(H(all), "vercel")).toBe("203.0.113.2");
+    expect(clientIpFrom(H(all), "cloudflare")).toBe("203.0.113.1");
+    expect(clientIpFrom(H(all), "trusted-proxy")).toBe("203.0.113.3");
+    expect(clientIpFrom(H(all), "none")).toBeNull();
   });
 });
 
@@ -89,5 +86,6 @@ describe("SQL limits are the same constants", () => {
     expect(sql).toContain(`c_fail_per_15min  constant integer := ${OTP_LIMITS.failedPerPhonePer15Min};`);
     expect(sql).toContain(`c_ip_per_hour     constant integer := ${OTP_LIMITS.perIpPerHour};`);
     expect(sql).toContain(`c_global_per_hour constant integer := ${OTP_LIMITS.globalSmsPerHour};`);
+    expect(sql).toContain(`c_rows_per_hour   constant integer := ${OTP_LIMITS.globalRowsPerHour};`);
   });
 });

@@ -43,7 +43,7 @@ npx wrangler secret put DAILY_API_KEY
 **Phone OTP (server only, required before phone login is enabled):**
 - `OTP_PEPPER` — at least 32 random characters (`openssl rand -hex 32`); no value in the repo. Without it OTP requests fail closed. The IP-hash key is derived from it (HKDF), so no separate env var is needed.
 - CAPTCHA must be in place before phone login / Twilio is turned on.
-- Client IP: `cf-connecting-ip`, then `x-vercel-forwarded-for`; `x-real-ip` / the rightmost `X-Forwarded-For` only behind a known proxy (`VERCEL=1`, or `TRUSTED_PROXY=on` set by ops).
+- Client IP is read from ONE header chosen by platform (`src/lib/client-ip.ts`): on Vercel (`VERCEL=1`, set by the platform) only `x-vercel-forwarded-for`; on Cloudflare (`EDGE_PLATFORM=cloudflare`, set by ops only if the origin accepts Cloudflare traffic exclusively) only `cf-connecting-ip`; behind another proxy (`TRUSTED_PROXY=on`) `x-real-ip`, else the rightmost `X-Forwarded-For`; otherwise no IP (per-IP limit off, phone/global limits still apply).
 
 ה-workflow מעביר גם env בזמן deploy; ה-secrets של wrangler נשארים ב-Worker.
 

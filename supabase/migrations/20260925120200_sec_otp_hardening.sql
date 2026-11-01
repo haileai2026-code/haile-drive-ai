@@ -290,12 +290,22 @@ create index if not exists phone_login_requests_created_idx
 --     lockout, per-phone throttle, per-IP limit, global hourly cap, insert.
 --     outcome: 'ok' | 'locked' | 'limited' (any throttle/cap; the app shows
 --     one generic message for everything except ok / locked).
--- sms_sent_at: set by the server when Twilio accepted the SMS (global cap).
+-- sms_reserved_at: SMS slot reserved INSIDE phone_otp_request under the
+--   global advisory lock (security round 3, N2), before Twilio is called.
+-- sms_sent_at: set by phone_otp_sms_result() when Twilio accepted the SMS.
+-- Global SMS cap counts reserved OR sent in the last hour; a failed send
+-- releases its reservation (sms_reserved_at := null).
 alter table public.phone_login_requests add column if not exists sms_sent_at timestamptz;
+alter table public.phone_login_requests add column if not exists sms_reserved_at timestamptz;
 create index if not exists phone_login_requests_sms_sent_idx
   on public.phone_login_requests (sms_sent_at) where sms_sent_at is not null;
+create index if not exists phone_login_requests_sms_reserved_idx
+  on public.phone_login_requests (sms_reserved_at) where sms_reserved_at is not null;
 
-create or replace function public.phone_otp_request(p_phone text, p_otp_hash text, p_ip_hash text)
+-- signature changed (p_reserve_sms added): drop the 3-arg version first.
+drop function if exists public.phone_otp_request(text, text, text);
+create or replace function public.phone_otp_request(p_phone text, p_otp_hash text, p_ip_hash text,
+                                                    p_reserve_sms boolean default false)
 returns table (outcome text, request_id uuid)
 language plpgsql
 volatile
@@ -308,6 +318,9 @@ declare
   c_fail_per_15min  constant integer := 5;
   c_ip_per_hour     constant integer := 10;
   c_global_per_hour constant integer := 200;
+  -- hard cap on ALL request rows per hour (manual mode / no IP included),
+  -- N5 interim until Turnstile CAPTCHA; phone login stays OFF until then.
+  c_rows_per_hour   constant integer := 1000;
   v_id uuid;
 begin
   if p_phone !~ '^[+][1-9][0-9]{6,14}$' or p_otp_hash !~ '^[0-9a-f]{64}$' then
@@ -330,14 +343,19 @@ begin
   if (p_ip_hash is not null and
          (select count(*) from public.phone_login_requests r
            where r.request_ip_hash = p_ip_hash and r.created_at > now() - interval '1 hour') >= c_ip_per_hour)
-     -- global cap counts only requests that actually sent an SMS
+     -- hourly row cap over every request (SMS or not)
      or (select count(*) from public.phone_login_requests r
-          where r.sms_sent_at > now() - interval '1 hour') >= c_global_per_hour then
+          where r.created_at > now() - interval '1 hour') >= c_rows_per_hour
+     -- global SMS cap: slots reserved (under this lock) or sent in the last
+     -- hour; only checked when this request wants to send an SMS
+     or (p_reserve_sms and
+         (select count(*) from public.phone_login_requests r
+           where coalesce(r.sms_sent_at, r.sms_reserved_at) > now() - interval '1 hour') >= c_global_per_hour) then
     return query select 'limited'::text, null::uuid; return;
   end if;
 
-  insert into public.phone_login_requests (phone, otp_hash, status, request_ip_hash)
-  values (p_phone, p_otp_hash, 'pending', p_ip_hash)
+  insert into public.phone_login_requests (phone, otp_hash, status, request_ip_hash, sms_reserved_at)
+  values (p_phone, p_otp_hash, 'pending', p_ip_hash, case when p_reserve_sms then now() end)
   returning id into v_id;
   return query select 'ok'::text, v_id;
 end;
@@ -373,6 +391,25 @@ as $$
   select exists (select 1 from u);
 $$;
 
+-- 8d2. Result of the SMS send for a reserved slot: sent -> approved +
+--      sms_sent_at; failed -> reservation released (slot returns to the cap).
+create or replace function public.phone_otp_sms_result(p_request_id uuid, p_sent boolean)
+returns boolean
+language sql
+volatile
+security definer
+set search_path = ''
+as $$
+  with u as (
+    update public.phone_login_requests
+       set sms_sent_at     = case when p_sent then now() end,
+           sms_reserved_at = case when p_sent then sms_reserved_at end,
+           status          = case when p_sent and status = 'pending' then 'approved' else status end
+     where id = p_request_id and sms_reserved_at is not null and sms_sent_at is null
+    returning 1)
+  select exists (select 1 from u);
+$$;
+
 -- 8e. Exact auth-user lookup for the synthetic phone e-mail (replaces
 --     listUsers({perPage:200})). First match in the given preference order
 --     (E.164 form first, then legacy formats).
@@ -391,11 +428,13 @@ as $$
 $$;
 
 -- 8f. Explicit grants (minimum): service_role only.
-revoke all on function public.phone_otp_request(text, text, text) from public, anon, authenticated;
+revoke all on function public.phone_otp_request(text, text, text, boolean) from public, anon, authenticated;
+revoke all on function public.phone_otp_sms_result(uuid, boolean)  from public, anon, authenticated;
 revoke all on function public.phone_otp_consume(uuid, uuid)       from public, anon, authenticated;
 revoke all on function public.phone_otp_release(uuid)             from public, anon, authenticated;
 revoke all on function public.phone_auth_user_lookup(text[])      from public, anon, authenticated;
-grant execute on function public.phone_otp_request(text, text, text) to service_role;
+grant execute on function public.phone_otp_request(text, text, text, boolean) to service_role;
+grant execute on function public.phone_otp_sms_result(uuid, boolean)  to service_role;
 grant execute on function public.phone_otp_consume(uuid, uuid)       to service_role;
 grant execute on function public.phone_otp_release(uuid)             to service_role;
 grant execute on function public.phone_auth_user_lookup(text[])      to service_role;

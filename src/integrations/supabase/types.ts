@@ -1410,10 +1410,19 @@ export type Database = {
       }
       phone_otp_release: { Args: { p_request_id: string }; Returns: boolean }
       phone_otp_request: {
-        Args: { p_ip_hash: string | null; p_otp_hash: string; p_phone: string }
+        Args: {
+          p_ip_hash: string | null
+          p_otp_hash: string
+          p_phone: string
+          p_reserve_sms?: boolean
+        }
         Returns: { outcome: string; request_id: string | null }[]
       }
       phone_otp_request_allowed: { Args: { p_phone: string }; Returns: boolean }
+      phone_otp_sms_result: {
+        Args: { p_request_id: string; p_sent: boolean }
+        Returns: boolean
+      }
       phone_otp_verify: {
         Args: { p_otp_hash: string; p_phone: string }
         Returns: {

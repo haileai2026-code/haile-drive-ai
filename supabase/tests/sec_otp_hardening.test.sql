@@ -185,15 +185,32 @@ begin
   select * into r from public.phone_otp_request('+972500000299', h1, ip2);
   if r.outcome <> 'ok' then raise exception 'FAIL R3c other ip: %', r.outcome; end if;
 
-  -- R4: global hourly cap (200) counts only requests that SENT an SMS
+  -- R4: global hourly SMS cap (200) counts reserved + sent SMS slots
   insert into public.phone_login_requests(phone, otp_hash, status)
     select '+97250001' || lpad(g::text, 4, '0'), h1, 'expired' from generate_series(1, 200) g;
-  select * into r from public.phone_otp_request('+972500000301', h1, null);
+  select * into r from public.phone_otp_request('+972500000301', h1, null, true);
   if r.outcome <> 'ok' then raise exception 'FAIL R4a unsent requests counted toward global cap: %', r.outcome; end if;
-  update public.phone_login_requests set sms_sent_at = now() where phone like '+97250001%';
-  select * into r from public.phone_otp_request('+972500000302', h1, null);
-  if r.outcome <> 'limited' then raise exception 'FAIL R4 global cap: %', r.outcome; end if;
-  if position('otp-global' in pg_get_functiondef('public.phone_otp_request(text,text,text)'::regprocedure)) = 0 then
+  if (select sms_reserved_at from public.phone_login_requests where id = r.request_id) is null then
+    raise exception 'FAIL R4d slot not reserved'; end if;
+  -- failed send releases the slot; successful send approves
+  if not public.phone_otp_sms_result(r.request_id, false) then raise exception 'FAIL R4e release'; end if;
+  if (select sms_reserved_at from public.phone_login_requests where id = r.request_id) is not null then
+    raise exception 'FAIL R4f slot not released'; end if;
+  if public.phone_otp_sms_result(r.request_id, true) then raise exception 'FAIL R4g result on released slot'; end if;
+  update public.phone_login_requests set sms_sent_at = now() where phone like '+97250001%' and phone <= '+972500010199';
+  update public.phone_login_requests set sms_reserved_at = now() where phone = '+972500010200';
+  select * into r from public.phone_otp_request('+972500000302', h1, null, true);
+  if r.outcome <> 'limited' then raise exception 'FAIL R4 global cap (reserved counted): %', r.outcome; end if;
+  -- non-SMS (manual) requests are not blocked by the SMS cap
+  select * into r from public.phone_otp_request('+972500000303', h1, null, false);
+  if r.outcome <> 'ok' then raise exception 'FAIL R4h manual blocked by SMS cap: %', r.outcome; end if;
+  -- R4i: hourly row cap (1000) over all requests
+  insert into public.phone_login_requests(phone, otp_hash, status)
+    select '+97250002' || lpad(g::text, 4, '0'), h1, 'expired' from generate_series(1, 1000) g;
+  select * into r from public.phone_otp_request('+972500000304', h1, null, false);
+  if r.outcome <> 'limited' then raise exception 'FAIL R4i row cap: %', r.outcome; end if;
+  delete from public.phone_login_requests where phone like '+97250002%';
+  if position('otp-global' in pg_get_functiondef('public.phone_otp_request(text,text,text,boolean)'::regprocedure)) = 0 then
     raise exception 'FAIL R4c no global advisory lock'; end if;
   delete from public.phone_login_requests where phone like '+97250001%';
 
@@ -222,11 +239,13 @@ begin
   if public.phone_auth_user_lookup(array['nobody@haileai.app']) is not null then raise exception 'FAIL R7c'; end if;
 
   -- R8: grants: new functions service_role only
-  if has_function_privilege('authenticated','public.phone_otp_request(text,text,text)','EXECUTE')
+  if has_function_privilege('authenticated','public.phone_otp_request(text,text,text,boolean)','EXECUTE')
      or has_function_privilege('anon','public.phone_otp_consume(uuid,uuid)','EXECUTE')
      or has_function_privilege('authenticated','public.phone_otp_release(uuid)','EXECUTE')
      or has_function_privilege('authenticated','public.phone_auth_user_lookup(text[])','EXECUTE')
-     or not has_function_privilege('service_role','public.phone_otp_request(text,text,text)','EXECUTE')
+     or not has_function_privilege('service_role','public.phone_otp_request(text,text,text,boolean)','EXECUTE')
+     or has_function_privilege('authenticated','public.phone_otp_sms_result(uuid,boolean)','EXECUTE')
+     or not has_function_privilege('service_role','public.phone_otp_sms_result(uuid,boolean)','EXECUTE')
      or not has_function_privilege('service_role','public.phone_auth_user_lookup(text[])','EXECUTE') then
     raise exception 'FAIL R8 grants'; end if;
   raise notice 'PASS R review fixes';
