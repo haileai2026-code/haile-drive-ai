@@ -1,25 +1,20 @@
-import type { DiagLanguage } from "./interfaces";
-
-export type Community = "ethiopian" | "russian" | "manashe";
 
 export type QOption = { he: string; am?: string; ru?: string };
 export type DiagQuestion = {
   id: string;
-  category: "motivation" | "self_control" | "safety" | "communication" | "stability" | "pressure" | "community";
+  category: "motivation" | "self_control" | "safety" | "communication" | "stability" | "pressure";
   text: { he: string; am?: string; ru?: string };
   options: QOption[];
 };
 
-export const COMMUNITY_LABEL: Record<Community, string> = {
-  ethiopian: "🇪🇹 אמהרית",
-  russian: "🇷🇺 רוסית",
-  manashe: "✡️ קוקי (בני מנשה)",
-};
-
-export const COMMUNITY_TTS_LANG: Record<Community, DiagLanguage> = {
-  ethiopian: "am",
-  russian: "ru",
-  manashe: "he",
+// CTO gate 5 (2026-11-01): one bank for everyone; the chooser selects the
+// display / TTS language only (stored as a language code).
+export type DiagDisplayLanguage = "he" | "am" | "ru";
+export const DIAG_LANGUAGES: DiagDisplayLanguage[] = ["he", "am", "ru"];
+export const LANGUAGE_LABEL: Record<DiagDisplayLanguage, string> = {
+  he: "עברית",
+  am: "አማርኛ",
+  ru: "Русский",
 };
 
 // 10 common questions
@@ -102,48 +97,16 @@ export const PRESSURE: DiagQuestion = {
   ],
 };
 
-export const BY_COMMUNITY: Record<Community, DiagQuestion[]> = {
-  ethiopian: [
-    { id: "qe1", category: "stability", text: { he: "אם לא עברת מבחן — מה תגיד למשפחה?", am: "ፈተናውን ካላለፍክ ለቤተሰብ ምን ትላለህ?" }, options: [
-      { he: "אסתיר" }, { he: "אגיד שדחיתי" }, { he: "אגיד האמת ואנסה שוב" },
-    ]},
-    { id: "qe2", category: "motivation", text: { he: "פחדת פעם מכישלון ועשית בכל זאת — ספר", am: "ከውድቀት ፈርተህ ግን ሞክረሃል?" }, options: [
-      { he: "לא קרה" }, { he: "רק אם הייתי חייב" }, { he: "כן, תמיד אנסה" },
-    ]},
-    { id: "qe3", category: "stability", text: { he: "אדם שאתה מכבד — מה היה אומר על המקצוע?", am: "የምታከብረው ሰው ስለዚህ ሙያ ምን ይላል?" }, options: [
-      { he: "לא בטוח" }, { he: "היה מסכים" }, { he: "היה גאה" },
-    ]},
-  ],
-  russian: [
-    { id: "qr1", category: "motivation", text: { he: "מה עשית מקצועית לפני שהגעת לישראל?", ru: "Чем ты занимался до приезда в Израиль?" }, options: [
-      { he: "לא רלוונטי" }, { he: "עבדתי בתחום שונה" }, { he: "יש לי ניסיון תחבורה" },
-    ]},
-    { id: "qr2", category: "self_control", text: { he: "מנהל ביקש משהו שנראה לך לא נכון — מה תעשה?", ru: "Начальник просит сделать что-то странное — что делаешь?" }, options: [
-      { he: "אתעלם" }, { he: "אעשה אבל אתלונן" }, { he: "אשאל לפני שאעשה" },
-    ]},
-    { id: "qr3", category: "stability", text: { he: "בעוד 3 שנים — איפה אתה רוצה להיות?", ru: "Где ты хочешь быть через 3 года?" }, options: [
-      { he: "לא יודע" }, { he: "אותו מקום" }, { he: "נהג מנוסה / מדריך" },
-    ]},
-  ],
-  manashe: [
-    { id: "qm1", category: "motivation", text: { he: "למה בחרת לעלות לישראל?" }, options: [
-      { he: "הגעתי עם המשפחה" }, { he: "חיפשתי עבודה" }, { he: "זה החלום שלי מאז ילדות" },
-    ]},
-    { id: "qm2", category: "stability", text: { he: "מוכן לנסוע כל יום לעיר אחרת?" }, options: [
-      { he: "לא" }, { he: "רק קרוב לבית" }, { he: "כן, בלי בעיה" },
-    ]},
-    { id: "qm3", category: "motivation", text: { he: "ספר על עבודה קשה שעשית בחיים" }, options: [
-      { he: "לא עשיתי" }, { he: "עבדתי קשה כשהייתי חייב" }, { he: "תמיד עבדתי קשה" },
-    ]},
-  ],
-};
+/** The single bank, in display order (pressure question last). */
+export const DIAG_QUESTIONS: DiagQuestion[] = [...COMMON, PRESSURE];
+export const DIAG_QUESTION_IDS: string[] = DIAG_QUESTIONS.map((q) => q.id);
 
-export function questionsFor(community: Community): DiagQuestion[] {
-  return [...COMMON, ...BY_COMMUNITY[community], PRESSURE];
+export function questionsFor(): DiagQuestion[] {
+  return DIAG_QUESTIONS;
 }
 
-export function ttsTextFor(q: DiagQuestion, community: Community): string {
-  if (community === "ethiopian" && q.text.am) return q.text.am;
-  if (community === "russian" && q.text.ru) return q.text.ru;
+export function ttsTextFor(q: DiagQuestion, lang: DiagDisplayLanguage): string {
+  if (lang === "am" && q.text.am) return q.text.am;
+  if (lang === "ru" && q.text.ru) return q.text.ru;
   return q.text.he;
 }

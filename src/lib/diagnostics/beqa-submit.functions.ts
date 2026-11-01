@@ -2,7 +2,9 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { gradePsych } from "./psych-questions";
+import { gradePsych } from "./psych-grading";
+import { PSYCH_QUESTION_IDS } from "./psych-questions";
+import { assertExactQuestionSet } from "./answer-set";
 import {
   INTERVIEW,
   MMPI_MAX,
@@ -24,7 +26,8 @@ export const submitPsychDiagnostic = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
     z
       .object({
-        community: z.enum(["ethiopian", "russian", "manashe"]),
+        // Display language only (CTO gate 5: no community / ethnic field).
+        language: z.enum(["he", "am", "ru"]),
         picks: z.record(z.string().min(1).max(16), z.number().int().min(0).max(8)),
       })
       .parse(input),
@@ -36,11 +39,12 @@ export const submitPsychDiagnostic = createServerFn({ method: "POST" })
     if (accessErr) throw new Error("BEQA access check failed");
     if (access !== true) throw new Error("No BEQA access");
 
-    const g = gradePsych(data.community, data.picks);
+    assertExactQuestionSet(Object.keys(data.picks), PSYCH_QUESTION_IDS);
+    const g = gradePsych(data.picks);
     const { error } = await supabaseAdmin.from("beqa_diagnostic_sessions").insert({
       student_id: context.userId,
       assessment_type: "psychological",
-      community_type: data.community,
+      // community_type is no longer written (column kept; not dropped here)
       psychological_score: g.psychological100,
       accuracy_score: g.accuracy100,
       final_beqa_score: g.finalBeqa,
@@ -49,7 +53,8 @@ export const submitPsychDiagnostic = createServerFn({ method: "POST" })
       end_time: new Date().toISOString(),
       metadata: {
         recommendation_label: g.rec.label,
-        version: "psych-v2",
+        version: "psych-v3-single-bank",
+        language: data.language,
         raw_score_1_4: g.score,
         graded: "server",
       },

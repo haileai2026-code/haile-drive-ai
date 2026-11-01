@@ -15,8 +15,8 @@ import type { TTSProvider, FaceAnalysisProvider, RPPGProvider, FaceEmotion } fro
 import { BiometricConsentScreen, hasGrantedBiometricConsent } from "@/components/diagnostics/BiometricConsentScreen";
 import { finishDiagnostic } from "@/lib/diagnostics/finish-diagnostic.functions";
 import {
-  questionsFor, ttsTextFor, COMMUNITY_LABEL, COMMUNITY_TTS_LANG,
-  type Community, type DiagQuestion,
+  questionsFor, ttsTextFor, LANGUAGE_LABEL, DIAG_LANGUAGES,
+  type DiagDisplayLanguage, type DiagQuestion,
 } from "@/lib/diagnostics/questions";
 
 export const Route = createFileRoute("/diagnostics")({
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/diagnostics")({
   component: DiagnosticsPage,
 });
 
-type Phase = "welcome" | "consent" | "community" | "calibration" | "questions" | "pressure" | "results";
+type Phase = "welcome" | "consent" | "language" | "calibration" | "questions" | "pressure" | "results";
 
 type AnswerRow = {
   qId: string;
@@ -53,7 +53,7 @@ function DiagnosticsPage() {
 
   // Live state
   const [phase, setPhase] = useState<Phase>("welcome");
-  const [community, setCommunity] = useState<Community | null>(null);
+  const [lang, setLang] = useState<DiagDisplayLanguage | null>(null);
   const [bpm, setBpm] = useState<number | null>(null);
   const [hrv, setHrv] = useState<number | null>(null);
   const [emotion, setEmotion] = useState<FaceEmotion | null>(null);
@@ -78,12 +78,12 @@ function DiagnosticsPage() {
   const [stressHr, setStressHr] = useState<number | null>(null);
 
   const questions = useMemo<DiagQuestion[]>(
-    () => (community ? questionsFor(community).filter((q) => q.id !== "qp") : []),
-    [community],
+    () => (lang ? questionsFor().filter((q) => q.id !== "qp") : []),
+    [lang],
   );
   const pressureQ = useMemo<DiagQuestion | null>(
-    () => (community ? questionsFor(community).find((q) => q.id === "qp") ?? null : null),
-    [community],
+    () => (lang ? questionsFor().find((q) => q.id === "qp") ?? null : null),
+    [lang],
   );
 
   const [done, setDone] = useState(false);
@@ -134,7 +134,7 @@ function DiagnosticsPage() {
         audio: false,
       });
       streamRef.current = stream;
-      setPhase("community");
+      setPhase("language");
       // wait for video element
       await new Promise((r) => requestAnimationFrame(() => r(null)));
       if (videoRef.current) {
@@ -170,17 +170,17 @@ function DiagnosticsPage() {
     }
   }
 
-  function chooseCommunity(c: Community) {
-    setCommunity(c);
+  function chooseLanguage(c: DiagDisplayLanguage) {
+    setLang(c);
     startTsRef.current = Date.now();
     bpmSeries.current = []; emoSeries.current = []; calibBpms.current = [];
     setPhase("calibration");
     setCalibLeft(CALIBRATION_SECONDS);
     ttsRef.current?.speak(
-      c === "russian" ? "Сядь удобно. Смотри в камеру. 30 секунд." :
-      c === "ethiopian" ? "በምቾት ቁጭ በል። ካሜራውን ተመልከት። 30 ሰከንዶች።" :
+      c === "ru" ? "Сядь удобно. Смотри в камеру. 30 секунд." :
+      c === "am" ? "በምቾት ቁጭ በል። ካሜራውን ተመልከት። 30 ሰከንዶች።" :
       "שב בנוחות. הסתכל על המצלמה. 30 שניות.",
-      COMMUNITY_TTS_LANG[c],
+      c,
     );
   }
 
@@ -208,16 +208,16 @@ function DiagnosticsPage() {
 
   // Speak each question when shown
   useEffect(() => {
-    if (phase !== "questions" || !community || !questions[qIdx]) return;
+    if (phase !== "questions" || !lang || !questions[qIdx]) return;
     questionShownAt.current = Date.now();
     const q = questions[qIdx];
-    ttsRef.current?.speak(ttsTextFor(q, community), COMMUNITY_TTS_LANG[community]);
-  }, [phase, qIdx, community, questions]);
+    ttsRef.current?.speak(ttsTextFor(q, lang), lang);
+  }, [phase, qIdx, lang, questions]);
 
   function repeatTTS() {
-    if (!community) return;
+    if (!lang) return;
     const q = phase === "pressure" ? pressureQ : questions[qIdx];
-    if (q) ttsRef.current?.speak(ttsTextFor(q, community), COMMUNITY_TTS_LANG[community]);
+    if (q) ttsRef.current?.speak(ttsTextFor(q, lang), lang);
   }
 
   async function pickAnswer(optionIndex: number) {
@@ -252,8 +252,8 @@ function DiagnosticsPage() {
         setPressureLeft(PRESSURE_SECONDS);
         pressureBpms.current = [];
         questionShownAt.current = Date.now();
-        if (community && pressureQ) {
-          ttsRef.current?.speak(ttsTextFor(pressureQ, community), COMMUNITY_TTS_LANG[community]);
+        if (lang && pressureQ) {
+          ttsRef.current?.speak(ttsTextFor(pressureQ, lang), lang);
         }
       }
     } else {
@@ -293,11 +293,11 @@ function DiagnosticsPage() {
       : bpm ?? baselineHr;
     setStressHr(sHr);
 
-    if (user && community) {
+    if (user && lang) {
       try {
         await finishFn({
           data: {
-            community,
+            lang,
             sessionId: sessionId.current,
             baselineHr,
             stressHr: sHr,
@@ -322,7 +322,7 @@ function DiagnosticsPage() {
   function reset() {
     cleanup();
     setPhase("welcome");
-    setCommunity(null);
+    setLang(null);
     setAnswers([]);
     setQIdx(0);
     setDone(false);
@@ -368,7 +368,7 @@ function DiagnosticsPage() {
           <BiometricConsentScreen studentId={user.id} onGranted={requestCameraAndStart} />
         )}
 
-        {phase === "community" && <CommunityChooser onPick={chooseCommunity} videoRef={videoRef} />}
+        {phase === "language" && <LanguageChooser onPick={chooseLanguage} videoRef={videoRef} />}
 
         {(phase === "calibration" || phase === "questions" || phase === "pressure") && (
           <div className="grid gap-4 md:grid-cols-[1fr,1.4fr]">
@@ -391,20 +391,20 @@ function DiagnosticsPage() {
                     }}
                   />
                 )}
-                {phase === "questions" && questions[qIdx] && community && (
+                {phase === "questions" && questions[qIdx] && lang && (
                   <QuestionCard
                     q={questions[qIdx]}
-                    community={community}
+                    lang={lang}
                     idx={qIdx}
                     total={questions.length}
                     onPick={pickAnswer}
                     onRepeat={repeatTTS}
                   />
                 )}
-                {phase === "pressure" && pressureQ && community && (
+                {phase === "pressure" && pressureQ && lang && (
                   <PressureCard
                     q={pressureQ}
-                    community={community}
+                    lang={lang}
                     left={pressureLeft}
                     onPick={pickAnswer}
                     onRepeat={repeatTTS}
@@ -444,9 +444,9 @@ function Welcome({ onStart }: { onStart: () => void }) {
   );
 }
 
-function CommunityChooser({
+function LanguageChooser({
   onPick, videoRef,
-}: { onPick: (c: Community) => void; videoRef: React.RefObject<HTMLVideoElement | null> }) {
+}: { onPick: (c: DiagDisplayLanguage) => void; videoRef: React.RefObject<HTMLVideoElement | null> }) {
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <div className="rounded-2xl border bg-black/60 p-3">
@@ -454,11 +454,11 @@ function CommunityChooser({
         <p className="mt-2 text-xs text-center text-muted-foreground">תצוגה מקדימה — המצלמה פעילה</p>
       </div>
       <div className="space-y-3">
-        <h2 className="text-xl font-bold">בחר את הקהילה שלך</h2>
-        {(["ethiopian", "russian", "manashe"] as Community[]).map((c) => (
+        <h2 className="text-xl font-bold">בחר שפה</h2>
+        {DIAG_LANGUAGES.map((c) => (
           <Button key={c} onClick={() => onPick(c)} size="lg" variant="outline"
                   className="h-20 w-full text-xl font-bold hover:bg-amber-500/10 hover:border-amber-500">
-            {COMMUNITY_LABEL[c]}
+            {LANGUAGE_LABEL[c]}
           </Button>
         ))}
       </div>
@@ -528,17 +528,17 @@ function CalibrationStep({ left, bpm, onSkip }: { left: number; bpm: number | nu
 }
 
 function QuestionCard({
-  q, community, idx, total, onPick, onRepeat,
+  q, lang, idx, total, onPick, onRepeat,
 }: {
-  q: DiagQuestion; community: Community; idx: number; total: number;
+  q: DiagQuestion; lang: DiagDisplayLanguage; idx: number; total: number;
   onPick: (optionIndex: number) => void; onRepeat: () => void;
 }) {
-  const tts = ttsTextFor(q, community);
+  const tts = ttsTextFor(q, lang);
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between text-xs">
         <span className="text-muted-foreground">שאלה {idx + 1} מתוך {total}</span>
-        <span>{COMMUNITY_LABEL[community]}</span>
+        <span>{LANGUAGE_LABEL[lang]}</span>
       </div>
       <Progress value={(idx / total) * 100} className="h-2" />
       <div className="space-y-2">
@@ -549,7 +549,7 @@ function QuestionCard({
           <div className="space-y-1">
             <div className="text-xl font-bold leading-snug">{q.text.he}</div>
             {tts !== q.text.he && (
-              <div className="text-sm text-muted-foreground" lang={community === "ethiopian" ? "am" : "ru"}>
+              <div className="text-sm text-muted-foreground" lang={lang}>
                 {tts}
               </div>
             )}
@@ -572,12 +572,12 @@ function QuestionCard({
 }
 
 function PressureCard({
-  q, community, left, onPick, onRepeat,
+  q, lang, left, onPick, onRepeat,
 }: {
-  q: DiagQuestion; community: Community; left: number;
+  q: DiagQuestion; lang: DiagDisplayLanguage; left: number;
   onPick: (optionIndex: number) => void; onRepeat: () => void;
 }) {
-  const tts = ttsTextFor(q, community);
+  const tts = ttsTextFor(q, lang);
   const pct = (left / PRESSURE_SECONDS) * 100;
   return (
     <div className="space-y-4">
@@ -590,7 +590,7 @@ function PressureCard({
         <div className="space-y-1">
           <div className="text-xl font-bold leading-snug">{q.text.he}</div>
           {tts !== q.text.he && (
-            <div className="text-sm text-muted-foreground" lang={community === "ethiopian" ? "am" : "ru"}>{tts}</div>
+            <div className="text-sm text-muted-foreground" lang={lang}>{tts}</div>
           )}
         </div>
       </div>

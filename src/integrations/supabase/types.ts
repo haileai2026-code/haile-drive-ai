@@ -181,6 +181,45 @@ export type Database = {
           },
         ]
       }
+      beqa_pulse_clicks: {
+        Row: {
+          bpm: number | null
+          clicked_at: string
+          created_at: string
+          hrv: number | null
+          id: string
+          provider: string
+          reaction_ms: number | null
+          session_id: string
+          signal_quality: string | null
+          student_id: string | null
+        }
+        Insert: {
+          bpm?: number | null
+          clicked_at?: string
+          created_at?: string
+          hrv?: number | null
+          id?: string
+          provider?: string
+          reaction_ms?: number | null
+          session_id: string
+          signal_quality?: string | null
+          student_id?: string | null
+        }
+        Update: {
+          bpm?: number | null
+          clicked_at?: string
+          created_at?: string
+          hrv?: number | null
+          id?: string
+          provider?: string
+          reaction_ms?: number | null
+          session_id?: string
+          signal_quality?: string | null
+          student_id?: string | null
+        }
+        Relationships: []
+      }
       candidates: {
         Row: {
           assigned_teacher_id: string | null
