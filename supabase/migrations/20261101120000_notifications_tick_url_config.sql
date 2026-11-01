@@ -14,7 +14,7 @@
 -- one NOTICE per hour (state in public.notifications_tick_state), no spam.
 --
 -- Scheduling (review fix, CTO 2026-11-01): the old job (hardcoded preview URL)
--- is ALWAYS unscheduled. The new job is scheduled ONLY if both Vault secrets
+-- is ALWAYS unscheduled (exact jobname 'notifications-tick'). The new job is scheduled ONLY if both Vault secrets
 -- exist at migration time; otherwise it stays unscheduled with a NOTICE.
 -- Manual step after a human creates both secrets (as postgres):
 --   select public.notifications_tick_schedule();
@@ -91,16 +91,11 @@ as $$
 declare
   j record;
 begin
-  -- always drop the old job: by name, and any job still posting to the old
-  -- hardcoded preview host
-  for j in select jobid, jobname from cron.job
-            where jobname = 'notifications-tick' or command like '%lovable.app%' loop
+  -- always drop the old job, by its exact name from 20260513224327
+  -- ('notifications-tick', which posted to the hardcoded preview URL)
+  for j in select jobid, jobname from cron.job where jobname = 'notifications-tick' loop
     begin
-      if j.jobname is not null then
-        perform cron.unschedule(j.jobname);
-      else
-        perform cron.unschedule(j.jobid);
-      end if;
+      perform cron.unschedule(j.jobname);
     exception when others then
       raise notice 'notifications_tick_schedule: could not unschedule job % (%)', j.jobid, sqlerrm;
     end;

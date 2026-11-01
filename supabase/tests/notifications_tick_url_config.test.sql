@@ -4,12 +4,17 @@ do $$
 declare n int; h jsonb; u text; ts1 timestamptz;
 begin
   -- S1: migration ran without Vault secrets -> old job removed, new job NOT scheduled
-  if exists (select 1 from cron.job where jobname='notifications-tick' or command like '%lovable.app%') then
+  if exists (select 1 from cron.job where jobname='notifications-tick') then
     raise exception 'FAIL S1 job scheduled without secrets / old job kept'; end if;
   -- S2: an old-style job is always removed, even if secrets are missing
-  insert into cron.job(jobname, schedule, command) values ('notifications-tick', '*/5 * * * *', 'select net.http_post(url:=''https://old-preview.lovable.app.invalid/api'')');
+  insert into cron.job(jobname, schedule, command) values ('notifications-tick', '*/5 * * * *', 'select net.http_post(url:=''https://old-preview.example.invalid/api'')');
   if public.notifications_tick_schedule() then raise exception 'FAIL S2 scheduled without secrets'; end if;
   if exists (select 1 from cron.job where jobname='notifications-tick') then raise exception 'FAIL S2b old job kept'; end if;
+  -- S2c: an unrelated job is never touched
+  insert into cron.job(jobname, schedule, command) values ('other-job', '0 * * * *', 'select 1');
+  perform public.notifications_tick_schedule();
+  if not exists (select 1 from cron.job where jobname='other-job') then raise exception 'FAIL S2c unrelated job removed'; end if;
+  delete from cron.job where jobname='other-job';
   -- S3: both secrets -> scheduled exactly once (re-runnable)
   insert into vault.secrets(name, secret) values ('notifications_tick_url', 'https://example.test/api/public/hooks/notifications-tick'),
                                                  ('notifications_tick_secret', 'test-cron-secret');
