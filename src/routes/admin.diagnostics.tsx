@@ -21,7 +21,6 @@ type DiagnosticSession = {
   accuracy_score: number | null;
   recommendation: string | null;
   psychological_score?: number | null;
-  community_type?: string | null;
   answers?: Record<string, number> | null;
   profiles: { full_name: string | null; email: string | null } | null;
 };
@@ -38,12 +37,6 @@ function generateBeqaReport(session: any) {
   const date = new Date(session.created_at).toLocaleDateString("he-IL");
   const reportNo = session.id.substring(1, 8).toUpperCase();
   const today = new Date().toLocaleDateString("he-IL");
-  const community =
-    session.community_type === "ethiopian"
-      ? "אתיופי"
-      : session.community_type === "russian"
-        ? "רוסי"
-        : "קוקי";
   const rec = session.recommendation;
   const recLabel =
     rec === "A"
@@ -65,8 +58,8 @@ function generateBeqaReport(session: any) {
     q8: "מחויבות לתהליך למידה",
     q9: "ריאליות ציפיות שכר",
     q10: "זהות מקצועית כנהג",
-    qe1: "חוסן תרבותי — קהילה",
-    qe2: "ערכים קהילתיים",
+    qe1: "חוסן",
+    qe2: "ערכים אישיים",
     qe3: "אומץ מול אתגרים",
     qp: "קבלת החלטות תחת לחץ",
   };
@@ -82,8 +75,8 @@ function generateBeqaReport(session: any) {
     q8: "מחויבות גבוהה לתהליך ההכשרה. מבין שהרישיון הוא תהליך ולא אירוע חד-פעמי.",
     q9: "ציפיות ריאליות ומותאמות לשוק — מנבא יציבות תעסוקתית.",
     q10: "מזדהה עם תפקיד הנהג כמקצוע — מנבא מוסר עבודה ואיכות שירות גבוהים.",
-    qe1: "ביטוי גבוה של חוסן בהקשר תרבותי — מוכנות לשאת בכישלון ולנסות שוב.",
-    qe2: "הקהילה כמקור כוח — מנבא מחויבות ומוסר עבודה גבוהים.",
+    qe1: "ביטוי גבוה של חוסן — מוכנות לשאת בכישלון ולנסות שוב.",
+    qe2: "ערכים אישיים כמקור כוח — מנבא מחויבות ומוסר עבודה גבוהים.",
     qe3: "נכונות להתמודד עם מצבים מאיימים — תכונה הכרחית לנהג רכב ציבורי.",
     qp: "תגובה מיטבית לתרחיש הלחץ — עצירה בטוחה ודיווח מיידי. תגובה נכונה ביטחונית וחוקית.",
   };
@@ -221,7 +214,6 @@ tr:nth-child(even) { background:#F8FAFC; }
   <div class="info-grid">
     <div class="info-item"><div class="lbl">שם מלא</div><div class="val">${name}</div></div>
     <div class="info-item"><div class="lbl">תאריך אבחון</div><div class="val">${date}</div></div>
-    <div class="info-item"><div class="lbl">קהילה ושפה</div><div class="val">${community}</div></div>
     <div class="info-item"><div class="lbl">מספר דוח</div><div class="val">BEQA-2026-${reportNo}</div></div>
     <div class="info-item"><div class="lbl">גורם מאבחן</div><div class="val">Haile Drive AI BEQA v1.0</div></div>
     <div class="info-item"><div class="lbl">תאריך הפקה</div><div class="val">${today}</div></div>
@@ -246,7 +238,7 @@ tr:nth-child(even) { background:#F8FAFC; }
 <div class="section">
   <div class="section-title">ניתוח פסיכולוגי מפורט — שאלה אחר שאלה <span class="pg">עמוד 3/6</span></div>
   <p style="font-size:11px;color:#777;margin-bottom:10px;">
-    האבחון מבוסס על 14 שאלות שנבנו בהתאם למתודולוגיית פסיכולוג תעסוקתי מומחה לקהילות אתיופית, רוסית ושבט המנשה.
+    האבחון מבוסס על 14 שאלות שנבנו בהתאם למתודולוגיית פסיכולוג תעסוקתי.
   </p>
   <table>
     <thead><tr>
@@ -375,7 +367,7 @@ function AdminDiagnosticsPage() {
       const { data: sessions, error } = await supabase
         .from("beqa_diagnostic_sessions")
         .select(
-          "id, student_id, created_at, final_beqa_score, accuracy_score, recommendation, psychological_score, community_type, answers",
+          "id, student_id, created_at, final_beqa_score, accuracy_score, recommendation, psychological_score, answers",
         )
         .order("created_at", { ascending: false });
       if (!active) return;

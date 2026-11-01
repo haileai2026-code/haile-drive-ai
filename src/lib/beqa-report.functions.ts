@@ -15,8 +15,8 @@ const QUESTION_LABELS: Record<string, string> = {
   q8: "מחויבות ללמידה",
   q9: "ציפיות שכר",
   q10: "הגדרה עצמית",
-  qe1: "חוסן (קהילה)",
-  qe2: "ערכים קהילתיים",
+  qe1: "חוסן",
+  qe2: "ערכים אישיים",
   qe3: "אומץ התמודדות",
   qp: "תרחיש לחץ",
 };
@@ -55,15 +55,6 @@ export const generateBeqaReport = createServerFn({ method: "POST" })
         .maybeSingle();
       profile = p ?? null;
     }
-
-    const communityLabel =
-      session.community_type === "ethiopian"
-        ? "אתיופי"
-        : session.community_type === "russian"
-          ? "רוסי"
-          : session.community_type === "kuki"
-            ? "קוקי"
-            : session.community_type || "—";
 
     const recommendation = (session.recommendation as string) || "B";
     const recText =
@@ -134,7 +125,7 @@ export const generateBeqaReport = createServerFn({ method: "POST" })
 
 <table class="info-table">
   <tr><td>שם המועמד:</td><td>${escapeHtml(profile?.full_name || "לא ידוע")}</td><td>תאריך:</td><td>${escapeHtml(new Date(session.created_at).toLocaleDateString("he-IL"))}</td></tr>
-  <tr><td>קהילה:</td><td>${escapeHtml(communityLabel)}</td><td>מספר דוח:</td><td>${escapeHtml(reportId)}</td></tr>
+  <tr><td>מספר דוח:</td><td colspan="3">${escapeHtml(reportId)}</td></tr>
   <tr><td>סוג אבחון:</td><td>${escapeHtml(session.assessment_type || "פסיכולוגי")}</td><td>מייל:</td><td>${escapeHtml(profile?.email || "")}</td></tr>
 </table>
 

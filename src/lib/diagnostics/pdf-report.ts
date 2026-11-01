@@ -15,7 +15,6 @@ type Session = {
   id: string;
   student_id: string;
   start_time: string;
-  community_type: string | null;
   psychological_score: number | null;
   baseline_hr: number | null;
   stress_hr: number | null;
@@ -27,12 +26,6 @@ type Session = {
 };
 
 type Profile = { id: string; full_name: string | null; email: string | null } | undefined;
-
-const COMMUNITY_LABEL: Record<string, string> = {
-  ethiopian: "אתיופי",
-  russian: "רוסי",
-  kuki: "קוקי / בני מנשה",
-};
 
 function recInfo(letter: string | null, beqa: number | null) {
   const s = beqa ?? 0;
@@ -104,7 +97,6 @@ function buildHtml(session: Session, profile: Profile): string {
   const name = profile?.full_name || profile?.email || session.student_id.slice(0, 8);
   const date = fmtDate(session.start_time);
   const rec = recInfo(session.recommendation, session.final_beqa_score);
-  const community = COMMUNITY_LABEL[session.community_type ?? ""] ?? session.community_type ?? "—";
   const answers = Array.isArray(session.answers) ? session.answers : [];
   const beqa = Math.round(session.final_beqa_score ?? 0);
 
@@ -201,7 +193,6 @@ function buildHtml(session: Session, profile: Profile): string {
     <table style="width:100%;border-collapse:collapse;margin-top:24px;font-size:14px">
       <tbody>
         ${row("שם המועמד", escapeHtml(name))}
-        ${row("קהילה", community)}
         ${row("תאריך אבחון", date)}
         ${row("מספר דוח", session.id)}
         ${row("שם המאבחן", "Haile Drive AI System")}
