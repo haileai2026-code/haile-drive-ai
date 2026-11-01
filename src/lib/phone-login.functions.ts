@@ -2,10 +2,16 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { getRequest } from "@tanstack/react-start/server";
+import { getRequest, setResponseStatus } from "@tanstack/react-start/server";
 import { phoneToEmail } from "./sms/config";
 import { normalizePhoneE164, phoneEmailCandidates } from "./phone";
 import { clientIpFrom } from "./client-ip";
+import {
+  PHONE_LOGIN_DISABLED_MESSAGE,
+  PHONE_LOGIN_NO_IP_MESSAGE,
+  phoneLoginEnabled,
+  smsIpKey,
+} from "./phone-login-gate";
 import { sendViaTwilio } from "./notifications.functions";
 import {
   OTP_GENERIC_MESSAGE,
@@ -35,12 +41,21 @@ async function assertOwnerOrStaff(supabase: any, userId: string) {
   if (!data) throw new Error("Forbidden");
 }
 
+// R4-2: server switch, fail closed (PHONE_LOGIN_ENABLED=on + TURNSTILE_SECRET_KEY).
+function assertPhoneLoginEnabled() {
+  if (!phoneLoginEnabled(process.env)) {
+    setResponseStatus(403);
+    throw new Error(PHONE_LOGIN_DISABLED_MESSAGE);
+  }
+}
+
 function clientIp(): string | null {
   const h = getRequest()?.headers;
   return h ? clientIpFrom(h) : null; // never the leftmost X-Forwarded-For
 }
 
-// Step 1 — student requests an OTP. Anonymous-callable. CAPTCHA is REQUIRED
+// Step 1 — student requests an OTP. Anonymous-callable, but only when the
+// server switch is on (assertPhoneLoginEnabled). CAPTCHA is REQUIRED
 // before phone login / Twilio is enabled (not needed for the closed beta); until then the per-phone, per-IP and global hourly limits in
 // public.phone_otp_request apply (atomic, advisory lock per phone).
 export const requestPhoneOtp = createServerFn({ method: "POST" })
@@ -48,11 +63,18 @@ export const requestPhoneOtp = createServerFn({ method: "POST" })
     z.object({ phone: z.string().min(6).max(40) }).parse(input),
   )
   .handler(async ({ data }) => {
+    assertPhoneLoginEnabled();
     const phone = normalizePhoneE164(data.phone);
     if (!phone) throw new Error("מספר טלפון לא תקין");
 
+    // R4-3: no client IP never disables the per-IP limit (400 in production,
+    // one shared strict bucket elsewhere).
+    const ipKey = smsIpKey(clientIp(), process.env);
+    if (ipKey.refuse) {
+      setResponseStatus(400);
+      throw new Error(PHONE_LOGIN_NO_IP_MESSAGE);
+    }
     const otp = generateOtp(); // CSPRNG, uniform 6 digits
-    const ip = clientIp();
     const provider = (process.env.SMS_PROVIDER ?? "manual") as "manual" | "twilio";
     const twilio =
       provider === "twilio" && !!process.env.TWILIO_ACCOUNT_SID && !!process.env.TWILIO_AUTH_TOKEN;
@@ -62,7 +84,7 @@ export const requestPhoneOtp = createServerFn({ method: "POST" })
     const { data: rows, error } = await supabaseAdmin.rpc("phone_otp_request", {
       p_phone: phone.e164,
       p_otp_hash: await hashOtp(phone.e164, otp), // HMAC(phone:code); plaintext never stored
-      p_ip_hash: ip ? await hashIp(ip) : null,
+      p_ip_hash: await hashIp(ipKey.key),
       p_reserve_sms: twilio,
     });
     if (error) throw new Error(OTP_REQUEST_GENERIC_MESSAGE);
@@ -106,6 +128,7 @@ export const verifyPhoneOtp = createServerFn({ method: "POST" })
     }).parse(input),
   )
   .handler(async ({ data }) => {
+    assertPhoneLoginEnabled();
     const phone = normalizePhoneE164(data.phone);
     if (!phone) throw new Error(OTP_GENERIC_MESSAGE);
 

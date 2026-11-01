@@ -43,7 +43,11 @@ npx wrangler secret put DAILY_API_KEY
 **Phone OTP (server only, required before phone login is enabled):**
 - `OTP_PEPPER` — at least 32 random characters (`openssl rand -hex 32`); no value in the repo. Without it OTP requests fail closed. The IP-hash key is derived from it (HKDF), so no separate env var is needed.
 - CAPTCHA must be in place before phone login / Twilio is turned on.
-- Client IP is read from ONE header chosen by platform (`src/lib/client-ip.ts`): on Vercel (`VERCEL=1`, set by the platform) only `x-vercel-forwarded-for`; on Cloudflare (`EDGE_PLATFORM=cloudflare`, set by ops only if the origin accepts Cloudflare traffic exclusively) only `cf-connecting-ip`; behind another proxy (`TRUSTED_PROXY=on`) `x-real-ip`, else the rightmost `X-Forwarded-For`; otherwise no IP (per-IP limit off, phone/global limits still apply).
+- `PHONE_LOGIN_ENABLED` — server switch; phone OTP request/verify are refused (403) unless it is exactly `on` **and** `TURNSTILE_SECRET_KEY` is present (fail closed). Independent of `VITE_BETA_SENSITIVE_FEATURES`. Set it only after Turnstile is live. Note: this PR checks the secret is present; the Turnstile token verification itself is the CAPTCHA follow-up (N5).
+- In production (`VERCEL=1` or `NODE_ENV=production`) an SMS request without a resolvable client IP is refused with 400; outside production IP-less requests share one strict per-IP bucket, so the per-IP limit is never disabled.
+- Deploy order: PR #10 (beta flag guard) must be merged before #6 is deployed.
+- Caps-hit alerting (R4-4) is a follow-up; acceptable once Turnstile is in place.
+- Client IP is read from ONE header chosen by platform (`src/lib/client-ip.ts`): on Vercel (`VERCEL=1`, set by the platform) only `x-vercel-forwarded-for`; on Cloudflare (`EDGE_PLATFORM=cloudflare`, set by ops only if the origin accepts Cloudflare traffic exclusively) only `cf-connecting-ip`; behind another proxy (`TRUSTED_PROXY=on`) `x-real-ip`, else the rightmost `X-Forwarded-For`; otherwise no IP (production: request refused with 400; dev: shared bucket).
 
 ה-workflow מעביר גם env בזמן deploy; ה-secrets של wrangler נשארים ב-Worker.
 
