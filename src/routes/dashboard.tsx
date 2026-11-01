@@ -298,6 +298,7 @@ function Dashboard() {
             <div className="text-xs text-muted-foreground">מצלמה · BPM · HRV</div>
           </Link>
         )}
+        {BETA_FEATURES.psychAssessments && (
         <Link to="/marvad-simulator" className="group col-span-2 rounded-2xl border border-gold/50 bg-gradient-to-br from-amber-900/40 via-card to-card p-4 transition hover:border-gold shadow-[var(--shadow-gold)]">
           <div className="flex items-center gap-3">
             <span className="text-2xl">🧠</span>
@@ -308,6 +309,7 @@ function Dashboard() {
             <ChevronRight className="h-5 w-5 text-gold rtl:rotate-180" />
           </div>
         </Link>
+        )}
       </section>
 
       <section className="mt-8">

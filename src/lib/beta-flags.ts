@@ -11,6 +11,10 @@
 // runtime/build env (read here in code; no build-config change needed).
 // ElevenLabs (TTS) and Daily (live classes, recording off) are NOT affected.
 
+// Psych assessments (/psych-diagnostic, /marvad-simulator) have their own
+// flag, OFF by default (VITE_BETA_PSYCH_ASSESSMENTS=on); see psych-assessments-flag.ts.
+import { PSYCH_ASSESSMENTS_ENABLED } from "./psych-assessments-flag";
+
 function readFlag(): boolean {
   let raw: string | undefined;
   try {
@@ -33,6 +37,7 @@ export const BETA_FEATURES = {
   studentPsychScore: BETA_SENSITIVE_FEATURES,
   outboundMessaging: BETA_SENSITIVE_FEATURES,
   phoneOtpLogin: BETA_SENSITIVE_FEATURES,
+  psychAssessments: PSYCH_ASSESSMENTS_ENABLED,
 } as const;
 
 export const BETA_DISABLED_MESSAGE = "לא זמין בגרסת הבטא · Not available in the beta";
