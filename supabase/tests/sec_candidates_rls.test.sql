@@ -262,25 +262,32 @@ declare n int; owner uuid := '00000000-0000-0000-0000-00000000000a';
         stu uuid := '00000000-0000-0000-0000-00000000000c';
         tch uuid := '00000000-0000-0000-0000-00000000000e';
 begin
-  -- I1: staff upload works without sending uploaded_by (default auth.uid())
-  set local role authenticated;
-  perform set_config('request.jwt.claims', json_build_object('sub',staff,'role','authenticated')::text, true);
-  insert into public.candidate_documents(candidate_id, label, file_path)
-    values ('10000000-0000-0000-0000-000000000001','I1','10000000-0000-0000-0000-000000000001/i1.pdf');
-  reset role;
-  if (select uploaded_by from public.candidate_documents where label='I1') <> staff then raise exception 'FAIL I1 uploaded_by default'; end if;
-  -- I1b: spoofed uploaded_by still rejected
-  set local role authenticated;
-  perform set_config('request.jwt.claims', json_build_object('sub',staff,'role','authenticated')::text, true);
-  begin
-    insert into public.candidate_documents(candidate_id, label, file_path, uploaded_by)
-      values ('10000000-0000-0000-0000-000000000001','I1b','x/i1b.pdf', owner);
-    raise exception 'FAIL I1b spoofed uploaded_by accepted';
-  exception when insufficient_privilege then null; end;
-  reset role;
+  -- I1/I1b skipped when fix/beta-no-id-medical-docs has dropped the upload policy
+  if exists (select 1 from pg_policy where polrelid = 'public.candidate_documents'::regclass
+               and polname = 'cand_docs_staff_insert') then
+    -- I1: staff upload works without sending uploaded_by (default auth.uid())
+    set local role authenticated;
+    perform set_config('request.jwt.claims', json_build_object('sub',staff,'role','authenticated')::text, true);
+    insert into public.candidate_documents(candidate_id, label, file_path)
+      values ('10000000-0000-0000-0000-000000000001','I1','10000000-0000-0000-0000-000000000001/i1.pdf');
+    reset role;
+    if (select uploaded_by from public.candidate_documents where label='I1') <> staff then raise exception 'FAIL I1 uploaded_by default'; end if;
+    -- I1b: spoofed uploaded_by still rejected
+    set local role authenticated;
+    perform set_config('request.jwt.claims', json_build_object('sub',staff,'role','authenticated')::text, true);
+    begin
+      insert into public.candidate_documents(candidate_id, label, file_path, uploaded_by)
+        values ('10000000-0000-0000-0000-000000000001','I1b','x/i1b.pdf', owner);
+      raise exception 'FAIL I1b spoofed uploaded_by accepted';
+    exception when insufficient_privilege then null; end;
+    reset role;
+  else
+    raise notice 'SKIP I1 (document upload disabled in beta)';
+  end if;
 
-  -- I2: roster requires teacher role; includes assigned_teacher_id
-  update public.candidates set assigned_teacher_id = tch where id = '10000000-0000-0000-0000-000000000002';
+  -- I2: roster requires teacher role; includes assigned_teacher_id (only for
+  -- candidates without a class, section 12)
+  update public.candidates set class_id = null, assigned_teacher_id = tch where id = '10000000-0000-0000-0000-000000000002';
   set local role authenticated;
   perform set_config('request.jwt.claims', json_build_object('sub',tch,'role','authenticated')::text, true);
   select count(*) into n from public.get_teacher_roster();
@@ -332,6 +339,46 @@ begin
     raise exception 'FAIL I7a admin_find_auth_user grants'; end if;
   if (select id from public.admin_find_auth_user(' STUDENT1@test.invalid ')) <> stu then raise exception 'FAIL I7b exact lookup'; end if;
   raise notice 'PASS I review fixes';
+end $$;
+
+-- J: security re-review - teacher reassignment (former teacher loses access)
+do $$
+declare n int; t_old uuid := '00000000-0000-0000-0000-00000000000e';
+        t_new uuid := '00000000-0000-0000-0000-0000000000f1';
+        stu uuid := '00000000-0000-0000-0000-00000000000c';
+begin
+  insert into auth.users (id, email, aud, role) values (t_new, 'teacher2@test.invalid', 'authenticated', 'authenticated');
+  insert into public.user_roles(user_id, role) values (t_new, 'teacher') on conflict do nothing;
+  -- T1 is in class A (teacher t_old) and carries assigned_teacher_id = t_old
+  if (select assigned_teacher_id from public.candidates where id = '10000000-0000-0000-0000-000000000001') <> t_old then
+    raise exception 'FAIL J0 fixture'; end if;
+  update public.classes set teacher_id = t_new where id = '20000000-0000-0000-0000-000000000001';
+  if (select assigned_teacher_id from public.candidates where id = '10000000-0000-0000-0000-000000000001') <> t_new then
+    raise exception 'FAIL J1 assigned_teacher_id not re-synced'; end if;
+  set local role authenticated;
+  perform set_config('request.jwt.claims', json_build_object('sub', t_old, 'role', 'authenticated')::text, true);
+  select count(*) into n from public.get_teacher_roster() r where r.id = '10000000-0000-0000-0000-000000000001';
+  if n <> 0 then raise exception 'FAIL J2 former teacher still sees the student'; end if;
+  if public.teaches_student_user(stu) then raise exception 'FAIL J3 former teacher teaches_student_user'; end if;
+  perform set_config('request.jwt.claims', json_build_object('sub', t_new, 'role', 'authenticated')::text, true);
+  if not public.teaches_student_user(stu) then raise exception 'FAIL J4 new teacher has no access'; end if;
+  reset role;
+  -- J5: stale assigned_teacher_id (written directly) is ignored while the candidate has a class
+  alter table public.candidates disable trigger trg_candidates_sync_teacher;
+  update public.candidates set assigned_teacher_id = t_old where id = '10000000-0000-0000-0000-000000000001';
+  alter table public.candidates enable trigger trg_candidates_sync_teacher;
+  set local role authenticated;
+  perform set_config('request.jwt.claims', json_build_object('sub', t_old, 'role', 'authenticated')::text, true);
+  if public.teaches_student_user(stu) then raise exception 'FAIL J5 stale assigned_teacher_id honoured'; end if;
+  reset role;
+  -- J6: teacher UPDATE policies require the teacher role
+  if (select count(*) from pg_policy where polname in ('Teachers update their schedule', 'Teachers update their class attendance')
+        and pg_get_expr(polqual, polrelid) like '%teacher%app_role%'
+        and pg_get_expr(polwithcheck, polrelid) like '%teacher%app_role%') <> 2 then
+    raise exception 'FAIL J6 teacher role check missing'; end if;
+  if has_function_privilege('authenticated', 'public.classes_sync_candidate_teacher()', 'EXECUTE') then
+    raise exception 'FAIL J7 sync function executable'; end if;
+  raise notice 'PASS J teacher reassignment';
 end $$;
 
 rollback;
