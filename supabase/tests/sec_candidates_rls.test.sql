@@ -376,6 +376,26 @@ begin
         and pg_get_expr(polqual, polrelid) like '%teacher%app_role%'
         and pg_get_expr(polwithcheck, polrelid) like '%teacher%app_role%') <> 2 then
     raise exception 'FAIL J6 teacher role check missing'; end if;
+  -- J8: teacher INSERT policies require the teacher role (round 3)
+  if (select count(*) from pg_policy where polname in ('Teachers insert their schedule', 'Teachers insert their class attendance')
+        and pg_get_expr(polwithcheck, polrelid) like '%teacher%app_role%') <> 2 then
+    raise exception 'FAIL J8 teacher role check missing on INSERT'; end if;
+  -- J9: the class teacher inserts attendance; without the teacher role it cannot
+  set local role authenticated;
+  perform set_config('request.jwt.claims', json_build_object('sub', t_new, 'role', 'authenticated')::text, true);
+  insert into public.attendance_records(class_id, candidate_id, lesson_date, mark)
+    values ('20000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', current_date + 400, 'present');
+  reset role;
+  delete from public.user_roles where user_id = t_new and role = 'teacher';
+  set local role authenticated;
+  perform set_config('request.jwt.claims', json_build_object('sub', t_new, 'role', 'authenticated')::text, true);
+  begin
+    insert into public.attendance_records(class_id, candidate_id, lesson_date, mark)
+      values ('20000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', current_date + 401, 'present');
+    raise exception 'FAIL J9 insert without teacher role';
+  exception when insufficient_privilege then null;
+  end;
+  reset role;
   if has_function_privilege('authenticated', 'public.classes_sync_candidate_teacher()', 'EXECUTE') then
     raise exception 'FAIL J7 sync function executable'; end if;
   raise notice 'PASS J teacher reassignment';

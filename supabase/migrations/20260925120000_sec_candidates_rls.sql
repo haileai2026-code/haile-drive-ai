@@ -517,9 +517,27 @@ create trigger trg_classes_sync_candidate_teacher
   after update of teacher_id on public.classes
   for each row when (old.teacher_id is distinct from new.teacher_id)
   execute function public.classes_sync_candidate_teacher();
--- one-off re-sync of existing stale rows
+-- one-off re-sync of existing stale rows (G2 item: the only data UPDATE in
+-- this migration; rewrites candidates.assigned_teacher_id to the class
+-- teacher; covered by the pre-apply pg_dump snapshot, see MERGE_ORDER.md)
 update public.candidates c
    set assigned_teacher_id = cl.teacher_id
   from public.classes cl
  where cl.id = c.class_id
    and c.assigned_teacher_id is distinct from cl.teacher_id;
+
+-- =====================================================================
+-- 13. Security round 3 (#4 nit): teacher INSERT policies on schedule /
+--     attendance also require the teacher role (same as the UPDATE policies
+--     in 11d); a user who is classes.teacher_id but lost the teacher role
+--     can no longer insert. Staff inserts are unchanged (sched_staff_insert /
+--     "Owners insert attendance"). Re-runnable.
+-- =====================================================================
+drop policy if exists "Teachers insert their schedule" on public.schedule_events;
+create policy "Teachers insert their schedule" on public.schedule_events for insert to authenticated
+  with check ((select public.has_role((select auth.uid()), 'teacher'::public.app_role))
+              and exists (select 1 from public.classes c where c.id = schedule_events.class_id and c.teacher_id = (select auth.uid())));
+drop policy if exists "Teachers insert their class attendance" on public.attendance_records;
+create policy "Teachers insert their class attendance" on public.attendance_records for insert to authenticated
+  with check ((select public.has_role((select auth.uid()), 'teacher'::public.app_role))
+              and exists (select 1 from public.classes c where c.id = attendance_records.class_id and c.teacher_id = (select auth.uid())));

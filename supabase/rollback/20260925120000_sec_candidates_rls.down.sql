@@ -18,5 +18,12 @@ revoke execute on function public.admin_find_auth_user(text)      from service_r
 -- Section 12 (security re-review): class -> candidate teacher sync.
 drop trigger if exists trg_classes_sync_candidate_teacher on public.classes;
 drop function if exists public.classes_sync_candidate_teacher();
+-- Section 13 (round 3): teacher INSERT policies without the role check.
+drop policy if exists "Teachers insert their schedule" on public.schedule_events;
+create policy "Teachers insert their schedule" on public.schedule_events for insert to authenticated
+  with check (exists (select 1 from public.classes c where c.id = schedule_events.class_id and c.teacher_id = auth.uid()));
+drop policy if exists "Teachers insert their class attendance" on public.attendance_records;
+create policy "Teachers insert their class attendance" on public.attendance_records for insert to authenticated
+  with check (exists (select 1 from public.classes c where c.id = attendance_records.class_id and c.teacher_id = auth.uid()));
 -- Real G2 rollback: restore the pg_dump --schema-only snapshot of policies and
 -- grants taken before apply (this file is a best-effort reverse script).
