@@ -24,9 +24,31 @@ export const OTP_MAX_ATTEMPTS_PER_CODE = 5; // 5th wrong guess invalidates the c
 export const OTP_MAX_FAILED_ATTEMPTS = 5; // per phone per 15 min (lockout)
 export const OTP_MAX_REQUESTS_PER_WINDOW = 3; // per phone per 15 min
 
-export async function hashOtp(otp: string): Promise<string> {
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(otp));
-  return Array.from(new Uint8Array(buf))
+// OTP codes are stored as HMAC-SHA256(OTP_PEPPER, code), hex. OTP_PEPPER is a
+// SERVER-ONLY secret (never VITE_-prefixed; generate with `openssl rand -hex 32`).
+// Without it the 10^6 code space could be brute-forced from a leaked hash, so
+// the server fails closed when it is missing or too short.
+export const OTP_PEPPER_MIN_LENGTH = 32;
+
+export function getOtpPepper(): string {
+  const p = typeof process !== "undefined" ? process.env.OTP_PEPPER : undefined;
+  if (!p || p.length < OTP_PEPPER_MIN_LENGTH) {
+    throw new Error("OTP_PEPPER is not configured (server secret, >= 32 chars)");
+  }
+  return p;
+}
+
+export async function hashOtp(otp: string, pepper: string = getOtpPepper()): Promise<string> {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(pepper),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const mac = await crypto.subtle.sign("HMAC", key, enc.encode(otp));
+  return Array.from(new Uint8Array(mac))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
 }

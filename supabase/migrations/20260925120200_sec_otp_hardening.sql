@@ -1,6 +1,7 @@
 -- =====================================================================
 -- fix/sec-otp-hardening  (plan A2 + A3, CTO decisions 2026-09-25)
---  * Codes are stored as a SHA-256 hash ONLY. otp_plain is forced to NULL by
+--  * Codes are stored as HMAC-SHA256(OTP_PEPPER, code) ONLY (server-only
+--    secret OTP_PEPPER, see src/lib/otp.ts). otp_plain is forced to NULL by
 --    trigger and by a CHECK constraint; the manual staff flow now generates
 --    the code at approval time and shows it to staff once, in the response.
 --  * 10-minute code TTL, enforced in the DB: expires_at can never be more
@@ -227,3 +228,29 @@ begin
 exception when others then null;
 end $$;
 select cron.schedule('purge-phone-otps', '*/5 * * * *', $cron$ select public.purge_phone_otps(); $cron$);
+
+-- 6. HMAC switch: codes issued before this migration were hashed without the
+--    pepper and can no longer verify. Expire any still-active ones (ephemeral
+--    login codes only; the student simply requests a new code).
+update public.phone_login_requests set status = 'expired' where status in ('pending','approved');
+
+-- 7. Explicit grants (Supabase breaking change 2026-10-30). Minimum,
+--    re-runnable. Rollback (grants only):
+--    supabase/rollback/20260925120200_sec_otp_hardening.down.sql
+--    Table: anon nothing; authenticated SELECT only (existing owner/staff read
+--    policy; the app reads through service-role server functions);
+--    service_role DML used by phone-login.functions.ts.
+--    No sequences (uuid key).
+revoke all on public.phone_login_requests from anon, authenticated, service_role;
+grant select on public.phone_login_requests to authenticated;
+grant select, insert, update, delete on public.phone_login_requests to service_role;
+--    RPCs: service_role only (server functions). Trigger functions: nobody
+--    (triggers do not check EXECUTE).
+revoke all on function public.phone_otp_request_allowed(text) from public, anon, authenticated;
+revoke all on function public.phone_otp_verify(text, text)     from public, anon, authenticated;
+revoke all on function public.purge_phone_otps()               from public, anon, authenticated;
+grant execute on function public.phone_otp_request_allowed(text) to service_role;
+grant execute on function public.phone_otp_verify(text, text)     to service_role;
+grant execute on function public.purge_phone_otps()               to service_role;
+revoke all on function public.phone_login_requests_guard()     from public, anon, authenticated, service_role;
+revoke all on function public.phone_login_requests_supersede() from public, anon, authenticated, service_role;

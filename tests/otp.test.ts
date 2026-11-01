@@ -6,6 +6,7 @@ import {
   OTP_MAX_REQUESTS_PER_WINDOW,
   OTP_TTL_MINUTES,
   generateOtp,
+  getOtpPepper,
   hashOtp,
   otpOutcomeMessage,
 } from "../src/lib/otp";
@@ -54,14 +55,35 @@ describe("generateOtp", () => {
   });
 });
 
-describe("hashOtp", () => {
-  test("sha256 hex, matches the SQL encode(digest(code,'sha256'),'hex')", async () => {
-    // sha256("123456")
-    expect(await hashOtp("123456")).toBe(
+describe("hashOtp (HMAC-SHA256 with OTP_PEPPER)", () => {
+  const PEPPER = "test-pepper-0123456789abcdef0123456789abcdef"; // synthetic, test only
+  test("matches SQL encode(extensions.hmac(code, pepper, 'sha256'), 'hex')", async () => {
+    // HMAC-SHA256(key=PEPPER, "123456")
+    expect(await hashOtp("123456", PEPPER)).toBe(
+      "118fbbc5e648f1051bdd98b7dddea28c7323fb2e1cbb3ff8a6ebd23faaa7bac6",
+    );
+    expect(await hashOtp("000000", PEPPER)).toMatch(/^[0-9a-f]{64}$/);
+    expect(await hashOtp("000000", PEPPER)).not.toBe(await hashOtp("000001", PEPPER));
+  });
+  test("different pepper -> different hash; never the plain sha256", async () => {
+    expect(await hashOtp("123456", PEPPER)).not.toBe(await hashOtp("123456", PEPPER + "x"));
+    expect(await hashOtp("123456", PEPPER)).not.toBe(
       "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
     );
-    expect(await hashOtp("000000")).toMatch(/^[0-9a-f]{64}$/);
-    expect(await hashOtp("000000")).not.toBe(await hashOtp("000001"));
+  });
+  test("fails closed without a (long enough) OTP_PEPPER", async () => {
+    const orig = process.env.OTP_PEPPER;
+    try {
+      delete process.env.OTP_PEPPER;
+      expect(() => getOtpPepper()).toThrow();
+      process.env.OTP_PEPPER = "short";
+      expect(() => getOtpPepper()).toThrow();
+      process.env.OTP_PEPPER = PEPPER;
+      expect(getOtpPepper()).toBe(PEPPER);
+    } finally {
+      if (orig === undefined) delete process.env.OTP_PEPPER;
+      else process.env.OTP_PEPPER = orig;
+    }
   });
 });
 

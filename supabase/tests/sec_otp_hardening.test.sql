@@ -2,16 +2,21 @@
 -- per-phone lockout, request throttle, purge.
 -- Run ONLY against a local / branch DB as postgres; rolled back at the end.
 -- Synthetic phone numbers only. Hashes are sha256 of the 6-digit code
--- (same as hashOtp() in phone-login.functions.ts).
+-- (HMAC-SHA256 with OTP_PEPPER, same as hashOtp() in src/lib/otp.ts).
 begin;
 
 do $$
 declare
-  good text := encode(extensions.digest('123456', 'sha256'), 'hex');
-  bad  text := encode(extensions.digest('000000', 'sha256'), 'hex');
-  new_code text := encode(extensions.digest('654321', 'sha256'), 'hex');
+  pep  text := 'test-pepper-0123456789abcdef0123456789abcdef'; -- synthetic test pepper
+  good text := encode(extensions.hmac('123456', pep, 'sha256'), 'hex');
+  bad  text := encode(extensions.hmac('000000', pep, 'sha256'), 'hex');
+  new_code text := encode(extensions.hmac('654321', pep, 'sha256'), 'hex');
   r record; i int; n int; rid uuid; rid2 uuid; ts timestamptz;
 begin
+  -- X: parity with the unit-test vector in tests/otp.test.ts
+  if good <> '118fbbc5e648f1051bdd98b7dddea28c7323fb2e1cbb3ff8a6ebd23faaa7bac6' then
+    raise exception 'FAIL X1: SQL HMAC differs from hashOtp()'; end if;
+
   -- H: hash only - plaintext is dropped on insert/update, constraint present
   insert into public.phone_login_requests(phone, otp_hash, otp_plain, status)
     values ('9720000000001', good, '123456', 'pending') returning id into rid;
@@ -113,4 +118,23 @@ begin
   end if;
   raise notice 'PASS sec_otp_hardening';
 end $$;
+
+-- G2: explicit grants (Supabase 2026-10-30 behaviour)
+do $$
+declare f text;
+begin
+  foreach f in array array['public.phone_otp_request_allowed(text)','public.phone_otp_verify(text,text)','public.purge_phone_otps()'] loop
+    if not has_function_privilege('service_role', f, 'EXECUTE') then raise exception 'FAIL G2a service_role %', f; end if;
+    if has_function_privilege('anon', f, 'EXECUTE') or has_function_privilege('authenticated', f, 'EXECUTE') then raise exception 'FAIL G2b client %', f; end if;
+  end loop;
+  foreach f in array array['public.phone_login_requests_guard()','public.phone_login_requests_supersede()'] loop
+    if has_function_privilege('anon', f, 'EXECUTE') or has_function_privilege('authenticated', f, 'EXECUTE')
+       or has_function_privilege('service_role', f, 'EXECUTE') then raise exception 'FAIL G2c trigger fn %', f; end if;
+  end loop;
+  if not (has_table_privilege('service_role','public.phone_login_requests','INSERT') and has_table_privilege('service_role','public.phone_login_requests','UPDATE')
+          and has_table_privilege('service_role','public.phone_login_requests','SELECT')) then raise exception 'FAIL G2d service_role table'; end if;
+  if has_table_privilege('anon','public.phone_login_requests','SELECT') then raise exception 'FAIL G2e anon table'; end if;
+  raise notice 'PASS G2 explicit grants';
+end $$;
+
 rollback;
