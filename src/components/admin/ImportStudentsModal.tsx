@@ -144,7 +144,7 @@ export function ImportStudentsModal({ onClose }: { onClose: () => void }) {
                         <td className="px-2 py-1.5 text-muted-foreground">{r.email}</td>
                         <td className="px-2 py-1.5">
                           {r.ok
-                            ? <span className="inline-flex items-center gap-1 text-emerald-400"><CheckCircle2 className="h-3 w-3" /> נוסף</span>
+                            ? <span className="inline-flex items-center gap-1 text-emerald-400"><CheckCircle2 className="h-3 w-3" /> {r.status === "pending" ? "נוסף, ממתין לאישור מייל" : "נוסף"}</span>
                             : <span className="inline-flex items-center gap-1 text-rose-400"><XCircle className="h-3 w-3" /> {r.error}</span>}
                         </td>
                       </tr>
