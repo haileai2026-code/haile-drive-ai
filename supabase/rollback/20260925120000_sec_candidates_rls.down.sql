@@ -15,3 +15,8 @@ revoke execute on function public.is_teacher_user(uuid)          from authentica
 alter table public.candidate_documents alter column uploaded_by drop default;
 -- has_role keeps its pre-existing authenticated/service_role EXECUTE (not added here).
 revoke execute on function public.admin_find_auth_user(text)      from service_role;
+-- Section 12 (security re-review): class -> candidate teacher sync.
+drop trigger if exists trg_classes_sync_candidate_teacher on public.classes;
+drop function if exists public.classes_sync_candidate_teacher();
+-- Real G2 rollback: restore the pg_dump --schema-only snapshot of policies and
+-- grants taken before apply (this file is a best-effort reverse script).

@@ -35,10 +35,16 @@ describe("consent evidence", () => {
   test("user agent truncated", async () => {
     expect((await buildWebEvidence(null, "x".repeat(2000), PEPPER)).user_agent.length).toBe(512);
   });
-  test("client ip from headers", () => {
-    expect(clientIpFrom(new Headers({ "x-forwarded-for": "198.51.100.1, 10.0.0.1" }))).toBe("198.51.100.1");
-    expect(clientIpFrom(new Headers({ "x-real-ip": "198.51.100.2" }))).toBe("198.51.100.2");
-    expect(clientIpFrom(new Headers())).toBeNull();
+  test("client ip from headers (same platform logic as OTP, src/lib/client-ip.ts)", () => {
+    // never the client-controlled leftmost X-Forwarded-For
+    expect(clientIpFrom(new Headers({ "x-forwarded-for": "6.6.6.6, 198.51.100.1" }), "none")).toBeNull();
+    expect(clientIpFrom(new Headers({ "x-forwarded-for": "6.6.6.6, 198.51.100.1" }), "trusted-proxy")).toBe("198.51.100.1");
+    // forged cf-connecting-ip on Vercel is ignored for the evidence IP
+    expect(clientIpFrom(new Headers({ "cf-connecting-ip": "6.6.6.6", "x-vercel-forwarded-for": "198.51.100.3" }), "vercel")).toBe("198.51.100.3");
+    expect(clientIpFrom(new Headers({ "cf-connecting-ip": "6.6.6.6" }), "vercel")).toBeNull();
+    expect(clientIpFrom(new Headers({ "x-real-ip": "198.51.100.2" }), "none")).toBeNull();
+    expect(clientIpFrom(new Headers({ "x-real-ip": "198.51.100.2" }), "trusted-proxy")).toBe("198.51.100.2");
+    expect(clientIpFrom(new Headers(), "trusted-proxy")).toBeNull();
   });
   test("whatsapp evidence requires message id and template", () => {
     expect(buildWhatsappEvidence(" wamid.1 ", "consent_v1")).toEqual({ message_id: "wamid.1", template: "consent_v1" });

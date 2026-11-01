@@ -377,7 +377,8 @@ as $$
   select c.id, c.full_name, c.class_id, c.status
   from public.candidates c
   left join public.classes cl on cl.id = c.class_id
-  where (cl.teacher_id = (select auth.uid()) or c.assigned_teacher_id = (select auth.uid()))
+  where (cl.teacher_id = (select auth.uid())
+         or (c.class_id is null and c.assigned_teacher_id = (select auth.uid())))
     and exists (select 1 from public.user_roles ur
                 where ur.user_id = (select auth.uid()) and ur.role = 'teacher'::public.app_role)
   order by c.full_name;
@@ -393,7 +394,8 @@ as $$
     from public.candidates c
     left join public.classes cl on cl.id = c.class_id
     where c.user_id = _student_user_id
-      and (cl.teacher_id = (select auth.uid()) or c.assigned_teacher_id = (select auth.uid()))
+      and (cl.teacher_id = (select auth.uid())
+         or (c.class_id is null and c.assigned_teacher_id = (select auth.uid())))
   ) and exists (select 1 from public.user_roles ur
                 where ur.user_id = (select auth.uid()) and ur.role = 'teacher'::public.app_role);
 $$;
@@ -414,12 +416,12 @@ create policy raw_bio_teacher_select on public.raw_biometric_log for select to a
 -- 11d. Teacher UPDATE policies get WITH CHECK (no moving rows to another class).
 drop policy if exists "Teachers update their schedule" on public.schedule_events;
 create policy "Teachers update their schedule" on public.schedule_events for update to authenticated
-  using (exists (select 1 from public.classes c where c.id = schedule_events.class_id and c.teacher_id = (select auth.uid())))
-  with check (exists (select 1 from public.classes c where c.id = schedule_events.class_id and c.teacher_id = (select auth.uid())));
+  using ((select public.has_role((select auth.uid()), 'teacher'::public.app_role)) and exists (select 1 from public.classes c where c.id = schedule_events.class_id and c.teacher_id = (select auth.uid())))
+  with check ((select public.has_role((select auth.uid()), 'teacher'::public.app_role)) and exists (select 1 from public.classes c where c.id = schedule_events.class_id and c.teacher_id = (select auth.uid())));
 drop policy if exists "Teachers update their class attendance" on public.attendance_records;
 create policy "Teachers update their class attendance" on public.attendance_records for update to authenticated
-  using (exists (select 1 from public.classes c where c.id = attendance_records.class_id and c.teacher_id = (select auth.uid())))
-  with check (exists (select 1 from public.classes c where c.id = attendance_records.class_id and c.teacher_id = (select auth.uid())));
+  using ((select public.has_role((select auth.uid()), 'teacher'::public.app_role)) and exists (select 1 from public.classes c where c.id = attendance_records.class_id and c.teacher_id = (select auth.uid())))
+  with check ((select public.has_role((select auth.uid()), 'teacher'::public.app_role)) and exists (select 1 from public.classes c where c.id = attendance_records.class_id and c.teacher_id = (select auth.uid())));
 
 -- 11e. has_role: search_path '' and no probing of other users' roles.
 --      A uuid other than auth.uid() is answered only for staff, or when there
@@ -484,3 +486,40 @@ grant execute on function public.teaches_student_user(uuid)      to authenticate
 alter default privileges for role postgres revoke execute on functions from public;
 alter default privileges for role postgres in schema public revoke all on functions from public, anon;
 alter default privileges for role postgres in schema public revoke all on sequences from public, anon;
+
+-- =====================================================================
+-- 12. Security re-review (2026-11-01)
+--  * assigned_teacher_id is honoured only for candidates WITHOUT a class
+--    (11b above); a class's candidates follow classes.teacher_id.
+--  * When classes.teacher_id changes, the class's candidates are re-synced
+--    (candidates_sync_teacher only fires on candidates), so a former teacher
+--    keeps no stale assigned_teacher_id.
+--  * Teacher UPDATE policies on schedule / attendance also require the
+--    teacher role (11d above).
+-- =====================================================================
+create or replace function public.classes_sync_candidate_teacher()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  update public.candidates
+     set assigned_teacher_id = new.teacher_id
+   where class_id = new.id
+     and assigned_teacher_id is distinct from new.teacher_id;
+  return null;
+end;
+$$;
+revoke all on function public.classes_sync_candidate_teacher() from public, anon, authenticated, service_role;
+drop trigger if exists trg_classes_sync_candidate_teacher on public.classes;
+create trigger trg_classes_sync_candidate_teacher
+  after update of teacher_id on public.classes
+  for each row when (old.teacher_id is distinct from new.teacher_id)
+  execute function public.classes_sync_candidate_teacher();
+-- one-off re-sync of existing stale rows
+update public.candidates c
+   set assigned_teacher_id = cl.teacher_id
+  from public.classes cl
+ where cl.id = c.class_id
+   and c.assigned_teacher_id is distinct from cl.teacher_id;
