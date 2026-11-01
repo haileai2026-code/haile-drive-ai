@@ -1,7 +1,7 @@
 # Merge order — haile-drive-ai open PRs (2026-11-01, security round 5)
 
-Verified (2026-11-01, after security round 5; heads #6 `98bab69`, #11 `577acb8`,
-#15 `87c29f4`, #10 `da70345`): a combined merge of the first 13 branches
+Verified (2026-11-01, after security round 5; heads #6 `98bab69`, #11 `1b80e7e`,
+#15 `87c29f4`, #10 `0316183`, #14 this PR, #16 `3e549d6`): a combined merge of the first 13 branches
 (#3 … #14) **in exactly this order** on top of `origin/main` (temp worktree,
 deleted afterwards) replays all migrations and re-runs this round's
 migrations twice in each grant mode (old auto-grant mode, and explicit-grant
@@ -87,6 +87,14 @@ Notes
   `20260925120000` (#4) · `…120100` (#5) · `…120200` (#6) · `…120300` (#9) ·
   `…120400`, `…120410` (#11) · `20261101120000` (#12) · `20261101130000` (#10) ·
   `20261101140000` (#15) · `20261101150000` (#10, round 5).
+- Round 6 (#10 `0316183`, same migration `20261101150000`): FORCE RLS on
+  `raw_biometric_log`, anon loses SELECT, TRUNCATE/REFERENCES/TRIGGER (+MAINTAIN
+  on PG17) revoked, and **(CTO) teachers get no access**: both
+  `"Teachers view their students bio log"` and #4's `raw_bio_teacher_select`
+  are dropped. #4's `sec_candidates_rls.test.sql` I5b must then expect no
+  teacher policy on `raw_biometric_log` (adjustment in
+  `sec_candidates_rls.test.combined.patch`); with it the combined merge passes
+  all SQL tests in both grant modes.
 
 ## 2. Known conflicts and exact resolutions
 
