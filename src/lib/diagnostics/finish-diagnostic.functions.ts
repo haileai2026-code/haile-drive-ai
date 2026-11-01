@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { assertPsychAssessmentsEnabled } from "@/lib/psych-assessments-flag";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { calculateBeqaScore } from "@/lib/beqa-questions";
@@ -30,6 +31,7 @@ export const finishDiagnostic = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
+    assertPsychAssessmentsEnabled({ heartRate: true }); // closed beta: off by default
     // Gate with the caller's own client (auth.uid() = caller), then write with
     // the service role: students have no INSERT grant on beqa_diagnostic_sessions.
     const { data: access, error: accessErr } = await context.supabase.rpc("current_user_has_beqa_access");

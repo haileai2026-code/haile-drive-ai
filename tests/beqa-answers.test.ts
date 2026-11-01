@@ -1,6 +1,7 @@
 // Run: bun test tests/beqa-answers.test.ts
 import { describe, expect, test } from "bun:test";
 import { assertExactQuestionSet } from "../src/lib/diagnostics/answer-set";
+import { assertPsychAssessmentsEnabled, isPsychAssessmentRoute } from "../src/lib/psych-assessments-flag";
 import { gradePsych } from "../src/lib/diagnostics/psych-grading";
 import { PSYCH_QUESTIONS, PSYCH_QUESTION_IDS } from "../src/lib/diagnostics/psych-questions";
 import { DIAG_QUESTIONS, DIAG_QUESTION_IDS } from "../src/lib/diagnostics/questions";
@@ -56,5 +57,17 @@ describe("gradePsych (server)", () => {
     expect(() => gradePsych({ ...all(0), q1: 9 })).toThrow(/invalid option/);
     const { q1: _drop, ...rest } = all(0);
     expect(() => gradePsych(rest)).toThrow(/incomplete/);
+  });
+});
+
+describe("psych assessments beta flag", () => {
+  test("server guard throws while the flag is off (default)", () => {
+    expect(() => assertPsychAssessmentsEnabled()).toThrow();
+    expect(() => assertPsychAssessmentsEnabled({ heartRate: true })).toThrow();
+  });
+  test("route matcher", () => {
+    expect(isPsychAssessmentRoute("/psych-diagnostic")).toBe(true);
+    expect(isPsychAssessmentRoute("/marvad-simulator/x")).toBe(true);
+    expect(isPsychAssessmentRoute("/dashboard")).toBe(false);
   });
 });

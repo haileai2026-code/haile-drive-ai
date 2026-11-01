@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { assertPsychAssessmentsEnabled } from "@/lib/psych-assessments-flag";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { gradePsych } from "./psych-grading";
@@ -33,6 +34,7 @@ export const submitPsychDiagnostic = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
+    assertPsychAssessmentsEnabled(); // closed beta: off by default
     const { data: access, error: accessErr } = await context.supabase.rpc(
       "current_user_has_beqa_access",
     );
@@ -83,6 +85,7 @@ export const submitMarvadSession = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
+    assertPsychAssessmentsEnabled(); // closed beta: off by default
     const { data: access, error: accessErr } = await context.supabase.rpc(
       "current_user_has_beqa_access",
     );
