@@ -69,4 +69,17 @@ begin
 
   raise notice 'PASS sec_community_media_private';
 end $$;
+
+-- C: explicit grants (Supabase 2026-10-30). The migration creates no objects in
+-- public; the read policy depends on existing objects - assert the app path.
+do $$
+begin
+  if not has_table_privilege('authenticated', 'public.community_posts', 'SELECT') then raise exception 'FAIL C1 community_posts select'; end if;
+  if not has_function_privilege('authenticated', 'public.current_user_class_id()', 'EXECUTE') then raise exception 'FAIL C2 current_user_class_id'; end if;
+  if not has_function_privilege('authenticated', 'public.has_role(uuid, public.app_role)', 'EXECUTE') then raise exception 'FAIL C3 has_role'; end if;
+  if not (has_table_privilege('authenticated', 'storage.objects', 'SELECT') and has_table_privilege('authenticated', 'storage.objects', 'INSERT')) then
+    raise exception 'FAIL C4 storage.objects'; end if;
+  raise notice 'PASS C explicit grants / app path';
+end $$;
+
 rollback;
