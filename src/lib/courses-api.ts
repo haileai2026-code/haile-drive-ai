@@ -211,20 +211,13 @@ export const coursesApi = {
     );
     if (error) throw error;
 
-    const rows = await coursesApi.lessonProgress(opts.enrollmentId);
-    const done = rows.filter((r) => r.status === "completed").length;
-    const pct = opts.totalLessons > 0 ? Math.round((done / opts.totalLessons) * 100) : 0;
-    const completed = pct >= 100;
-    const { error: eErr } = await sb
-      .from("course_enrollments")
-      .update({
-        progress_pct: pct,
-        status: completed ? "completed" : "active",
-        completed_at: completed ? new Date().toISOString() : null,
-      })
-      .eq("id", opts.enrollmentId);
+    // Progress / status / completed_at are server-computed (R4-1): the DB
+    // rejects direct student writes to those columns.
+    const { data: pct, error: eErr } = await sb.rpc("recompute_course_progress", {
+      p_enrollment_id: opts.enrollmentId,
+    });
     if (eErr) throw eErr;
-    return pct;
+    return Number(pct ?? 0);
   },
 };
 

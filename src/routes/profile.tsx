@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
+import { ConsentWithdrawal } from "@/components/ConsentWithdrawal";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -104,6 +105,8 @@ function ProfilePage() {
           );
         })}
       </ul>
+
+      <ConsentWithdrawal />
 
       <Link to="/" className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm font-semibold text-destructive">
         <LogOut className="h-4 w-4" /> {t("login")}

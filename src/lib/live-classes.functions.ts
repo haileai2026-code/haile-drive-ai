@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireCurrentConsent } from "@/lib/consent/enforce.server";
 
 const DAILY_API = "https://api.daily.co/v1";
 
@@ -59,7 +60,7 @@ export const createDailyRoom = createServerFn({ method: "POST" })
   });
 
 export const getClassroomAccess = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAuth, requireCurrentConsent])
   .inputValidator((input) => z.object({ eventId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;

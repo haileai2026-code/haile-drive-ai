@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireCurrentConsent } from "@/lib/consent/enforce.server";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { chatCompletion } from "@/lib/ai-gateway";
 
@@ -141,7 +142,7 @@ const SYSTEM = `אתה סוכן AI של Haile Drive AI — מערכת הכשרת
 חשוב להבחין: "כיתה" (class_name) הוא שם הקבוצה (למשל "אוטובוס מתחילים"), ו"נושא שיעור" (lesson_topic) הוא הכותרת של אירוע יחיד (למשל "מבוא לתאוריה"). אל תבלבל ביניהם — תמיד הצג שניהם בפורמט: "[שם הכיתה] — [נושא השיעור] | [תאריך] | [שעה]".`;
 
 export const aiAgentChat = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAuth, requireCurrentConsent])
   .inputValidator((input: unknown) => InputSchema.parse(input))
   .handler(async ({ data, context }) => {
     // owner-only
@@ -231,7 +232,7 @@ const TRANSLATOR_SYSTEM = `אתה המרצה הראשי ומנהל הלוקלי�
 - אם חסר שם כיתה — שאל: "לאיזו כיתה לשייך?"`;
 
 export const aiTranslatorChat = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAuth, requireCurrentConsent])
   .inputValidator((input: unknown) => TranslatorInputSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { data: roles } = await context.supabase

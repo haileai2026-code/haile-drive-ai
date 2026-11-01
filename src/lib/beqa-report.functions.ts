@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireCurrentConsent } from "@/lib/consent/enforce.server";
 
 const QUESTION_LABELS: Record<string, string> = {
   q1: "מוטיבציה לנהיגה",
@@ -30,7 +31,7 @@ function escapeHtml(value: unknown): string {
 }
 
 export const generateBeqaReport = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAuth, requireCurrentConsent])
   .inputValidator((data: { sessionId: string }) =>
     z.object({ sessionId: z.string().uuid() }).parse(data),
   )
