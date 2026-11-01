@@ -388,39 +388,62 @@ export type Database = {
       }
       consents: {
         Row: {
+          channel: string
           checkbox_version: string
           consent_type: string
           created_at: string
+          evidence: Json
           granted: boolean
           id: string
           language: string
           notice_version: string
+          subject_candidate_id: string | null
+          subject_erased_at: string | null
+          subject_pseudonym: string
           terms_version: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
+          channel?: string
           checkbox_version: string
           consent_type: string
           created_at?: string
+          evidence?: Json
           granted: boolean
           id?: string
           language: string
           notice_version: string
+          subject_candidate_id?: string | null
+          subject_erased_at?: string | null
+          subject_pseudonym?: string
           terms_version?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Update: {
+          channel?: string
           checkbox_version?: string
           consent_type?: string
           created_at?: string
+          evidence?: Json
           granted?: boolean
           id?: string
           language?: string
           notice_version?: string
+          subject_candidate_id?: string | null
+          subject_erased_at?: string | null
+          subject_pseudonym?: string
           terms_version?: string | null
-          user_id?: string
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "consents_subject_candidate_id_fkey"
+            columns: ["subject_candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contact_messages: {
         Row: {
@@ -1396,6 +1419,16 @@ export type Database = {
         Args: { _email: string }
         Returns: { email_confirmed_at: string | null; id: string }[]
       }
+      consent_ok: { Args: { p_user_id: string }; Returns: boolean }
+      consent_version_allowed: {
+        Args: {
+          p_checkbox_version: string
+          p_consent_type: string
+          p_notice_version: string
+          p_terms_version: string
+        }
+        Returns: boolean
+      }
       calculate_haile_readiness_score: {
         Args: { user_id_param: string }
         Returns: number
@@ -1443,6 +1476,22 @@ export type Database = {
       }
       is_staff: { Args: { _owner_only?: boolean }; Returns: boolean }
       is_teacher_user: { Args: { _user_id: string }; Returns: boolean }
+      purge_expired_consents: { Args: never; Returns: number }
+      record_consent: {
+        Args: {
+          p_channel: string
+          p_checkbox_version: string
+          p_consent_type: string
+          p_evidence: Json
+          p_granted: boolean
+          p_language: string
+          p_notice_version: string
+          p_subject_candidate_id: string | null
+          p_terms_version: string | null
+          p_user_id: string | null
+        }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "owner" | "staff" | "teacher" | "student" | "lead"

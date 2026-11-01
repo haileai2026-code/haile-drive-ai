@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireCurrentConsent } from "@/lib/consent/enforce.server";
 
 async function isAdmin(ctx: { supabase: any; userId: string }) {
   const { data } = await ctx.supabase
@@ -41,7 +42,7 @@ export const listFeedPosts = createServerFn({ method: "GET" })
   });
 
 export const createPost = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAuth, requireCurrentConsent])
   .inputValidator((input) =>
     z
       .object({
@@ -94,7 +95,7 @@ export const listComments = createServerFn({ method: "GET" })
   });
 
 export const addComment = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAuth, requireCurrentConsent])
   .inputValidator((input) =>
     z.object({ post_id: z.string().uuid(), content: z.string().trim().min(1).max(1000) }).parse(input),
   )
@@ -112,7 +113,7 @@ export const addComment = createServerFn({ method: "POST" })
 // ---------- Feedback ----------
 
 export const submitFeedback = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAuth, requireCurrentConsent])
   .inputValidator((input) =>
     z
       .object({
@@ -149,7 +150,7 @@ export const myFeedback = createServerFn({ method: "GET" })
 // ---------- Contact ----------
 
 export const sendContactMessage = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAuth, requireCurrentConsent])
   .inputValidator((input) =>
     z
       .object({

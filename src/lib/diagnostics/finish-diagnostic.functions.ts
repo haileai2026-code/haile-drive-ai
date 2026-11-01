@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireCurrentConsent } from "@/lib/consent/enforce.server";
 import { calculateBeqaScore } from "@/lib/beqa-questions";
 import { scoreFor } from "./scoring";
 
@@ -13,7 +14,7 @@ const AnswerIn = z.object({
 });
 
 export const finishDiagnostic = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAuth, requireCurrentConsent])
   .inputValidator((input: unknown) =>
     z
       .object({
