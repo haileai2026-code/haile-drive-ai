@@ -73,3 +73,19 @@ create policy consents_select_staff on public.consents
 
 comment on table public.consents is
   'Append-only consent records (privacy notice / terms / checkbox versions). No UPDATE/DELETE for clients.';
+
+-- Explicit grants (Supabase breaking change 2026-10-30: new tables/functions in
+-- public get no default grants). Minimum, re-runnable. Rollback (grants only):
+-- supabase/rollback/20260925120400_consent_record.down.sql
+--   anon:          nothing
+--   authenticated: SELECT + INSERT (exactly the consents_insert_own /
+--                  consents_select_own / consents_select_staff policies)
+--   service_role:  SELECT only (no server function writes consents; erasure
+--                  runs via ON DELETE CASCADE from auth.users)
+--   consents_guard(): trigger-only; no role needs EXECUTE (triggers do not
+--                  check it), so it is revoked from PUBLIC and API roles.
+--   No sequences (uuid key).
+revoke all on public.consents from public, anon, authenticated, service_role;
+grant select, insert on public.consents to authenticated;
+grant select on public.consents to service_role;
+revoke all on function public.consents_guard() from public, anon, authenticated, service_role;

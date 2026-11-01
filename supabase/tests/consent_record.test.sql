@@ -104,4 +104,20 @@ begin
 
   raise notice 'PASS consent_record';
 end $$;
+
+-- G: explicit grants (Supabase 2026-10-30 behaviour)
+do $$
+begin
+  if not (has_table_privilege('authenticated','public.consents','SELECT') and has_table_privilege('authenticated','public.consents','INSERT')) then
+    raise exception 'FAIL G1 authenticated select/insert'; end if;
+  if has_table_privilege('authenticated','public.consents','TRUNCATE') then raise exception 'FAIL G2 truncate'; end if;
+  if not has_table_privilege('service_role','public.consents','SELECT')
+     or has_table_privilege('service_role','public.consents','INSERT')
+     or has_table_privilege('service_role','public.consents','UPDATE')
+     or has_table_privilege('service_role','public.consents','DELETE') then raise exception 'FAIL G3 service_role'; end if;
+  if has_function_privilege('anon','public.consents_guard()','EXECUTE')
+     or has_function_privilege('authenticated','public.consents_guard()','EXECUTE') then raise exception 'FAIL G4 consents_guard execute'; end if;
+  raise notice 'PASS G explicit grants';
+end $$;
+
 rollback;
