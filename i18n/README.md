@@ -10,6 +10,7 @@
   - `kind`: `string` (quoted literal), `template` (backtick literal, one row per Hebrew line), or `jsx_text` (JSX text node).
   - `core_path`
   - `hebrew_source`: whitespace-collapsed.
+  - `action`: `REMOVE` for demographic / community-based strings (CTO decision 2026-11-01: one question bank, selected by language only). These are not translated; they go away with the community selector. Marked: every string inside a `BY_COMMUNITY` or `COMMUNITY_LABEL` declaration (community-specific questions and their options, community labels) and every ethnicity / community reference (Ethiopian, Kuki / Bnei Menashe, Russian community labels, "קהילה" report fields, the AI-agent prompt line, the methodology line). 96 rows at generation. Empty = keep.
 - Comments are skipped.
 - `core_path = yes` means a student-facing screen, component or lib. Admin/teacher screens, admin components, staff-only reports (PDF/DOCX/HTML BEQA reports), import/export and the AI-agent backend, and `/beqa-spike` (dev only) are `no`. This is broader than the plan's ~263 "core path" count, so filter further as needed.
 

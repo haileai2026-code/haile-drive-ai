@@ -130,6 +130,30 @@ def scan(text):
     return out
 
 
+# Demographic / community-based strings: CTO decision 2026-11-01 - a single
+# question bank selected by language only, so every community label, every
+# community-specific question (BY_COMMUNITY) and every ethnicity reference is
+# marked action=REMOVE (do not translate; delete with the community selector).
+DEMO_BLOCK = re.compile(r"\b(?:const|export const)\s+(BY_COMMUNITY|COMMUNITY_LABEL)\b")
+DEMO_TEXT = re.compile(
+    r"אתיופ|קוקי|מנשה|^רוסי$|קהילה:|row\(\"קהילה\"|קהילה ושפה|ערכים קהילתיים|לעלות לישראל|שהגעת לישראל"
+)
+
+
+def demographic_lines(text):
+    """Line numbers inside BY_COMMUNITY / COMMUNITY_LABEL declarations."""
+    out, depth, inside = set(), 0, False
+    for ln, line in enumerate(text.split("\n"), 1):
+        if not inside and DEMO_BLOCK.search(line):
+            inside, depth = True, 0
+        if inside:
+            out.add(ln)
+            depth += line.count("{") - line.count("}")
+            if depth <= 0 and "}" in line:
+                inside = False
+    return out
+
+
 def main():
     rows = []
     for dp, dn, fn in os.walk(os.path.join(ROOT, "src")):
@@ -145,10 +169,12 @@ def main():
             if not HEB.search(text):
                 continue
             scr = screen_for(rel)
+            demo = demographic_lines(text)
             for ln, kind, val in scan(text):
-                rows.append((scr, f"{rel}:{ln}", kind, core_path(rel, scr), val))
+                action = "REMOVE" if ln in demo or DEMO_TEXT.search(val) else ""
+                rows.append((scr, f"{rel}:{ln}", kind, core_path(rel, scr), val, action))
     w = csv.writer(sys.stdout, lineterminator="\n")
-    w.writerow(["id", "screen/route", "file:line", "kind", "core_path", "hebrew_source"])
+    w.writerow(["id", "screen/route", "file:line", "kind", "core_path", "hebrew_source", "action"])
     for idx, r in enumerate(rows, 1):
         w.writerow([f"he-{idx:04d}", *r])
 
