@@ -47,3 +47,11 @@ clean explicit mode in CI.
 Before phone login goes GA (after #6 / #16): add a per-IP verify limit;
 require Turnstile on verify after the first failed attempt; lock out per
 phone **and** per IP (today the lockout is per phone only).
+
+## HB-10 (P1, CTO-approved) — `diagnostics.tsx` must write `raw_biometric_log` via a server function
+
+Since #10 (`20261101150000`) `raw_biometric_log` is server-write-only (no
+client INSERT policy or grants), so the client insert in
+`src/routes/diagnostics.tsx` (psych flow) fails by design. Move it to a
+server function (service_role, `requireCurrentConsent`) **before the psych
+assessments beta flag is enabled**.
