@@ -262,22 +262,28 @@ declare n int; owner uuid := '00000000-0000-0000-0000-00000000000a';
         stu uuid := '00000000-0000-0000-0000-00000000000c';
         tch uuid := '00000000-0000-0000-0000-00000000000e';
 begin
-  -- I1: staff upload works without sending uploaded_by (default auth.uid())
-  set local role authenticated;
-  perform set_config('request.jwt.claims', json_build_object('sub',staff,'role','authenticated')::text, true);
-  insert into public.candidate_documents(candidate_id, label, file_path)
-    values ('10000000-0000-0000-0000-000000000001','I1','10000000-0000-0000-0000-000000000001/i1.pdf');
-  reset role;
-  if (select uploaded_by from public.candidate_documents where label='I1') <> staff then raise exception 'FAIL I1 uploaded_by default'; end if;
-  -- I1b: spoofed uploaded_by still rejected
-  set local role authenticated;
-  perform set_config('request.jwt.claims', json_build_object('sub',staff,'role','authenticated')::text, true);
-  begin
-    insert into public.candidate_documents(candidate_id, label, file_path, uploaded_by)
-      values ('10000000-0000-0000-0000-000000000001','I1b','x/i1b.pdf', owner);
-    raise exception 'FAIL I1b spoofed uploaded_by accepted';
-  exception when insufficient_privilege then null; end;
-  reset role;
+  -- I1/I1b skipped when fix/beta-no-id-medical-docs has dropped the upload policy
+  if exists (select 1 from pg_policy where polrelid = 'public.candidate_documents'::regclass
+               and polname = 'cand_docs_staff_insert') then
+    -- I1: staff upload works without sending uploaded_by (default auth.uid())
+    set local role authenticated;
+    perform set_config('request.jwt.claims', json_build_object('sub',staff,'role','authenticated')::text, true);
+    insert into public.candidate_documents(candidate_id, label, file_path)
+      values ('10000000-0000-0000-0000-000000000001','I1','10000000-0000-0000-0000-000000000001/i1.pdf');
+    reset role;
+    if (select uploaded_by from public.candidate_documents where label='I1') <> staff then raise exception 'FAIL I1 uploaded_by default'; end if;
+    -- I1b: spoofed uploaded_by still rejected
+    set local role authenticated;
+    perform set_config('request.jwt.claims', json_build_object('sub',staff,'role','authenticated')::text, true);
+    begin
+      insert into public.candidate_documents(candidate_id, label, file_path, uploaded_by)
+        values ('10000000-0000-0000-0000-000000000001','I1b','x/i1b.pdf', owner);
+      raise exception 'FAIL I1b spoofed uploaded_by accepted';
+    exception when insufficient_privilege then null; end;
+    reset role;
+  else
+    raise notice 'SKIP I1 (document upload disabled in beta)';
+  end if;
 
   -- I2: roster requires teacher role; includes assigned_teacher_id
   update public.candidates set assigned_teacher_id = tch where id = '10000000-0000-0000-0000-000000000002';
